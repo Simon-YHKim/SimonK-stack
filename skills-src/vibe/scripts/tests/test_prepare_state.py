@@ -35,10 +35,11 @@ class PreparationTests(unittest.TestCase):
             "executable_sha256": "a" * 64, "app_version": "1.4.206", "runtime_id": "runtime-fixture",
             "account_ref": "test-account", "profile_ref": "profile-fixture",
             "guards": {"quota_checked_vendors": ["claude", "codex", "grok", "gemini"]}}
-        billing = ({**candidate(model="gpt-5.6-luna")["billing"]}
+        billing = ({**candidate(surface="claude", model="claude-haiku-5-5")["billing"]}
                    if cap == 0 and cost == 0 else
                    {"mode": "api", "verified": True, "account_ref": "test-account"})
-        c = candidate(model="gpt-5.6-luna", transport="orca", upper_usd_per_attempt=cost,
+        # D-101 (2026-10-12): the fixture lane was gpt-5.6-luna, withdrawn by the owner.
+        c = candidate(surface="claude", model="claude-haiku-5-5", transport="orca", upper_usd_per_attempt=cost,
             billing=billing)
         steps = nodes or [step("a"), step("b", depends_on=["a"])]
         steps = [{**s, "orca": copy.deepcopy(binding), "proc": "inventory-schema", "class": "A"} for s in steps]

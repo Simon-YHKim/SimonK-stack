@@ -44,11 +44,31 @@ D-99(2026-10-12, 2.16.0)로 A 클래스에 `claude-haiku-5-5`(low~max, 정책 �
 폴백으로 **등록**됐다: `gpt-6-luna` → `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5`. 읽기 전용
 canary 는 통과했다(run `run_8f7a27febc38`, @low, 정답이 정해진 A 과제 3/3). 상태는
 `pending-transport-and-certificate` 이고 같은 게이트가 걸린다. 큰 입력·10만 토큰 초과 입력은 미측정이다.
-D-98(2026-10-12, 2.16.0)로 보안 생성물 게이트의 고정 레인은 `gpt-6.1-sol` @xhigh 다(옛
-`gpt-daybreak-blue-latest` 는 제공사가 폐기 표시해 원장 호환용 키로만 남고, 계획에 넣으면
-ORCA_LANE_DEPRECATED 다). 게이트 워커의 과제문에는 `references/security-artifact-gate.md` 의 루브릭과 출력
-형식을 넣고, 빈 출력·차단·첫 줄 누락·모호한 판정은 통과가 아니라 실패로 읽는다. 게이트는 자기 벤더(codex)가
-만든 산출물을 채점하지 않는다(G1).
+D-98(2026-10-12 오전, 2.16.0)은 보안 생성물 게이트의 고정 레인을 `gpt-6.1-sol` @xhigh 로 옮겼었다. 같은 날 오후
+D-101 이 되돌렸다(아래).
+**D-101(2026-10-12, 2.17.0, Simon 지시)이 지금 값이다.** 위의 D-67·10-05·D-99·D-98 문단은 그 시점 기록이다.
+- GPT 쪽에서 일을 받는 레인은 `gpt-6-astra` 하나이고 effort 는 xhigh 고정이다("gpt 쪽은 astra 말고는 쓰지마. gpt 를
+  넣어야한다면 astra xhigh."). 다른 effort 는 `off_ladder` 로도 ORCA_DISPATCH_UNSUPPORTED 다.
+- `gpt-6.1-sol`·`gpt-6-luna`·`gpt-5.6-sol`·`gpt-5.6-terra`·`gpt-5.6-luna` 는 철회됐다. 계획에 넣으면
+  ORCA_LANE_WITHDRAWN 이다. 결함 때문이 아니라 소유자 지시다(`gpt-6-luna` 는 D-91, `gpt-6.1-sol` 은 D-67·D-98
+  canary 를 통과했다). 레인 키는 원장 호환용으로 남는다.
+- A 클래스: `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5`. 전부 claude 라 claude 가 한도에 닿으면
+  A 작업은 멈춘다. C-realtime: `grok-4.6` → `claude-opus-5-5` → `gpt-6-astra`. C-platform: `gemini-3.8-flash` →
+  `claude-opus-5-5` → `gpt-6-astra`. B·A-verify(`gpt-6-astra` → `claude-fable-5-1` → `claude-opus-5-5`)·D·코딩은 그대로다.
+  codex 가 80% 를 넘으면 astra 자리는 Claude 레인으로 강등된다.
+- 코디네이터는 `gpt-6-astra` @xhigh 다. astra 는 인가 게이트이자 B 1순위라 겸임 경고가 자주 뜬다(경고일 뿐이다).
+- 보안 생성물 게이트의 고정 레인은 `gpt-daybreak-blue-latest` @xhigh 다. 제공사는 이 별칭을 여전히 폐기 표시하고
+  중앙 계획기는 packaged registry 로 MODEL_NOT_ACTIVE 를 낸다. 그래서 그 경로로는 게이트가 준비되지 않는다.
+  레인 표의 ORCA_LANE_DEPRECATED 는 이 고정 자리(고정 effort xhigh) 하나만 통과시키고, 다른 공정·코딩·재시도·
+  다른 effort 는 그대로 막는다.
+- 게이트 워커를 띄우기 전에 코디네이터가 `~/.codex/models_cache.json` 에 별칭이 은퇴·upgrade 표시 없이 남아 있는지
+  확인한다. 없거나, 게이트 출력이 비거나 차단되면 게이트는 통과가 아니라 실패다. 다른 모델로 게이트를 띄우지 않는다.
+  Simon 이 말한 Opus 폴백은 G1 과 충돌해 구현하지 않았고 판정 대기다(`references/security-artifact-gate.md`).
+- 게이트 워커의 과제문에는 `references/security-artifact-gate.md` 의 루브릭과 출력 형식을 넣고, 빈 출력·차단·
+  첫 줄 누락·모호한 판정은 통과가 아니라 실패로 읽는다. 게이트는 자기 벤더(codex)가 만든 산출물을 채점하지 않는다(G1).
+- canary 를 돌린 것은 Daybreak 게이트뿐이다(run `run_b08adccb4ec8`, 심은 샘플 1건). 코디네이터로서의 astra 와
+  A 클래스 순서 변경은 canary 가 없다.
+
 gpt-6-sol, grok-4.7, grok-4.5 로의 Orca 발주는 여전히
 ORCA_UNREGISTERED_PROCESS_OR_MODEL 이다(`references/model-catalog-map.md`).
 

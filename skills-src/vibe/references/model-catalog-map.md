@@ -75,13 +75,16 @@ D-67(2026-10-04, 허브 토론 `dbt-261004-033902`, ADD_ALONGSIDE_KEEP_LEGACY)�
 A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷째 줄, 이 변경에서도 모델 호출·worker-start 0회).
 2.16.0 은 D-99(2026-10-12)로 `claude-haiku-5-5` 를 더했다(표의 마지막 줄). 이 줄의 canary 는 오케스트레이터가
 돌렸고, 구현 변경 자체에서는 모델 호출·worker-start 가 0회다.
+2.17.0 은 D-101(2026-10-12, Simon 지시)로 GPT 쪽 레인을 `gpt-6-astra` 하나로 줄였다. 표의 `gpt-6.1-sol`·`gpt-6-luna`
+줄은 철회된 레인이다(키는 원장 호환용으로 남는다). 지금 값은 이 절 아래쪽의 D-101 항목이 정본이고, 그 위의 D-67·
+2026-10-05·D-99·D-98 항목은 그 시점 기록이다.
 
 | 새 레인 | 전달 | Orca 1.4.218 이 받는 effort | 정책 std / top | registry 상태 |
 | --- | --- | --- | --- | --- |
 | `claude-opus-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | high / max | `pending-transport-and-certificate` |
-| `gpt-6.1-sol` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | high / xhigh | `pending-transport-and-certificate` |
+| `gpt-6.1-sol` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | high / xhigh | `held-withdrawn-by-owner` (D-101 철회, 새 배정은 `LANE_WITHDRAWN`) |
 | `claude-sonnet-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | medium / high (xhigh·max 는 정책 밖) | `pending-transport-and-certificate` |
-| `gpt-6-luna` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | low / medium | `pending-transport-and-certificate` |
+| `gpt-6-luna` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | low / medium | `held-withdrawn-by-owner` (D-101 철회, 새 배정은 `LANE_WITHDRAWN`) |
 | `claude-haiku-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | low / medium (high·xhigh·max 는 정책 밖) | `pending-transport-and-certificate` |
 
 - 우선순위 목록·`PROCESS_LANES.coding`·종합 고정·코디네이터를 새 키로 옮겼다.
@@ -172,15 +175,56 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
     종료를 확인했다. 심은 샘플 1건이라 cyber 전용 모델과 동등하다는 증명이 아니다.
   - 부작용: 생성물 게이트와 코디네이터가 같은 `gpt-6.1-sol` 이라 코딩 라운드마다 `coordinator_conflict()` 가
     참이다(경고이며 디스패치를 막지 않는다). D-98 은 코디네이터를 바꾸지 않았다.
-- `legacy_lane_migration` 15건 중 12건이 `pending-*` 이고 `held-*` 는 없다. 아직 레인을 옮기지 않은 이전
-  대상은 `grok-4.6` → `grok-4.7`(Orca 가 grok 모델을 고정하지 못한다)이고, `gpt-5.6-terra` → `gpt-6.1-sol` 은
-  같은 등급이 아니라 평가 보류다. `keep-*` 3건은 자기 모델 그대로다: `claude-fable-5-1`, `gpt-6-astra`,
-  `gemini-3.8-flash`. `gpt-daybreak-blue-latest` 는 D-98 로 `keep-*` 에서 빠졌다.
+  - 이 이전은 같은 날 오후 D-101 이 뒤집었다(다음 항목). 루브릭·출력 형식·fail-closed 규칙과 이 canary 기록은 남는다.
+- **D-101(2026-10-12, 2.17.0, Simon 지시, 토론 없음): GPT 쪽은 `gpt-6-astra` @xhigh 만 쓰고, 생성물 게이트는
+  Daybreak 로 되돌렸다.** 지시 원문: "gpt 6.1 sol은 너무 느려서 빼기로 결정. 기획단계 gpt astra xhigh와 opus 5.5.
+  단순작업 sonet 5.5", "보안게이트는 데이브레이크로 할려했는데 그게 안돼면 opus 5.5로 하자.", "gpt 쪽은 astra 말고는
+  쓰지마. gpt 를 넣어야한다면 astra xhigh."
+  - 철회된 레인 다섯: `gpt-6.1-sol`, `gpt-6-luna`, `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`. registry 상태는
+    `held-withdrawn-by-owner` 다. 후보는 일이 간 곳이다: sol 계열과 terra 는 `gpt-6-astra`, luna 두 건은 A 클래스를
+    받은 `claude-haiku-5-5`. 레인 키는 원장 호환용으로 `LANES` 에 남고, 새 계획에 넣으면 `validate_plan` 이
+    `LANE_WITHDRAWN`(계획기에서는 `ORCA_LANE_WITHDRAWN`)으로 막는다. 예외 자리는 없다. **결함 때문이 아니다**:
+    `gpt-6-luna` 는 D-91 canary 를, `gpt-6.1-sol` 은 D-67·D-98 canary 를 통과했고 다섯 모델의 제공사 lifecycle 은
+    active 그대로다. 재개 조건: Simon 의 명시 지시나 별도 결정 기록, 그리고 같은 읽기 전용 canary 의 재통과.
+  - `gpt-6-astra` 는 codex 벤더에서 일을 받는 유일한 레인이고 effort 는 xhigh 고정이다(사다리 std = top = xhigh,
+    off-ladder 로도 다른 값 불가). 코디네이터도 `gpt-6-astra` @xhigh 다. astra 는 인가 게이트이자 B·A-verify
+    1순위라 코딩 라운드와 대부분의 B 라운드에서 `coordinator_conflict()` 가 참이다(경고이며 디스패치를 막지 않는다).
+    codex 가 80% 를 넘으면 2순위 `claude-fable-5-1` 로 강등된다. effort 를 낮추거나 다른 GPT 레인으로 가지 않는다.
+  - 목록: A = `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5`(전부 claude 라 claude 가 한도에 닿으면
+    A 작업은 멈춘다. codex 폴백이 없다). C-realtime = `grok-4.6` → `claude-opus-5-5` → `gpt-6-astra`. C-platform =
+    `gemini-3.8-flash` → `claude-opus-5-5` → `gpt-6-astra`. B·A-verify·D·코딩은 그대로다. Haiku 를 Sonnet 앞에 둔 것은
+    오케스트레이터의 권고이고 Simon 이 반대하지 않았다.
+  - 생성물 게이트는 `gpt-daybreak-blue-latest` @xhigh 다. `legacy_lane_migration` 의 그 항목은 후보 자기 자신,
+    `keep-security-pin-resolve-per-run` 으로 돌아갔다. 제공사의 deprecated 표시, 레지스트리의 `lifecycle: deprecated`,
+    `constrain_runtime` 의 `MODEL_NOT_ACTIVE` 는 그대로다. 그래서 이 레지스트리를 쓰는 중앙 계획기 경로에서는 게이트
+    후보가 계속 막힌다. 레인 표만 한 자리를 연다: 고정 공정 `security-artifact-gate`, 고정 effort xhigh. 그 밖(우선순위
+    목록, 코딩, 다른 공정, 재시도, 다른 effort)은 `LANE_DEPRECATED` 그대로다.
+  - canary(오케스트레이터 실행, 15:19~15:20 KST, Orca run `run_b08adccb4ec8`, dispatch `ctx_41243c1a0d26`, 읽기 전용
+    워커 1개, 도구 금지): `launch.requested` == `launch.effective`(`gpt-daybreak-blue-latest`, xhigh), Codex rollout
+    (originator `codex-tui`, CLI 0.162.1)의 `turn_context` 가 같은 값이었다. D-98 과 같은 결함 4개 샘플에
+    `GATE: BLOCK` 으로 답하고 CWE-89·CWE-78·CWE-22·CWE-502 를 정확히 보고했으며 안전한 함수 2개에는 발견을 내지
+    않았다. 출력은 비거나 차단되지 않았고 약 30초가 걸렸다. 자기보고 모델명은 `GPT-5` 로 틀렸다. 워커 정지·터미널
+    종료를 확인했다. 심은 샘플 1건이다. 별칭은 예고 없이 사라질 수 있다.
+  - canary 를 돌리지 않은 것: 코디네이터로서의 `gpt-6-astra`, A 클래스 순서 변경. Haiku 5.5 의 근거는 D-99 의 정답이
+    정해진 A 과제 3개, Sonnet 5.5 의 근거는 D-91 canary 가 전부다.
+  - 미결: Simon 이 말한 게이트 폴백 `claude-opus-5-5` 는 구현하지 않았다. 코딩이 `claude-opus-5-5` 라 같은 모델이
+    자기 산출물을 검사하게 되어 G1 과 충돌한다. 선택지와 실행 전 규칙(Codex 카탈로그 확인, 없거나 출력이 비거나
+    차단되면 게이트 실패)은 `references/security-artifact-gate.md` 에 있다.
+  - shadow task-fit 정책(`2026-10-12-shadow.2`)도 같은 지시로 바꿨다: GPT 행은 `gpt-6-astra` 의 xhigh 뿐이고,
+    CODE_SIMPLE 은 `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5` 다. Sonnet 5.5 가 돌아온 것은 지시
+    때문이지 D-90 재진입 조건(Artificial Analysis 재측정)이 충족돼서가 아니다.
+- `legacy_lane_migration` 15건 중 6건이 `pending-*`, 5건이 `held-*`, 4건이 `keep-*` 다. `pending-*` 는
+  `claude-opus-5-5`·`claude-opus-5`·`claude-sonnet-5-5`·`claude-sonnet-5`·`claude-haiku-5-5`(인증서 대기)와
+  `grok-4.6` → `grok-4.7`(Orca 가 grok 모델을 고정하지 못한다)이다. `held-*` 는 위 D-101 의 철회 다섯 건이다
+  (`gpt-5.6-terra` 의 등급 평가는 대상 `gpt-6.1-sol` 이 철회돼 더 진행하지 않는다). `keep-*` 4건은 자기 모델
+  그대로다: `claude-fable-5-1`, `gpt-6-astra`, `gemini-3.8-flash`, 그리고 D-101 로 돌아온 `gpt-daybreak-blue-latest`.
 - 그래서 planner 는 여전히 `gpt-6-sol`, `grok-4.7`, `grok-4.5` 로의 Orca 발주를
-  `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막는다. `claude-sonnet-5-5`·`gpt-6-luna`·`claude-haiku-5-5` 는 이제 등록된 레인이라
-  그 코드가 아니라 다음 게이트(G5·$0·런치 인증서)에서 멈춘다. 레인을 더 바꾸려면 Orca canary 와
-  `/ai-debate` 를 거친 별도 결정이나 Simon 의 명시 지시가 필요하다. Orca 밖 guarded adapter 는 자기
-  계정·과금·effort 게이트를 그대로 적용한다.
+  `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막는다. `claude-sonnet-5-5`·`claude-haiku-5-5` 는 등록된 레인이라
+  그 코드가 아니라 다음 게이트(G5·$0·런치 인증서)에서 멈추고, 철회된 `gpt-6-luna`·`gpt-6.1-sol` 은 `ORCA_LANE_WITHDRAWN`
+  에서 멈춘다. 레인을 더 바꾸려면 Orca canary 와 `/ai-debate` 를 거친 별도 결정이나 Simon 의 명시 지시가 필요하다.
+  Orca 밖 guarded adapter 는 자기 계정·과금·effort 게이트를 그대로 적용한다. D-101 의 "GPT 는 astra 만" 은 레인 표·
+  codex 직행 argv·평가 문제·shadow task-fit 에 걸려 있고, Orca 밖 경로(host·direct CLI)의 후보 선택에는 걸려 있지
+  않다. 그 경로는 호스트가 준 runtime 후보와 레지스트리(제공사 사실)로만 고른다.
 
 ## Refresh record (2026-10-12)
 
@@ -223,8 +267,9 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
   이제 이 alias 후보를 `MODEL_NOT_ACTIVE` 로 막는다. `legacy_lane_migration` 의
   `keep-security-pin-resolve-per-run` 과 `routing.py` 의 보안 레인은 바꾸지 않았다. 보안 게이트를 어느 모델로
   옮길지는 `/ai-debate` 를 거친 별도 결정이나 Simon 의 명시 지시가 필요하다.
-  → 같은 날 D-98(2.16.0)이 게이트를 `gpt-6.1-sol` @xhigh 로 옮겼다(위 "Lane migration pending"). 이 갱신 기록은
-  11:43~11:57 시점 그대로 둔다.
+  → 같은 날 D-98(2.16.0)이 게이트를 `gpt-6.1-sol` @xhigh 로 옮겼고, 오후에 D-101(2.17.0, Simon 지시)이
+  `gpt-daybreak-blue-latest` @xhigh 로 되돌렸다(위 "Lane migration pending"). 제공사 사실(deprecated)은 그대로다.
+  이 갱신 기록은 11:43~11:57 시점 그대로 둔다.
 - `gemini-3.8-flash` 의 `source_updated_at` 2026-09-23 → 2026-10-09(latest-model 페이지의 Last updated). 가격·
   thinking level·GA 상태는 그대로다.
 

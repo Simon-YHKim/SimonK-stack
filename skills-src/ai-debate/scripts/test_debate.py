@@ -1224,7 +1224,7 @@ class DebateTests(unittest.TestCase):
         self.assertEqual(call["stdin"], prompt)
         self.assertIsNone(call["api_key"])
         for flag in ("exec", "--ephemeral", "--ignore-user-config", "--skip-git-repo-check",
-                     'model_reasoning_effort="xhigh"', "gpt-6.1-sol"):
+                     'model_reasoning_effort="xhigh"', "gpt-6-astra"):
             self.assertIn(flag, call["argv"])
         self.assertEqual(call["argv"][-1], "-")
         meta = self.meta("r1", "openai")

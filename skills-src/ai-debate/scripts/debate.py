@@ -42,7 +42,8 @@ LENS_SHORT = {"proponent": "찬성", "skeptic": "회의", "alternative": "대안
 ROUNDS = ("r1", "r2", "judge", "ratify", "catchup")
 MODES = ("quick", "full", "interject")
 CALLS = ("CONTINUE", "RESCOPE", "SHIP_NOW", "STOP", "ASK_USER")
-DEFAULTS = {"anthropic": ("claude-opus-5-5", "max"), "openai": ("gpt-6.1-sol", "xhigh"),
+# openai: gpt-6-astra @ xhigh is the only GPT model in use (hub D-101, 2026-10-12, owner directive).
+DEFAULTS = {"anthropic": ("claude-opus-5-5", "max"), "openai": ("gpt-6-astra", "xhigh"),
             "xai": ("grok-4.7", "xhigh"), "google": ("gemini-3.1-pro-high", None)}
 BINARIES = {"anthropic": "claude", "openai": "codex", "xai": "grok", "google": "agy",
             "orca": "orca"}
