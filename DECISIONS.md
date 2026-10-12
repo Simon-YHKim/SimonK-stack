@@ -774,3 +774,5 @@ last-sync: 2026-07-05
   - **영향**: routing.py security-artifact-gate 레인이 이 별칭을 쓰므로 계획기가 MODEL_NOT_ACTIVE로 거부한다(fail-closed). 이 계정 Codex 카탈로그(10-12 11:44 수신)에는 별칭이 여전히 list·cyber로 남아 있고 은퇴·대체 표시가 없으며 다른 cyber 모델은 없다. 레인 이전은 별도 결정(2단)
   - **관측(미등록)**: claude-haiku-5-5 GA(2026-10-07, 프롬프트 10만 토큰 이하 $0.10/$0.50). 등록·레인은 별도 결정(2단)
   - **이행 예정**: SimonK-stack #165(vibe 2.15.7, registry 2026-10-12.1 만료 10-19 11:43:08 KST, task-fit ~10-19 11:48:51) → 같은 PR 승인 → 머지 → dist → update-local | claude
+
+- 2026-10-12 12:43:45 KST | AMEND | **D-97 vibe 레지스트리 사실 재확인(2026-10-12) — 제공사 사실 3건 변경 반영** — 이행: SimonK-stack #165(20ce034, vibe 2.15.7) 머지, 같은 PR 승인(Claude 4c3b3885·Codex b2a5930a), main run 38200192188이 dist 632abe2 1.840.0 게시. 이 PC: 후보 20261012-vibe-2157-20ce034(실행 레지스트리 2026-10-12.1, selftest vibe 196/0·vibe_bot 104/0, problems 0). 남은 결정: 보안 생성물 게이트 레인 이전, claude-haiku-5-5 등록(각 2단 토론) | claude
