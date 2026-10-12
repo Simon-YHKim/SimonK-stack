@@ -6,6 +6,7 @@ import json
 import tempfile
 import unittest
 from datetime import datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 
 SCRIPT = Path(__file__).with_name("model_registry.py")
@@ -244,7 +245,7 @@ class ModelRegistryTests(unittest.TestCase):
         data = self.m.load_registry()
         ids = {m["id"] for m in data["models"]}
         self.assertTrue({"gpt-6-astra", "gpt-6.1-sol", "gpt-6-sol", "gpt-6-luna", "claude-opus-5-5",
-                         "claude-fable-5-1", "claude-sonnet-5-5", "claude-sonnet-5",
+                         "claude-fable-5-1", "claude-sonnet-5-5", "claude-sonnet-5", "claude-haiku-5-5",
                          "gemini-3.8-flash", "grok-4.7"} <= ids)
         self.assertEqual({m["vendor"] for m in data["models"]}, {"openai", "anthropic", "google", "xai"})
 
@@ -363,9 +364,10 @@ class ModelRegistryTests(unittest.TestCase):
         # OpenAI marked the Daybreak Blue alias deprecated; no shutdown date or replacement ID yet.
         alias = models["gpt-daybreak-blue-latest"]
         self.assertEqual((alias["lifecycle"], alias["documented_target"]), ("deprecated", "gpt-5.6-sol"))
-        # The refresh changes facts only: the lane disposition waits for a separate decision.
+        # The refresh changed facts only. D-98 (same day) then moved the gate lane to gpt-6.1-sol;
+        # the alias itself stays deprecated and blocked.
         self.assertEqual(data["legacy_lane_migration"]["gpt-daybreak-blue-latest"],
-                         {"candidate": "gpt-daybreak-blue-latest", "status": "keep-security-pin-resolve-per-run"})
+                         {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-certificate"})
         observed_at = data["checked_at"]
         trial = candidate(model="gpt-daybreak-blue-latest", resolved_model="gpt-5.6-sol", observed_at=observed_at,
                           resolution_observed_at=observed_at, resolution_evidence="model/list",
@@ -454,9 +456,10 @@ class ModelRegistryTests(unittest.TestCase):
     def test_pending_lane_migration_names_every_active_model_without_an_orca_lane(self):
         data = self.m.load_registry()
         unlaned = {m["id"] for m in data["models"] if m["lifecycle"] == "active"} - routing_lanes()
-        # Simon's 2026-10-05 instruction gave claude-sonnet-5-5 and gpt-6-luna class A lanes.
+        # Simon's 2026-10-05 instruction gave claude-sonnet-5-5 and gpt-6-luna class A lanes;
+        # D-99 (2026-10-12) gave claude-haiku-5-5 one.
         self.assertTrue({"gpt-6-sol", "grok-4.7", "grok-4.5"} <= unlaned)
-        self.assertFalse({"claude-sonnet-5-5", "gpt-6-luna"} & unlaned)
+        self.assertFalse({"claude-sonnet-5-5", "gpt-6-luna", "claude-haiku-5-5"} & unlaned)
         pending = catalog_map_section("Lane migration pending")
         self.assertIn("ORCA_UNREGISTERED_PROCESS_OR_MODEL", pending)
         for model_id in sorted(unlaned):
@@ -488,8 +491,10 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertNotIn("gpt-6-sol", {v["candidate"] for v in migration.values()})
         self.assertEqual(migration["grok-4.6"], {"candidate": "grok-4.7", "status": "pending-quota-and-canary"})
         certificate = {k for k, v in migration.items() if v["status"] == "pending-transport-and-certificate"}
+        # 2026-10-12: D-98 points the deprecated Daybreak key at gpt-6.1-sol; D-99 adds claude-haiku-5-5.
         self.assertEqual(certificate, {"claude-opus-5-5", "claude-opus-5", "gpt-6.1-sol", "gpt-5.6-sol",
-                                       "claude-sonnet-5", "claude-sonnet-5-5", "gpt-5.6-luna", "gpt-6-luna"})
+                                       "claude-sonnet-5", "claude-sonnet-5-5", "gpt-5.6-luna", "gpt-6-luna",
+                                       "gpt-daybreak-blue-latest", "claude-haiku-5-5"})
         section = catalog_map_section("Lane migration pending")
         rows = {line.split("|")[1].strip(): line for line in section.splitlines() if line.startswith("| `")}
         pending = " ".join(section.split())
@@ -507,7 +512,9 @@ class ModelRegistryTests(unittest.TestCase):
         # but are not running lanes until the launch certificate exists.
         lanes = ast.literal_eval(module_literal("routing.py", "LANES"))
         classes = ast.literal_eval(module_literal("routing.py", "CLASS_LANES"))
-        self.assertEqual(classes["A"], ["gpt-6-luna", "claude-sonnet-5-5", "claude-opus-5-5"])
+        # D-99 (2026-10-12) put claude-haiku-5-5 between them; the first lane and Sonnet 5.5 stay.
+        self.assertEqual([lane for lane in classes["A"] if lane != "claude-haiku-5-5"],
+                         ["gpt-6-luna", "claude-sonnet-5-5", "claude-opus-5-5"])
         listed = {lane for order in classes.values() for lane in order}
         listed |= set(ast.literal_eval(module_literal("routing.py", "PROCESS_LANES"))["coding"])
         for legacy in ("gpt-5.6-luna", "claude-sonnet-5"):
@@ -584,6 +591,214 @@ class ModelRegistryTests(unittest.TestCase):
         text = (REFERENCES / "model-catalog-map.md").read_text(encoding="utf-8")
         self.assertNotIn("Registration is not routing", text)
         self.assertIn("generation: legacy", " ".join(catalog_map_section("Registered legacy entries").split()))
+
+    def test_d98_artifact_gate_moves_to_gpt_61_sol_and_daybreak_is_ledger_only(self):
+        # D-98 (2026-10-12): OpenAI marked the Daybreak Blue alias deprecated, so the artifact gate
+        # moves to gpt-6.1-sol @ xhigh. The old key stays for ledger rows and receives no new work.
+        lanes = ast.literal_eval(module_literal("routing.py", "LANES"))
+        classes = ast.literal_eval(module_literal("routing.py", "CLASS_LANES"))
+        coding = ast.literal_eval(module_literal("routing.py", "PROCESS_LANES"))["coding"]
+        fixed = {p[0]: p[3] for p in ast.literal_eval(module_literal("routing.py", "PROCESSES")) if p[3]}
+        self.assertEqual(fixed["security-artifact-gate"], ("gpt-6.1-sol", "xhigh"))
+        self.assertEqual(fixed["security-bizlogic-2nd"], ("gpt-6-astra", "xhigh"))
+        # G1_SEC_SAME_MODEL: the two gates are different models. G1: both are Codex and the coding
+        # lanes are Claude only, so the gate never grades its own vendor's work.
+        self.assertNotEqual(fixed["security-artifact-gate"][0], fixed["security-bizlogic-2nd"][0])
+        gate_vendors = {lanes[fixed[p][0]]["vendor"] for p in ("security-artifact-gate", "security-bizlogic-2nd")}
+        self.assertEqual(gate_vendors, {"codex"})
+        self.assertFalse({lanes[lane]["vendor"] for lane in coding} & gate_vendors)
+        self.assertEqual(lanes["gpt-6.1-sol"]["orca_efforts"][-1], "xhigh")  # the pinned effort is the Orca cap.
+
+        old = "gpt-daybreak-blue-latest"
+        self.assertIn(old, lanes)  # ledger.py rejects rows whose lane is not in LANES.
+        listed = {lane for order in classes.values() for lane in order} | set(coding)
+        listed |= {lane for lane, _effort in fixed.values()}
+        listed.add(ast.literal_eval(module_literal("routing.py", "COORDINATOR"))[0])
+        self.assertNotIn(old, listed)
+        self.assertEqual(ast.literal_eval(module_literal("routing.py", "DEPRECATED_LANES")), {old})
+        self.assertIn("원장 호환용(우선순위 밖)", lanes[old]["ctx"])
+        self.assertIn("deprecated", lanes[old]["ctx"])
+        rules = ast.literal_eval(module_literal("routing.py", "OUTPUT_RULES"))
+        self.assertNotIn(old, rules)  # the gate's output rule moved with the gate.
+        self.assertIn("GATE: BLOCK", rules["gpt-6.1-sol"]["allow"])
+        self.assertIn("FAIL", rules["gpt-6.1-sol"]["deny"])
+        self.assertIn("references/security-artifact-gate.md",
+                      SCRIPT.with_name("routing.py").read_text(encoding="utf-8"))
+
+        data = self.m.load_registry()
+        models = {m["id"]: m for m in data["models"]}
+        self.assertEqual(models[old]["lifecycle"], "deprecated")  # the move does not revive the alias.
+        self.assertEqual(models["gpt-6.1-sol"]["lifecycle"], "active")
+        self.assertIn("xhigh", models["gpt-6.1-sol"]["api_efforts"])
+        migration = data["legacy_lane_migration"]
+        self.assertEqual(migration[old], {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-certificate"})
+        self.assertEqual(migration[old]["status"], migration["gpt-6.1-sol"]["status"])
+        note = next(n for n in data["notes"] if n.startswith("D-98("))
+        for needle in ("run_8f7a27febc38", "ctx_ff39c4a979ba", "launch.requested == launch.effective",
+                       "CWE-89", "CWE-78", "CWE-22", "CWE-502", "MODEL_NOT_ACTIVE", "심은 샘플 1건",
+                       "동등성 증명이 아니다"):
+            with self.subTest(note=needle):
+                self.assertIn(needle, note)
+        section = " ".join(catalog_map_section("Lane migration pending").split())
+        self.assertIn("D-98", section)
+        self.assertIn("ctx_ff39c4a979ba", section)
+
+    def test_d98_gate_reference_states_the_rubric_output_shape_and_fail_closed_rules(self):
+        # The rules are a written contract for whoever reads the gate output; no script parses it.
+        path = REFERENCES / "security-artifact-gate.md"
+        self.assertTrue(path.is_file(), "security artifact gate reference is missing")
+        raw = path.read_text(encoding="utf-8")
+        text = " ".join(raw.split())
+        self.assertIn("**`gpt-6.1-sol` @ `xhigh`**", text)
+        for cwe in ("CWE-89", "CWE-78", "CWE-22", "CWE-502", "CWE-798", "CWE-327", "CWE-918"):
+            with self.subTest(rubric=cwe):
+                self.assertIn("| " + cwe + " |", raw)
+        rubric = text.split("## Rubric", 1)[1].split("## Required output", 1)[0]
+        self.assertIn("Authentication or authorization bypass", rubric)
+        self.assertIn("Unsafe file or permission handling", rubric)
+        shape = text.split("## Required output", 1)[1].split("## Fail-closed rules", 1)[0]
+        self.assertIn("The first line is exactly `GATE: BLOCK` or `GATE: PASS`", shape)
+        self.assertIn("one finding per line: `CWE-<n> | <location> | <reason>`", shape)
+        rules = text.split("## Fail-closed rules", 1)[1].split("## Re-promotion rule", 1)[0]
+        self.assertIn("**FAIL, never PASS**", rules)
+        for needle in ("**Empty output**", "**Refusal or blocked output**", "**Missing first line**",
+                       "**Ambiguous verdict**", "Do not read silence as a pass",
+                       "Nothing in the scripts parses gate output today"):
+            with self.subTest(rule=needle):
+                self.assertIn(needle, rules)
+        self.assertIn("The gate never grades work made by its own vendor", text)
+        promotion = text.split("## Re-promotion rule", 1)[1].split("## Canary record", 1)[0]
+        for needle in ("other than the deprecated alias", "~/.codex/models_cache.json", "same seeded canary",
+                       "tier-1 record", "No automatic promotion"):
+            with self.subTest(promotion=needle):
+                self.assertIn(needle, promotion)
+        canary = text.split("## Canary record", 1)[1]
+        for needle in ("run_8f7a27febc38", "ctx_ff39c4a979ba", "`launch.requested == launch.effective`",
+                       "`GATE: BLOCK`", "one seeded sample", "not proof of parity"):
+            with self.subTest(canary=needle):
+                self.assertIn(needle, canary)
+        # validate_skill E012: a reference file must not link to another reference file.
+        self.assertNotRegex(raw, r"\]\((?!https?://)[^)]*\)")
+        skill = (SCRIPT.parent.parent / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("(references/security-artifact-gate.md)", skill)
+
+    def test_d99_haiku_55_is_registered_with_both_price_tiers(self):
+        # D-99 (2026-10-12): facts re-read from the official pages; the price depends on prompt length.
+        data = self.m.load_registry()
+        haiku = next(m for m in data["models"] if m["id"] == "claude-haiku-5-5")
+        self.assertEqual((haiku["surface"], haiku["vendor"], haiku["lifecycle"], haiku["id_namespace"]),
+                         ("claude", "anthropic", "active", "provider-api"))
+        self.assertNotIn("generation", haiku)
+        self.assertEqual((haiku["released_at"], haiku["retirement_not_before"]), ("2026-10-07", "2027-10-07"))
+        self.assertEqual((haiku["context_tokens"], haiku["max_output_tokens"]), (1000000, 128000))
+        self.assertEqual(haiku["api_efforts"], ["low", "medium", "high", "xhigh", "max"])
+        self.assertEqual((haiku["thinking"], haiku["aliases"]), ("adaptive", ["haiku"]))
+        self.assertIn("2.1.293", haiku["transport_note"])
+        self.assertIn("default effort is medium", haiku["transport_note"])
+        pricing = haiku["pricing"]
+        self.assertEqual(pricing["scope"], "direct-api-standard-usd-per-million-tokens")
+        # Prompts up to 100,000 tokens pay the base prices.
+        self.assertEqual((pricing["input"], pricing["cached_input"], pricing["output"]), ("0.1", "0.01", "0.5"))
+        # Prompts over 100,000 tokens pay the single tier: five times the base prices.
+        self.assertEqual(pricing["tiers"], [{"above_input_tokens": 100000, "input": "0.5", "cached_input": "0.05",
+                                             "output": "2.5", "cache_write": None}])
+        for field in ("input", "cached_input", "output"):
+            with self.subTest(field=field):
+                self.assertEqual(Decimal(pricing["tiers"][0][field]), 5 * Decimal(pricing[field]))
+        # Each tier has two cache-write durations; one field cannot hold both, so the note carries them.
+        self.assertIsNone(pricing["cache_write"])
+        for needle in ("over 100,000 tokens", "exactly 100,000 tokens pays the base prices",
+                       "including cache reads and cache writes", "each request is priced on its own",
+                       "$0.125/MTok", "$0.20/MTok", "$0.625/MTok", "$1/MTok"):
+            with self.subTest(note=needle):
+                self.assertIn(needle, pricing["note"])
+        self.assertEqual((data["sources"]["cl_haiku55"], data["sources"]["cl_haiku55_news"]),
+                         ("https://platform.claude.com/docs/en/models/haiku-5-5/overview",
+                          "https://www.anthropic.com/claude-haiku-5-5"))
+        self.assertTrue({"cl_haiku55", "cl_haiku55_news", "cl_models", "cl_effort", "cl_pricing",
+                         "cl_lifecycle", "cl_billing"} <= set(haiku["sources"]))
+        # Schema: the threshold is a non-negative integer and tier prices are finite numbers.
+        for field, bad in (("above_input_tokens", "100000"), ("above_input_tokens", -1),
+                           ("above_input_tokens", 100000.0), ("above_input_tokens", True),
+                           ("input", "NaN"), ("output", "-2.5")):
+            with self.subTest(field=field, bad=bad):
+                broken = copy.deepcopy(data)
+                entry = next(m for m in broken["models"] if m["id"] == "claude-haiku-5-5")
+                entry["pricing"]["tiers"][0][field] = bad
+                with self.assertRaises(ValueError):
+                    self.m.validate_registry(broken)
+        # The exact ID binds and efforts intersect; a public listing grants no billing or access.
+        observed_at = data["checked_at"]
+        trial = candidate(surface="claude", model="claude-haiku-5-5", observed_at=observed_at,
+                          provider_efforts=["low", "medium", "ultra"], transport_efforts=["low", "ultracode"],
+                          quota={"used_pct": None, "observed_at": observed_at})
+        out = self.m.constrain_runtime({"candidates": [trial]}, data, observed_at)["candidates"][0]
+        self.assertEqual(out["registry_errors"], [])
+        self.assertEqual((out["provider_efforts"], out["transport_efforts"]), (["low", "medium"], ["low"]))
+        self.assertEqual(out["billing"], {"mode": "unknown", "verified": False})
+        # The haiku alias varies by provider: without a fresh matching resolution it never dispatches.
+        for resolved, expected in ((None, "ALIAS_RESOLUTION_UNVERIFIED"),
+                                   ("claude-haiku-4-5", "MODEL_RESOLUTION_MISMATCH")):
+            with self.subTest(resolved=resolved):
+                alias = candidate(surface="claude", model="haiku", resolved_model=resolved, observed_at=observed_at,
+                                  quota={"used_pct": None, "observed_at": observed_at})
+                result = self.m.constrain_runtime({"candidates": [alias]}, data, observed_at)["candidates"][0]
+                self.assertEqual(result["model"], "claude-haiku-5-5")
+                self.assertFalse(result["available"])
+                self.assertIn(expected, result["registry_errors"])
+
+    def test_d99_class_a_adds_haiku_55_as_the_claude_side_first_fallback(self):
+        # D-99: registered beside the other lanes after its canary (run_8f7a27febc38). It is not the
+        # first lane, Sonnet 5.5 stays, and it is still not a running lane without the certificate.
+        lanes = ast.literal_eval(module_literal("routing.py", "LANES"))
+        classes = ast.literal_eval(module_literal("routing.py", "CLASS_LANES"))
+        coding = ast.literal_eval(module_literal("routing.py", "PROCESS_LANES"))["coding"]
+        fixed = {p[0]: p[3] for p in ast.literal_eval(module_literal("routing.py", "PROCESSES")) if p[3]}
+        new = "claude-haiku-5-5"
+        self.assertEqual(classes["A"], ["gpt-6-luna", new, "claude-sonnet-5-5", "claude-opus-5-5"])
+        # Class B, A-verify and D are untouched.
+        self.assertEqual(classes["B"], ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5-5"])
+        self.assertEqual(classes["A-verify"], ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5-5"])
+        self.assertEqual(classes["D"], ["claude-opus-5-5"])
+        elsewhere = {lane for name, order in classes.items() if name != "A" for lane in order} | set(coding)
+        elsewhere |= {lane for lane, _effort in fixed.values()}
+        self.assertNotIn(new, elsewhere)
+        spec = lanes[new]
+        self.assertEqual((spec["cli"], spec["vendor"], spec["effort_style"], spec["dispatch"]),
+                         ("claude", "claude", "flag", "orca"))
+        self.assertEqual((spec["std"], spec["top"]), ("low", "medium"))
+        self.assertEqual(spec["orca_efforts"], ("low", "medium", "high", "xhigh", "max"))
+        self.assertEqual(spec["orca_efforts"], lanes["claude-sonnet-5-5"]["orca_efforts"])
+        self.assertNotIn("quota_bucket", spec)  # the general claude weekly quota.
+        self.assertTrue(spec["ctx"].startswith("canary 통과 · 인증서 전"), spec["ctx"])
+        self.assertEqual(evaluator_vendors()[new], "claude")
+
+        data = self.m.load_registry()
+        migration = data["legacy_lane_migration"]
+        self.assertEqual(migration[new], {"candidate": new, "status": "pending-transport-and-certificate"})
+        self.assertEqual(migration["claude-sonnet-5-5"],
+                         {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-certificate"})
+        note = next(n for n in data["notes"] if n.startswith("D-99("))
+        for needle in ("run_8f7a27febc38", "ctx_cd78cf210447", "launch.requested == launch.effective",
+                       "message.model claude-haiku-5-5", "2,3,5,6,7", "ERROR=5 WARN=7 INFO=9 DEBUG=3",
+                       "선두 레인이 아니다", "Sonnet 5.5 는 그대로 남는다", "쿼터 절감은 미측정",
+                       "별도 비교 근거가 필요하다"):
+            with self.subTest(note=needle):
+                self.assertIn(needle, note)
+        section = catalog_map_section("Lane migration pending")
+        rows = {line.split("|")[1].strip(): line for line in section.splitlines() if line.startswith("| `")}
+        self.assertIn("`pending-transport-and-certificate`", rows["`" + new + "`"])
+        self.assertIn("ctx_cd78cf210447", " ".join(section.split()))
+        # A registry ID is no longer a CLI-only catalog name.
+        self.assertNotIn(new, {row[1] for row in catalog_map_rows()})
+        # The shadow task-fit policy is unchanged and does not name it.
+        policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
+        self.assertNotIn(new, {entry["model"] for entries in policy["profiles"].values() for entry in entries})
+        # Eval probes offer it for class A problems only.
+        probes = json.loads((SCRIPT.parent.parent / "eval" / "probes.json").read_text(encoding="utf-8"))["probes"]
+        for probe in probes:
+            with self.subTest(probe=probe["id"]):
+                self.assertEqual(new in probe["lanes"], probe["class"] == "A")
 
 
 if __name__ == "__main__":

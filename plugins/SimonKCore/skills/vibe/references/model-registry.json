@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "2026-10-12.1",
+  "version": "2026-10-12.2",
   "checked_at": "2026-10-12T11:43:08+09:00",
   "data_as_of": "2026-10-12",
   "notes": [
@@ -14,7 +14,9 @@
     "2026-10-04 D-67 canary(2.14.2): 읽기 전용 Orca canary(2026-10-04 13:19~13:27 KST, run_92ff481d8b2f)가 claude-opus-5-5@high 와 gpt-6.1-sol@xhigh 둘 다 launch.requested == launch.effective 로 통과했다. 그래서 후보가 이 두 레인인 항목 4개(claude-opus-5-5·claude-opus-5·gpt-6.1-sol·gpt-5.6-sol)만 pending-transport-and-certificate 로 바꿨다. native send 보류와 계정/과금 인증서 부재가 그대로라 여전히 동작 레인이 아니다. gpt-5.6-terra(평가 보류)와 다른 항목, 제공사 사실, checked_at 은 그대로다.",
     "D-90(2026-10-05): legacy_lane_migration 의 claude-sonnet-5 → claude-sonnet-5-5 를 held-until-remeasure 로 멈췄다. Artificial Analysis 는 Sonnet 5.5 의 작업당 비용을 Sonnet 5 보다 약 50% 높게 본다. 재개 조건: AA 재측정에서 해당 effort 의 작업당 토큰이 Sonnet 5 이하이거나, A 클래스 canary 가 그때의 Opus 폴백보다 쿼터를 덜 쓰는 것. 옛 claude-sonnet-5 레인(D-28 A 클래스 폴백)과 제공사 사실, checked_at 은 그대로다.",
     "2026-10-05 Simon 지시(2.15.5, \"5.5로 전환해. 최신모델을써야지 왜 구모델을씀?\" — 최신 모델을 쓰라는 지시): A 클래스를 현행 세대 Orca 레인 gpt-6-luna → claude-sonnet-5-5 → claude-opus-5-5 로 옮겼다. 이 지시가 이 레인에 대해 D-90 보류보다 앞서므로(D-90 소수의견: 레인에 대한 Simon 의 명시 지시가 우선) claude-sonnet-5 → claude-sonnet-5-5 를 held-until-remeasure 에서 pending-transport-and-canary 로 되돌렸다. 새 레인 claude-sonnet-5-5·gpt-6-luna 항목을 자기 후보로 추가했고 gpt-5.6-luna 는 pending-transport-and-canary 그대로다. 두 레인은 읽기 전용 canary·계정/과금 인증서 전이라 동작 레인이 아니다. shadow task-fit 정책의 Sonnet 5.5 제외(D-90)는 별개 결정이라 바꾸지 않았다. 제공사 사실과 checked_at 은 그대로다.",
-    "D-91 canary(2026-10-05 20:47~20:53 KST, Orca run run_0a369252175f, 레인마다 워커 1개, 도구 금지 한 줄 응답): claude-sonnet-5-5@medium 은 launch.requested == launch.effective, argv --model claude-sonnet-5-5 --effort medium, 세션 기록 model claude-sonnet-5-5(자기보고는 'claude-fable-5-1 CANARY-OK'로 틀림). gpt-6-luna@low 는 launch.requested == launch.effective, argv -m gpt-6-luna -c model_reasoning_effort=low, rollout turn_context gpt-6-luna/low(자기보고 'gpt-6.1-sol CANARY-OK'로 틀림, 서버측 모델은 따로 확인 못 함). 두 워커 정지·PID 소멸 확인. 그래서 A 클래스 이전 4건(claude-sonnet-5·claude-sonnet-5-5·gpt-5.6-luna·gpt-6-luna)을 pending-transport-and-certificate 로 바꿨다."
+    "D-91 canary(2026-10-05 20:47~20:53 KST, Orca run run_0a369252175f, 레인마다 워커 1개, 도구 금지 한 줄 응답): claude-sonnet-5-5@medium 은 launch.requested == launch.effective, argv --model claude-sonnet-5-5 --effort medium, 세션 기록 model claude-sonnet-5-5(자기보고는 'claude-fable-5-1 CANARY-OK'로 틀림). gpt-6-luna@low 는 launch.requested == launch.effective, argv -m gpt-6-luna -c model_reasoning_effort=low, rollout turn_context gpt-6-luna/low(자기보고 'gpt-6.1-sol CANARY-OK'로 틀림, 서버측 모델은 따로 확인 못 함). 두 워커 정지·PID 소멸 확인. 그래서 A 클래스 이전 4건(claude-sonnet-5·claude-sonnet-5-5·gpt-5.6-luna·gpt-6-luna)을 pending-transport-and-certificate 로 바꿨다.",
+    "D-98(2026-10-12, 2.16.0, 허브 토론 dbt-261012-124530, quick, PROVISIONAL 3/4, 심판 확신도 91): 보안 생성물 게이트(security-artifact-gate)의 레인을 gpt-daybreak-blue-latest 에서 gpt-6.1-sol@xhigh 로 옮겼다. 그래서 legacy_lane_migration 의 gpt-daybreak-blue-latest 를 keep-security-pin-resolve-per-run(후보 자기 자신)에서 후보 gpt-6.1-sol, pending-transport-and-certificate 로 바꿨다(후보 레인 gpt-6.1-sol 과 같은 상태). gpt-daybreak-blue-latest 의 lifecycle 은 deprecated 그대로이고 constrain_runtime 은 계속 MODEL_NOT_ACTIVE 로 막는다. 근거: OpenAI API 문서가 이 별칭을 deprecated 로 표시했고(종료일·대체 ID 미공지), 이 계정 Codex 카탈로그는 아직 list·cyber 로 싣고 은퇴 표시가 없지만 다른 cyber 모델이 없다. canary(2026-10-12 12:53~12:55 KST, Orca run run_8f7a27febc38, dispatch ctx_ff39c4a979ba, 읽기 전용 워커 1개, 도구 금지): launch.requested == launch.effective(gpt-6.1-sol, xhigh), Codex rollout(originator codex-tui, cli 0.162.1) turn_context model gpt-6.1-sol·effort xhigh. 결함 4개와 안전한 함수 2개를 심은 Python 생성물에 GATE: BLOCK 으로 답하고 CWE-89(get_user)·CWE-78(ping)·CWE-22(read_report)·CWE-502(load_session)를 정확히 보고했으며, 안전한 add 와 매개변수화된 get_order 에는 발견을 내지 않았다. 출력은 비거나 차단되지 않았다. 워커의 자기보고 모델명은 'gpt-6'으로 틀렸다(자기보고는 근거가 아니다). 워커 정지·터미널 종료 확인. 한계: 심은 샘플 1건이며 cyber 전용 모델과의 동등성 증명이 아니다. 루브릭·출력 형식·fail-closed(빈 출력·차단·첫 줄 누락·모호한 판정은 FAIL)·재승격 규칙은 references/security-artifact-gate.md 에 있다. 이 항목은 제공사 사실을 새로 읽지 않았다.",
+    "D-99(2026-10-12, 2.16.0, 허브 토론 dbt-261012-124540, quick, PROVISIONAL 3/4, 심판 확신도 82): claude-haiku-5-5 를 등록하고 A 클래스의 Claude 쪽 첫 폴백 Orca 레인으로 넣었다(gpt-6-luna → claude-haiku-5-5 → claude-sonnet-5-5 → claude-opus-5-5). 사실은 2026-10-12 13:01:22~13:01:28 KST 에 공식 페이지 7개(Haiku 5.5 개요·발표문, 가격표, 폐기 페이지, 모델 개요, effort, Claude Code model-config)를 모델 호출 없이 HTTPS 로 읽어 확인했다(전부 첫 요청 HTTP 200): 2026-10-07 출시, Active, 은퇴 2027-10-07 이후, 1M 컨텍스트, 128K 출력, effort low~max(API·Claude Code 기본 medium), adaptive thinking, Claude Code 2.1.293 이상, haiku 별칭은 Anthropic API 에서만 Haiku 5.5 다. 가격은 프롬프트 길이로 갈린다: 10만 토큰 이하 입력 $0.10·캐시 읽기 $0.01·출력 $0.50, 10만 토큰 초과 입력 $0.50·캐시 읽기 $0.05·출력 $2.50(pricing.tiers 의 above_input_tokens 100000). 캐시 쓰기는 5분 $0.125/$0.625, 1시간 $0.20/$1 로 구간마다 값이 둘이라 단일 cache_write 필드에 담지 못해 null 로 두고 pricing.note 에 적었다. 프롬프트 길이는 캐시 읽기·쓰기를 포함한 모든 입력 토큰이고 요청마다 따로 판정한다는 의미도 스키마 필드가 아니라 note 에 있다. 이 읽기는 checked_at(가장 이른 근거 11:43:08)보다 늦어서 checked_at·data_as_of 는 그대로다. canary(같은 Orca run run_8f7a27febc38, dispatch ctx_cd78cf210447, 12:53~12:54 KST, 읽기 전용 워커 1개, 도구 금지): launch.requested == launch.effective(claude-haiku-5-5, low), Claude 세션 기록(cabeeeb9-9ec0…)의 두 assistant 메시지 모두 message.model claude-haiku-5-5(entrypoint cli), 정답이 스크립트로 정해진 A 클래스 과제 3개 전부 일치(T1 CSV→JSON 변환 완전 일치: id 순 5개 객체·이름 대문자·qty×unit_price, T2 스키마 위반 id 2,3,5,6,7, T3 로그 24줄 레벨 집계 ERROR=5 WARN=7 INFO=9 DEBUG=3). 워커 정지·터미널 종료 확인. 그래서 legacy_lane_migration 에 자기 후보로 pending-transport-and-certificate 를 넣었다. 한계: 선두 레인이 아니다. Sonnet 5.5 는 그대로 남는다. 작은 과제 3개·effort 1개라 큰 입력과 10만 토큰 초과 입력의 근거가 아니다. 쿼터 절감은 미측정이다. 선두 승격이나 Sonnet 5.5 제외는 별도 비교 근거가 필요하다. Orca 런치 계정/과금 인증서 전이라 동작 레인이 아니다. shadow task-fit 정책은 바꾸지 않았다."
   ],
   "sources": {
     "oa_sol61": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
@@ -29,6 +31,8 @@
     "oa_pricing": "https://developers.openai.com/api/docs/pricing",
     "cl_models": "https://platform.claude.com/docs/en/models/overview",
     "cl_sonnet55": "https://platform.claude.com/docs/en/models/sonnet-5-5/overview",
+    "cl_haiku55": "https://platform.claude.com/docs/en/models/haiku-5-5/overview",
+    "cl_haiku55_news": "https://www.anthropic.com/claude-haiku-5-5",
     "cl_effort": "https://platform.claude.com/docs/en/build-with-claude/effort",
     "cl_pricing": "https://platform.claude.com/docs/en/about-claude/pricing",
     "cl_lifecycle": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
@@ -52,13 +56,14 @@
     "claude-fable-5-1": {"candidate": "claude-fable-5-1", "status": "keep-model-check-billing"},
     "claude-sonnet-5-5": {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-certificate"},
     "claude-sonnet-5": {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-certificate"},
+    "claude-haiku-5-5": {"candidate": "claude-haiku-5-5", "status": "pending-transport-and-certificate"},
     "gpt-6-astra": {"candidate": "gpt-6-astra", "status": "keep-model-check-transport"},
     "gpt-6.1-sol": {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-certificate"},
     "gpt-5.6-sol": {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-certificate"},
     "gpt-5.6-terra": {"candidate": "gpt-6.1-sol", "status": "pending-evaluation-not-equivalent-tier"},
     "gpt-6-luna": {"candidate": "gpt-6-luna", "status": "pending-transport-and-certificate"},
     "gpt-5.6-luna": {"candidate": "gpt-6-luna", "status": "pending-transport-and-certificate"},
-    "gpt-daybreak-blue-latest": {"candidate": "gpt-daybreak-blue-latest", "status": "keep-security-pin-resolve-per-run"},
+    "gpt-daybreak-blue-latest": {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-certificate"},
     "gemini-3.8-flash": {"candidate": "gemini-3.8-flash", "status": "keep-model-orca-unverified"},
     "grok-4.6": {"candidate": "grok-4.7", "status": "pending-quota-and-canary"}
   },
@@ -129,6 +134,16 @@
       "retirement_not_before": "2027-06-30",
       "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.2", "output": "10", "cache_write": null},
       "sources": ["cl_old_sonnet", "cl_models", "cl_effort", "cl_pricing", "cl_lifecycle"]
+    },
+    {
+      "id": "claude-haiku-5-5", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
+      "id_namespace": "provider-api",
+      "released_at": "2026-10-07", "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": ["haiku"],
+      "context_tokens": 1000000, "max_output_tokens": 128000,
+      "retirement_not_before": "2027-10-07", "thinking": "adaptive",
+      "transport_note": "Claude Code 2.1.293+ is required. The default effort is medium on both the API and Claude Code. The haiku alias resolves to Haiku 5.5 on the Anthropic API (from Claude Code 2.1.293) and to Haiku 4.5 on other providers, so the Orca lane sends the exact ID. Public facts do not prove this account's included usage or model access.",
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "0.1", "cached_input": "0.01", "output": "0.5", "cache_write": null, "tiers": [{"above_input_tokens": 100000, "input": "0.5", "cached_input": "0.05", "output": "2.5", "cache_write": null}], "note": "Priced by prompt length: a request whose prompt is over 100,000 tokens pays the tier prices, and a prompt of exactly 100,000 tokens pays the base prices. Prompt length counts all input tokens, including cache reads and cache writes, and each request is priced on its own. Cache writes have two durations in each tier: $0.125/MTok (5-minute) and $0.20/MTok (1-hour) up to the threshold, $0.625/MTok and $1/MTok over it. The single cache_write field cannot safely represent both durations, so it is null in both tiers."},
+      "sources": ["cl_haiku55", "cl_haiku55_news", "cl_models", "cl_effort", "cl_pricing", "cl_lifecycle", "cl_billing"]
     },
     {
       "id": "gemini-3.8-flash", "surface": "antigravity", "vendor": "google", "lifecycle": "active",

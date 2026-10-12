@@ -42,10 +42,13 @@ no guarded agy execution adapter exists, so this map grants no route.
 | `antigravity` | `gpt-oss-120b-medium` | `unregistered` | `-` | not a Google model |
 | `grok` | `grok-4.7-build-fast` | `unregistered` | `-` | Grok 4.7 on faster serving at 2x standard token rates (1.5x long context), Cursor and Grok Build only, not on the public xAI API. Not for default routing |
 | `claude` | `claude-haiku-4-5-20251001` | `unregistered` | `-` | Claude docs: default effort "Not supported", so it cannot satisfy the registry's explicit effort list; Legacy since Haiku 5.5 (2026-10-07), retirement not sooner than 2026-10-15 |
-| `claude` | `claude-haiku-5-5` | `unregistered` | `-` | new GA API model, released 2026-10-07 (efforts low to max, default medium, 1M context, Claude Code 2.1.293+). Seen in provider docs on 2026-10-12, not in a local catalog listing. Not registered and no lane: registering it needs a separate decision |
 | `codex` | `gpt-5.5` | `unregistered` | `-` | in the Codex models cache with efforts up to xhigh; previous generation. Hidden in the Codex catalog as of 2026-10-06 (public on 2026-10-04). The 2026-10-12 cache says it retires on 2026-10-14 (upgrade target `gpt-6.1-sol`) |
 | `codex` | `gpt-reserve` | `unregistered` | `-` | hidden in the Codex catalog |
 | `codex` | `codex-auto-review` | `unregistered` | `-` | hidden in the Codex catalog |
+
+`claude-haiku-5-5` 는 D-99(2026-10-12, 2.16.0)로 레지스트리에 **등록**됐다(2.15.7 까지는 이 표의 `unregistered`
+행이었다). 등록된 ID 는 CLI 전용 이름이 아니라서 이 표에서 뺐다. 이 표의 이름은 레지스트리 키가 아니어야 한다.
+등록 사실, 두 가격 구간, 레인 상태는 아래 "Lane migration pending" 에 있다.
 
 ## Registered legacy entries
 
@@ -56,7 +59,8 @@ no guarded agy execution adapter exists, so this map grants no route.
 - `claude-opus-5` and `claude-sonnet-5` are labelled Legacy on their Claude
   overview pages and Active in the deprecation table, so they keep
   `lifecycle: active` and carry `generation: legacy`, like `gpt-5.6-*` and `grok-4.6`.
-- registry 에 등록됐다고 Orca 레인이 생기지는 않는다(D-67 과 2026-10-05 Simon 지시로 추가된 네 레인은 아래 절).
+- registry 에 등록됐다고 Orca 레인이 생기지는 않는다(D-67 과 2026-10-05 Simon 지시로 추가된 네 레인,
+  D-99 의 `claude-haiku-5-5` 는 아래 절).
   shadow task-fit 정책은 현행 Claude/Codex 모델만 든다. 자기 게이트를 통과한
   Orca 밖 경로는 legacy 모델을 고를 수 있다. `constrain_runtime` 이
   `generation: legacy` 를 후보에 복사하고, planner 는 그 값을 resource rank 와
@@ -68,7 +72,9 @@ no guarded agy execution adapter exists, so this map grants no route.
 D-67(2026-10-04, 허브 토론 `dbt-261004-033902`, ADD_ALONGSIDE_KEEP_LEGACY)에 따라
 2.14.0 은 Orca 레인 두 개를 옛 레인 **옆에** 추가했다. 근거는 Orca 1.4.218 번들의
 검증 코드를 읽은 것이며 모델 호출·worker-start 는 0회다. 2.15.5 는 2026-10-05 Simon 지시로
-A 클래스 레인 두 개를 같은 방식으로 더했다(표의 아래 두 줄, 이 변경에서도 모델 호출·worker-start 0회).
+A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷째 줄, 이 변경에서도 모델 호출·worker-start 0회).
+2.16.0 은 D-99(2026-10-12)로 `claude-haiku-5-5` 를 더했다(표의 마지막 줄). 이 줄의 canary 는 오케스트레이터가
+돌렸고, 구현 변경 자체에서는 모델 호출·worker-start 가 0회다.
 
 | 새 레인 | 전달 | Orca 1.4.218 이 받는 effort | 정책 std / top | registry 상태 |
 | --- | --- | --- | --- | --- |
@@ -76,6 +82,7 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 아래 두 �
 | `gpt-6.1-sol` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | high / xhigh | `pending-transport-and-certificate` |
 | `claude-sonnet-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | medium / high (xhigh·max 는 정책 밖) | `pending-transport-and-certificate` |
 | `gpt-6-luna` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | low / medium | `pending-transport-and-certificate` |
+| `claude-haiku-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | low / medium (high·xhigh·max 는 정책 밖) | `pending-transport-and-certificate` |
 
 - 우선순위 목록·`PROCESS_LANES.coding`·종합 고정·코디네이터를 새 키로 옮겼다.
   종합은 `claude-opus-5-5` @max 다. ultracode 는 프롬프트 키워드라 flag 레인이 받지 못한다.
@@ -121,12 +128,56 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 아래 두 �
   비용을 Sonnet 5 보다 약 50% 높게 보고, 모든 effort 가 지능 대비 작업당 비용 프런티어 밖이라고 적는다)는
   별개의 비용 프런티어 판단이라 shadow task-fit 정책의 `claude-sonnet-5-5` 제외(재진입 조건은 그 정책 노트)는
   그대로 두었다.
-- `legacy_lane_migration` 14건 중 10건이 `pending-*` 이고 `held-*` 는 없다. 아직 레인을 옮기지 않은 이전
+- **D-99(2026-10-12, 2.16.0): `claude-haiku-5-5` 를 등록하고 A 클래스의 Claude 쪽 첫 폴백으로 넣었다**
+  (허브 토론 `dbt-261012-124540`, quick, PROVISIONAL 3/4, 심판 확신도 82). A 클래스는 `gpt-6-luna` →
+  `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5` 다. 1순위는 그대로이고 Sonnet 5.5 도 남는다.
+  B·A-verify·D·코딩 목록과 shadow task-fit 정책은 바꾸지 않았다. 사다리는 std low(canary 가 띄운 값), top
+  medium(제공사 기본값)이고 high·xhigh·max 는 off-ladder 로만 열린다. Orca 의 low~max 는 D-67 의 1.4.218
+  읽기와 `claude-sonnet-5-5` 를 따른 값이며, canary 가 실제로 띄운 effort 는 low 하나다.
+  - 등록 사실(2026-10-12 13:01:22~13:01:28 KST 에 공식 페이지 7개를 모델 호출 없이 HTTPS 로 읽음, 전부 첫 요청
+    HTTP 200): 2026-10-07 출시, Active, 은퇴 2027-10-07 이후, 1M 컨텍스트, 128K 출력, effort low~max
+    (API·Claude Code 기본 medium), adaptive thinking, Claude Code 2.1.293 이상. `haiku` 별칭은 Anthropic API
+    에서만 Haiku 5.5 이고 다른 제공사에서는 Haiku 4.5 라서 레인은 정식 ID 를 보낸다.
+  - 가격은 프롬프트 길이로 갈린다. 10만 토큰 이하: 입력 $0.10, 캐시 읽기 $0.01, 출력 $0.50. 10만 토큰 초과:
+    입력 $0.50, 캐시 읽기 $0.05, 출력 $2.50. 레지스트리는 `pricing.tiers` 의 `above_input_tokens: 100000` 으로
+    담았다. 스키마가 담지 못한 것 둘은 `pricing.note` 에 적었다: 캐시 쓰기가 구간마다 둘(5분 $0.125/$0.625,
+    1시간 $0.20/$1)이라 `cache_write` 는 null 이고, 프롬프트 길이가 캐시 읽기·쓰기를 포함한 모든 입력 토큰이며
+    요청마다 따로 판정된다는 점이다.
+  - canary(오케스트레이터 실행, 12:53~12:54 KST, Orca run `run_8f7a27febc38`, dispatch `ctx_cd78cf210447`,
+    읽기 전용 워커 1개, 도구 금지): `launch.requested` == `launch.effective`(`claude-haiku-5-5`, low), Claude 세션
+    기록의 두 assistant 메시지 모두 `message.model` 이 `claude-haiku-5-5`(entrypoint `cli`)였다. 정답이 스크립트로
+    정해진 A 클래스 과제 3개가 전부 맞았다: CSV→JSON 변환 완전 일치, 스키마 위반 id `2,3,5,6,7`, 로그 24줄 레벨
+    집계 `ERROR=5 WARN=7 INFO=9 DEBUG=3`. 워커 정지·터미널 종료를 확인했다.
+  - 한계: 작은 과제 3개·effort 1개다. 큰 입력, 10만 토큰 초과 입력, 쿼터 절감은 측정하지 않았다. 같은 claude
+    구독에서 Haiku 가 실패한 뒤 Sonnet 을 부르면 총 쿼터가 늘 수 있다(D-99 소수의견). 선두 승격이나 Sonnet 5.5
+    제외는 별도 비교 근거가 필요하다. 상태는 `pending-transport-and-certificate` 이고 Orca 런치 계정/과금 인증서
+    전까지 준비된 경로로 보지 않는다. 모델 포함·초과과금 OFF·API 폴백 OFF·G5·런치 인증서 게이트는 기존 flag
+    레인과 똑같이 걸린다(`test_orchestrate.py`·`test_execute_orca.py` 의 D-99 테스트).
+- **D-98(2026-10-12, 2.16.0): 보안 생성물 게이트를 `gpt-6.1-sol` @xhigh 로 옮겼다**(허브 토론
+  `dbt-261012-124530`, quick, PROVISIONAL 3/4, 심판 확신도 91). OpenAI 가 `gpt-daybreak-blue-latest` 별칭을
+  deprecated 로 표시했고(종료일·대체 ID 미공지), 이 계정 Codex 카탈로그는 아직 list·cyber 로 싣지만 다른 cyber
+  모델이 없다. 레지스트리의 `lifecycle: deprecated` 와 `constrain_runtime` 의 `MODEL_NOT_ACTIVE` 는 그대로다.
+  `legacy_lane_migration` 의 `gpt-daybreak-blue-latest` 는 `keep-security-pin-resolve-per-run` 에서 후보
+  `gpt-6.1-sol`, `pending-transport-and-certificate` 로 바뀌었다(후보 레인과 같은 상태). 옛 키는 원장 호환용으로
+  `LANES` 에 남고, 새 계획에 넣으면 `validate_plan` 이 `LANE_DEPRECATED` 로 막는다.
+  - 지킨 것: G1(코딩은 claude 전용, 게이트는 codex), G1_SEC_SAME_MODEL(생성물 게이트 `gpt-6.1-sol` 과 인가
+    게이트 `gpt-6-astra` 는 다른 모델). 잃은 것: cyber 전용성. 방어 루브릭·출력 형식·fail-closed 규칙(빈 출력,
+    차단·거절, 첫 줄 누락, 모호한 판정은 FAIL)과 재승격 규칙은 `references/security-artifact-gate.md` 에 있다.
+    이 규칙은 게이트 출력을 읽는 쪽이 적용하며 스크립트가 출력을 파싱하지는 않는다.
+  - canary(오케스트레이터 실행, 12:53~12:55 KST, 같은 Orca run, dispatch `ctx_ff39c4a979ba`, 읽기 전용 워커 1개,
+    도구 금지): `launch.requested` == `launch.effective`(`gpt-6.1-sol`, xhigh), Codex rollout(originator
+    `codex-tui`, CLI 0.162.1)의 `turn_context` 가 `gpt-6.1-sol`/xhigh 였다. 결함 4개와 안전한 함수 2개를 심은
+    Python 생성물에 `GATE: BLOCK` 으로 답하고 CWE-89·CWE-78·CWE-22·CWE-502 를 정확히 보고했으며 안전한 함수에는
+    발견을 내지 않았다. 출력은 비거나 차단되지 않았다. 자기보고 모델명은 `gpt-6` 으로 틀렸다. 워커 정지·터미널
+    종료를 확인했다. 심은 샘플 1건이라 cyber 전용 모델과 동등하다는 증명이 아니다.
+  - 부작용: 생성물 게이트와 코디네이터가 같은 `gpt-6.1-sol` 이라 코딩 라운드마다 `coordinator_conflict()` 가
+    참이다(경고이며 디스패치를 막지 않는다). D-98 은 코디네이터를 바꾸지 않았다.
+- `legacy_lane_migration` 15건 중 12건이 `pending-*` 이고 `held-*` 는 없다. 아직 레인을 옮기지 않은 이전
   대상은 `grok-4.6` → `grok-4.7`(Orca 가 grok 모델을 고정하지 못한다)이고, `gpt-5.6-terra` → `gpt-6.1-sol` 은
-  같은 등급이 아니라 평가 보류다. `keep-*` 4건은 자기 모델 그대로다: `claude-fable-5-1`, `gpt-6-astra`,
-  `gpt-daybreak-blue-latest`, `gemini-3.8-flash`.
+  같은 등급이 아니라 평가 보류다. `keep-*` 3건은 자기 모델 그대로다: `claude-fable-5-1`, `gpt-6-astra`,
+  `gemini-3.8-flash`. `gpt-daybreak-blue-latest` 는 D-98 로 `keep-*` 에서 빠졌다.
 - 그래서 planner 는 여전히 `gpt-6-sol`, `grok-4.7`, `grok-4.5` 로의 Orca 발주를
-  `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막는다. `claude-sonnet-5-5`·`gpt-6-luna` 는 이제 등록된 레인이라
+  `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막는다. `claude-sonnet-5-5`·`gpt-6-luna`·`claude-haiku-5-5` 는 이제 등록된 레인이라
   그 코드가 아니라 다음 게이트(G5·$0·런치 인증서)에서 멈춘다. 레인을 더 바꾸려면 Orca canary 와
   `/ai-debate` 를 거친 별도 결정이나 Simon 의 명시 지시가 필요하다. Orca 밖 guarded adapter 는 자기
   계정·과금·effort 게이트를 그대로 적용한다.
@@ -172,6 +223,8 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 아래 두 �
   이제 이 alias 후보를 `MODEL_NOT_ACTIVE` 로 막는다. `legacy_lane_migration` 의
   `keep-security-pin-resolve-per-run` 과 `routing.py` 의 보안 레인은 바꾸지 않았다. 보안 게이트를 어느 모델로
   옮길지는 `/ai-debate` 를 거친 별도 결정이나 Simon 의 명시 지시가 필요하다.
+  → 같은 날 D-98(2.16.0)이 게이트를 `gpt-6.1-sol` @xhigh 로 옮겼다(위 "Lane migration pending"). 이 갱신 기록은
+  11:43~11:57 시점 그대로 둔다.
 - `gemini-3.8-flash` 의 `source_updated_at` 2026-09-23 → 2026-10-09(latest-model 페이지의 Last updated). 가격·
   thinking level·GA 상태는 그대로다.
 
@@ -180,6 +233,8 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 아래 두 �
   low~max(기본 medium), adaptive thinking, 1M 컨텍스트·128K 출력. 가격은 프롬프트 10만 토큰 이하 $0.10/$0.50,
   초과 $0.50/$2.50(캐시 읽기 $0.01/$0.05)이다. Claude Code 는 2.1.293 이상이 필요하다. 등록하지 않았고 레인도
   없다. 등록하려면 10만 토큰 기준 가격 구간을 어떻게 담을지와 레인 여부를 따로 정해야 한다.
+  → 같은 날 D-99(2.16.0)가 등록하고 A 클래스 레인으로 넣었다(위 "Lane migration pending"). 그래서 지금 등록
+  모델은 19개다. 위 표의 18개·232개는 11:48 시점의 수이고 Haiku 5.5 의 사실 필드는 그 수에 들어 있지 않다.
 - 미등록 `claude-haiku-4-5` 는 Legacy 로 내려갔고 은퇴 하한(2026-10-15)은 그대로다(3일 남음).
 - 이미지 모델 `gemini-nano-banana-2.1` 이 10-06 에 GA 가 됐다(task-fit 정책은 이미지 생성을 다루지 않는다).
   Gemini 4 Argon 은 Google 블로그에 발표됐지만 Gemini API 문서(모델 목록·changelog·가격·폐기)에 없다.
