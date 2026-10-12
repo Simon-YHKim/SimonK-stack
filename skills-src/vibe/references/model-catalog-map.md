@@ -1,11 +1,11 @@
-# Model catalog map — CLI names, registry IDs and the 2026-10-06 refresh
+# Model catalog map — CLI names, registry IDs and the 2026-10-12 refresh
 
 ## Contents
 
 - CLI name map
 - Registered legacy entries
 - Lane migration pending
-- Refresh record (2026-10-06)
+- Refresh record (2026-10-12)
 - Repeating the refresh
 
 `references/model-registry.json` stores provider API IDs only. CLI catalogs can
@@ -27,9 +27,9 @@ no guarded agy execution adapter exists, so this map grants no route.
 | `antigravity` | `gemini-3.8-flash-low` | `gemini-3.8-flash` | `low` | |
 | `antigravity` | `gemini-3.1-pro-high` | `gemini-3.1-pro-preview` | `high` | preview, so `MODEL_NOT_ACTIVE` |
 | `antigravity` | `gemini-3.1-pro-low` | `gemini-3.1-pro-preview` | `low` | agy lists no medium |
-| `antigravity` | `gemini-3.7-flash-high` | `unregistered` | `-` | older Flash |
-| `antigravity` | `gemini-3.7-flash-medium` | `unregistered` | `-` | older Flash |
-| `antigravity` | `gemini-3.7-flash-low` | `unregistered` | `-` | older Flash |
+| `antigravity` | `gemini-3.7-flash-high` | `unregistered` | `-` | older Flash; `gemini-3.7-flash` is deprecated on the Gemini API since 2026-10-08 (requests are routed to `gemini-3.8-flash`), still listed by agy 1.3.3 |
+| `antigravity` | `gemini-3.7-flash-medium` | `unregistered` | `-` | same |
+| `antigravity` | `gemini-3.7-flash-low` | `unregistered` | `-` | same |
 | `antigravity` | `gemini-3.6-flash-high` | `unregistered` | `-` | older Flash |
 | `antigravity` | `gemini-3.6-flash-medium` | `unregistered` | `-` | older Flash |
 | `antigravity` | `gemini-3.6-flash-low` | `unregistered` | `-` | older Flash |
@@ -41,8 +41,9 @@ no guarded agy execution adapter exists, so this map grants no route.
 | `antigravity` | `claude-sonnet-5-5-high` | `unregistered` | `-` | same |
 | `antigravity` | `gpt-oss-120b-medium` | `unregistered` | `-` | not a Google model |
 | `grok` | `grok-4.7-build-fast` | `unregistered` | `-` | Grok 4.7 on faster serving at 2x standard token rates (1.5x long context), Cursor and Grok Build only, not on the public xAI API. Not for default routing |
-| `claude` | `claude-haiku-4-5-20251001` | `unregistered` | `-` | Claude docs: default effort "Not supported", so it cannot satisfy the registry's explicit effort list; retirement not sooner than 2026-10-15 |
-| `codex` | `gpt-5.5` | `unregistered` | `-` | in the Codex models cache with efforts up to xhigh; previous generation. Hidden in the Codex catalog as of 2026-10-06 (public on 2026-10-04) |
+| `claude` | `claude-haiku-4-5-20251001` | `unregistered` | `-` | Claude docs: default effort "Not supported", so it cannot satisfy the registry's explicit effort list; Legacy since Haiku 5.5 (2026-10-07), retirement not sooner than 2026-10-15 |
+| `claude` | `claude-haiku-5-5` | `unregistered` | `-` | new GA API model, released 2026-10-07 (efforts low to max, default medium, 1M context, Claude Code 2.1.293+). Seen in provider docs on 2026-10-12, not in a local catalog listing. Not registered and no lane: registering it needs a separate decision |
+| `codex` | `gpt-5.5` | `unregistered` | `-` | in the Codex models cache with efforts up to xhigh; previous generation. Hidden in the Codex catalog as of 2026-10-06 (public on 2026-10-04). The 2026-10-12 cache says it retires on 2026-10-14 (upgrade target `gpt-6.1-sol`) |
 | `codex` | `gpt-reserve` | `unregistered` | `-` | hidden in the Codex catalog |
 | `codex` | `codex-auto-review` | `unregistered` | `-` | hidden in the Codex catalog |
 
@@ -130,50 +131,74 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 아래 두 �
   `/ai-debate` 를 거친 별도 결정이나 Simon 의 명시 지시가 필요하다. Orca 밖 guarded adapter 는 자기
   계정·과금·effort 게이트를 그대로 적용한다.
 
-## Refresh record (2026-10-06)
+## Refresh record (2026-10-12)
 
 시각은 모두 KST 다. 모델·Bot·유료 API 호출은 0회다(프롬프트를 보내지 않았고 Orca 워커도
-띄우지 않았다). 2026-10-05(2.15.3, 14:17~14:20) 표는 커밋 `c108714` 의 이 파일에, 10-04 2차(2.15.2,
-21:46~21:59) 표는 PR #126 의 이 파일에, 1차(2.14.1, 13:05~13:16) 표는 PR #114 커밋 `e407918` 의
-이 파일에, 요약은 각 changelog 항목에 있다.
+띄우지 않았다). 2026-10-06(2.15.6, 12:45~12:58) 표는 커밋 `28fe12a` 의 이 파일에, 10-05(2.15.3,
+14:17~14:20) 표는 커밋 `c108714` 의 이 파일에, 10-04 2차(2.15.2, 21:46~21:59) 표는 PR #126 의 이 파일에,
+1차(2.14.1, 13:05~13:16) 표는 PR #114 커밋 `e407918` 의 이 파일에, 요약은 각 changelog 항목에 있다.
+
+이번에는 등록된 제공사 사실 3개가 바뀌어 레지스트리 값을 고쳤다(아래 "바뀐 등록 사실").
 
 | 근거 | 관측 | 결과 |
 | --- | --- | --- |
-| Codex `~/.codex/models_cache.json` | `fetched_at` 2026-10-06T03:46:47Z(12:46:47), 캐시 클라이언트 0.160.0(10-05 는 0.159.0) | 그대로: 11개 slug, 우선순위 1 `gpt-6.1-sol`, 등록된 slug 는 모두 low~max(`ultra` 는 같은 여섯 개), `none` 은 어디에도 없다. 바뀐 것은 미등록 `gpt-5.5` 가 `visibility: hide` 가 된 것뿐이다(위 대응표) |
-| `~/.grok/models_cache.json` | 12:48:07 에 본 사본의 `fetched_at` 은 03:45:26Z(12:45:26)다. 아래 `grok models` 는 캐시가 새로워 다시 받지 않았고(12:49:01 에 `fetched_at`·etag 그대로), 내용 대조는 이 사본으로 했다 | 그대로: 4.7·4.7-build-fast·4.6 은 low~xhigh, 4.5 는 low~high, 기본 high, 256K·500K 창 |
-| `codex --version`, `grok --no-auto-update --version`, `agy --version`, `claude --version` | 12:48:57 | Codex 0.160.0, grok 1.0.46 은 10-05 와 같다. agy 1.2.17(10-05 1.2.16), Claude Code 2.1.290(10-05 2.1.289) |
-| `grok --no-auto-update models` | 12:48:57 | 그대로: `grok-4.7`(기본), `grok-4.7-build-fast`, `grok-4.6`, `grok-4.5` |
-| `agy models`, `AGY_CLI_DISABLE_AUTO_UPDATE=1` | 12:48:58 | 그대로: 18개 이름(위 대응표와 같다) |
-| `claude --help` | 12:49:01 | `--effort` 는 여전히 low, medium, high, xhigh, max |
-| `runtime_collect.py --surface codex --surface grok` (메타데이터 전용) | 12:49:33~12:49:36 | Codex app-server 공개 목록 8개(숨김 `gpt-5.5`·`gpt-reserve`·`codex-auto-review` 제외)와 Grok 4개의 effort 가 캐시와 같다. 등록 모델 후보는 Codex 8개·Grok 3개. 둘 다 구독 모드. 턴 0회 |
-| 레지스트리 출처 28개 | 12:50:25~12:50:44, 전부 첫 요청에 HTTP 200 | 등록 모델 18개, 사실 필드 232개: 일치 230, 불일치 0, 확인불가 2(`gpt-5.6-terra`·`gpt-5.6-luna` 장문 cached_input — 모델 페이지는 "2x input and 1.5x output"만 적고 가격 페이지에 행이 없다. 같은 문구의 `gpt-5.6-sol` 은 가격 페이지 Cyber models 표에 장문 cached $0.80 이 명시돼 유추로 유지). 레지스트리 값 변경 0 |
-| task-fit 출처 9개 | 12:50:44~12:50:49, 전부 첫 요청에 HTTP 200(openai.com Astra 포함) | 인용 주장 3개 그대로(Opus 5.5 기본 effort 의 FrontierCode 결과, AA 의 medium 프런티어, AA 지수에서 GPT-6.1 Sol 이 Astra 보다 1점 아래). D-90 근거(AA: Sonnet 5.5 는 비용 프런티어 밖, Terminal-Bench 4.0 64%)도 그대로. 순위·effort 그대로 |
-| 폐기 페이지·모델 목록 6개(OpenAI·Google·xAI) | 12:50:50~12:50:53, 전부 첫 요청에 HTTP 200 | 등록 모델 중 폐기·개명·제거 0, 10-05 이후 API GA 신규 0. OpenAI 최신 폐기 공지 10-01, Google changelog 09-22, xAI 릴리스 노트 10-02. `gemini-3.8-flash`·`gemini-3.1-pro-preview` 는 종료 일자 없음 |
-| 43개 페이지 본문(태그 제거 텍스트) | 10-05 14:20 사본과 줄 단위 비교 | 39개 같다. 다른 4개는 등록 사실과 무관하다: Claude 모델 개요(Models API `line` 필드 설명 1줄), OpenAI changelog(10-05 HIPAA BAA 설정 항목), Anthropic Opus 5.5·Sonnet 5.5 발표문(사이트 메뉴) |
-| model-watch 상태 파일(`%LOCALAPPDATA%\SimonK\vibe\model-watch.json`, 읽기만) | 12:58:11 | 마지막 스캔 09:00:01 은 새 후보 0·오류 0. 대기 후보 그대로: Gemini 4 Argon·GPT-6 가이드(공식 검토 대기), GPT-6.1 Sol(모니터링) |
+| Codex `~/.codex/models_cache.json` | `fetched_at` 2026-10-12T02:44:21Z(11:44:21), 캐시 클라이언트 0.162.0(10-06 은 0.160.0) | 그대로: 11개 slug, 우선순위 1 `gpt-6.1-sol`, 등록된 slug 는 모두 low~max(`ultra` 는 같은 여섯 개), `none` 은 어디에도 없다. 미등록 `gpt-5.5` 는 숨김 그대로이고 `upgrade` 항목에 2026-10-14T19:00Z 은퇴와 대체 `gpt-6.1-sol` 이 적혀 있다. `gpt-daybreak-blue-latest` 는 공개 목록(우선순위 11)에 그대로 있고 은퇴 표시가 없다 |
+| `~/.grok/models_cache.json` | 11:47:04·11:47:31 에 본 사본의 `fetched_at` 은 02:43:08Z(11:43:08)다. 아래 `grok models` 는 캐시가 새로워 다시 받지 않았고(11:47:37 에 `fetched_at`·etag 그대로, etag 는 10-06 과도 같다), 내용 대조는 이 사본으로 했다 | 그대로: 4.7·4.7-build-fast·4.6 은 low~xhigh, 4.5 는 low~high, 기본 high, 256K·500K 창 |
+| `codex --version`, `grok --no-auto-update --version`, `agy --version`, `claude --version` | 11:47:31 | grok 1.0.46 은 10-06 과 같다. Codex 0.162.1(10-06 0.160.0), agy 1.3.3(10-06 1.2.17), Claude Code 2.1.296(10-06 2.1.290) |
+| `grok --no-auto-update models` | 11:47:31 | 그대로: `grok-4.7`(기본), `grok-4.7-build-fast`, `grok-4.6`, `grok-4.5`. 목록만 읽었고 프롬프트는 보내지 않았다 |
+| `agy models`, `AGY_CLI_DISABLE_AUTO_UPDATE=1` | 11:47:34 | 그대로: 18개 이름. Gemini API 에서 10-08 에 폐기된 `gemini-3.7-flash` 의 세 이름도 그대로 나온다(위 대응표). agy 1.3.3 은 값 `1` 을 무시하고 `true` 만 인정한다(같은 날 main 의 위젯 수정 `a8fc7d7`). 이번 호출은 agy 로그에 "Last check was less than 15 minutes ago, skipping update" 가 남았고 업데이터는 뜨지 않았다 |
+| `claude --help` | 11:47:37 | `--effort` 는 여전히 low, medium, high, xhigh, max |
+| `runtime_collect.py --surface codex --surface grok` (메타데이터 전용) | 11:47:53~11:47:57 | 10-06 과 같다: Codex app-server 공개 목록 8개(숨김 `gpt-5.5`·`gpt-reserve`·`codex-auto-review` 제외)의 effort 가 캐시와 같고 Grok 은 모델 4개다. 등록 모델 후보는 Codex 8개·Grok 3개. 둘 다 구독 모드. 턴 0회 |
+| 레지스트리 출처 28개 | 11:48:31~11:48:51, 전부 첫 요청에 HTTP 200(10-06 과 같은 브라우저형 User-Agent·Accept 헤더, 재시도 0) | 등록 모델 18개, 사실 필드 232개. 고치기 전: 일치 227, 불일치 3, 확인불가 2. 불일치 3개(아래 "바뀐 등록 사실")를 고친 뒤: 일치 230, 불일치 0, 확인불가 2(`gpt-5.6-terra`·`gpt-5.6-luna` 장문 cached_input — 모델 페이지는 "2x input and 1.5x output"만 적고 가격 페이지에 행이 없다. 같은 문구의 `gpt-5.6-sol` 은 가격 페이지 Cyber models 표에 장문 cached $0.80 이 명시돼 유추로 유지) |
+| task-fit 출처 9개 | 11:48:51~11:48:55, 전부 첫 요청에 HTTP 200(openai.com Astra 포함) | 인용 주장 3개 그대로(Opus 5.5 기본 effort 의 FrontierCode 결과, AA 의 medium 프런티어, AA 지수에서 GPT-6.1 Sol 이 Astra 보다 1점 아래). D-90 근거(AA: Sonnet 5.5 는 비용 프런티어 밖, Terminal-Bench 4.0 64%)도 그대로이고, AA 는 재측정을 아직 올리지 않았다("we will be re-running relevant evaluations soon"). 순위·effort 그대로 |
+| 폐기 페이지·모델 목록 6개(OpenAI·Google·xAI) | 11:48:55~11:48:59, 전부 첫 요청에 HTTP 200 | OpenAI 모델 목록에서 Daybreak Blue·Red alias 항목이 빠졌다(폐기 페이지의 최신 공지는 10-01 그대로이고 이 alias 의 날짜 공지는 없다). Google changelog 10-08: `gemini-3.7-flash`·`gemini-3.5-flash` 폐기(3.8·3.6 Flash 로 자동 전환). 10-06: `gemini-nano-banana-2.1` GA, `gemini-3.1-flash-image` 폐기. `gemini-3.8-flash`·`gemini-3.1-pro-preview` 는 종료 일자 없음. xAI 릴리스 노트의 최신 항목은 10-02 그대로이고 모델 목록도 같다 |
+| 43개 페이지 본문(태그 제거 텍스트) | 10-06 12:50 사본과 줄 단위 비교 | 1개만 같다(openai.com Astra 발표문). 나머지 42개의 차이는 대부분 사이트 메뉴와 미등록 모델 내용이다: OpenAI 문서 메뉴 개편과 사용 등급 5→3단계, Claude 문서의 Haiku 5.5 추가, xAI 문서 제목·메뉴, Google 문서의 3.7·3.5 Flash 삭제와 Last updated 2026-10-09, AA 글 옆의 최근 글 목록. 등록 사실에 닿는 차이는 아래 3개뿐이다 |
+| `model_watch.py scan --force` | 11:56:42~11:56:45. 상태 파일의 사본에 `--state` 로 실행해 `%LOCALAPPDATA%\SimonK\vibe\model-watch.json` 은 읽기만 했다(sha256 이 실행 전후 같다) | 새 후보 0·오류 0, 바뀐 출처는 xai(원본의 마지막 스캔 11:21:04 이후). 대기 후보: Claude Haiku 5.5 2건·Gemini 4 Argon·OpenAI 글 3건(공식 검토 대기), GPT-6.1 Sol(모니터링) |
+| 후보 확인용 공식 페이지 8개(Anthropic 뉴스·Haiku 5.5 발표문, Claude Haiku 5.5·4.5 개요, Google 모델 블로그·Gemini 4 Argon 글, x.ai 뉴스, OpenAI 뉴스 RSS) | 11:57:08~11:57:13, 전부 첫 요청에 HTTP 200 | Haiku 5.5 는 2026-10-07 출시·Active 로 확인했다. Gemini 4 Argon 은 신뢰 테스터(cyber defenders) 대상 단계 공개라 개발자 API 에 없다. x.ai 뉴스에 Grok 5 가 없다. OpenAI 뉴스에 10-06 이후 새 API 모델 발표가 없다 |
 
 필드 수는 `models` 항목의 모든 값에서 `sources`·`surface`·`vendor`·`id_namespace`·`pricing.scope` 를 빼고
 센 것이다. 목록(`api_efforts`·`aliases`)은 한 필드, 장문 구간은 값마다 한 필드다. 이 가운데 34개는 null
 또는 빈 값(제공사 별칭 미수집 15, 기본 `cache_write` 10, 장문 `cache_write` 7, Daybreak 의 `api_efforts`·
-`pricing` 2)이고 레지스트리 규약대로 일치로 셌다. 10-05 의 162필드는 집계 정의가 남아 있지 않아 이번 수와
-바로 비교할 수 없다.
+`pricing` 2)이고 레지스트리 규약대로 일치로 셌다. 10-06 과 같은 정의라 두 번의 수(232개)를 바로 비교할 수 있다.
 
-제거·개명된 모델은 없다. 관측만 적는다(레지스트리 값은 그대로).
-- Codex 카탈로그에서 미등록 `gpt-5.5` 가 숨김이 됐다. 등록 모델이 아니라 레지스트리와 라우팅은 그대로다.
-- Sonnet 5.5 발표문은 여전히 Haiku 5.5 가 "coming weeks"에 온다고 적고, Claude 모델 개요에도 없다. GA 전이라
-  등록하지 않는다. 미등록 `claude-haiku-4-5` 의 은퇴 하한(2026-10-15)은 9일 남았다.
-- `gpt-5.6-sol` 할인가 기한(11-21)과 장문 구간 `cache_write: null` 은 10-05 와 같다.
-- Gemini 가격표의 3.1 Pro 200k 구간 값은 `<=`·`>` 기호 때문에 태그 제거식 텍스트 추출에서 빠진다. HTML
-  원문에서 $4.00·$18.00·$0.40 을 확인했다.
+바뀐 등록 사실 3개(레지스트리 값을 고쳤다).
+- `claude-sonnet-5-5` 의 `pricing.cached_input` 0.2 → 0.1. Anthropic 이 2026-10-07 에 Sonnet 5.5 캐시 읽기를
+  $0.20 → $0.10/MTok 으로 내렸다. 가격표("Hits and refreshes" $0.10, "0.05x on Claude Opus 5.5 and Claude Sonnet
+  5.5"), Sonnet 5.5 개요("Cache read $0.10 / MTok"), Haiku 5.5 발표문("Cache reads now cost 50% less")이 같다.
+  입력 $2·출력 $10·캐시 쓰기 $2.50/$4 는 그대로다.
+- `gpt-daybreak-blue-latest` 의 `lifecycle` active → deprecated. 모델 페이지에 Deprecated 배지가 붙고 안내문이
+  "This alias is deprecated, please use the latest cyber model available to you" 로 바뀌었으며 모델 목록에서 빠졌다.
+  종료 일자와 대체 ID 는 공지되지 않았고 스냅샷 표의 대상은 여전히 `gpt-5.6-sol` 이다. `constrain_runtime` 은
+  이제 이 alias 후보를 `MODEL_NOT_ACTIVE` 로 막는다. `legacy_lane_migration` 의
+  `keep-security-pin-resolve-per-run` 과 `routing.py` 의 보안 레인은 바꾸지 않았다. 보안 게이트를 어느 모델로
+  옮길지는 `/ai-debate` 를 거친 별도 결정이나 Simon 의 명시 지시가 필요하다.
+- `gemini-3.8-flash` 의 `source_updated_at` 2026-09-23 → 2026-10-09(latest-model 페이지의 Last updated). 가격·
+  thinking level·GA 상태는 그대로다.
+
+제거·개명된 등록 모델은 없다. 아래는 관측만 적는다(레지스트리 값·레인·라우팅은 그대로).
+- **새 GA 모델 Claude Haiku 5.5(`claude-haiku-5-5`).** 2026-10-07 출시, Active(은퇴는 2027-10-07 이후), effort
+  low~max(기본 medium), adaptive thinking, 1M 컨텍스트·128K 출력. 가격은 프롬프트 10만 토큰 이하 $0.10/$0.50,
+  초과 $0.50/$2.50(캐시 읽기 $0.01/$0.05)이다. Claude Code 는 2.1.293 이상이 필요하다. 등록하지 않았고 레인도
+  없다. 등록하려면 10만 토큰 기준 가격 구간을 어떻게 담을지와 레인 여부를 따로 정해야 한다.
+- 미등록 `claude-haiku-4-5` 는 Legacy 로 내려갔고 은퇴 하한(2026-10-15)은 그대로다(3일 남음).
+- 이미지 모델 `gemini-nano-banana-2.1` 이 10-06 에 GA 가 됐다(task-fit 정책은 이미지 생성을 다루지 않는다).
+  Gemini 4 Argon 은 Google 블로그에 발표됐지만 Gemini API 문서(모델 목록·changelog·가격·폐기)에 없다.
+  Grok 5 는 xAI 문서·뉴스에 없다.
+- `gpt-6.1-sol` 에 Ultrafast 모드(Standard 의 6배, 10-08)가 생겼다. 레지스트리는 Standard 가격만 담아 값은 그대로다.
+  OpenAI API 사용 등급은 5단계에서 3단계로 바뀌었고, 가격표 Life sciences 표에 `gpt-rosalind-discovery` 행이 생겼다.
+- AA 의 Sonnet 5.5 글은 캐시 읽기를 인하 전 $0.2 로 적는다. 재측정이 올라오면 D-90 재진입 조건을 다시 본다.
+- `gpt-5.6-sol` 할인가 기한(11-21)과 장문 구간 `cache_write: null` 은 10-06 과 같다. Gemini 가격표의 3.1 Pro
+  200k 구간 값은 이번에도 HTML 원문에서 $4.00·$18.00·$0.40 을 확인했다.
 
 레지스트리 `checked_at` 은 실제로 쓴 근거 중 가장 이른 시각인 Grok 모델 캐시 수신
-2026-10-06 12:45:26(초 미만 버림)이라 사실은 2026-10-13 12:45:26 KST 에 만료된다(Codex 캐시 수신 12:46:47 은
-그보다 늦다). task-fit 정책은 자기 출처를 처음 읽은 12:50:44 부터 2026-10-13 12:50:44 KST 까지 유효하다.
+2026-10-12 11:43:08(초 미만 버림)이라 사실은 2026-10-19 11:43:08 KST 에 만료된다(Codex 캐시 수신 11:44:21 은
+그보다 늦다). task-fit 정책은 자기 출처를 처음 읽은 11:48:51 부터 2026-10-19 11:48:51 KST 까지 유효하다.
 
 ## Repeating the refresh
 
 1. Codex 모델 캐시와 Grok 모델 캐시의 `fetched_at` 을 읽고, `grok --no-auto-update models` 와
-   자동 업데이트를 끈 `agy models` 를 실행하고, `claude --help` 를 읽는다. `grok models` 가 Grok
+   자동 업데이트를 끈 `agy models`(`AGY_CLI_DISABLE_AUTO_UPDATE=true`. agy 1.3.3 은 값 `1` 을 무시한다)를
+   실행하고, `claude --help` 를 읽는다. `grok models` 가 Grok
    캐시를 다시 받아 `fetched_at` 을 바꿀 수 있으니 캐시 내용 대조는 그 뒤 사본으로 하고, 쓴
    사본의 `fetched_at` 을 적는다. 원하면
    `runtime_collect.py --surface codex --surface grok` 로 app-server `model/list` 와 Grok ACP
