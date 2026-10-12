@@ -314,7 +314,13 @@ class ModelRegistryTests(unittest.TestCase):
                     if successor != lane and successor in lanes:
                         self.assertIn(successor, probe["lanes"])
                 seen.update(probe["lanes"])
-        self.assertTrue({"claude-opus-5", "claude-opus-5-5", "gpt-5.6-terra", "gpt-6.1-sol"} <= seen)
+        # D-101 (2026-10-12): the only Codex lane a probe may offer is gpt-6-astra. Withdrawn lanes and
+        # the deprecated Daybreak alias (gate only) never enter a new matchup.
+        self.assertTrue({"claude-opus-5", "claude-opus-5-5", "gpt-6-astra"} <= seen)
+        retired = (ast.literal_eval(module_literal("routing.py", "WITHDRAWN_LANES"))
+                   | ast.literal_eval(module_literal("routing.py", "DEPRECATED_LANES")))
+        self.assertEqual(seen & retired, set())
+        self.assertEqual({lane for lane in seen if vendors[lane] == "codex"}, {"gpt-6-astra"})
 
     def test_migration_cannot_reference_an_unknown_model(self):
         data = registry()
@@ -364,10 +370,11 @@ class ModelRegistryTests(unittest.TestCase):
         # OpenAI marked the Daybreak Blue alias deprecated; no shutdown date or replacement ID yet.
         alias = models["gpt-daybreak-blue-latest"]
         self.assertEqual((alias["lifecycle"], alias["documented_target"]), ("deprecated", "gpt-5.6-sol"))
-        # The refresh changed facts only. D-98 (same day) then moved the gate lane to gpt-6.1-sol;
-        # the alias itself stays deprecated and blocked.
+        # The refresh changed facts only. D-98 (same morning) moved the gate lane to gpt-6.1-sol and
+        # D-101 (same afternoon, Simon's directive) moved it back; the alias itself stays deprecated
+        # and the central planner still blocks it.
         self.assertEqual(data["legacy_lane_migration"]["gpt-daybreak-blue-latest"],
-                         {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-certificate"})
+                         {"candidate": "gpt-daybreak-blue-latest", "status": "keep-security-pin-resolve-per-run"})
         observed_at = data["checked_at"]
         trial = candidate(model="gpt-daybreak-blue-latest", resolved_model="gpt-5.6-sol", observed_at=observed_at,
                           resolution_observed_at=observed_at, resolution_evidence="model/list",
@@ -470,41 +477,46 @@ class ModelRegistryTests(unittest.TestCase):
         # D-67 adds lanes alongside the legacy keys; registration is not a working route.
         # 2.14.2: the read-only canary (2026-10-04) passed for both lanes, but native send and the
         # account/billing certificate are still missing, so they stay pending (not keep-*).
+        # D-101 (2026-10-12): Simon withdrew gpt-6.1-sol and the other non-Astra GPT lanes. The keys
+        # stay for the ledger; their migrations are held, and only claude-opus-5-5 is still pending.
         data = self.m.load_registry()
         migration = data["legacy_lane_migration"]
         for lane in ("claude-opus-5-5", "gpt-6.1-sol"):
-            with self.subTest(lane=lane):
-                self.assertIn(lane, routing_lanes())
-                self.assertEqual(migration[lane], {"candidate": lane, "status": "pending-transport-and-certificate"})
+            self.assertIn(lane, routing_lanes())
+        self.assertEqual(migration["claude-opus-5-5"],
+                         {"candidate": "claude-opus-5-5", "status": "pending-transport-and-certificate"})
         for legacy in ("claude-opus-5", "gpt-5.6-sol", "gpt-5.6-terra", "grok-4.6"):
             self.assertIn(legacy, routing_lanes())  # ledger.py rejects rows whose lane is not in LANES.
         self.assertEqual(migration["claude-opus-5"],
                          {"candidate": "claude-opus-5-5", "status": "pending-transport-and-certificate"})
-        self.assertEqual(migration["gpt-5.6-sol"],
-                         {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-certificate"})
-        # The D-67 canary covered only these two lanes; terra's tier evaluation keeps its own status.
-        # The class A lanes passed their own canary on 2026-10-05 (D-91).
-        self.assertEqual(migration["gpt-5.6-terra"],
-                         {"candidate": "gpt-6.1-sol", "status": "pending-evaluation-not-equivalent-tier"})
-        self.assertEqual(migration["gpt-5.6-luna"],
-                         {"candidate": "gpt-6-luna", "status": "pending-transport-and-certificate"})
+        withdrawn = {"candidate": "gpt-6-astra", "status": "held-withdrawn-by-owner"}
+        for lane in ("gpt-6.1-sol", "gpt-5.6-sol", "gpt-5.6-terra"):
+            with self.subTest(withdrawn=lane):
+                self.assertEqual(migration[lane], withdrawn)
+        # The class A work of the two Luna lanes went to claude-haiku-5-5.
+        for lane in ("gpt-6-luna", "gpt-5.6-luna"):
+            with self.subTest(withdrawn=lane):
+                self.assertEqual(migration[lane], {"candidate": "claude-haiku-5-5", "status": "held-withdrawn-by-owner"})
         self.assertNotIn("gpt-6-sol", {v["candidate"] for v in migration.values()})
         self.assertEqual(migration["grok-4.6"], {"candidate": "grok-4.7", "status": "pending-quota-and-canary"})
         certificate = {k for k, v in migration.items() if v["status"] == "pending-transport-and-certificate"}
-        # 2026-10-12: D-98 points the deprecated Daybreak key at gpt-6.1-sol; D-99 adds claude-haiku-5-5.
-        self.assertEqual(certificate, {"claude-opus-5-5", "claude-opus-5", "gpt-6.1-sol", "gpt-5.6-sol",
-                                       "claude-sonnet-5", "claude-sonnet-5-5", "gpt-5.6-luna", "gpt-6-luna",
-                                       "gpt-daybreak-blue-latest", "claude-haiku-5-5"})
+        # 2026-10-12: D-99 added claude-haiku-5-5; D-101 withdrew every GPT lane except gpt-6-astra and
+        # returned the Daybreak key to its own keep-* pin.
+        self.assertEqual(certificate, {"claude-opus-5-5", "claude-opus-5", "claude-sonnet-5", "claude-sonnet-5-5",
+                                       "claude-haiku-5-5"})
         section = catalog_map_section("Lane migration pending")
         rows = {line.split("|")[1].strip(): line for line in section.splitlines() if line.startswith("| `")}
         pending = " ".join(section.split())
         self.assertIn("launch.requested", pending)
         self.assertIn("2026-10-04", pending)
-        for lane in ("claude-opus-5-5", "gpt-6.1-sol"):
+        self.assertIn("`claude-opus-5-5`", pending)
+        self.assertIn("`pending-transport-and-certificate`", rows["`claude-opus-5-5`"])
+        self.assertNotIn("pending-transport-and-canary", rows["`claude-opus-5-5`"])
+        # The table row of a withdrawn lane states its held status, not a pending route.
+        for lane in ("gpt-6.1-sol", "gpt-6-luna"):
             with self.subTest(row=lane):
-                self.assertIn("`" + lane + "`", pending)
-                self.assertIn("`pending-transport-and-certificate`", rows["`" + lane + "`"])
-                self.assertNotIn("pending-transport-and-canary", rows["`" + lane + "`"])
+                self.assertIn("`held-withdrawn-by-owner`", rows["`" + lane + "`"])
+                self.assertNotIn("pending-", rows["`" + lane + "`"])
 
     def test_simon_261005_class_a_uses_current_lanes_canary_passed_pending_certificate(self):
         # Simon 2026-10-05 ("5.5로 전환해"): class A moves to the current-generation lanes, added
@@ -512,17 +524,19 @@ class ModelRegistryTests(unittest.TestCase):
         # but are not running lanes until the launch certificate exists.
         lanes = ast.literal_eval(module_literal("routing.py", "LANES"))
         classes = ast.literal_eval(module_literal("routing.py", "CLASS_LANES"))
-        # D-99 (2026-10-12) put claude-haiku-5-5 between them; the first lane and Sonnet 5.5 stay.
+        # D-99 (2026-10-12) put claude-haiku-5-5 into class A; D-101 (same day, Simon's directive)
+        # withdrew gpt-6-luna, so Haiku leads and Sonnet 5.5 and Opus 5.5 follow in the same order.
         self.assertEqual([lane for lane in classes["A"] if lane != "claude-haiku-5-5"],
-                         ["gpt-6-luna", "claude-sonnet-5-5", "claude-opus-5-5"])
+                         ["claude-sonnet-5-5", "claude-opus-5-5"])
         listed = {lane for order in classes.values() for lane in order}
         listed |= set(ast.literal_eval(module_literal("routing.py", "PROCESS_LANES"))["coding"])
-        for legacy in ("gpt-5.6-luna", "claude-sonnet-5"):
+        for legacy in ("gpt-5.6-luna", "claude-sonnet-5", "gpt-6-luna"):
             with self.subTest(legacy=legacy):
                 self.assertIn(legacy, lanes)  # ledger.py rejects rows whose lane is not in LANES.
                 self.assertNotIn(legacy, listed)
                 self.assertIn("원장 호환용(우선순위 밖)", lanes[legacy]["ctx"])
-        # lane: (vendor, std, top, efforts Orca 1.4.218 accepts)
+        # lane: (vendor, std, top, efforts Orca 1.4.218 accepts). The gpt-6-luna key keeps its lane
+        # facts for ledger rows even though D-101 withdrew it from routing.
         expected = {
             "claude-sonnet-5-5": ("claude", "medium", "high", ("low", "medium", "high", "xhigh", "max")),
             "gpt-6-luna": ("codex", "low", "medium", ("minimal", "low", "medium", "high", "xhigh")),
@@ -535,35 +549,68 @@ class ModelRegistryTests(unittest.TestCase):
                                  (vendor, vendor, "flag", "orca"))
                 self.assertEqual((spec["std"], spec["top"], spec["orca_efforts"]), (std, top, orca))
                 self.assertNotIn("quota_bucket", spec)  # Sonnet 5.5 uses the general claude weekly quota.
-                self.assertEqual(migration[lane], {"candidate": lane, "status": "pending-transport-and-certificate"})
+        self.assertEqual(migration["claude-sonnet-5-5"],
+                         {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-certificate"})
         self.assertEqual(migration["claude-sonnet-5"],
                          {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-certificate"})
-        self.assertEqual(migration["gpt-5.6-luna"],
-                         {"candidate": "gpt-6-luna", "status": "pending-transport-and-certificate"})
+        # D-101: withdrawn by the owner, not for a defect. The D-91 canary passed and stays on record.
+        for lane in ("gpt-6-luna", "gpt-5.6-luna"):
+            self.assertEqual(migration[lane], {"candidate": "claude-haiku-5-5", "status": "held-withdrawn-by-owner"})
+        self.assertIn("결함 아님", lanes["gpt-6-luna"]["ctx"])
         section = catalog_map_section("Lane migration pending")
         rows = {line.split("|")[1].strip(): line for line in section.splitlines() if line.startswith("| `")}
         blocked = next(b for b in section.split("\n- ") if "ORCA_UNREGISTERED_PROCESS_OR_MODEL" in b)
         blocked = blocked.split("ORCA_UNREGISTERED_PROCESS_OR_MODEL")[0]
+        self.assertIn("`pending-transport-and-certificate`", rows["`claude-sonnet-5-5`"])
+        self.assertNotIn("pending-transport-and-canary", rows["`claude-sonnet-5-5`"])
+        self.assertIn("`held-withdrawn-by-owner`", rows["`gpt-6-luna`"])
         for lane in expected:
             with self.subTest(row=lane):
-                self.assertIn("`pending-transport-and-certificate`", rows["`" + lane + "`"])
-                self.assertNotIn("pending-transport-and-canary", rows["`" + lane + "`"])
                 self.assertNotIn("`" + lane + "`", blocked)
         self.assertIn("run_0a369252175f", " ".join(section.split()))
 
-    def test_task_fit_policy_keeps_sonnet_55_out_until_its_reentry_conditions(self):
-        # D-90: Artificial Analysis puts Sonnet 5.5 off the intelligence/cost-per-task frontier at
-        # every effort, so the shadow policy names other models; re-entry needs a re-measurement.
+    def test_task_fit_policy_d101_claude_order_for_simple_code_and_astra_xhigh_only(self):
+        # D-90 took Sonnet 5.5 out of all four profiles (Artificial Analysis puts it off the
+        # intelligence/cost-per-task frontier at every effort). D-101 (2026-10-12, Simon's directive)
+        # returns it to CODE_SIMPLE rank 1 only. That is a directive, not a re-measurement: the other
+        # three profiles still exclude it and the D-90 re-entry conditions stay written down.
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
-        named = {entry["model"] for entries in policy["profiles"].values() for entry in entries}
-        self.assertNotIn("claude-sonnet-5-5", named)
-        def rank0(profile):
-            return {e["model"] for e in policy["profiles"][profile] if e["rank"] == 0}
-        self.assertEqual(rank0("CODE_SIMPLE"), {"gpt-6.1-sol", "gpt-6-sol"})
-        self.assertIn({"model": "claude-opus-5-5", "efforts": ["medium"], "rank": 2,
-                       "sources": ["anthropic_opus", "aa_opus"]}, policy["profiles"]["CODE_SIMPLE"])
-        self.assertEqual(rank0("WRITING"), {"claude-opus-5-5"})
+        self.assertEqual(policy["version"], "2026-10-12-shadow.2")
+        self.assertEqual((policy["checked_at"], policy["valid_until"]),
+                         ("2026-10-12T11:48:51+09:00", "2026-10-19T11:48:51+09:00"))
+        profiles = policy["profiles"]
+
+        def rows(profile):
+            return [(e["model"], tuple(e["efforts"]), e["rank"]) for e in profiles[profile]]
+
+        self.assertEqual(rows("CODE_SIMPLE"), [("claude-haiku-5-5", ("low", "medium"), 0),
+                                               ("claude-sonnet-5-5", ("medium",), 1),
+                                               ("claude-opus-5-5", ("medium",), 2)])
+        self.assertEqual(rows("PLAN_ARCHITECTURE"), [("claude-opus-5-5", ("high", "xhigh"), 0),
+                                                     ("gpt-6-astra", ("xhigh",), 0)])
+        self.assertEqual(rows("CODE_COMPLEX"), [("claude-opus-5-5", ("medium",), 0),
+                                                ("claude-opus-5-5", ("high", "xhigh"), 1),
+                                                ("gpt-6-astra", ("xhigh",), 0)])
+        self.assertEqual(rows("WRITING"), [("claude-opus-5-5", ("medium", "high"), 0)])
+        for profile in ("PLAN_ARCHITECTURE", "CODE_COMPLEX", "WRITING"):
+            with self.subTest(profile=profile):
+                self.assertNotIn("claude-sonnet-5-5", {e["model"] for e in profiles[profile]})
+        # GPT side: gpt-6-astra at xhigh only, in every profile.
+        registry = {m["id"]: m for m in self.m.load_registry()["models"]}
+        for profile, entries in profiles.items():
+            for entry in entries:
+                with self.subTest(profile=profile, model=entry["model"]):
+                    if registry[entry["model"]]["vendor"] == "openai":
+                        self.assertEqual((entry["model"], entry["efforts"]), ("gpt-6-astra", ["xhigh"]))
+        self.assertEqual((policy["sources"]["anthropic_haiku"], policy["sources"]["anthropic_haiku_docs"]),
+                         ("https://www.anthropic.com/claude-haiku-5-5",
+                          "https://platform.claude.com/docs/en/models/haiku-5-5/overview"))
         self.assertTrue(any("D-90" in note and "재진입 조건" in note for note in policy["notes"]))
+        note = next(n for n in policy["notes"] if n.startswith("D-101("))
+        for needle in ("gpt 6.1 sol은 너무 느려서 빼기로 결정", "gpt 쪽은 astra 말고는 쓰지마. gpt 를 넣어야한다면 astra xhigh.",
+                       "D-90 재진입 조건이 충족돼서가 아니다", "재측정을 올리지 않았고", "소유자 지시", "shadow-only"):
+            with self.subTest(note=needle):
+                self.assertIn(needle, note)
 
     def test_catalog_map_states_lane_dispositions_and_legacy_routing_as_built(self):
         migration = self.m.load_registry()["legacy_lane_migration"]
@@ -574,9 +621,12 @@ class ModelRegistryTests(unittest.TestCase):
                          + sum(v["status"].startswith("pending-") for v in migration.values()),
                          len(migration))
         self.assertTrue(keep)
-        # Simon's 2026-10-05 instruction resumed the only held entry (claude-sonnet-5, D-90); the
-        # held-* checks below stay generic for any future hold.
-        self.assertEqual(held, [])
+        # Simon's 2026-10-05 instruction resumed the first held entry (claude-sonnet-5, D-90).
+        # D-101 (2026-10-12) holds the five GPT lanes the owner withdrew; the Daybreak key is a keep-*
+        # pin again. The held-* checks below stay generic for any future hold.
+        self.assertEqual(held, ["gpt-5.6-luna", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-6-luna", "gpt-6.1-sol"])
+        self.assertEqual(set(held), ast.literal_eval(module_literal("routing.py", "WITHDRAWN_LANES")))
+        self.assertEqual(keep, ["claude-fable-5-1", "gemini-3.8-flash", "gpt-6-astra", "gpt-daybreak-blue-latest"])
         pending = " ".join(catalog_map_section("Lane migration pending").split())
         self.assertNotIn("every `legacy_lane_migration` entry is still pending", pending)
         for model_id in keep:
@@ -592,14 +642,111 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertNotIn("Registration is not routing", text)
         self.assertIn("generation: legacy", " ".join(catalog_map_section("Registered legacy entries").split()))
 
-    def test_d98_artifact_gate_moves_to_gpt_61_sol_and_daybreak_is_ledger_only(self):
-        # D-98 (2026-10-12): OpenAI marked the Daybreak Blue alias deprecated, so the artifact gate
-        # moves to gpt-6.1-sol @ xhigh. The old key stays for ledger rows and receives no new work.
+    def test_d101_gpt_side_is_astra_xhigh_only_in_every_active_routing_position(self):
+        # D-101 (2026-10-12, Simon: "gpt 쪽은 astra 말고는 쓰지마. gpt 를 넣어야한다면 astra xhigh."):
+        # inventory guard. It fails if any active routing position, output rule, eval probe or task-fit
+        # row names a Codex-vendor lane other than gpt-6-astra. The one allowed exception is the
+        # deprecated Daybreak alias as the fixed security-artifact-gate pin.
+        lanes = ast.literal_eval(module_literal("routing.py", "LANES"))
+        classes = ast.literal_eval(module_literal("routing.py", "CLASS_LANES"))
+        process_lanes = ast.literal_eval(module_literal("routing.py", "PROCESS_LANES"))
+        fixed = {p[0]: p[3] for p in ast.literal_eval(module_literal("routing.py", "PROCESSES")) if p[3]}
+        coordinator = ast.literal_eval(module_literal("routing.py", "COORDINATOR"))
+        rules = ast.literal_eval(module_literal("routing.py", "OUTPUT_RULES"))
+        withdrawn = ast.literal_eval(module_literal("routing.py", "WITHDRAWN_LANES"))
+        deprecated = ast.literal_eval(module_literal("routing.py", "DEPRECATED_LANES"))
+        pins = ast.literal_eval(module_literal("routing.py", "DEPRECATED_LANE_PINS"))
+        pinned_effort = ast.literal_eval(module_literal("routing.py", "EFFORT_PINNED"))
+        astra, daybreak, gate = "gpt-6-astra", "gpt-daybreak-blue-latest", "security-artifact-gate"
+        codex = {lane for lane, spec in lanes.items() if spec["vendor"] == "codex"}
+
+        # Every Codex key is exactly one of: the single working lane, the deprecated gate alias, withdrawn.
+        self.assertEqual(withdrawn, {"gpt-6.1-sol", "gpt-6-luna", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"})
+        self.assertEqual(deprecated, {daybreak})
+        self.assertEqual(codex, {astra} | deprecated | withdrawn)
+        self.assertFalse(withdrawn & deprecated)
+        self.assertEqual(pins, {daybreak: gate})
+        self.assertEqual(pinned_effort, {astra: "xhigh"})
+        self.assertEqual((lanes[astra]["std"], lanes[astra]["top"]), ("xhigh", "xhigh"))
+        self.assertEqual(lanes[astra]["orca_efforts"][-1], "xhigh")
+
+        positions = {"class " + name + " #" + str(i + 1): lane
+                     for name, order in classes.items() for i, lane in enumerate(order)}
+        positions.update({"process " + name + " #" + str(i + 1): lane
+                          for name, order in process_lanes.items() for i, lane in enumerate(order)})
+        positions.update({"fixed " + proc: lane for proc, (lane, _effort) in fixed.items()})
+        positions["coordinator"] = coordinator[0]
+        positions.update({"output rule " + lane: lane for lane in rules})
+        probes = json.loads((SCRIPT.parent.parent / "eval" / "probes.json").read_text(encoding="utf-8"))["probes"]
+        positions.update({"probe " + probe["id"] + " #" + str(i + 1): lane
+                          for probe in probes for i, lane in enumerate(probe["lanes"])})
+        self.assertGreater(len(positions), 100)  # the sweep really covers the tables.
+        for where, lane in sorted(positions.items()):
+            with self.subTest(position=where, lane=lane):
+                self.assertIn(lane, lanes)
+                self.assertNotIn(lane, withdrawn)
+                if lanes[lane]["vendor"] == "codex" and lane != astra:
+                    # The only exception: Daybreak as the fixed gate, and its gate output rule.
+                    self.assertEqual(lane, daybreak)
+                    self.assertIn(where, ("fixed " + gate, "output rule " + daybreak))
+        # Fixed efforts: every GPT position that names an effort names xhigh.
+        self.assertEqual(coordinator, (astra, "xhigh"))
+        self.assertEqual(fixed["security-bizlogic-2nd"], (astra, "xhigh"))
+        self.assertEqual(fixed[gate], (daybreak, "xhigh"))
+
+        # Final class lists (D-101). B, A-verify, D and coding are unchanged.
+        self.assertEqual(classes["A"], ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"])
+        self.assertEqual(classes["B"], [astra, "claude-fable-5-1", "claude-opus-5-5"])
+        self.assertEqual(classes["A-verify"], [astra, "claude-fable-5-1", "claude-opus-5-5"])
+        self.assertEqual(classes["C-realtime"], ["grok-4.6", "claude-opus-5-5", astra])
+        self.assertEqual(classes["C-platform"], ["gemini-3.8-flash", "claude-opus-5-5", astra])
+        self.assertEqual(classes["D"], ["claude-opus-5-5"])
+        self.assertEqual(process_lanes["coding"], ["claude-opus-5-5", "claude-fable-5-1"])
+        # A quota demotion past gpt-6-astra lands on a Claude lane, never on another GPT lane.
+        for name, order in classes.items():
+            if astra in order[:-1]:
+                with self.subTest(demotion=name):
+                    self.assertEqual(lanes[order[order.index(astra) + 1]]["vendor"], "claude")
+
+        # Task-fit rows: an OpenAI model row is gpt-6-astra at xhigh, nothing else.
+        registry = self.m.load_registry()
+        vendor_of = {m["id"]: m["vendor"] for m in registry["models"]}
+        policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
+        gpt_rows = 0
+        for profile, entries in policy["profiles"].items():
+            for entry in entries:
+                with self.subTest(profile=profile, model=entry["model"]):
+                    self.assertIn(entry["model"], vendor_of)
+                    self.assertNotIn(entry["model"], withdrawn | deprecated | {"gpt-6-sol"})
+                    if vendor_of[entry["model"]] == "openai":
+                        gpt_rows += 1
+                        self.assertEqual((entry["model"], entry["efforts"]), (astra, ["xhigh"]))
+        self.assertEqual(gpt_rows, 2)  # PLAN_ARCHITECTURE and CODE_COMPLEX.
+        self.assertFalse(any(vendor_of[e["model"]] == "openai" for p in ("CODE_SIMPLE", "WRITING")
+                             for e in policy["profiles"][p]))
+
+        # Withdrawn keys stay readable for ledger rows and say why they are out.
+        for lane in sorted(withdrawn):
+            with self.subTest(withdrawn=lane):
+                self.assertIn("원장 호환용(우선순위 밖)", lanes[lane]["ctx"])
+                self.assertEqual(evaluator_vendors()[lane], "codex")
+                self.assertEqual(registry["legacy_lane_migration"][lane]["status"], "held-withdrawn-by-owner")
+                self.assertIn(registry["legacy_lane_migration"][lane]["candidate"], {astra, "claude-haiku-5-5"})
+        # Withdrawal is a routing decision, not a provider fact: the models stay active in the registry.
+        models = {m["id"]: m for m in registry["models"]}
+        for lane in sorted(withdrawn):
+            self.assertEqual(models[lane]["lifecycle"], "active")
+
+    def test_d101_artifact_gate_returns_to_daybreak_as_the_only_deprecated_position(self):
+        # D-101 (2026-10-12, Simon: "보안게이트는 데이브레이크로 할려했는데 그게 안돼면 opus 5.5로 하자."):
+        # the artifact gate is the deprecated Daybreak alias again. The provider fact and the central
+        # planner block are untouched; the Opus fallback is not implemented.
         lanes = ast.literal_eval(module_literal("routing.py", "LANES"))
         classes = ast.literal_eval(module_literal("routing.py", "CLASS_LANES"))
         coding = ast.literal_eval(module_literal("routing.py", "PROCESS_LANES"))["coding"]
         fixed = {p[0]: p[3] for p in ast.literal_eval(module_literal("routing.py", "PROCESSES")) if p[3]}
-        self.assertEqual(fixed["security-artifact-gate"], ("gpt-6.1-sol", "xhigh"))
+        gate = "gpt-daybreak-blue-latest"
+        self.assertEqual(fixed["security-artifact-gate"], (gate, "xhigh"))
         self.assertEqual(fixed["security-bizlogic-2nd"], ("gpt-6-astra", "xhigh"))
         # G1_SEC_SAME_MODEL: the two gates are different models. G1: both are Codex and the coding
         # lanes are Claude only, so the gate never grades its own vendor's work.
@@ -607,49 +754,75 @@ class ModelRegistryTests(unittest.TestCase):
         gate_vendors = {lanes[fixed[p][0]]["vendor"] for p in ("security-artifact-gate", "security-bizlogic-2nd")}
         self.assertEqual(gate_vendors, {"codex"})
         self.assertFalse({lanes[lane]["vendor"] for lane in coding} & gate_vendors)
-        self.assertEqual(lanes["gpt-6.1-sol"]["orca_efforts"][-1], "xhigh")  # the pinned effort is the Orca cap.
+        self.assertEqual(lanes[gate]["orca_efforts"][-1], "xhigh")  # the pinned effort is the Orca cap.
 
-        old = "gpt-daybreak-blue-latest"
-        self.assertIn(old, lanes)  # ledger.py rejects rows whose lane is not in LANES.
-        listed = {lane for order in classes.values() for lane in order} | set(coding)
-        listed |= {lane for lane, _effort in fixed.values()}
-        listed.add(ast.literal_eval(module_literal("routing.py", "COORDINATOR"))[0])
-        self.assertNotIn(old, listed)
-        self.assertEqual(ast.literal_eval(module_literal("routing.py", "DEPRECATED_LANES")), {old})
-        self.assertIn("원장 호환용(우선순위 밖)", lanes[old]["ctx"])
-        self.assertIn("deprecated", lanes[old]["ctx"])
+        # The alias holds no other position.
+        elsewhere = {lane for order in classes.values() for lane in order} | set(coding)
+        elsewhere |= {lane for proc, (lane, _effort) in fixed.items() if proc != "security-artifact-gate"}
+        elsewhere.add(ast.literal_eval(module_literal("routing.py", "COORDINATOR"))[0])
+        self.assertNotIn(gate, elsewhere)
+        self.assertEqual(ast.literal_eval(module_literal("routing.py", "DEPRECATED_LANES")), {gate})
+        self.assertIn("deprecated", lanes[gate]["ctx"])
+        self.assertIn("게이트 고정 전용", lanes[gate]["ctx"])
         rules = ast.literal_eval(module_literal("routing.py", "OUTPUT_RULES"))
-        self.assertNotIn(old, rules)  # the gate's output rule moved with the gate.
-        self.assertIn("GATE: BLOCK", rules["gpt-6.1-sol"]["allow"])
-        self.assertIn("FAIL", rules["gpt-6.1-sol"]["deny"])
+        self.assertNotIn("gpt-6.1-sol", rules)  # the gate's output rule moved back with the gate.
+        self.assertIn("GATE: BLOCK", rules[gate]["allow"])
+        self.assertIn("FAIL", rules[gate]["deny"])
+        self.assertIn("LANE_DEPRECATED", rules[gate]["deny"])
         self.assertIn("references/security-artifact-gate.md",
                       SCRIPT.with_name("routing.py").read_text(encoding="utf-8"))
 
         data = self.m.load_registry()
+        self.assertEqual(data["version"], "2026-10-12.3")
+        self.assertEqual((data["checked_at"], data["data_as_of"]), ("2026-10-12T11:43:08+09:00", "2026-10-12"))
         models = {m["id"]: m for m in data["models"]}
-        self.assertEqual(models[old]["lifecycle"], "deprecated")  # the move does not revive the alias.
-        self.assertEqual(models["gpt-6.1-sol"]["lifecycle"], "active")
-        self.assertIn("xhigh", models["gpt-6.1-sol"]["api_efforts"])
+        self.assertEqual(models[gate]["lifecycle"], "deprecated")  # the move does not revive the alias.
         migration = data["legacy_lane_migration"]
-        self.assertEqual(migration[old], {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-certificate"})
-        self.assertEqual(migration[old]["status"], migration["gpt-6.1-sol"]["status"])
-        note = next(n for n in data["notes"] if n.startswith("D-98("))
-        for needle in ("run_8f7a27febc38", "ctx_ff39c4a979ba", "launch.requested == launch.effective",
+        self.assertEqual(migration[gate], {"candidate": gate, "status": "keep-security-pin-resolve-per-run"})
+        # MODEL_NOT_ACTIVE is unchanged: the packaged registry still blocks an alias candidate.
+        observed_at = data["checked_at"]
+        trial = candidate(model=gate, resolved_model="gpt-5.6-sol", observed_at=observed_at,
+                          resolution_observed_at=observed_at, resolution_evidence="model/list",
+                          billing={"mode": "unknown", "account_ref": "seat-a"},
+                          quota={"used_pct": None, "observed_at": observed_at},
+                          access_proof={"program": "daybreak_blue", "verified": True, "observed_at": observed_at,
+                                        "evidence": "authorized catalog", "account_ref": "seat-a"})
+        out = self.m.constrain_runtime({"candidates": [trial]}, data, observed_at)["candidates"][0]
+        self.assertEqual(out["registry_errors"], ["MODEL_NOT_ACTIVE"])
+        self.assertFalse(out["available"])
+        # Both canary records stay: D-98 as history, D-101 as the current evidence.
+        self.assertTrue(any(n.startswith("D-98(") and "ctx_ff39c4a979ba" in n for n in data["notes"]))
+        note = next(n for n in data["notes"] if n.startswith("D-101("))
+        for needle in ("gpt 6.1 sol은 너무 느려서 빼기로 결정", "보안게이트는 데이브레이크로 할려했는데 그게 안돼면 opus 5.5로 하자.",
+                       "gpt 쪽은 astra 말고는 쓰지마. gpt 를 넣어야한다면 astra xhigh.",
+                       "run_b08adccb4ec8", "ctx_41243c1a0d26", "launch.requested == launch.effective",
                        "CWE-89", "CWE-78", "CWE-22", "CWE-502", "MODEL_NOT_ACTIVE", "심은 샘플 1건",
-                       "동등성 증명이 아니다"):
+                       "예고 없이 사라질 수 있다", "'GPT-5'", "결함 때문이 아니다", "D-91 canary",
+                       "held-withdrawn-by-owner", "재개 조건", "canary 를 돌리지 않은 것", "구현하지 않았다",
+                       "G1 과 충돌", "Simon 의 판정이 필요하다"):
             with self.subTest(note=needle):
                 self.assertIn(needle, note)
         section = " ".join(catalog_map_section("Lane migration pending").split())
-        self.assertIn("D-98", section)
-        self.assertIn("ctx_ff39c4a979ba", section)
+        for needle in ("D-101", "ctx_41243c1a0d26", "`held-withdrawn-by-owner`", "재개 조건",
+                       "`keep-security-pin-resolve-per-run`", "D-98", "ctx_ff39c4a979ba"):
+            with self.subTest(section=needle):
+                self.assertIn(needle, section)
 
-    def test_d98_gate_reference_states_the_rubric_output_shape_and_fail_closed_rules(self):
+    def test_d101_gate_reference_states_the_rubric_fail_closed_rules_and_the_open_fallback(self):
         # The rules are a written contract for whoever reads the gate output; no script parses it.
         path = REFERENCES / "security-artifact-gate.md"
         self.assertTrue(path.is_file(), "security artifact gate reference is missing")
         raw = path.read_text(encoding="utf-8")
         text = " ".join(raw.split())
-        self.assertIn("**`gpt-6.1-sol` @ `xhigh`**", text)
+        self.assertIn("**`gpt-daybreak-blue-latest` @ `xhigh`**", text)
+        self.assertNotIn("**`gpt-6.1-sol` @ `xhigh`**", text)
+        pinned = text.split("## Pinned lane", 1)[1].split("## Before each run", 1)[0]
+        for needle in ("D-101", "Simon's directive", "gpt 6.1 sol은 너무 느려서 빼기로 결정",
+                       "The alias works on this account today", "still marks the alias deprecated",
+                       "`MODEL_NOT_ACTIVE`", "still cannot make this gate ready", "**LANE_DEPRECATED**",
+                       "Anywhere else it is still rejected", "`keep-security-pin-resolve-per-run`"):
+            with self.subTest(pinned=needle):
+                self.assertIn(needle, pinned)
         for cwe in ("CWE-89", "CWE-78", "CWE-22", "CWE-502", "CWE-798", "CWE-327", "CWE-918"):
             with self.subTest(rubric=cwe):
                 self.assertIn("| " + cwe + " |", raw)
@@ -659,7 +832,7 @@ class ModelRegistryTests(unittest.TestCase):
         shape = text.split("## Required output", 1)[1].split("## Fail-closed rules", 1)[0]
         self.assertIn("The first line is exactly `GATE: BLOCK` or `GATE: PASS`", shape)
         self.assertIn("one finding per line: `CWE-<n> | <location> | <reason>`", shape)
-        rules = text.split("## Fail-closed rules", 1)[1].split("## Re-promotion rule", 1)[0]
+        rules = text.split("## Fail-closed rules", 1)[1].split("## Open item", 1)[0]
         self.assertIn("**FAIL, never PASS**", rules)
         for needle in ("**Empty output**", "**Refusal or blocked output**", "**Missing first line**",
                        "**Ambiguous verdict**", "Do not read silence as a pass",
@@ -667,14 +840,32 @@ class ModelRegistryTests(unittest.TestCase):
             with self.subTest(rule=needle):
                 self.assertIn(needle, rules)
         self.assertIn("The gate never grades work made by its own vendor", text)
-        promotion = text.split("## Re-promotion rule", 1)[1].split("## Canary record", 1)[0]
-        for needle in ("other than the deprecated alias", "~/.codex/models_cache.json", "same seeded canary",
+        # Before each run: the catalog check, and a missing alias or empty/blocked output is a FAIL.
+        before = text.split("## Before each run", 1)[1].split("## Rubric", 1)[0]
+        for needle in ("~/.codex/models_cache.json", "still listed", "no retirement or upgrade entry",
+                       "the gate **FAILS**", "It never passes", "Do not start the gate on another model",
+                       "empty or blocked", "No script performs this catalog check today"):
+            with self.subTest(before=needle):
+                self.assertIn(needle, before)
+        # The Opus fallback is an open item, not an implemented route.
+        open_item = text.split("## Open item", 1)[1].split("## Replacement rule", 1)[0]
+        for needle in ("**OPEN. Not implemented. Needs Simon's ruling.**", "`claude-opus-5-5`", "collides with G1",
+                       "(a) `claude-opus-5-5` fallback", "G1 is relaxed for this fallback case only",
+                       "(b) `gpt-6-astra` takes both security gates",
+                       "G1_SEC_SAME_MODEL is relaxed for this fallback case only",
+                       "Neither option is coded, tested or canaried", "the gate fails and the coding round stops"):
+            with self.subTest(open_item=needle):
+                self.assertIn(needle, open_item)
+        replacement = text.split("## Replacement rule", 1)[1].split("## Canary records", 1)[0]
+        for needle in ("newer cyber model", "~/.codex/models_cache.json", "same seeded canary",
                        "tier-1 record", "No automatic promotion"):
-            with self.subTest(promotion=needle):
-                self.assertIn(needle, promotion)
-        canary = text.split("## Canary record", 1)[1]
-        for needle in ("run_8f7a27febc38", "ctx_ff39c4a979ba", "`launch.requested == launch.effective`",
-                       "`GATE: BLOCK`", "one seeded sample", "not proof of parity"):
+            with self.subTest(replacement=needle):
+                self.assertIn(needle, replacement)
+        canary = text.split("## Canary records", 1)[1]
+        for needle in ("run_b08adccb4ec8", "ctx_41243c1a0d26", "run_8f7a27febc38", "ctx_ff39c4a979ba",
+                       "`launch.requested == launch.effective`", "`GATE: BLOCK`", "one seeded sample",
+                       "not proof of parity", "about 30 seconds", "\"GPT-5\"", "may disappear without notice",
+                       "not because of a defect"):
             with self.subTest(canary=needle):
                 self.assertIn(needle, canary)
         # validate_skill E012: a reference file must not link to another reference file.
@@ -747,15 +938,17 @@ class ModelRegistryTests(unittest.TestCase):
                 self.assertFalse(result["available"])
                 self.assertIn(expected, result["registry_errors"])
 
-    def test_d99_class_a_adds_haiku_55_as_the_claude_side_first_fallback(self):
-        # D-99: registered beside the other lanes after its canary (run_8f7a27febc38). It is not the
-        # first lane, Sonnet 5.5 stays, and it is still not a running lane without the certificate.
+    def test_d99_class_a_adds_haiku_55_and_d101_makes_it_the_first_lane(self):
+        # D-99: registered beside the other lanes after its canary (run_8f7a27febc38), then the
+        # Claude-side first fallback. D-101 (same day, Simon's directive) withdrew gpt-6-luna, so it is
+        # now the first class A lane. Sonnet 5.5 stays, and it is still not a running lane without the
+        # certificate. No canary was run for the new order.
         lanes = ast.literal_eval(module_literal("routing.py", "LANES"))
         classes = ast.literal_eval(module_literal("routing.py", "CLASS_LANES"))
         coding = ast.literal_eval(module_literal("routing.py", "PROCESS_LANES"))["coding"]
         fixed = {p[0]: p[3] for p in ast.literal_eval(module_literal("routing.py", "PROCESSES")) if p[3]}
         new = "claude-haiku-5-5"
-        self.assertEqual(classes["A"], ["gpt-6-luna", new, "claude-sonnet-5-5", "claude-opus-5-5"])
+        self.assertEqual(classes["A"], [new, "claude-sonnet-5-5", "claude-opus-5-5"])
         # Class B, A-verify and D are untouched.
         self.assertEqual(classes["B"], ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5-5"])
         self.assertEqual(classes["A-verify"], ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5-5"])
@@ -791,9 +984,11 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertIn("ctx_cd78cf210447", " ".join(section.split()))
         # A registry ID is no longer a CLI-only catalog name.
         self.assertNotIn(new, {row[1] for row in catalog_map_rows()})
-        # The shadow task-fit policy is unchanged and does not name it.
+        # D-99 left the shadow task-fit policy alone. D-101 names it in CODE_SIMPLE only (rank 0).
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
-        self.assertNotIn(new, {entry["model"] for entries in policy["profiles"].values() for entry in entries})
+        named = {profile for profile, entries in policy["profiles"].items()
+                 if new in {entry["model"] for entry in entries}}
+        self.assertEqual(named, {"CODE_SIMPLE"})
         # Eval probes offer it for class A problems only.
         probes = json.loads((SCRIPT.parent.parent / "eval" / "probes.json").read_text(encoding="utf-8"))["probes"]
         for probe in probes:

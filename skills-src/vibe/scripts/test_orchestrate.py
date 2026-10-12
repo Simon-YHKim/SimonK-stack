@@ -1363,17 +1363,20 @@ class OrchestrationTests(unittest.TestCase):
 
     def test_d67_lanes_pass_registration_and_stop_at_the_quota_gate(self):
         # Registered is not runnable: with no quota evidence the next gate (G5) still fails closed.
+        # D-101 (2026-10-12): gpt-6.1-sol, the other D-67 lane, was withdrawn by the owner. The Codex
+        # lane of this check is now gpt-6-astra, which runs at xhigh only.
         all_vendors = {"quota_checked_vendors": ["claude", "codex", "gemini", "grok"]}
         for model, effort in (("claude-opus-5-5", "high"), ("claude-opus-5-5", "max"),
-                              ("gpt-6.1-sol", "high"), ("gpt-6.1-sol", "xhigh")):
+                              ("gpt-6-astra", "xhigh")):
             with self.subTest(model=model, effort=effort):
                 node = {"id": "n", "proc": "research-deep", "class": "B",
                         "route": {"transport": "orca", "model": model, "requested_effort": effort}}
                 self.assertEqual(self.m._legacy_validation([node], {}), ["ORCA_G5"])
                 self.assertEqual(self.m._legacy_validation([node], all_vendors), [])
-        # Orca caps gpt-6.1-sol at xhigh (unknown-model fallback); ultracode is a prompt keyword
-        # that a flag lane cannot carry. Neither opens with off_ladder either.
+        # Orca caps the unknown Codex ids at xhigh (unknown-model fallback); ultracode is a prompt
+        # keyword that a flag lane cannot carry. Neither opens with off_ladder either.
         for model, effort in (("gpt-6.1-sol", "max"), ("gpt-6.1-sol", "ultra"),
+                              ("gpt-6-astra", "max"), ("gpt-6-astra", "ultra"),
                               ("claude-opus-5-5", "ultracode")):
             for off_ladder in (False, True):
                 with self.subTest(model=model, effort=effort, off_ladder=off_ladder):
@@ -1381,15 +1384,25 @@ class OrchestrationTests(unittest.TestCase):
                             "route": {"transport": "orca", "model": model, "requested_effort": effort}}
                     self.assertEqual(self.m._legacy_validation([node], all_vendors),
                                      ["ORCA_DISPATCH_UNSUPPORTED"])
+        # The withdrawn D-67 lane no longer passes registration at the efforts it used to run at.
+        for effort in ("high", "xhigh"):
+            with self.subTest(withdrawn="gpt-6.1-sol", effort=effort):
+                node = {"id": "n", "proc": "research-deep", "class": "B",
+                        "route": {"transport": "orca", "model": "gpt-6.1-sol", "requested_effort": effort}}
+                self.assertEqual(self.m._legacy_validation([node], all_vendors), ["ORCA_LANE_WITHDRAWN"])
 
     def test_d67_lanes_keep_every_zero_spend_gate_of_the_existing_flag_lanes(self):
         # D-67 minority guard: the new lanes must fail closed exactly like the existing flag lanes.
-        pairs = ((("claude", "claude-fable-5-1"), ("claude", "claude-opus-5-5")),
-                 (("codex", "gpt-5.6-sol"), ("codex", "gpt-6.1-sol")))
+        # D-101 (2026-10-12) withdrew both Codex lanes of the old second pair (gpt-5.6-sol and
+        # gpt-6.1-sol). gpt-6-astra @ xhigh, the only Codex lane left, is compared with the same
+        # existing Claude flag lane instead.
+        pairs = ((("claude", "claude-fable-5-1", "high"), ("claude", "claude-opus-5-5", "high")),
+                 (("claude", "claude-fable-5-1", "high"), ("codex", "gpt-6-astra", "xhigh")))
         all_vendors = ["claude", "codex", "gemini", "grok"]
 
-        def orca_plan(surface, model, billing_changes=None, drop=(), **runtime):
-            c = candidate(model=model, surface=surface, transport="orca")
+        def orca_plan(surface, model, effort, billing_changes=None, drop=(), **runtime):
+            c = candidate(model=model, surface=surface, transport="orca",
+                          effort_by_demand={"reasoning": effort})
             c["billing"].update(billing_changes or {})
             for key in drop:
                 c["billing"].pop(key)
@@ -1416,20 +1429,32 @@ class OrchestrationTests(unittest.TestCase):
                     self.assertEqual(reasons(orca_plan(*new, changes, quota_checked_vendors=all_vendors)),
                                      reasons(orca_plan(*legacy, changes, quota_checked_vendors=all_vendors)))
                 # Complete fixture billing but no quota evidence: still blocked by the Orca G5 gate.
-                for surface, model in (legacy, new):
-                    p = orca_plan(surface, model)
+                for surface, model, effort in (legacy, new):
+                    p = orca_plan(surface, model, effort)
                     self.assertEqual(p["status"], "blocked")
                     self.assertEqual(p["errors"], ["ORCA_G5"])
                 # Planner parity only; dispatch still needs the Orca launch certificate
                 # (test_execute_orca covers its absence for these lanes).
-                for surface, model in (legacy, new):
-                    p = orca_plan(surface, model, quota_checked_vendors=all_vendors)
+                for surface, model, effort in (legacy, new):
+                    p = orca_plan(surface, model, effort, quota_checked_vendors=all_vendors)
                     self.assertEqual(p["status"], "ready", p["errors"])
                     self.assertEqual(p["steps"][0]["route"]["model"], model)
+                    self.assertEqual(p["steps"][0]["route"]["requested_effort"], effort)
                     self.assertEqual(p["steps"][0]["route"]["reserved_upper_usd"], 0.0)
+        # D-101: with complete billing and quota evidence, the withdrawn Codex lanes still do not plan.
+        for model in ("gpt-6.1-sol", "gpt-5.6-sol"):
+            with self.subTest(withdrawn=model):
+                p = orca_plan("codex", model, "high", quota_checked_vendors=all_vendors)
+                self.assertEqual(p["status"], "blocked")
+                self.assertEqual(p["errors"], ["ORCA_LANE_WITHDRAWN"])
+        # gpt-6-astra below xhigh is not a lane effort any more, even though Orca would accept it.
+        p = orca_plan("codex", "gpt-6-astra", "high", quota_checked_vendors=all_vendors)
+        self.assertEqual((p["status"], p["errors"]), ("blocked", ["ORCA_DISPATCH_UNSUPPORTED"]))
 
     def test_current_class_a_lanes_pass_registration_and_stop_at_the_quota_gate(self):
-        # Simon 2026-10-05 ("5.5로 전환해"): class A moves to gpt-6-luna and claude-sonnet-5-5.
+        # Simon 2026-10-05 ("5.5로 전환해"): class A moved to gpt-6-luna and claude-sonnet-5-5.
+        # D-101 (2026-10-12): the owner withdrew gpt-6-luna (no defect; its D-91 canary passed), so
+        # only claude-sonnet-5-5 remains from that change.
         # Registered is not runnable: with no quota evidence the next gate (G5) still fails closed.
         all_vendors = {"quota_checked_vendors": ["claude", "codex", "gemini", "grok"]}
 
@@ -1437,11 +1462,16 @@ class OrchestrationTests(unittest.TestCase):
             return {"id": "n", "proc": "bulk-transform", "class": "A", **extra,
                     "route": {"transport": "orca", "model": model, "requested_effort": effort}}
 
-        for model, effort in (("gpt-6-luna", "low"), ("gpt-6-luna", "medium"),
-                              ("claude-sonnet-5-5", "medium"), ("claude-sonnet-5-5", "high")):
+        for model, effort in (("claude-sonnet-5-5", "medium"), ("claude-sonnet-5-5", "high")):
             with self.subTest(model=model, effort=effort):
                 self.assertEqual(self.m._legacy_validation([node(model, effort)], {}), ["ORCA_G5"])
                 self.assertEqual(self.m._legacy_validation([node(model, effort)], all_vendors), [])
+        for model, effort in (("gpt-6-luna", "low"), ("gpt-6-luna", "medium"), ("gpt-5.6-luna", "low")):
+            with self.subTest(withdrawn=model, effort=effort):
+                self.assertEqual(self.m._legacy_validation([node(model, effort)], {}),
+                                 ["ORCA_G5", "ORCA_LANE_WITHDRAWN"])
+                self.assertEqual(self.m._legacy_validation([node(model, effort)], all_vendors),
+                                 ["ORCA_LANE_WITHDRAWN"])
         # Sonnet 5.5 xhigh/max are off the policy ladder (token blow-up). Orca accepts them for an
         # unknown claude id, so only an explicit off_ladder opens them.
         for effort in ("xhigh", "max"):
@@ -1462,8 +1492,9 @@ class OrchestrationTests(unittest.TestCase):
         # Same minority guard as D-67: each new class A lane fails closed exactly like its predecessor
         # on the same class A step and effort. D-99 (2026-10-12): claude-haiku-5-5 has no predecessor
         # lane, so it is compared with the existing class A Claude lane at their shared effort.
-        pairs = ((("codex", "gpt-5.6-luna"), ("codex", "gpt-6-luna"), "low"),
-                 (("claude", "claude-sonnet-5"), ("claude", "claude-sonnet-5-5"), "medium"),
+        # D-101 (2026-10-12): the Luna pair (gpt-5.6-luna, gpt-6-luna) is gone. Both lanes were
+        # withdrawn by the owner and now stop at ORCA_LANE_WITHDRAWN (checked at the end).
+        pairs = ((("claude", "claude-sonnet-5"), ("claude", "claude-sonnet-5-5"), "medium"),
                  (("claude", "claude-sonnet-5-5"), ("claude", "claude-haiku-5-5"), "medium"))
         all_vendors = ["claude", "codex", "gemini", "grok"]
 
@@ -1507,9 +1538,14 @@ class OrchestrationTests(unittest.TestCase):
                     self.assertEqual(p["steps"][0]["route"]["model"], model)
                     self.assertEqual(p["steps"][0]["route"]["requested_effort"], effort)
                     self.assertEqual(p["steps"][0]["route"]["reserved_upper_usd"], 0.0)
+        for model in ("gpt-5.6-luna", "gpt-6-luna"):
+            with self.subTest(withdrawn=model):
+                p = orca_plan("codex", model, "low", quota_checked_vendors=all_vendors)
+                self.assertEqual((p["status"], p["errors"]), ("blocked", ["ORCA_LANE_WITHDRAWN"]))
 
     def test_d99_haiku_lane_passes_registration_and_stops_at_the_quota_gate(self):
-        # D-99 (2026-10-12): claude-haiku-5-5 is the Claude-side first fallback of class A.
+        # D-99 (2026-10-12): claude-haiku-5-5 entered class A as the Claude-side first fallback.
+        # D-101 (same day): it is the first class A lane. The lane guards are the same either way.
         # Registered is not runnable: with no quota evidence the next gate (G5) still fails closed.
         all_vendors = {"quota_checked_vendors": ["claude", "codex", "gemini", "grok"]}
 
@@ -1536,17 +1572,20 @@ class OrchestrationTests(unittest.TestCase):
         # The lane is for class A work only: it is not a coding lane.
         gates = [{"id": proc, "proc": proc, "class": "B",
                   "route": {"transport": "orca", "model": model, "requested_effort": "xhigh"}}
-                 for proc, model in (("security-artifact-gate", "gpt-6.1-sol"),
+                 for proc, model in (("security-artifact-gate", "gpt-daybreak-blue-latest"),
                                      ("security-bizlogic-2nd", "gpt-6-astra"))]
         coding = {"id": "c", "proc": "coding", "class": "B",
                   "route": {"transport": "orca", "model": "claude-haiku-5-5", "requested_effort": "medium"}}
         self.assertEqual(self.m._legacy_validation([coding, *gates], all_vendors),
                          ["ORCA_CODING_LANE_NOT_ALLOWED"])
 
-    def test_d98_security_gate_lane_keeps_g1_and_blocks_the_deprecated_daybreak_key(self):
-        # D-98 (2026-10-12): the artifact gate is gpt-6.1-sol @ xhigh. Moving it must not loosen G1,
-        # G1_SEC_SAME_MODEL or the fixed-lane guard, and the deprecated Daybreak key gets no new work.
+    def test_d101_gate_is_daybreak_at_one_pinned_position_and_g1_is_unchanged(self):
+        # D-101 (2026-10-12, Simon's directive): the artifact gate is the deprecated Daybreak alias
+        # again. LANE_DEPRECATED opens for exactly one position (the fixed security-artifact-gate at
+        # its pinned effort). G1, G1_SEC_SAME_MODEL and the fixed-lane guard are unchanged, and the
+        # five withdrawn GPT lanes get no new work.
         all_vendors = {"quota_checked_vendors": ["claude", "codex", "gemini", "grok"]}
+        daybreak = "gpt-daybreak-blue-latest"
 
         def node(proc, model, effort, **extra):
             return {"id": proc, "proc": proc, "class": "B", **extra,
@@ -1555,61 +1594,169 @@ class OrchestrationTests(unittest.TestCase):
         def errors(*nodes):
             return self.m._legacy_validation(list(nodes), all_vendors)
 
-        gate = node("security-artifact-gate", "gpt-6.1-sol", "xhigh")
+        gate = node("security-artifact-gate", daybreak, "xhigh")
         authz = node("security-bizlogic-2nd", "gpt-6-astra", "xhigh")
         coding = node("coding", "claude-opus-5-5", "high")
         self.assertEqual(errors(coding, gate, authz), [])
         self.assertEqual(self.m._legacy_validation([coding, gate, authz], {}), ["ORCA_G5"])
         self.assertEqual(errors(coding), ["ORCA_MISSING_SECURITY_GATE"])
-        # G1: coding (or any writing step) on a Codex lane while the gate is the Codex gpt-6.1-sol.
-        for model, effort in (("gpt-6.1-sol", "high"), ("gpt-6-astra", "high"), ("gpt-6-luna", "low")):
+        self.assertEqual(errors(gate), [])  # the pin itself is the one valid position.
+        # G1: coding (or any writing step) on a Codex lane while the gate is the Codex Daybreak alias.
+        got = errors(node("coding", "gpt-6-astra", "xhigh"), gate, authz)
+        self.assertEqual(got, ["ORCA_CODING_LANE_NOT_ALLOWED", "ORCA_G1"])
+        for model, effort in (("gpt-6.1-sol", "high"), ("gpt-6-luna", "low"), ("gpt-5.6-sol", "high")):
             with self.subTest(coding=model):
-                got = errors(node("coding", model, effort), gate, authz)
-                self.assertIn("ORCA_G1", got)
-                self.assertIn("ORCA_CODING_LANE_NOT_ALLOWED", got)
-        self.assertIn("ORCA_G1", errors(node("terminal-ci-git", "gpt-6-astra", "high", writes=True), gate, authz))
-        # G1 the other way: a Claude gate would grade Claude's own code.
-        self.assertIn("ORCA_G1", errors(coding, node("security-artifact-gate", "claude-fable-5-1", "high"), authz))
+                self.assertEqual(errors(node("coding", model, effort), gate, authz),
+                                 ["ORCA_CODING_LANE_NOT_ALLOWED", "ORCA_G1", "ORCA_LANE_WITHDRAWN"])
+        self.assertIn("ORCA_G1", errors(node("terminal-ci-git", "gpt-6-astra", "xhigh", writes=True), gate, authz))
+        # G1 the other way: a Claude gate would grade Claude's own code. This is why Simon's Opus
+        # fallback is an open item and not a route: nothing here relaxes G1 for it.
+        for claude_gate in ("claude-fable-5-1", "claude-opus-5-5"):
+            with self.subTest(claude_gate=claude_gate):
+                self.assertEqual(errors(coding, node("security-artifact-gate", claude_gate, "high"), authz),
+                                 ["ORCA_FIXED_LANE_OVERRIDDEN", "ORCA_G1"])
         # G1_SEC_SAME_MODEL: the artifact gate and the authorization gate must be different models.
-        for same in ("gpt-6-astra", "gpt-6.1-sol"):
-            with self.subTest(same=same):
-                got = errors(coding, node("security-artifact-gate", same, "xhigh"),
-                             node("security-bizlogic-2nd", same, "xhigh"))
-                self.assertIn("ORCA_G1_SEC_SAME_MODEL", got)
-                self.assertIn("ORCA_FIXED_LANE_OVERRIDDEN", got)
-        # The deprecated key is ledger-compatible only: neither the gate nor any other step may use it.
-        old = "gpt-daybreak-blue-latest"
-        self.assertEqual(errors(coding, node("security-artifact-gate", old, "xhigh"), authz),
+        # gpt-6-astra on both gates is the other open option; it is not a route either.
+        self.assertEqual(errors(coding, node("security-artifact-gate", "gpt-6-astra", "xhigh"), authz),
+                         ["ORCA_FIXED_LANE_OVERRIDDEN", "ORCA_G1_SEC_SAME_MODEL"])
+        self.assertEqual(errors(coding, gate, node("security-bizlogic-2nd", daybreak, "xhigh")),
+                         ["ORCA_FIXED_LANE_OVERRIDDEN", "ORCA_G1_SEC_SAME_MODEL", "ORCA_LANE_DEPRECATED"])
+        # Outside the pin the deprecated alias is still rejected: every class, coding and a writing step.
+        for proc, cls in (("research-deep", "B"), ("terminal-ci-git", "B"), ("bulk-transform", "A"),
+                          ("claim-verify", "A-verify"), ("research-collect", "C-realtime"),
+                          ("google-platform", "C-platform")):
+            with self.subTest(outside=proc):
+                self.assertEqual(errors(dict(node(proc, daybreak, "xhigh"), **{"class": cls})),
+                                 ["ORCA_LANE_DEPRECATED"])
+        self.assertEqual(errors(dict(node("synthesis", daybreak, "xhigh"), **{"class": "D"})),
                          ["ORCA_FIXED_LANE_OVERRIDDEN", "ORCA_LANE_DEPRECATED"])
-        self.assertEqual(errors(node("research-deep", old, "high")), ["ORCA_LANE_DEPRECATED"])
-        # Orca caps gpt-6.1-sol at xhigh; nothing above it reaches the gate.
+        self.assertEqual(errors(node("coding", daybreak, "xhigh"), gate, authz),
+                         ["ORCA_CODING_LANE_NOT_ALLOWED", "ORCA_G1", "ORCA_LANE_DEPRECATED"])
+        self.assertEqual(errors(node("terminal-ci-git", daybreak, "xhigh", writes=True), gate, authz),
+                         ["ORCA_CODING_LANE_NOT_ALLOWED", "ORCA_G1", "ORCA_LANE_DEPRECATED"])
+        # The pin is one effort. Another ladder effort, or an off-ladder one, is rejected at the gate
+        # too, and Orca caps the alias at xhigh.
+        self.assertEqual(errors(coding, node("security-artifact-gate", daybreak, "high"), authz),
+                         ["ORCA_LANE_DEPRECATED"])
+        self.assertEqual(errors(coding, node("security-artifact-gate", daybreak, "medium", off_ladder=True), authz),
+                         ["ORCA_LANE_DEPRECATED"])
         for effort in ("max", "ultra"):
             with self.subTest(effort=effort):
-                self.assertEqual(errors(coding, node("security-artifact-gate", "gpt-6.1-sol", effort), authz),
+                self.assertEqual(errors(coding, node("security-artifact-gate", daybreak, effort), authz),
                                  ["ORCA_DISPATCH_UNSUPPORTED"])
+        # The withdrawn D-98 gate lane cannot take the gate back.
+        self.assertEqual(errors(coding, node("security-artifact-gate", "gpt-6.1-sol", "xhigh"), authz),
+                         ["ORCA_FIXED_LANE_OVERRIDDEN", "ORCA_LANE_WITHDRAWN"])
 
-    def test_d98_planner_routes_the_gate_to_gpt_61_sol_and_rejects_daybreak_even_if_a_registry_lists_it(self):
-        # Wiring check on the real plan path: the lane guard does not depend on the registry lifecycle.
+    def test_d101_withdrawn_gpt_lanes_get_no_new_work_and_astra_runs_at_xhigh_only(self):
+        # D-101 (Simon: "gpt 쪽은 astra 말고는 쓰지마. gpt 를 넣어야한다면 astra xhigh."): wiring check on
+        # the Orca guard. Every withdrawn key is rejected in every class at an effort it used to accept,
+        # and gpt-6-astra opens at xhigh only, with or without off_ladder.
+        all_vendors = {"quota_checked_vendors": ["claude", "codex", "gemini", "grok"]}
+
+        def node(proc, cls, model, effort, **extra):
+            return {"id": "n", "proc": proc, "class": cls, **extra,
+                    "route": {"transport": "orca", "model": model, "requested_effort": effort}}
+
+        withdrawn = (("gpt-6.1-sol", "high"), ("gpt-6-luna", "low"), ("gpt-5.6-sol", "high"),
+                     ("gpt-5.6-terra", "medium"), ("gpt-5.6-luna", "low"))
+        for model, effort in withdrawn:
+            for proc, cls in (("bulk-transform", "A"), ("claim-verify", "A-verify"), ("research-deep", "B"),
+                              ("research-collect", "C-realtime"), ("google-platform", "C-platform")):
+                with self.subTest(model=model, proc=proc):
+                    self.assertEqual(self.m._legacy_validation([node(proc, cls, model, effort)], all_vendors),
+                                     ["ORCA_LANE_WITHDRAWN"])
+                    self.assertEqual(self.m._legacy_validation(
+                        [node(proc, cls, model, effort, off_ladder=True)], all_vendors), ["ORCA_LANE_WITHDRAWN"])
+        import routing
+        self.assertEqual({model for model, _effort in withdrawn}, routing.WITHDRAWN_LANES)
+        self.assertEqual(routing.active_codex_lanes(), ["gpt-6-astra"])
+        for proc, cls in (("claim-verify", "A-verify"), ("research-deep", "B"), ("research-collect", "C-realtime")):
+            with self.subTest(astra=proc):
+                self.assertEqual(self.m._legacy_validation([node(proc, cls, "gpt-6-astra", "xhigh")], all_vendors), [])
+                for effort in ("minimal", "low", "medium", "high", "max", "ultra"):
+                    for off_ladder in (False, True):
+                        self.assertEqual(self.m._legacy_validation(
+                            [node(proc, cls, "gpt-6-astra", effort, off_ladder=off_ladder)], all_vendors),
+                            ["ORCA_DISPATCH_UNSUPPORTED"], (effort, off_ladder))
+        # A retry that moves a step onto a withdrawn or deprecated key is rejected by the re-validation.
+        base = [{"proc": "research-deep", "lane": "gpt-6-astra", "class": "B"}]
+        for lane, code in (("gpt-6.1-sol", "LANE_WITHDRAWN"), ("gpt-6-luna", "LANE_WITHDRAWN"),
+                           ("gpt-daybreak-blue-latest", "LANE_DEPRECATED")):
+            with self.subTest(retry=lane):
+                ok, violations, _notes, _new = routing.revalidate_for_retry(
+                    base, "research-deep", lane, quota_checked_vendors=routing.VENDORS)
+                self.assertFalse(ok)
+                self.assertEqual(violations, [code])
+        ok, violations, _notes, _new = routing.revalidate_for_retry(
+            base, "research-deep", "claude-fable-5-1", quota_checked_vendors=routing.VENDORS)
+        self.assertTrue(ok, violations)
+        # Derived tables: the per-process lane lists (class order, R1 promotion, writes -> coding),
+        # exploration seconds and effort defaults never produce another GPT lane or a lower astra effort.
+        retired = routing.WITHDRAWN_LANES | routing.DEPRECATED_LANES
+        for proc, cls, _label, fixed in routing.PROCESSES:
+            for falsifiable in (False, True):
+                for writes in (False, True):
+                    lanes = routing.lanes_for_proc(proc, cls, falsifiable, writes)
+                    with self.subTest(proc=proc, falsifiable=falsifiable, writes=writes):
+                        self.assertFalse(set(lanes) & retired)
+                        self.assertLessEqual({l for l in lanes if routing.LANES[l]["vendor"] == "codex"},
+                                             {"gpt-6-astra"})
+        for proc in routing.explore_candidates():
+            second = routing.lanes_for_proc(proc)[1]
+            self.assertNotIn(second, retired)
+            self.assertNotEqual(routing.LANES[second]["vendor"], "codex")
+        for falsifiable in (False, True):
+            self.assertEqual(routing.effort_for("gpt-6-astra", falsifiable), "xhigh")
+        self.assertEqual(routing.ladder_for("gpt-6-astra"), ("xhigh", "xhigh"))
+        # The only fixed process on a deprecated lane is the artifact gate, at its pinned effort.
+        self.assertEqual([(p[0], p[3]) for p in routing.PROCESSES if p[3] and p[3][0] in retired],
+                         [("security-artifact-gate", ("gpt-daybreak-blue-latest", "xhigh"))])
+
+    def test_d101_planner_routes_the_gate_to_daybreak_and_the_packaged_registry_still_blocks_it(self):
+        # Wiring check on the real plan path. With a registry that lists the alias as active, the
+        # planner makes the pinned gate ready. With the packaged registry (lifecycle: deprecated) the
+        # same candidate is still rejected with MODEL_NOT_ACTIVE: D-101 did not touch that guard.
         all_vendors = ["claude", "codex", "gemini", "grok"]
+        daybreak = "gpt-daybreak-blue-latest"
 
-        def gate_plan(model):
+        def gate_plan(model, demand="critical", proc="security-artifact-gate"):
             c = candidate(model=model, transport="orca", quality_tier=3)  # a critical step needs tier 3.
-            return self.plan([step(proc="security-artifact-gate", demand="critical", **{"class": "B"})], [c],
+            return self.plan([step(proc=proc, demand=demand, **{"class": "B"})], [c],
                              quota_checked_vendors=all_vendors)
 
-        ready = gate_plan("gpt-6.1-sol")
+        ready = gate_plan(daybreak)
         self.assertEqual(ready["status"], "ready", ready["errors"])
         self.assertEqual((ready["steps"][0]["route"]["model"], ready["steps"][0]["route"]["requested_effort"]),
-                         ("gpt-6.1-sol", "xhigh"))
+                         (daybreak, "xhigh"))
         self.assertEqual(ready["steps"][0]["route"]["reserved_upper_usd"], 0.0)
-        blocked = gate_plan("gpt-daybreak-blue-latest")
-        self.assertEqual(blocked["status"], "blocked")
-        self.assertEqual(blocked["errors"], ["ORCA_FIXED_LANE_OVERRIDDEN", "ORCA_LANE_DEPRECATED"])
-        other = self.plan([step(proc="research-deep", demand="reasoning", **{"class": "B"})],
-                          [candidate(model="gpt-daybreak-blue-latest", transport="orca")],
-                          quota_checked_vendors=all_vendors)
-        self.assertEqual(other["status"], "blocked")
-        self.assertEqual(other["errors"], ["ORCA_LANE_DEPRECATED"])
+        # Not at another effort (reasoning demand maps to high in the fixture), not in another step.
+        lower = gate_plan(daybreak, demand="reasoning")
+        self.assertEqual((lower["status"], lower["errors"]), ("blocked", ["ORCA_LANE_DEPRECATED"]))
+        other = gate_plan(daybreak, proc="research-deep")
+        self.assertEqual((other["status"], other["errors"]), ("blocked", ["ORCA_LANE_DEPRECATED"]))
+        # The withdrawn D-98 lane and the Opus fallback are not gate routes.
+        old = gate_plan("gpt-6.1-sol")
+        self.assertEqual((old["status"], old["errors"]),
+                         ("blocked", ["ORCA_FIXED_LANE_OVERRIDDEN", "ORCA_LANE_WITHDRAWN"]))
+        opus = self.plan([step(proc="security-artifact-gate", demand="reasoning", **{"class": "B"})],
+                         [candidate(model="claude-opus-5-5", surface="claude", transport="orca", quality_tier=3)],
+                         quota_checked_vendors=all_vendors)
+        self.assertEqual((opus["status"], opus["errors"]), ("blocked", ["ORCA_FIXED_LANE_OVERRIDDEN"]))
+
+        # Packaged registry: MODEL_NOT_ACTIVE keeps the gate candidate out, so the gate is not ready.
+        now = production_registry_now()
+        c = candidate(model=daybreak, transport="orca", quality_tier=3, observed_at=now)
+        c["quota"]["observed_at"] = now
+        packaged = self.m.make_plan(
+            {"run_id": "d101-packaged", "steps": [step(proc="security-artifact-gate", demand="critical",
+                                                       **{"class": "B"})]},
+            self.catalog, {"candidates": [c], "tools": [], "observed_at": now,
+                           "quota_checked_vendors": all_vendors}, now)
+        self.assertEqual(packaged["status"], "blocked")
+        reasons = {r for item in packaged["steps"][0]["rejected_candidates"] for r in item["reasons"]}
+        self.assertIn("MODEL_NOT_ACTIVE", reasons)
+        self.assertIsNone(packaged["steps"][0].get("route"))
 
     def test_cli_plan_round_trip_is_read_only(self):
         import json
@@ -2232,17 +2379,31 @@ class OrchestrationTests(unittest.TestCase):
         self.assertEqual(result["suggested_candidate_id"], "b-new")
         self.assertFalse(result["would_change"])
 
-    def test_advisory_table_names_gpt_61_sol_within_the_body_budget(self):
+    def test_advisory_table_names_only_astra_xhigh_on_the_gpt_side_within_the_body_budget(self):
+        # D-101 (2026-10-12, Simon: "gpt 쪽은 astra 말고는 쓰지마. gpt 를 넣어야한다면 astra xhigh."):
+        # the advisory table no longer names GPT-6.1 Sol, GPT-6 Sol or GPT-6 Luna.
         text = (SCRIPT.parent.parent / "SKILL.md").read_text(encoding="utf-8")
         body = text.split("\n---\n", 1)[1].splitlines()
         self.assertLessEqual(len(body), 400)
         start = body.index("| Deliverable | Advisory starting points, never active routes | Initial reasoning |")
         rows = body[start + 2:body.index("", start)]
-        for deliverable in ("Architecture", "Difficult, multi-file coding", "Focused bug fix",
-                            "Polished writing"):
+        for row in rows:
+            with self.subTest(row=row[:40]):
+                for withdrawn in ("GPT-6.1 Sol", "GPT-6 Sol", "GPT-6 Luna", "GPT-5.6"):
+                    self.assertNotIn(withdrawn, row)
+                if "GPT-" in row:
+                    self.assertIn("GPT-6 Astra at xhigh", row)
+        for deliverable in ("Architecture", "Difficult, multi-file coding"):
             with self.subTest(deliverable=deliverable):
                 row = next(line for line in rows if line.startswith("| " + deliverable))
-                self.assertIn("GPT-6.1 Sol", row)
+                self.assertIn("Claude Opus 5.5 or GPT-6 Astra at xhigh", row)
+        for deliverable, expected in (("Focused bug fix", "Claude Haiku 5.5, then Sonnet 5.5, then Opus 5.5"),
+                                      ("Polished writing", "Claude Opus 5.5"),
+                                      ("Bulk transform", "Claude Haiku 5.5")):
+            with self.subTest(deliverable=deliverable):
+                row = next(line for line in rows if line.startswith("| " + deliverable))
+                self.assertIn(expected, row)
+                self.assertNotIn("GPT-", row)
 
     def test_packaged_task_fit_policy_is_shadow_only_and_malformed_entries_fail_cleanly(self):
         policy = self.m.load_task_fit_policy()
