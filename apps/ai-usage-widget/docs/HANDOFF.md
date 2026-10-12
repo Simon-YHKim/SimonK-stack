@@ -2,6 +2,19 @@
 > prepend 전용 로그. 새 블록을 맨 위에 얹고 직전 `## Latest`는 날짜 헤더로 강등한다. 덮어쓰지 않는다.
 
 ## Latest
+- **목적**: 사용자 보고(26.10.12) "터미널이 주기적으로 순간 켜졌다 꺼진다" 해결. 원인은 위젯이 돌리는 agy의 백그라운드 업데이터였다
+- **최종 갱신**: 26.10.12 11:44 KST · Claude Code(워크트리 `SimonK-stack-aiuw-agyflash-261012`, 브랜치 `fix/aiuw-agy-updater-flash-261012`)
+- **지금까지**:
+  - 원인: 위젯이 약 2분마다 `agy -p /usage`를 숨김으로 실행한다. agy 1.3.3은 15분마다 `agy --bg-updater`를 콘솔 없이 분리 실행하고, 그 자식 `agy --version`이 새 콘솔을 받아 Windows Terminal 창이 0.2~0.3초 뜨며 포커스를 가져간다. 위젯이 넘기던 `AGY_CLI_DISABLE_AUTO_UPDATE=1`은 agy가 무시한다(`true`만 인정)
+  - 수정: `AGY_ENV_POLICY.set`의 값을 `'true'`로 바꿨다. 테스트 기대값과 DESIGN 표를 함께 고쳤다. 근거는 DECISIONS 26.10.12 11:42
+  - 검증: `pnpm verify` exit 0(58파일·677테스트). 값 `true`에서 업데이터가 뜨지 않는 것은 같은 명령을 직접 실행해 agy 로그 `auto_updater.go:247`로 확인했다
+- **다음 1개**: PR CI 통과 → merge commit 머지 → 머지 커밋 고정 `-Source`로 설치 스킬 재설치 → 설치본이 돌린 agy 로그에 `auto_updater.go:247`만 찍히는지 확인
+- **막힌 것**: 없음
+- **작업 규칙 변화**:
+  - agy 자동 업데이트 차단 값은 `true`다. `1`은 통하지 않는다. 스택의 `skills-src/vibe/scripts/runtime_collect.py`·`skills-src/ai-debate/scripts/debate.py`와 허브 `tools/hub-daemon.ps1`도 `1`을 써서 agy를 돌릴 때 같은 창이 뜬다(이 PR 범위 밖, 후속)
+  - 창이 뜨는 원인은 추측하지 않고 WinEvent 훅(EVENT_OBJECT_SHOW·EVENT_SYSTEM_FOREGROUND)으로 창 소유 프로세스의 부모 체인을 찍어 찾는다
+
+## 26.10.06 00:53 KST
 - **목적**: 사용자 보고(26.10.06) "급증 말풍선이 글을 다 담지 못하고 옆에 스크롤 막대가 떴다" 수정. 말풍선이 글을 전부 품게 한다
 - **최종 갱신**: 26.10.06 00:53 KST · Claude Code(워크트리 `SimonK-stack-aiuw-bubble-261006`, 브랜치 `fix/aiuw-bubble-fit-261006`)
 - **지금까지**:
