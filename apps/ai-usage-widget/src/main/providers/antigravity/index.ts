@@ -53,11 +53,16 @@ export const AGY_ENV_REMOVE: readonly string[] = [
   'ANTIGRAVITY_CSRF_TOKEN',
 ];
 
-/** The updater is off so a background refresh can never raise a UAC elevation prompt. */
+/**
+ * The updater is off so a background refresh can never raise a UAC elevation prompt or open a
+ * console window. The value must be the literal `true`: agy 1.3.3 ignores `1` and then spawns a
+ * detached `agy --bg-updater` every 15 minutes, whose `agy --version` child gets a visible
+ * console that takes the foreground (measured 26.10.12, DECISIONS 26.10.12 11:42).
+ */
 export const AGY_ENV_POLICY: EnvPolicy = {
   allow: BASE_ENV_ALLOW,
   remove: AGY_ENV_REMOVE,
-  set: { AGY_CLI_DISABLE_AUTO_UPDATE: '1', NO_COLOR: '1' },
+  set: { AGY_CLI_DISABLE_AUTO_UPDATE: 'true', NO_COLOR: '1' },
 };
 
 /** PATH first, then the managed install `%LOCALAPPDATA%\agy\bin\agy.exe`. */

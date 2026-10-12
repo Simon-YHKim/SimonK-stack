@@ -109,7 +109,8 @@ describe('antigravity adapter', () => {
       const [call] = await calls();
       expect(call?.args).toEqual(['-p', '/usage', '--output-format', 'json', '--print-timeout', '30s']);
       expect(path.resolve(call?.cwd ?? '')).toBe(path.resolve(account.profileDir));
-      expect(call?.autoUpdateOff).toBe('1');
+      // agy only honours the literal `true`; with `1` its background updater still runs.
+      expect(call?.autoUpdateOff).toBe('true');
       expect(call?.leakedKey).toBeNull();
       expect(logLines.join('\n')).not.toContain(LEAK_KEY);
     },
