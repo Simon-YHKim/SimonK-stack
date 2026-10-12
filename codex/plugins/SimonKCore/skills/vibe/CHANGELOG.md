@@ -1,5 +1,39 @@
 # Changelog
 
+## 2.15.7 - 2026-10-12
+
+- 모델 레지스트리 사실을 다시 확인했다(허브 PROTOCOL §35.8 1단, 승인된 절차 반복). 2.15.6 의 사실은
+  2026-10-13 12:45:26 KST 에 `REGISTRY_STALE` 이 될 예정이었다. 레지스트리 출처 28개와 task-fit 출처 9개,
+  폐기 페이지·모델 목록 6개를 모델 호출 없이 HTTPS 로 다시 읽었고(전부 첫 요청 HTTP 200, 10-06 과 같은 브라우저형
+  요청 헤더), 로컬 Codex·Grok·agy·Claude CLI 카탈로그와 메타데이터 전용 `runtime_collect.py` 와 대조했다.
+  `model_watch.py scan --force` 는 상태 파일 사본으로 돌려 원본은 읽기만 했다(새 후보 0·오류 0).
+  프롬프트·Orca 워커·설치는 0회다.
+- **제공사 사실 3개가 바뀌어 레지스트리 값을 고쳤다.** 등록 모델 18개의 사실 필드 232개(10-06 과 같은 정의)는
+  고치기 전 일치 227·불일치 3·확인불가 2 였고, 고친 뒤 일치 230·불일치 0·확인불가 2 다.
+  - `claude-sonnet-5-5` 의 `pricing.cached_input` 0.2 → 0.1: Anthropic 이 2026-10-07 에 Sonnet 5.5 캐시 읽기를
+    $0.20 → $0.10/MTok 으로 내렸다.
+  - `gpt-daybreak-blue-latest` 의 `lifecycle` active → deprecated: 모델 페이지에 Deprecated 배지와 "This alias is
+    deprecated, please use the latest cyber model available to you" 가 붙었고 모델 목록에서 빠졌다. 종료 일자와
+    대체 ID 는 공지되지 않았다. 이제 `constrain_runtime` 이 이 alias 후보를 `MODEL_NOT_ACTIVE` 로 막는다.
+  - `gemini-3.8-flash` 의 `source_updated_at` 2026-09-23 → 2026-10-09(latest-model 페이지의 Last updated).
+
+  확인불가 2개는 `gpt-5.6-terra`·`gpt-5.6-luna` 의 장문 cached_input 으로 10-06 과 같다. 근거와 표는
+  `references/model-catalog-map.md` 에 있다.
+- `checked_at` 은 실제로 쓴 근거 중 가장 이른 시각인 Grok 모델 캐시 수신 2026-10-12 11:43:08 KST 다.
+  사실은 2026-10-19 11:43:08 KST 에 `REGISTRY_STALE` 이 된다. shadow task-fit 정책은 2026-10-12 11:48:51 ~
+  2026-10-19 11:48:51 KST 에 유효하다. 레지스트리 version 은 2026-10-12.1, 정책은 2026-10-12-shadow.1 이다.
+- 관측만 기록했다(등록·레인·라우팅 변경 없음). 새 GA 모델 Claude Haiku 5.5(`claude-haiku-5-5`, 2026-10-07 출시,
+  effort low~max, 프롬프트 10만 토큰 기준 가격 구간)와 이미지 모델 `gemini-nano-banana-2.1`(10-06)이 나왔다.
+  미등록 `gemini-3.7-flash`·`gemini-3.5-flash` 는 폐기됐고(10-08), Haiku 4.5 는 Legacy 가 됐으며(은퇴 하한 10-15
+  그대로), Codex 카탈로그의 `gpt-5.5` 에 10-14 은퇴 표시가 붙었고, `gpt-6.1-sol` 에 Ultrafast 모드가 생겼다.
+  Gemini 4 Argon 은 개발자 API 에 없고 Grok 5 는 xAI 문서에 없다. Codex 0.162.1·agy 1.3.3·Claude Code 2.1.296 으로
+  올라갔다. Artificial Analysis 는 Sonnet 5.5 재측정을 아직 올리지 않아 D-90 은 그대로다.
+- 바꾸지 않은 것: 레인 라우팅·우선순위·`legacy_lane_migration`(Daybreak 의 `keep-security-pin-resolve-per-run`
+  포함)·D-90/D-91 노트·task-fit 순위. 폐기된 Daybreak alias 를 쓰는 보안 레인을 어디로 옮길지와 Haiku 5.5 등록
+  여부는 별도 결정이 필요하다.
+- `test_model_registry.py` 의 기간 테스트는 이번 재확인 창(하한 2026-10-12 11:00, 만료 2026-10-19 11:00 이후)을 본다.
+  바뀐 사실 3개와 폐기된 alias 가 `MODEL_NOT_ACTIVE` 로 막히는지 보는 테스트 1개를 더했다.
+
 ## 2.15.6 - 2026-10-06
 
 - 모델 레지스트리 사실을 다시 확인했다(허브 PROTOCOL §35.8 1단, 승인된 절차 반복). 2.15.3 의 사실은

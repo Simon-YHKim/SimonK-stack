@@ -338,11 +338,11 @@ class ModelRegistryTests(unittest.TestCase):
             wrong["access_proof"].update(change)
             self.assertFalse(self.bind(wrong, data)["candidates"][0]["available"])
 
-    def test_registry_and_task_fit_windows_cover_the_2026_10_06_recheck(self):
-        # The 2026-10-05 facts (14:17 KST) would expire REGISTRY_STALE on 2026-10-12 14:17 KST.
+    def test_registry_and_task_fit_windows_cover_the_2026_10_12_recheck(self):
+        # The 2026-10-06 facts (12:45 KST) would expire REGISTRY_STALE on 2026-10-13 12:45 KST.
         data = self.m.load_registry()
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
-        floor = datetime.fromisoformat("2026-10-06T12:00:00+09:00")
+        floor = datetime.fromisoformat("2026-10-12T11:00:00+09:00")
         checked = datetime.fromisoformat(data["checked_at"])
         self.assertGreaterEqual(checked, floor)
         self.assertGreaterEqual(datetime.fromisoformat(policy["checked_at"]), floor)
@@ -350,7 +350,32 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertLessEqual(checked, datetime.fromisoformat(policy["checked_at"]))
         earliest = min(checked + timedelta(seconds=self.m.MAX_FACT_AGE_SECONDS),
                        datetime.fromisoformat(policy["valid_until"]))
-        self.assertGreaterEqual(earliest, datetime.fromisoformat("2026-10-13T12:00:00+09:00"))
+        self.assertGreaterEqual(earliest, datetime.fromisoformat("2026-10-19T11:00:00+09:00"))
+
+    def test_2026_10_12_provider_fact_changes_are_registered_and_fail_closed(self):
+        # Three provider facts changed between the 2026-10-06 and 2026-10-12 rechecks.
+        data = self.m.load_registry()
+        models = {m["id"]: m for m in data["models"]}
+        # Anthropic halved Sonnet 5.5 cache reads on 2026-10-07 ($0.20 -> $0.10 / MTok).
+        self.assertEqual(models["claude-sonnet-5-5"]["pricing"]["cached_input"], "0.1")
+        self.assertEqual(models["claude-sonnet-5"]["pricing"]["cached_input"], "0.2")
+        self.assertEqual(models["gemini-3.8-flash"]["source_updated_at"], "2026-10-09")
+        # OpenAI marked the Daybreak Blue alias deprecated; no shutdown date or replacement ID yet.
+        alias = models["gpt-daybreak-blue-latest"]
+        self.assertEqual((alias["lifecycle"], alias["documented_target"]), ("deprecated", "gpt-5.6-sol"))
+        # The refresh changes facts only: the lane disposition waits for a separate decision.
+        self.assertEqual(data["legacy_lane_migration"]["gpt-daybreak-blue-latest"],
+                         {"candidate": "gpt-daybreak-blue-latest", "status": "keep-security-pin-resolve-per-run"})
+        observed_at = data["checked_at"]
+        trial = candidate(model="gpt-daybreak-blue-latest", resolved_model="gpt-5.6-sol", observed_at=observed_at,
+                          resolution_observed_at=observed_at, resolution_evidence="model/list",
+                          billing={"mode": "unknown", "account_ref": "seat-a"},
+                          quota={"used_pct": None, "observed_at": observed_at},
+                          access_proof={"program": "daybreak_blue", "verified": True, "observed_at": observed_at,
+                                        "evidence": "authorized catalog", "account_ref": "seat-a"})
+        out = self.m.constrain_runtime({"candidates": [trial]}, data, observed_at)["candidates"][0]
+        self.assertEqual(out["registry_errors"], ["MODEL_NOT_ACTIVE"])
+        self.assertFalse(out["available"])
 
     def test_grok_45_is_registered_without_its_unverified_xhigh(self):
         data = self.m.load_registry()
