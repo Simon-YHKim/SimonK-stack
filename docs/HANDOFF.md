@@ -1,6 +1,47 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-12 16:55 / D-101: GPT 쪽은 gpt-6-astra@xhigh만 · 보안 게이트 Daybreak 복귀 · dist 1.849.0
+## Latest — 2026-10-13 00:20 / D-102: 게이트 폴백 gpt-6-astra@xhigh 확정 · dist 1.854.0
+
+갱신 시각: 2026-10-13 00:20 KST · 갱신자: Claude Code(Opus 5.5). Simon: "권장안대로 진행해"(10-12 17:07 보고에서 오케스트레이터가 (나)를 권했다).
+
+### 어디까지 왔나
+- **D-102**(#170, Simon 판정, 토론 없음): vibe 2.18.0. registry 2026-10-12.3과 task-fit 정책은 그대로다.
+  - 생성물 게이트의 고정 배정은 `gpt-daybreak-blue-latest@xhigh` 그대로다. 그 레인이 설 수 없을 때만 `gpt-6-astra@xhigh`가 맡는다(`FIXED_FALLBACKS`).
+  - 계획기는 게이트 단계에 제시된 Daybreak Orca 후보가 전부 가용성 사유(`GATE_UNAVAILABLE_REASONS`)로 거부됐을 때만 단계에 `gate_fallback`을 남긴다. 그 기록이 있을 때만 레인 표가 `FIXED_LANE_OVERRIDDEN`과 `G1_SEC_SAME_MODEL`을 내지 않는다.
+  - packaged registry 경로에서는 그래서 지금 게이트가 `gpt-6-astra`로 간다(2.17.0에서는 막혀 있었다). 설치본에서 두 게이트 계획이 ready로 나오는 것을 확인했다.
+  - 게이트 후보에는 Daybreak를 항상 넣는다(카탈로그에서 사라졌으면 `available: false`). 빼면 폴백이 열리지 않고 계획이 막힌다.
+  - G1, 계획기의 Daybreak 차단, $0·G5·인증서 게이트는 그대로다. Simon이 먼저 말한 Opus 폴백은 채택하지 않았다(코딩과 같은 모델이 자기 산출물을 검사하게 된다).
+  - 직접 Codex CLI 경로: 철회 GPT 5개는 `MODEL_WITHDRAWN_BY_OWNER`, astra의 xhigh 밖 effort는 `EFFORT_PINNED_BY_OWNER`. 호스트 세션 자신의 모델은 제한하지 않는다.
+  - astra 게이트 canary: Orca `run_3607f8833d7e` · `ctx_56f442610119` · 10-12 23:26 KST. 요청 모델과 실제 모델 일치, 같은 결함 4개 샘플에 `GATE: BLOCK`과 CWE-89·78·22·502, 오탐 0. 심은 샘플 1건이다.
+- **dist 1.854.0**(abc7b73). 이 PC 후보 `20261013-vibe-2180-ee13556`(selftest 282/0 · 104/0, problems 0).
+- 같이 정한 것(오케스트레이터 판단, 허브 D-102에 기록): 계획기의 Daybreak 차단은 풀지 않는다 · "astra 말고는"의 예외는 Daybreak 게이트 한 자리 · 호스트 세션의 모델은 제한하지 않는다.
+
+### 알고 넘어갈 한계
+- 폴백 상태에서는 한 모델이 두 보안 질문에 모두 답한다. 두 게이트가 독립된 검사가 아니다.
+- `gpt-6-astra`는 cyber 전용 모델이 아니다. canary는 심은 샘플 1건이고 루브릭 9개 검사 중 4개만 본다.
+- 가드는 Orca 경로만 본다. host·직접 CLI로 간 게이트 단계는 고정·폴백 검사를 받지 않는다.
+- 실행 전 Codex 카탈로그 확인은 서면 규칙이다. 스크립트가 하지 않는다.
+- 호스트가 멀쩡한 Daybreak를 `available: false`로 보고하면 폴백이 열린다. 사유는 단계에 남는다.
+- 어느 Orca 레인도 런치 인증서 전에는 자동 실행되지 않는다. 바뀐 것은 계획 단계다.
+- A 클래스는 전부 claude라 Claude가 한도에 닿으면 멈춘다(codex 폴백 없음).
+- canary를 돌리지 않은 것: 코디네이터로서의 astra, A 클래스 순서 변경, ai-debate Codex 좌석.
+- CI가 돌리지 않는 테스트 13건이 실패한다(`scripts/tests/test_install_simonk_profile.py` 10, `scripts/tests/test_multi_terminal_entrypoint.py` 3). D-101 전 main에서도 같았다.
+
+### 다음 작업 큐
+| # | 작업 | 시점 | 단 |
+|---|---|---|---|
+| A | Grok catch-up: 토론 `dbt-261012-124530`(D-98) · `dbt-261012-124540`(D-99) | Grok 리셋(10-17 23:12) 직후 | 의무 |
+| B | grok-4.6 → 4.7 레인 canary | A와 같은 때, Grok 85% 미만 | 1단 |
+| C | 클라우드 봇 워크북에 D-93 반영(Relay 과제, approval_ref=simon-261006-남은것까지진행) | 봇 사용량 포함 증거를 15분 안에 확보할 수 있을 때 | 1단 |
+| D | 레지스트리 재확인 | 2026-10-19 11:43 KST 전 | 1단 |
+| E | canary 3건: 코디네이터 astra, A 순서, ai-debate Codex 좌석(다음 토론의 `meta.json` 모델 값) | 다음 사용 때 | 1단 |
+| F | AA Sonnet 5.5 공개판 재측정 확인 | AA 발표 시 | 1단 |
+| G | 폐기 별칭이 아닌 cyber 모델이 `~/.codex/models_cache.json`에 나타나면 같은 canary 후 고정 레인 이전(폴백은 그대로) | 카탈로그 변화 시 | 1단 |
+| H | CI 밖 실패 테스트 13건 정리 | 요청 시 | 1단 |
+
+Simon 몫: "astra 말고는 쓰지마"에 Daybreak도 포함되는지(지금은 게이트 한 자리만 예외), Codex가 띄운 "Daybreak 모드 보안 설정(하드웨어 보안 키)" 안내, Codex `service_tier = "priority"` 유지 여부.
+
+## 2026-10-12 16:55 / D-101: GPT 쪽은 gpt-6-astra@xhigh만 · 보안 게이트 Daybreak 복귀 · dist 1.849.0
 
 갱신 시각: 2026-10-12 16:55 KST · 갱신자: Claude Code(Opus 5.5). Simon: "gpt 6.1 sol은 너무 느려서 빼기로 결정. 기획단계 gpt astra xhigh와 opus 5.5. 단순작업 sonet 5.5", "보안게이트는 데이브레이크로 할려했는데 그게 안돼면 opus 5.5로 하자.", "gpt 쪽은 astra 말고는 쓰지마. gpt 를 넣어야한다면 astra xhigh."
 
