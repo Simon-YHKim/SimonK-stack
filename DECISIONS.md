@@ -776,3 +776,23 @@ last-sync: 2026-07-05
   - **이행 예정**: SimonK-stack #165(vibe 2.15.7, registry 2026-10-12.1 만료 10-19 11:43:08 KST, task-fit ~10-19 11:48:51) → 같은 PR 승인 → 머지 → dist → update-local | claude
 
 - 2026-10-12 12:43:45 KST | AMEND | **D-97 vibe 레지스트리 사실 재확인(2026-10-12) — 제공사 사실 3건 변경 반영** — 이행: SimonK-stack #165(20ce034, vibe 2.15.7) 머지, 같은 PR 승인(Claude 4c3b3885·Codex b2a5930a), main run 38200192188이 dist 632abe2 1.840.0 게시. 이 PC: 후보 20261012-vibe-2157-20ce034(실행 레지스트리 2026-10-12.1, selftest vibe 196/0·vibe_bot 104/0, problems 0). 남은 결정: 보안 생성물 게이트 레인 이전, claude-haiku-5-5 등록(각 2단 토론) | claude
+
+- 2026-10-12 12:52:11 KST | DECIDE | **D-98 보안 생성물 게이트 레인: 폐기 표시된 Daybreak 별칭의 처우** (§35 4벤더 토론 · PROVISIONAL 3/4) | claude
+  - **안건**: OpenAI API 문서가 gpt-daybreak-blue-latest 별칭을 deprecated로 표시했다(종료일·대체 ID 미공지, 이 계정 Codex 카탈로그에는 아직 list·cyber로 남음). /vibe의 보안 생성물 안전성 게이트(security-artifact-gate) 레인을 어떻게 할 것인가? — 선택지: 1) 유지·차단: 레인은 Daybreak 그대로 두고 중앙 계획기의 MODEL_NOT_ACTIVE 거부를 유지한다. OpenAI가 대체 cyber 모델을 공지하거나 이 계정 카탈로그에 나타날 때까지 이 게이트가 필요한 계획은 멈춘다 / 2) gpt-6.1-sol@xhigh로 이전: Codex 현행 워크호스(범용)로 옮긴다. 인가 게이트(gpt-6-astra)와 다른 모델이고 같은 codex 벤더라 G1을 유지하지만 cyber 전용성은 잃는다 / 3) 조건부 유지: Codex 카탈로그가 별칭을 list로 노출하고 은퇴 표시가 없는 동안에는 보안 생성물 게이트에 한해 deprecated 별칭 후보를 허용하는 예외를 계획기에 넣는다(카탈로그에서 빠지거나 은퇴 일자가 붙으면 자동 차단) / 4) Claude(claude-fable-5-1 또는…
+  - **참석**: Claude ✓(claude-opus-5-5, 세션 내) · Codex ✓(gpt-6.1-sol) · Grok ✗(402 ~2026-10-17 23:12 KST) · Gemini ✓(gemini-3.1-pro-high)
+  - **입장**: Claude[사용자 이익]: 선택지 3 — 확신도 62 · Codex[찬성]: 선택지 2 — 확신도 78 · Gemini[대안]: 대안 (선택지 5: `resolve-per-run` 동적 리졸버 활성화 — `gpt-6.1-sol@xhigh` 안전 폴백 및 사이버 보안 루브릭 주입) — 확신도 92
+  - **교차검증**: quick 모드 생략
+  - **심판**: Gemini (블라인드·새 세션·자기 벤더 입장 포함) — VERDICT: P2의 keep-security-pin-resolve-per-run 동적 리졸버 방식을 채택하여 gpt-6.1-sol@xhigh에 사이버 보안 방어 루브릭을 결합하고, P1·P3가 제시한 사전 카나리 검증 및 빈 출력 fail-closed 조건을 통합 적용한다. · CONFIDENCE 91
+  - **소수의견**: **P3의 소수의견**: API 문서가 "available to you인 최신 cyber 모델을 쓰라"고 안내했고 계정 카탈로그에 cyber specialty로 노출된 유일한 모델이 Daybreak인 이상, 범용 모델로의 이전은 잠재적인 보안 감지 전문성을 저하시킬 수 있다는 우려. **P1의 소수의견**: 범용 모델에 `xhigh`나 루브릭을 적용하더라도 실제 사이버 취약점 탐지력이 Daybreak와 동등하다는 실측 데이터는 아직 없으므로, 이전 자체를 안전성 확보로 간주해서는 안 되며 철저한 사전 검증 없이는 배포해서는 안 된…
+  - **후속**: **동적 리졸버 및 레거시 동기화**: `routing.py`의 `keep-security-pin-resolve-per-run`을 활성화하여 `security-artifact-gate` 호출 시 `gpt-6.1-sol@xhigh`로 안전하게 런타임 리졸브되도록 정합화한다. **사이버 보안 루브릭 주입**: 생성물 안전성 게이트 프롬프트에 OWASP/CWE 기반 점검 체크리스트를 구조화된 프롬프트 팩으로 주입하여 도메인 탐지력을 보강한다. **카나리 검증 및 fail-closed 빈 출력 차단**: 구독 쿼터 내에서 취약성 샘플을… · Grok 복귀 시 catchup 라운드 의무 (`debate.py catchup`)
+  - **원문**: C:/Users/202502/AppData/Local/SimonKStack/ai-debate/debates/dbt-261012-124530
+
+- 2026-10-12 12:52:11 KST | DECIDE | **D-99 Claude Haiku 5.5의 /vibe 반영** (§35 4벤더 토론 · PROVISIONAL 3/4) | claude
+  - **안건**: 2026-10-07 GA된 claude-haiku-5-5(미등록)를 /vibe 레지스트리와 A 클래스(기계적·판단 0) 레인에 어떻게 반영할 것인가? — 선택지: 1) 등록하지 않는다: 대응표의 관측 기록만 유지한다 / 2) 사실만 등록: 레지스트리에 모델 사실(가격 구간 포함)만 등록하고 레인·순위는 바꾸지 않는다. canary도 나중에 한다 / 3) 등록 + canary + A 클래스 맨 앞 레인 추가: 읽기 전용 Orca canary 통과 시 claude-haiku-5-5 → gpt-6-luna → claude-sonnet-5-5 → claude-opus-5-5 순으로 둔다 / 4) 등록 + canary + A 클래스에서 Sonnet 5.5 자리를 대체: gpt-6-luna → claude-haiku-5-5 → claude-opus-5-5 로 두고 Sonnet 5.5는 A 클래스에서 뺀다 / 5) 등록 + canary + Claude 쪽 첫 폴백으로 추가: gpt-6-luna → claude-haiku-5-5 → claude-sonnet-5-5 → claude-opus-5-5 (기존 첫 레인과 Sonnet은 그대로)
+  - **참석**: Claude ✓(claude-opus-5-5, 세션 내) · Codex ✓(gpt-6.1-sol) · Grok ✗(402 ~2026-10-17 23:12 KST) · Gemini ✓(gemini-3.1-pro-high)
+  - **입장**: Claude[대안]: 선택지 5 (변형: canary와 별도로 정답이 정해진 A 클래스 고정 과제 1회 + 3·4번 배열로 넘어가는 조건을 지금 기록) — 확신도 68 · Codex[사용자 이익]: 선택지 5 — 확신도 78 · Gemini[회의]: 선택지 2 — 확신도 85
+  - **교차검증**: quick 모드 생략
+  - **심판**: Codex (블라인드·새 세션·자기 벤더 입장 포함) — VERDICT: 선택지 5를 조건부 채택한다. 사실 등록 후 추가 과금 없는 canary와 대표 A 작업의 정답 검증을 통과하면 Claude 첫 폴백으로 추가하고, 실패하거나 확인이 불가능하면 선택지 2에 머문다. · CONFIDENCE 82
+  - **소수의견**: P3와 P2가 제기한 **실측 이득 없는 유지보수·재시도 부담**은 유효하다. 같은 Claude 구독에서 Haiku 실패 후 Sonnet을 호출하면 총 쿼터가 늘 수 있다. 대표 과제 검증을 통과해도 대량·장문 작업 전체의 품질이나 쿼터 절감이 입증되는 것은 아니다.
+  - **후속**: 모델 사실·effort 지원·출처 URL과 두 가격 구간을 등록하고, 가격 경계 및 스키마 테스트를 고정한다. 기존 키는 보존한다. 추가 과금 없는 구독 경로에서 읽기 전용 canary 1회를 수행한다. argv와 세션 기록으로 실제 모델명을 확인한다. 가능하면 같은 실행에 정답이 정해진 대표 정형 변환·스키마 검증·분류 집계를 포함한다. effort를 명시하고 정답·누락·형식을 검사한다. 통과하면 새 레인 키를 옆에 추가한다: `gpt-6-luna → claude-haiku-5-5 → claude-sonnet-5-5 → clau… · Grok 복귀 시 catchup 라운드 의무 (`debate.py catchup`)
+  - **원문**: C:/Users/202502/AppData/Local/SimonKStack/ai-debate/debates/dbt-261012-124540
