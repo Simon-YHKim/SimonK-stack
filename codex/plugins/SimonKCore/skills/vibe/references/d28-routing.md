@@ -127,7 +127,8 @@ Q-260913-01 grok 새 계정 충전 · 05 codex 60% 경계 게이트 몫 · 06 �
 
 - **무엇**: 코딩 = codex(`gpt-6-astra` @xhigh — D-101 로 `gpt-5.6-sol` 선택지는 철회) · 보안 게이트 2개 = claude 의 서로 다른 두 모델(`claude-opus-5` · `claude-fable-5-1`).
 - **D-98 (2026-10-12 오전)**: 생성물 게이트를 `gpt-6.1-sol` @xhigh 로 옮겼었다(제공사가 daybreak 별칭을 폐기 표시).
-- **D-101 (2026-10-12 오후 · Simon 지시)**: 게이트를 `gpt-daybreak-blue-latest` @xhigh 로 되돌리고 GPT 쪽 레인을 `gpt-6-astra` @xhigh 하나로 줄였다. 그래서 이 문서 위쪽 표의 sol·luna·terra 배치(#3 #6 #7 #8 #9 #10)는 2026-09 기록이고, 지금 값은 A = haiku-5-5 → sonnet-5-5 → opus-5-5 · C = 1순위 → opus-5-5 → astra · 코디네이터 = astra@xhigh 다. 철회된 레인은 계획에 넣으면 `LANE_WITHDRAWN` 이다. 거울 배치의 codex 코딩 후보도 `gpt-6-astra` 뿐이다(`gpt-5.6-sol` 은 철회). 별칭이 사라졌을 때의 폴백은 이 거울 배치가 아니라 `references/security-artifact-gate.md` 의 Open item 이며 Simon 판정 대기다.
+- **D-101 (2026-10-12 오후 · Simon 지시)**: 게이트를 `gpt-daybreak-blue-latest` @xhigh 로 되돌리고 GPT 쪽 레인을 `gpt-6-astra` @xhigh 하나로 줄였다. 그래서 이 문서 위쪽 표의 sol·luna·terra 배치(#3 #6 #7 #8 #9 #10)는 2026-09 기록이고, 지금 값은 A = haiku-5-5 → sonnet-5-5 → opus-5-5 · C = 1순위 → opus-5-5 → astra · 코디네이터 = astra@xhigh 다. 철회된 레인은 계획에 넣으면 `LANE_WITHDRAWN` 이다. 거울 배치의 codex 코딩 후보도 `gpt-6-astra` 뿐이다(`gpt-5.6-sol` 은 철회). 별칭이 설 수 없을 때의 폴백은 이 거울 배치가 아니다 — D-102 가 정했다(아래).
+- **D-102 (2026-10-12 밤 · Simon 판정)**: 생성물 게이트의 고정 레인(`gpt-daybreak-blue-latest`)이 설 수 없을 때만 `gpt-6-astra` @xhigh 가 대신 선다(`routing.FIXED_FALLBACKS`). 그 상태 하나에서만 `G1_SEC_SAME_MODEL` 을 면제하고 `G1` 은 그대로다. 중앙 계획기는 호스트의 요청이 아니라 제시받은 후보를 거부한 자기 기록으로 사유를 만들어 단계에 `gate_fallback` 을 남긴다. Simon 이 먼저 말한 `claude-opus-5-5` 폴백은 채택하지 않았다(코딩과 같은 모델이 자기 산출물을 검사하게 된다). 조건·한계·canary 는 `references/security-artifact-gate.md` 에 있다.
 - **언제만 쓰나**: 쿼터가 아니라 **특정 모델**이 막혔을 때 — daybreak(보안 전용) 장애 · Trusted Access 해제 · astra 장애 등.
 - **쿼터 대책이 아니다**: 판단 벤더가 claude·codex 둘뿐이라, 어느 벤더가 한도에 닿아도 현행이든 거울 배치든 코딩과 게이트 중 한쪽이 멈춘다.
 - **비용**: daybreak 보안 전용 모델·Trusted Access 경로를 잃는다 · 종합(D)과 게이트가 같은 claude 벤더가 된다 · fable 게이트는 보안 요청에서 refusal 가능성(추정).

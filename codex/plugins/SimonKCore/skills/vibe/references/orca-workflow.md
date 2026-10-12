@@ -58,16 +58,25 @@ D-101 이 되돌렸다(아래).
   codex 가 80% 를 넘으면 astra 자리는 Claude 레인으로 강등된다.
 - 코디네이터는 `gpt-6-astra` @xhigh 다. astra 는 인가 게이트이자 B 1순위라 겸임 경고가 자주 뜬다(경고일 뿐이다).
 - 보안 생성물 게이트의 고정 레인은 `gpt-daybreak-blue-latest` @xhigh 다. 제공사는 이 별칭을 여전히 폐기 표시하고
-  중앙 계획기는 packaged registry 로 MODEL_NOT_ACTIVE 를 낸다. 그래서 그 경로로는 게이트가 준비되지 않는다.
+  중앙 계획기는 packaged registry 로 MODEL_NOT_ACTIVE 를 낸다. 그래서 그 경로로는 Daybreak 게이트가 준비되지 않고,
+  D-102 폴백(아래)이 게이트를 맡는다.
   레인 표의 ORCA_LANE_DEPRECATED 는 이 고정 자리(고정 effort xhigh) 하나만 통과시키고, 다른 공정·코딩·재시도·
   다른 effort 는 그대로 막는다.
-- 게이트 워커를 띄우기 전에 코디네이터가 `~/.codex/models_cache.json` 에 별칭이 은퇴·upgrade 표시 없이 남아 있는지
-  확인한다. 없거나, 게이트 출력이 비거나 차단되면 게이트는 통과가 아니라 실패다. 다른 모델로 게이트를 띄우지 않는다.
-  Simon 이 말한 Opus 폴백은 G1 과 충돌해 구현하지 않았고 판정 대기다(`references/security-artifact-gate.md`).
+- Daybreak 게이트 워커를 띄우기 전에 코디네이터가 `~/.codex/models_cache.json` 에 별칭이 은퇴·upgrade 표시 없이 남아
+  있는지 확인한다. 없으면 Daybreak 로 띄우지 않고, 그 후보를 `available: false` 로 넣어 계획을 다시 세운다.
+  게이트 출력이 비거나 차단되면 통과가 아니라 실패다 — 같은 실행을 폴백에 넘기지 않는다.
+- **D-102(2026-10-12, 2.18.0, Simon 판정)**: Daybreak 가 설 수 없을 때만 `gpt-6-astra` @xhigh 가 생성물 게이트를 맡는다.
+  계획기는 게이트 단계에 제시된 Daybreak Orca 후보가 전부 가용성 사유(MODEL_NOT_ACTIVE·MODEL_UNAVAILABLE 등)로 거부됐을
+  때만 단계에 `gate_fallback`(고정 레인·폴백 레인·사유)을 남기고, 그 기록이 있어야 레인 표가
+  ORCA_FIXED_LANE_OVERRIDDEN·ORCA_G1_SEC_SAME_MODEL 을 내지 않는다. Daybreak 후보를 빼면 폴백은 열리지 않는다
+  (항상 넣는다). 요청에 `gate_fallback` 을 실어 보내도 계획기가 버린다. `prepare_orca`·`execute_orca` 는 저장된 기록을
+  다시 검사하고 어긋나면 ORCA_PLAN_GUARD 로 멈춘다(계획기 코드는 ORCA_GATE_FALLBACK_INVALID). G1 은 면제하지 않는다 — 코딩이 codex 면 폴백 상태에서도 위반이다.
+  폴백 상태에서는 한 모델이 두 보안 질문에 모두 답한다(두 게이트가 독립된 검사가 아니다).
+  Simon 이 먼저 말한 Opus 폴백은 채택하지 않았다(`references/security-artifact-gate.md`).
 - 게이트 워커의 과제문에는 `references/security-artifact-gate.md` 의 루브릭과 출력 형식을 넣고, 빈 출력·차단·
   첫 줄 누락·모호한 판정은 통과가 아니라 실패로 읽는다. 게이트는 자기 벤더(codex)가 만든 산출물을 채점하지 않는다(G1).
-- canary 를 돌린 것은 Daybreak 게이트뿐이다(run `run_b08adccb4ec8`, 심은 샘플 1건). 코디네이터로서의 astra 와
-  A 클래스 순서 변경은 canary 가 없다.
+- canary 를 돌린 것은 Daybreak 게이트(run `run_b08adccb4ec8`)와 폴백 게이트로서의 astra(run `run_3607f8833d7e`)다.
+  둘 다 심은 샘플 1건이다. 코디네이터로서의 astra 와 A 클래스 순서 변경은 canary 가 없다.
 
 gpt-6-sol, grok-4.7, grok-4.5 로의 Orca 발주는 여전히
 ORCA_UNREGISTERED_PROCESS_OR_MODEL 이다(`references/model-catalog-map.md`).

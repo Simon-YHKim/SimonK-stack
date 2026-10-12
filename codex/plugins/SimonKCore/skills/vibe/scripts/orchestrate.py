@@ -27,6 +27,12 @@ SURFACES = {"claude": "anthropic", "codex": "openai", "antigravity": "google",
 GUARDED_EXECUTION_ADAPTERS = {("claude", "cli"), ("codex", "cli"),
                               ("claude", "orca"), ("codex", "orca")}
 DEMAND_TIER = {"routine": 1, "reasoning": 2, "critical": 3}
+# Hub D-102: rejection reasons that mean the pinned security-gate model cannot stand at all.
+# Only these open the declared fallback (routing.FIXED_FALLBACKS). A quota state, a stale
+# registry or a gate verdict is not one of them.
+GATE_UNAVAILABLE_REASONS = frozenset({
+    "MODEL_NOT_ACTIVE", "MODEL_NOT_REGISTERED", "MODEL_UNAVAILABLE", "MODEL_ACCESS_UNVERIFIED",
+    "ALIAS_RESOLUTION_UNVERIFIED", "ALIAS_RESOLUTION_STALE", "MODEL_RESOLUTION_MISMATCH"})
 # Task semantics only. Models, scoring, effort and money stay in central policy.
 # model-router documents this contract; offline tests bind the mirror to it.
 TASK_TYPE_MAP = {
@@ -834,6 +840,42 @@ def direct_cli_contract(c, step, debate):
     return errors
 
 
+def _routing():
+    """The Orca lane table. Imported lazily: planning without Orca or Codex nodes never needs it."""
+    if str(SCRIPT_ROOT) not in sys.path:
+        sys.path.insert(0, str(SCRIPT_ROOT))
+    import routing
+    return routing
+
+
+def owner_gpt_policy(c, effort):
+    """Hub D-101, extended to the direct Codex CLI by D-102.
+
+    The owner withdrew five GPT models and pinned gpt-6-astra to xhigh. The Orca transport gets
+    the same rule from routing.validate_plan; this covers the other dispatched Codex transport.
+    A host session's own model is not restricted here.
+    """
+    routing = _routing()
+    names = {c.get("model"), c.get("requested_model"), c.get("resolved_model")} - {None}
+    errors = []
+    if names & routing.WITHDRAWN_LANES:
+        errors.append("MODEL_WITHDRAWN_BY_OWNER")
+    pinned = {routing.EFFORT_PINNED[name] for name in names if name in routing.EFFORT_PINNED}
+    if pinned and pinned != {effort}:
+        errors.append("EFFORT_PINNED_BY_OWNER")
+    return errors
+
+
+def gate_pin(step):
+    """(pinned lane, (fallback lane, fallback effort)) for a process with a declared fallback, else None."""
+    proc = step.get("proc")
+    if not isinstance(proc, str):
+        return None
+    routing = _routing()
+    fixed, fallback = routing.fixed_for(proc), routing.fixed_fallback_for(proc)
+    return (fixed[0], tuple(fallback)) if fixed and fallback else None
+
+
 def assess_candidate(c, step, policy, now, producer_vendor=None, debate=None):
     errors = list(c.get("registry_errors", []))
     errors.extend(direct_cli_contract(c, step, debate))
@@ -890,6 +932,8 @@ def assess_candidate(c, step, policy, now, producer_vendor=None, debate=None):
             errors.append("EFFORT_UNSUPPORTED")
         if c.get("transport") == "host" and c.get("effective_effort") != effort:
             errors.append("HOST_EFFORT_MISMATCH")
+        if (surface, c.get("transport")) == ("codex", "cli"):
+            errors.extend(owner_gpt_policy(c, effort))
     billing = c.get("billing", {})
     account_ref = billing.get("account_ref")
     if not isinstance(account_ref, str) or not account_ref.strip():
@@ -1017,10 +1061,8 @@ def _legacy_validation(nodes, runtime):
     orca_nodes = [s for s in nodes if (s.get("route") or {}).get("transport") == "orca"]
     if not orca_nodes:
         return []
-    if str(SCRIPT_ROOT) not in sys.path:
-        sys.path.insert(0, str(SCRIPT_ROOT))
-    import routing
-    assignments = []
+    routing = _routing()
+    assignments, fixed_unavailable = [], {}
     for s in orca_nodes:
         r = s["route"]
         a = {"proc": s.get("proc"), "class": s.get("class"), "lane": r["model"],
@@ -1033,11 +1075,28 @@ def _legacy_validation(nodes, runtime):
                                   worktree="current", allow_off_ladder=a["off_ladder"])
         except ValueError:
             return ["ORCA_DISPATCH_UNSUPPORTED"]
+        record = s.get("gate_fallback")
+        if record is not None:
+            # D-102: the planner writes this record from its own rejections. Re-check it here,
+            # because prepare_orca and execute_orca validate a stored plan through this function.
+            fixed, declared = routing.fixed_for(a["proc"]), routing.fixed_fallback_for(a["proc"])
+            reasons = record.get("reasons") if isinstance(record, dict) else None
+            rejected = s.get("rejected_candidates")
+            seen = {r for item in (rejected if isinstance(rejected, list) else [])
+                    if isinstance(item, dict) and isinstance(item.get("reasons"), list)
+                    for r in item["reasons"] if isinstance(r, str)}
+            if (not isinstance(record, dict) or not fixed or not declared or a["lane"] != declared[0]
+                    or record.get("fixed_lane") != fixed[0] or record.get("fallback_lane") != declared[0]
+                    or not isinstance(reasons, list) or not reasons
+                    or any(not isinstance(r, str) for r in reasons)
+                    or not set(reasons) <= GATE_UNAVAILABLE_REASONS or not set(reasons) <= seen):
+                return ["ORCA_GATE_FALLBACK_INVALID"]
+            fixed_unavailable[a["proc"]] = list(reasons)
         assignments.append(a)
     # G5 counts the four original provider seats, not five execution surfaces.
     ok, violations, _ = routing.validate_plan(
         assignments, quota_checked_vendors=runtime.get("quota_checked_vendors", []),
-        quota_states=runtime.get("quota_states", {}))
+        quota_states=runtime.get("quota_states", {}), fixed_unavailable=fixed_unavailable or None)
     return [] if ok else ["ORCA_" + v for v in violations]
 
 
@@ -1107,6 +1166,7 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
     for s in nodes:
         errors, rejected, choices = [], [], []
         s["route"], s["handoff"] = None, None
+        s.pop("gate_fallback", None)  # Only this planner writes it (D-102); a request cannot supply one.
         s["skill_paths"] = []
         s["skill_bindings"] = []
         if (s.get("kind") not in ("local", "llm", "gui", "image")
@@ -1217,8 +1277,17 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                     # The runner applies `run_state.py gstack-env` output to this process.
                     s["handoff"]["gstack_isolation"] = True
         elif s["kind"] != "image" and not errors:
+            # D-102: for a process with a declared fallback, remember why its pinned Orca
+            # candidates were rejected. The fallback opens only on those rejections.
+            pin = gate_pin(s) if any(c.get("transport") == "orca" for c in candidates) else None
+            pin_eligible, pin_rejections = False, []
             for c in candidates:
                 reasons, effort, amount = assess_candidate(c, s, policy, now, vendor, debate)
+                if pin and c.get("transport") == "orca" and c.get("model") == pin[0]:
+                    if reasons:
+                        pin_rejections.append(set(reasons) & GATE_UNAVAILABLE_REASONS)
+                    else:
+                        pin_eligible = True
                 if reasons:
                     rejected.append({"candidate_id": c["id"], "reasons": reasons})
                     continue
@@ -1245,6 +1314,14 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                               "reserved_upper_usd": float(amount), "actual_usd": None,
                               "valid_until": c["valid_until"],
                               "runtime_observed_at": c["observed_at"]}
+                if (pin and c["transport"] == "orca" and c.get("model") == pin[1][0]
+                        and not pin_eligible and pin_rejections and all(pin_rejections)):
+                    # Every pinned candidate offered for this step was rejected because the model
+                    # cannot stand, and the route is the declared fallback. _legacy_validation
+                    # turns this record into routing.validate_plan(fixed_unavailable=...).
+                    s["gate_fallback"] = {"decision": "D-102", "fixed_lane": pin[0],
+                                          "fallback_lane": pin[1][0], "fallback_effort": pin[1][1],
+                                          "reasons": sorted(set().union(*pin_rejections))}
                 s["handoff"] = {"kind": c["transport"], "read_skills": s["skill_paths"],
                                 "reuse_coordinator": any(b.get("canonical_name", b.get("name")) in ORCHESTRATORS
                                                          for b in s["skill_bindings"])}

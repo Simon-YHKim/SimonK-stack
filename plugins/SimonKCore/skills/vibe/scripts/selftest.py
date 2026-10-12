@@ -857,7 +857,7 @@ def run():
              {"proc": "security-artifact-gate", "lane": "claude-opus-5-5", "class": "B"},
              {"proc": "security-bizlogic-2nd", "lane": "gpt-6-astra", "class": "B"}],
             quota_checked_vendors=routing.VENDORS)
-        check("D-101 Opus 폴백은 구현되지 않았다 — 게이트를 claude-opus-5-5 로 두면 G1 + FIXED_LANE_OVERRIDDEN",
+        check("D-101 Opus 는 게이트 레인이 아니다(D-102 폴백도 아니다) — claude-opus-5-5 로 두면 G1 + FIXED_LANE_OVERRIDDEN",
               not ok_op and {"G1", "FIXED_LANE_OVERRIDDEN"} <= set(v_op), str(v_op))
         ok_pin, v_pin, _npin = routing.validate_plan(
             [{"proc": "security-artifact-gate", "lane": daybreak, "class": "B", "effort": "xhigh"}],
@@ -908,15 +908,85 @@ def run():
                                      "Missing first line", "Ambiguous verdict", "GATE: BLOCK", "GATE: PASS",
                                      "The gate never grades work made by its own vendor",
                                      "No automatic promotion",
-                                     # D-101 — 실행 전 카탈로그 확인 · 미결 폴백 · 두 canary 기록
+                                     # D-101 — 실행 전 카탈로그 확인 · canary 기록
                                      "`gpt-daybreak-blue-latest` @ `xhigh`", "## Before each run",
                                      "~/.codex/models_cache.json", "the gate **FAILS**",
-                                     "OPEN. Not implemented. Needs Simon's ruling.", "collides with G1",
-                                     "run_b08adccb4ec8", "ctx_41243c1a0d26", "run_8f7a27febc38")
+                                     "run_b08adccb4ec8", "ctx_41243c1a0d26", "run_8f7a27febc38",
+                                     # D-102 — 폴백이 정해졌다: 언제 열리는지 · 무엇을 지키는지 · 한계 · canary
+                                     "## Fallback: `gpt-6-astra` @ `xhigh` (D-102)", "**Decided and implemented.**",
+                                     "The pin does not move", "A host cannot ask for the fallback",
+                                     "**G1_SEC_SAME_MODEL is waived in exactly one state**", "**G1 is not waived.**",
+                                     "never a reason to ask the fallback for a second opinion",
+                                     "no longer independent checks", "run_3607f8833d7e", "ctx_56f442610119")
                          if s not in gate_text]
-        check("D-101 게이트 규칙 문서가 fail-closed·G1·실행 전 확인·미결 폴백·대체 규칙을 적는다 "
+        check("D-101·D-102 게이트 규칙 문서가 fail-closed·G1·실행 전 확인·폴백 조건·대체 규칙을 적는다 "
               "(references/security-artifact-gate.md)",
               not missing_rules, str(missing_rules))
+        check("D-102 게이트 문서에 미결 표시가 남아 있지 않다",
+              "## Open item" not in gate_text and "Needs Simon's ruling" not in gate_text)
+
+        # D-102 (2026-10-12 · 2.18.0 · Simon 판정) — 생성물 게이트 폴백: Daybreak 가 설 수 없을 때만 gpt-6-astra @xhigh
+        gate_proc, fb_lane = "security-artifact-gate", "gpt-6-astra"
+        why102 = {gate_proc: ["MODEL_NOT_ACTIVE"]}
+        fb_plan = [{"proc": "coding", "lane": default_coding, "class": "B"},
+                   {"proc": gate_proc, "lane": fb_lane, "class": "B"},
+                   {"proc": "security-bizlogic-2nd", "lane": "gpt-6-astra", "class": "B"}]
+        check("D-102 폴백 표는 생성물 게이트 → gpt-6-astra @xhigh 하나이고 고정 배정은 Daybreak 그대로다",
+              routing.FIXED_FALLBACKS == {gate_proc: (fb_lane, "xhigh")}
+              and routing.fixed_fallback_for(gate_proc) == (fb_lane, "xhigh")
+              and routing.fixed_for(gate_proc) == (daybreak, "xhigh"), str(routing.FIXED_FALLBACKS))
+        check("D-102 폴백 레인은 codex 다 — 게이트 벤더가 코딩 벤더(claude)와 겹치지 않는다 (G1)",
+              routing.LANES[fb_lane]["vendor"] == "codex"
+              and routing.LANES[default_coding]["vendor"] == "claude")
+        ok_f, v_f, n_f = routing.validate_plan(fb_plan, quota_checked_vendors=routing.VENDORS,
+                                               fixed_unavailable=why102)
+        check("D-102 설 수 없는 사유가 있으면 게이트가 폴백 레인에 서고 G1_SEC_SAME_MODEL 을 면제한다 (notes 에 남는다)",
+              ok_f and any("D-102" in x and "G1_SEC_SAME_MODEL" in x for x in n_f), str((v_f, n_f)))
+        for closed in (None, {}, {gate_proc: []}, {gate_proc: [""]}, {"security-bizlogic-2nd": ["MODEL_NOT_ACTIVE"]}):
+            ok_n, v_n, _nn = routing.validate_plan(fb_plan, quota_checked_vendors=routing.VENDORS,
+                                                   fixed_unavailable=closed)
+            check(f"D-102 사유가 없으면({closed!r}) 폴백은 열리지 않는다 (FIXED_LANE_OVERRIDDEN + G1_SEC_SAME_MODEL)",
+                  not ok_n and {"FIXED_LANE_OVERRIDDEN", "G1_SEC_SAME_MODEL"} <= set(v_n), str(v_n))
+        ok_u, v_u, _nu = routing.validate_plan(
+            [fb_plan[0], dict(fb_plan[1], lane=daybreak), fb_plan[2]],
+            quota_checked_vendors=routing.VENDORS, fixed_unavailable=why102)
+        check("D-102 설 수 없다고 해 놓고 고정 레인에 배정하면 FIXED_LANE_UNAVAILABLE",
+              not ok_u and v_u == ["FIXED_LANE_UNAVAILABLE"], str(v_u))
+        ok_o, v_o, _no = routing.validate_plan(
+            [fb_plan[0], dict(fb_plan[1], lane="claude-opus-5-5"), fb_plan[2]],
+            quota_checked_vendors=routing.VENDORS, fixed_unavailable=why102)
+        check("D-102 사유가 있어도 Opus 는 폴백이 아니다 (G1 + FIXED_LANE_OVERRIDDEN)",
+              not ok_o and {"G1", "FIXED_LANE_OVERRIDDEN"} <= set(v_o), str(v_o))
+        ok_g, v_g, _ng = routing.validate_plan(
+            [dict(fb_plan[0], lane="gpt-6-astra"), fb_plan[1], fb_plan[2]],
+            quota_checked_vendors=routing.VENDORS, fixed_unavailable=why102)
+        check("D-102 폴백 상태에서도 G1 은 면제되지 않는다 (코딩이 codex 면 위반)",
+              not ok_g and "G1" in v_g, str(v_g))
+        ok_b, v_b, _nb = routing.validate_plan(
+            [fb_plan[0], fb_plan[1], dict(fb_plan[2], lane="claude-fable-5-1")],
+            quota_checked_vendors=routing.VENDORS, fixed_unavailable=why102)
+        check("D-102 면제는 인가 게이트가 자기 고정 레인에 있을 때만이다 (옮기면 FIXED_LANE_OVERRIDDEN)",
+              not ok_b and "FIXED_LANE_OVERRIDDEN" in v_b, str(v_b))
+        ok_e2, v_e2, _ne2 = routing.validate_plan(
+            [fb_plan[0], dict(fb_plan[1], effort="high"), fb_plan[2]],
+            quota_checked_vendors=routing.VENDORS, fixed_unavailable=why102)
+        check("D-102 폴백은 고정 effort(xhigh)로만 선다",
+              not ok_e2 and "FIXED_LANE_OVERRIDDEN" in v_e2, str(v_e2))
+        ok_r, v_r, _nr, _ = routing.revalidate_for_retry(
+            [fb_plan[0], dict(fb_plan[1], lane=daybreak), fb_plan[2]], gate_proc, fb_lane,
+            quota_checked_vendors=routing.VENDORS, fixed_unavailable=why102)
+        ok_r2, v_r2, _nr2, _ = routing.revalidate_for_retry(
+            [fb_plan[0], dict(fb_plan[1], lane=daybreak), fb_plan[2]], gate_proc, fb_lane,
+            quota_checked_vendors=routing.VENDORS)
+        check("D-102 재시도로 게이트를 폴백에 옮기는 것도 사유가 있을 때만 통과한다 (G13)",
+              ok_r and not ok_r2 and "FIXED_LANE_OVERRIDDEN" in v_r2, str((v_r, v_r2)))
+        try:
+            routing.validate_plan(fb_plan, quota_checked_vendors=routing.VENDORS, fixed_unavailable=[gate_proc])
+            check("D-102 fixed_unavailable 형식이 틀리면 거부한다", False, "통과되어 버렸다")
+        except TypeError:
+            check("D-102 fixed_unavailable 형식이 틀리면 거부한다", True)
+        check("D-102 생성 표에 폴백 칸과 D-102 문단이 들어간다",
+              "폴백 `gpt-6-astra` @xhigh" in routing.emit_md() and "**D-102 (2026-10-12" in routing.emit_md())
 
         # Orca 가 거부하는 값은 allow_off_ladder 로도 열리지 않는다.
         for bad in ("ultra", "max"):

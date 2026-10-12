@@ -918,6 +918,12 @@ may use it after the registered, verified, settled predecessor artifacts and
 explicit cross-vendor transfer authorization are bound. It reuses the same
 task/acceptance and Store as Claude, not a second budget.
 
+Owner rule (hub D-101, applied to this transport by D-102): the planner rejects
+a Codex CLI candidate whose model is one of the five withdrawn GPT models
+(`MODEL_WITHDRAWN_BY_OWNER`), and a `gpt-6-astra` candidate at any effort other
+than `xhigh` (`EFFORT_PINNED_BY_OWNER`). The Orca transport gets the same rule
+from the lane table. A host session's own model is not restricted.
+
 The node's `cli` manifest pins absolute `codex.exe` bytes, private canonical
 `cwd`, actual `CODEX_HOME` profile path, opaque profile/account references,
 and separate private `result_path` (`.jsonl`) and `content_path` (`.txt`). Both
@@ -1035,6 +1041,17 @@ it includes the complete node intent, skill paths and handoff, excluding only
 transport fields and planner diagnostics. It only prints the spec; it does not
 set a native Task. A reviewed preparation path must establish that exact spec
 on the native Task before dispatch. No unrelated prompt is accepted at send time.
+
+Security-gate fallback (hub D-102): when every Daybreak Orca candidate offered
+for the `security-artifact-gate` step was rejected because the model cannot
+stand, and the step is routed to `gpt-6-astra`, the planner writes
+`gate_fallback` on that step (pinned lane, fallback lane and effort, reasons).
+Only the planner writes it; a `gate_fallback` in a request step is dropped. It
+follows the route, so it is excluded from the task-intent digest and from the
+Task spec, and it is covered by `plan_digest`. `prepare_orca` and
+`execute_orca` re-check it and stop with `ORCA_PLAN_GUARD` when it does not
+match the lane table or the step's own rejection list. The rules and limits are
+in the security artifact gate reference.
 
 The coordinator supplies a separate certificate for the exact Orca launch
 account/profile, not a generic subscription label or direct-CLI login. Required

@@ -1610,13 +1610,14 @@ class OrchestrationTests(unittest.TestCase):
                                  ["ORCA_CODING_LANE_NOT_ALLOWED", "ORCA_G1", "ORCA_LANE_WITHDRAWN"])
         self.assertIn("ORCA_G1", errors(node("terminal-ci-git", "gpt-6-astra", "xhigh", writes=True), gate, authz))
         # G1 the other way: a Claude gate would grade Claude's own code. This is why Simon's Opus
-        # fallback is an open item and not a route: nothing here relaxes G1 for it.
+        # fallback was not built; D-102 chose gpt-6-astra instead, and nothing relaxes G1.
         for claude_gate in ("claude-fable-5-1", "claude-opus-5-5"):
             with self.subTest(claude_gate=claude_gate):
                 self.assertEqual(errors(coding, node("security-artifact-gate", claude_gate, "high"), authz),
                                  ["ORCA_FIXED_LANE_OVERRIDDEN", "ORCA_G1"])
         # G1_SEC_SAME_MODEL: the artifact gate and the authorization gate must be different models.
-        # gpt-6-astra on both gates is the other open option; it is not a route either.
+        # gpt-6-astra on both gates is a route only as the D-102 fallback, with the planner's record
+        # (see the D-102 tests). Without that record it is still rejected.
         self.assertEqual(errors(coding, node("security-artifact-gate", "gpt-6-astra", "xhigh"), authz),
                          ["ORCA_FIXED_LANE_OVERRIDDEN", "ORCA_G1_SEC_SAME_MODEL"])
         self.assertEqual(errors(coding, gate, node("security-bizlogic-2nd", daybreak, "xhigh")),
@@ -1735,7 +1736,7 @@ class OrchestrationTests(unittest.TestCase):
         self.assertEqual((lower["status"], lower["errors"]), ("blocked", ["ORCA_LANE_DEPRECATED"]))
         other = gate_plan(daybreak, proc="research-deep")
         self.assertEqual((other["status"], other["errors"]), ("blocked", ["ORCA_LANE_DEPRECATED"]))
-        # The withdrawn D-98 lane and the Opus fallback are not gate routes.
+        # The withdrawn D-98 lane and Opus are not gate routes.
         old = gate_plan("gpt-6.1-sol")
         self.assertEqual((old["status"], old["errors"]),
                          ("blocked", ["ORCA_FIXED_LANE_OVERRIDDEN", "ORCA_LANE_WITHDRAWN"]))
@@ -1757,6 +1758,240 @@ class OrchestrationTests(unittest.TestCase):
         reasons = {r for item in packaged["steps"][0]["rejected_candidates"] for r in item["reasons"]}
         self.assertIn("MODEL_NOT_ACTIVE", reasons)
         self.assertIsNone(packaged["steps"][0].get("route"))
+
+    def test_d102_gate_fallback_is_astra_only_when_the_pinned_lane_cannot_stand(self):
+        # D-102 (2026-10-12, Simon's ruling): when Daybreak cannot stand, gpt-6-astra @ xhigh takes the
+        # artifact gate. The lane table opens that one fallback only with stated reasons, and waives
+        # G1_SEC_SAME_MODEL only in that state. G1 and every other guard are unchanged.
+        import routing
+        all_vendors = {"quota_checked_vendors": ["claude", "codex", "gemini", "grok"]}
+        daybreak, astra, gate_proc = "gpt-daybreak-blue-latest", "gpt-6-astra", "security-artifact-gate"
+        self.assertEqual(routing.FIXED_FALLBACKS, {gate_proc: (astra, "xhigh")})
+        self.assertEqual(routing.fixed_for(gate_proc), (daybreak, "xhigh"))  # the pin itself did not move.
+        self.assertEqual(routing.fixed_fallback_for("security-bizlogic-2nd"), None)
+
+        def node(proc, model, effort, **extra):
+            return {"id": proc, "proc": proc, "class": "B", **extra,
+                    "route": {"transport": "orca", "model": model, "requested_effort": effort}}
+
+        def record(**changes):
+            item = {"decision": "D-102", "fixed_lane": daybreak, "fallback_lane": astra,
+                    "fallback_effort": "xhigh", "reasons": ["MODEL_NOT_ACTIVE"]}
+            item.update(changes)
+            return item
+
+        def fallback_gate(model=astra, effort="xhigh", rejected=("MODEL_NOT_ACTIVE", "MODEL_UNAVAILABLE"), **changes):
+            return node(gate_proc, model, effort, gate_fallback=record(**changes),
+                        rejected_candidates=[{"candidate_id": "daybreak", "reasons": list(rejected)}])
+
+        def errors(*nodes):
+            return self.m._legacy_validation(list(nodes), all_vendors)
+
+        authz = node("security-bizlogic-2nd", astra, "xhigh")
+        coding = node("coding", "claude-opus-5-5", "high")
+        self.assertEqual(errors(coding, fallback_gate(), authz), [])
+        self.assertEqual(errors(fallback_gate(), authz), [])
+        self.assertEqual(self.m._legacy_validation([coding, fallback_gate(), authz], {}), ["ORCA_G5"])
+        # Without the planner's record the same placement is still rejected.
+        self.assertEqual(errors(coding, node(gate_proc, astra, "xhigh"), authz),
+                         ["ORCA_FIXED_LANE_OVERRIDDEN", "ORCA_G1_SEC_SAME_MODEL"])
+        # A record must name this pin and this fallback, give reasons that mean "cannot stand",
+        # and those reasons must be in the step's own rejection list.
+        for label, bad in (
+                ("empty reasons", fallback_gate(reasons=[])),
+                ("reasons missing", fallback_gate(reasons=None)),
+                ("not an availability reason", fallback_gate(reasons=["QUOTA_EXHAUSTED"],
+                                                             rejected=("QUOTA_EXHAUSTED",))),
+                ("a gate verdict is not a reason", fallback_gate(reasons=["GATE_BLOCK"], rejected=("GATE_BLOCK",))),
+                ("reason not in the rejection list", fallback_gate(rejected=("QUOTA_EXHAUSTED",))),
+                ("no rejection list", dict(fallback_gate(), rejected_candidates=None)),
+                ("wrong pinned lane", fallback_gate(fixed_lane="gpt-6.1-sol")),
+                ("wrong fallback lane", fallback_gate(fallback_lane="claude-opus-5-5")),
+                ("record is not an object", dict(fallback_gate(), gate_fallback=["MODEL_NOT_ACTIVE"])),
+                ("route is the pin itself", fallback_gate(model=daybreak)),
+                ("Opus is not the fallback", fallback_gate(model="claude-opus-5-5", effort="high")),
+                ("withdrawn lane is not the fallback", fallback_gate(model="gpt-6.1-sol"))):
+            with self.subTest(record=label):
+                self.assertEqual(errors(coding, bad, authz), ["ORCA_GATE_FALLBACK_INVALID"])
+        # A record on a process without a declared fallback is rejected too.
+        other = dict(node("security-bizlogic-2nd", astra, "xhigh"), gate_fallback=record(),
+                     rejected_candidates=[{"candidate_id": "x", "reasons": ["MODEL_NOT_ACTIVE"]}])
+        self.assertEqual(errors(coding, node(gate_proc, daybreak, "xhigh"), other), ["ORCA_GATE_FALLBACK_INVALID"])
+        # The fallback runs at its pinned effort only.
+        for effort in ("low", "high", "max"):
+            with self.subTest(effort=effort):
+                self.assertEqual(errors(coding, fallback_gate(effort=effort), authz), ["ORCA_DISPATCH_UNSUPPORTED"])
+        # G1 is not waived: a Codex coding lane cannot be reviewed by the Codex fallback gate.
+        self.assertEqual(errors(node("coding", astra, "xhigh"), fallback_gate(), authz),
+                         ["ORCA_CODING_LANE_NOT_ALLOWED", "ORCA_G1"])
+        self.assertIn("ORCA_G1", errors(node("terminal-ci-git", astra, "xhigh", writes=True), fallback_gate(), authz))
+        # The waiver covers one state: the authorization gate on its own pinned lane.
+        self.assertEqual(errors(coding, fallback_gate(), node("security-bizlogic-2nd", "claude-fable-5-1", "high")),
+                         ["ORCA_FIXED_LANE_OVERRIDDEN", "ORCA_G1"])
+        self.assertEqual(errors(coding, fallback_gate(), node("security-bizlogic-2nd", daybreak, "xhigh")),
+                         ["ORCA_FIXED_LANE_OVERRIDDEN", "ORCA_LANE_DEPRECATED"])
+        self.assertEqual(errors(coding, fallback_gate()), ["ORCA_MISSING_SECURITY_GATE"])
+
+        # The lane-table API itself: reasons open the fallback, their absence or a wrong shape does not.
+        plan = [{"proc": "coding", "lane": "claude-opus-5-5", "class": "B"},
+                {"proc": gate_proc, "lane": astra, "class": "B"},
+                {"proc": "security-bizlogic-2nd", "lane": astra, "class": "B"}]
+        why = {gate_proc: ["MODEL_NOT_ACTIVE"]}
+        ok, violations, notes = routing.validate_plan(plan, quota_checked_vendors=routing.VENDORS,
+                                                      fixed_unavailable=why)
+        self.assertTrue(ok, violations)
+        self.assertTrue(any("D-102" in note and "G1_SEC_SAME_MODEL" in note for note in notes), notes)
+        for closed in (None, {}, {gate_proc: []}, {gate_proc: [""]}, {gate_proc: "MODEL_NOT_ACTIVE"},
+                       {"security-bizlogic-2nd": ["MODEL_NOT_ACTIVE"]}):
+            with self.subTest(fixed_unavailable=closed):
+                ok, violations, _notes = routing.validate_plan(plan, quota_checked_vendors=routing.VENDORS,
+                                                               fixed_unavailable=closed)
+                self.assertFalse(ok)
+                self.assertLessEqual({"FIXED_LANE_OVERRIDDEN", "G1_SEC_SAME_MODEL"}, set(violations))
+        with self.assertRaises(TypeError):
+            routing.validate_plan(plan, quota_checked_vendors=routing.VENDORS, fixed_unavailable=[gate_proc])
+        # Saying the pin cannot stand and then assigning it is a contradiction: nothing is dispatched.
+        pinned = [plan[0], dict(plan[1], lane=daybreak), plan[2]]
+        ok, violations, _notes = routing.validate_plan(pinned, quota_checked_vendors=routing.VENDORS,
+                                                       fixed_unavailable=why)
+        self.assertEqual((ok, violations), (False, ["FIXED_LANE_UNAVAILABLE"]))
+        # A retry may move the gate onto the fallback only with the same reasons.
+        base = [plan[0], dict(plan[1], lane=daybreak), plan[2]]
+        ok, violations, _notes, _new = routing.revalidate_for_retry(
+            base, gate_proc, astra, quota_checked_vendors=routing.VENDORS, fixed_unavailable=why)
+        self.assertTrue(ok, violations)
+        ok, violations, _notes, _new = routing.revalidate_for_retry(
+            base, gate_proc, astra, quota_checked_vendors=routing.VENDORS)
+        self.assertEqual((ok, violations), (False, ["FIXED_LANE_OVERRIDDEN", "G1_SEC_SAME_MODEL"]))
+
+    def test_d102_planner_opens_the_fallback_from_its_own_rejections(self):
+        # Wiring check on the real plan path. The planner records the fallback only when every
+        # Daybreak Orca candidate offered for the gate step was rejected because the model cannot
+        # stand. A host cannot ask for the fallback, and leaving Daybreak out does not open it.
+        all_vendors = ["claude", "codex", "gemini", "grok"]
+        daybreak, astra = "gpt-daybreak-blue-latest", "gpt-6-astra"
+
+        def steps(**gate_changes):
+            return [step("gate", proc="security-artifact-gate", demand="critical", surface="codex",
+                         **{"class": "B"}, **gate_changes),
+                    step("authz", proc="security-bizlogic-2nd", demand="critical", surface="codex",
+                         **{"class": "B"})]
+
+        def orca(name, model, **changes):
+            return candidate(name, model=model, transport="orca", quality_tier=3, **changes)
+
+        def gate_of(plan):
+            return next(s for s in plan["steps"] if s["id"] == "gate")
+
+        # Fixture registry (every model active). Daybreak reported unavailable: the fallback opens.
+        plan = self.plan(steps(), [orca("astra", astra), orca("daybreak", daybreak, available=False)],
+                         quota_checked_vendors=all_vendors)
+        self.assertEqual(plan["status"], "ready", plan["errors"])
+        gate = gate_of(plan)
+        self.assertEqual((gate["route"]["model"], gate["route"]["requested_effort"]), (astra, "xhigh"))
+        self.assertEqual(gate["gate_fallback"], {"decision": "D-102", "fixed_lane": daybreak,
+                                                 "fallback_lane": astra, "fallback_effort": "xhigh",
+                                                 "reasons": ["MODEL_UNAVAILABLE"]})
+        self.assertNotIn("gate_fallback", next(s for s in plan["steps"] if s["id"] == "authz"))
+        # Daybreak eligible: the planner does not treat another route as a fallback.
+        both = self.plan(steps(), [orca("astra", astra), orca("daybreak", daybreak)],
+                         quota_checked_vendors=all_vendors)
+        self.assertNotIn("gate_fallback", gate_of(both))
+        self.assertEqual((both["status"], both["errors"]),
+                         ("blocked", ["ORCA_FIXED_LANE_OVERRIDDEN", "ORCA_G1_SEC_SAME_MODEL"]))
+        # Daybreak not offered at all, or rejected for a reason that is not about availability.
+        absent = self.plan(steps(), [orca("astra", astra)], quota_checked_vendors=all_vendors)
+        self.assertNotIn("gate_fallback", gate_of(absent))
+        self.assertEqual((absent["status"], absent["errors"]),
+                         ("blocked", ["ORCA_FIXED_LANE_OVERRIDDEN", "ORCA_G1_SEC_SAME_MODEL"]))
+        full = self.plan(steps(), [orca("astra", astra),
+                                   orca("daybreak", daybreak, quota={"used_pct": 100, "observed_at": NOW})],
+                         quota_checked_vendors=all_vendors)
+        self.assertNotIn("gate_fallback", gate_of(full))
+        self.assertEqual(full["status"], "blocked")
+        # One eligible Daybreak candidate among several closes the fallback.
+        mixed = self.plan(steps(), [orca("astra", astra), orca("daybreak-gone", daybreak, available=False),
+                                    orca("daybreak-live", daybreak)], quota_checked_vendors=all_vendors)
+        self.assertNotIn("gate_fallback", gate_of(mixed))
+        self.assertEqual(mixed["status"], "blocked")
+        # A request cannot supply the record.
+        forged = self.plan(steps(gate_fallback={"decision": "D-102", "fixed_lane": daybreak, "fallback_lane": astra,
+                                                "fallback_effort": "xhigh", "reasons": ["MODEL_NOT_ACTIVE"]}),
+                           [orca("astra", astra)], quota_checked_vendors=all_vendors)
+        self.assertNotIn("gate_fallback", gate_of(forged))
+        self.assertEqual(forged["status"], "blocked")
+
+        # Packaged registry: the alias is deprecated, so MODEL_NOT_ACTIVE is one of the recorded
+        # reasons and the two-gate plan is ready on gpt-6-astra @ xhigh at $0.
+        now = production_registry_now()
+
+        def live(name, model):
+            c = orca(name, model, observed_at=now)
+            c["quota"]["observed_at"] = now
+            return c
+
+        runtime = {"candidates": [live("astra", astra), live("daybreak", daybreak)], "tools": [],
+                   "observed_at": now, "quota_checked_vendors": all_vendors}
+        packaged = self.m.make_plan({"run_id": "d102-packaged", "steps": steps()}, self.catalog, runtime, now)
+        self.assertEqual(packaged["status"], "ready", packaged["errors"])
+        gate = gate_of(packaged)
+        self.assertEqual((gate["route"]["model"], gate["route"]["requested_effort"],
+                          gate["route"]["reserved_upper_usd"]), (astra, "xhigh", 0.0))
+        self.assertIn("MODEL_NOT_ACTIVE", gate["gate_fallback"]["reasons"])
+        self.assertLessEqual(set(gate["gate_fallback"]["reasons"]), self.m.GATE_UNAVAILABLE_REASONS)
+        # The stored plan re-validates through the same function prepare_orca and execute_orca call.
+        guards = {"quota_checked_vendors": all_vendors}
+        self.assertEqual(self.m._legacy_validation(packaged["steps"], guards), [])
+        tampered = copy.deepcopy(packaged["steps"])
+        gate_of({"steps": tampered})["gate_fallback"]["reasons"] = ["QUOTA_EXHAUSTED"]
+        self.assertEqual(self.m._legacy_validation(tampered, guards), ["ORCA_GATE_FALLBACK_INVALID"])
+        stripped = copy.deepcopy(packaged["steps"])
+        del gate_of({"steps": stripped})["gate_fallback"]
+        self.assertEqual(self.m._legacy_validation(stripped, guards),
+                         ["ORCA_FIXED_LANE_OVERRIDDEN", "ORCA_G1_SEC_SAME_MODEL"])
+        # The record follows the route. It is not task intent and it is not sent to the worker,
+        # but it is covered by the plan digest, so a stored plan cannot be edited into a fallback.
+        import run_state
+        without = copy.deepcopy(packaged)
+        del gate_of(without)["gate_fallback"]
+        self.assertEqual(run_state.spec_digest(packaged), run_state.spec_digest(without))
+        self.assertNotIn("gate_fallback", run_state.task_spec(gate))
+        run_state.validate_plan(packaged, now)
+        with self.assertRaisesRegex(run_state.StateError, "PLAN_CHANGED"):
+            run_state.validate_plan(without, now)
+
+    def test_d102_direct_codex_cli_keeps_the_owner_gpt_rule(self):
+        # D-101 withdrew five GPT models and pinned gpt-6-astra to xhigh. D-102 applies the same
+        # rule to the other dispatched Codex transport, the direct CLI. A host session's own model
+        # is not restricted.
+        def cli_plan(model, demand="critical", transport="cli", **changes):
+            c = candidate("gpt", model=model, transport=transport, quality_tier=3, **changes)
+            node = step(surface="codex", skills=[], demand=demand)
+            if transport == "cli":
+                node["cli"] = cli_binding("codex")
+            return self.plan([node], [c])
+
+        def reasons(plan):
+            return {r for item in plan["steps"][0]["rejected_candidates"] for r in item["reasons"]}
+
+        ready = cli_plan("gpt-6-astra")
+        self.assertEqual(ready["status"], "ready", ready["steps"][0]["rejected_candidates"])
+        self.assertEqual(ready["steps"][0]["route"]["requested_effort"], "xhigh")
+        for demand in ("routine", "reasoning"):  # the fixture maps these to low and high.
+            with self.subTest(demand=demand):
+                lower = cli_plan("gpt-6-astra", demand=demand)
+                self.assertEqual(lower["status"], "blocked")
+                self.assertEqual(reasons(lower), {"EFFORT_PINNED_BY_OWNER"})
+        import routing
+        for model in sorted(routing.WITHDRAWN_LANES):
+            with self.subTest(model=model):
+                plan = cli_plan(model)
+                self.assertEqual(plan["status"], "blocked")
+                self.assertEqual(reasons(plan), {"MODEL_WITHDRAWN_BY_OWNER"})
+        # Other Codex models are untouched, and so is the host transport.
+        self.assertEqual(cli_plan("fixture-other", demand="routine")["status"], "ready")
+        host = cli_plan("gpt-6.1-sol", demand="routine", transport="host", effective_effort="low")
+        self.assertEqual(host["status"], "ready", host["steps"][0]["rejected_candidates"])
 
     def test_cli_plan_round_trip_is_read_only(self):
         import json
