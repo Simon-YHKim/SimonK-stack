@@ -67,7 +67,8 @@ class WaveTests(unittest.TestCase):
         self.store.initialize()
         self.transports = {name: TaggedOrca(name, self.root) for name in ("one", "two", "after")}
         self.factory_calls = []
-        c = candidate(model="gpt-5.6-luna", transport="orca", observed_at=self.now,
+        # /vibe D-101 (2026-10-12): gpt-5.6-luna was withdrawn; the fixture lane is claude-haiku-5-5.
+        c = candidate(surface="claude", model="claude-haiku-5-5", transport="orca", observed_at=self.now,
                       quota={"used_pct": 10, "observed_at": self.now})
         guards = {"quota_checked_vendors": ["claude", "codex", "grok", "gemini"]}
         nodes = []
@@ -308,7 +309,8 @@ class WaveTests(unittest.TestCase):
         self.assertEqual(self.store.snapshot()["attempts"], [])
 
     def mixed_local_predecessor(self, finished):
-        c = candidate(model="gpt-5.6-luna", transport="orca", observed_at=self.now,
+        # /vibe D-101 (2026-10-12): gpt-5.6-luna was withdrawn; the fixture lane is claude-haiku-5-5.
+        c = candidate(surface="claude", model="claude-haiku-5-5", transport="orca", observed_at=self.now,
                       quota={"used_pct": 10, "observed_at": self.now})
         registry = fixture_registry([c])
         registry["checked_at"] = self.now

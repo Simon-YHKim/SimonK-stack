@@ -1,4 +1,9 @@
-"""Guarded Orca adapter contract. All starts and provider output are fake."""
+"""Guarded Orca adapter contract. All starts and provider output are fake.
+
+D-101 (2026-10-12): the shared fixture lane is claude-haiku-5-5 @ low, the first class A lane.
+It was gpt-5.6-luna, which the owner withdrew from routing (ORCA_LANE_WITHDRAWN). The adapter
+treats the claude and codex surfaces alike; the D-67 and gate tests below keep a Codex lane.
+"""
 import copy
 from concurrent.futures import ThreadPoolExecutor
 import importlib.util
@@ -29,7 +34,7 @@ class FakeOrca:
     def __init__(self):
         self.calls, self.workers = [], []
         self.start_failure = False
-        self.effective = {"agent": "codex", "model": "gpt-5.6-luna", "effort": "low"}
+        self.effective = {"agent": "claude", "model": "claude-haiku-5-5", "effort": "low"}
         self.terminal = False
         self.spec = None
         self.runtime = "runtime-fixture"
@@ -74,8 +79,8 @@ class FakeOrca:
                     "status": "completed" if self.terminal else "active"},
                 "worker": {"dispatchId": "ctx-fixture", "runtimeEpoch": "epoch-fixture", "worktreeId": "workspace-fixture",
                     "state": "succeeded" if self.terminal else "ready", "startOptions": {
-                    "agent": "codex", "worktree": "id:workspace-fixture", "resolvedWorktreeId": "workspace-fixture",
-                    "launch": {"requested": {"agent": "codex", "model": "gpt-5.6-luna", "effort": "low"},
+                    "agent": "claude", "worktree": "id:workspace-fixture", "resolvedWorktreeId": "workspace-fixture",
+                    "launch": {"requested": {"agent": "claude", "model": "claude-haiku-5-5", "effort": "low"},
                                "effective": self.effective}}},
                 "projection": {"dispatchId": "ctx-fixture", "taskId": "task-fixture", "runId": "run-fixture",
                     "outcome": "succeeded" if self.terminal else None,
@@ -118,7 +123,7 @@ class OrcaAdapterTests(unittest.TestCase):
             "executable_sha256": self.transport.sha256, "app_version": "1.4.206", "runtime_id": "runtime-fixture",
             "account_ref": "test-account", "profile_ref": "profile-fixture",
             "guards": {"quota_checked_vendors": ["claude", "codex", "grok", "gemini"]}}
-        c = candidate(model="gpt-5.6-luna", transport="orca")
+        c = candidate(surface="claude", model="claude-haiku-5-5", transport="orca")
         s = step(proc="inventory-schema", **{"class": "A"}, orca=self.binding)
         self.plan = orchestrate.make_plan({"run_id": "vibe-fixture", "steps": [s]},
             {"explain": {"path": "/fixture/SKILL.md"}},
@@ -276,7 +281,7 @@ class OrcaAdapterTests(unittest.TestCase):
         self.transport.terminal = True
         self.transport.effective = None
         self.assertEqual(self.dispatch()["state"], "uncertain")
-        self.transport.effective = {"agent": "codex", "model": "gpt-5.6-luna", "effort": "high"}
+        self.transport.effective = {"agent": "claude", "model": "claude-haiku-5-5", "effort": "high"}
         self.assertEqual(self.dispatch()["state"], "uncertain")
         self.transport.effective["effort"] = "low"
         self.assertEqual(self.dispatch()["state"], "succeeded")
@@ -290,7 +295,7 @@ class OrcaAdapterTests(unittest.TestCase):
 
     def test_refresh_rejects_changed_task_spec_for_bound_node(self):
         # E.g. a newer planner adds a Gstack brief to a node whose native Task already exists.
-        c = candidate(model="gpt-5.6-luna", transport="orca")
+        c = candidate(surface="claude", model="claude-haiku-5-5", transport="orca")
         s = step(proc="inventory-schema", **{"class": "A"}, orca=self.binding)
         catalog = {"explain": {"path": "/fixture/SKILL.md", "description": "Pre-landing PR review. (gstack)"}}
         new = orchestrate.make_plan({"run_id": "vibe-fixture", "steps": [s]}, catalog,
@@ -391,18 +396,20 @@ class OrcaAdapterTests(unittest.TestCase):
     def test_d67_current_lanes_still_need_the_launch_certificate(self):
         # D-67 minority guard: a ready plan on a newly registered lane is not a launch.
         # Without the account/billing certificate the adapter stops before any native read.
-        for surface, model in (("claude", "claude-opus-5-5"), ("codex", "gpt-6.1-sol")):
+        # D-101 (2026-10-12): gpt-6.1-sol was withdrawn; the Codex lane here is gpt-6-astra @ xhigh.
+        for surface, model, effort in (("claude", "claude-opus-5-5", "high"), ("codex", "gpt-6-astra", "xhigh")):
             with self.subTest(model=model):
                 store = run_state.Store(Path(self.tmp.name) / f"{model}.sqlite3")
                 store.initialize()
                 adapter = self.m.Adapter(store, self.transport, clock=lambda: self.clock)
-                c = candidate(model=model, surface=surface, transport="orca")
+                c = candidate(model=model, surface=surface, transport="orca",
+                              effort_by_demand={"reasoning": effort})
                 s = step(proc="research-deep", demand="reasoning", **{"class": "B"}, orca=self.binding)
                 plan = orchestrate.make_plan({"run_id": "vibe-d67", "steps": [s]},
                     {"explain": {"path": "/fixture/SKILL.md"}},
                     {"candidates": [c], "tools": [], **self.binding["guards"]}, NOW, fixture_registry([c]))
                 self.assertEqual(plan["status"], "ready", plan["errors"])
-                self.assertEqual(plan["steps"][0]["route"]["requested_effort"], "high")
+                self.assertEqual(plan["steps"][0]["route"]["requested_effort"], effort)
                 store.register(plan, now=NOW)
                 before = len(self.transport.calls)
                 for certificate in (None, {**self.certificate, "verified": False}):
@@ -413,10 +420,11 @@ class OrcaAdapterTests(unittest.TestCase):
         self.assertEqual(self.starts(), 0)
 
     def test_current_class_a_lanes_still_need_the_launch_certificate(self):
-        # Simon 2026-10-05 class A lanes (gpt-6-luna, claude-sonnet-5-5): same guard as D-67.
+        # Simon 2026-10-05 class A lane claude-sonnet-5-5: same guard as D-67.
         # D-99 (2026-10-12) adds claude-haiku-5-5 at the effort its canary used.
+        # D-101 (2026-10-12) withdrew gpt-6-luna, so class A is Claude only.
         # A ready plan is not a launch; without the certificate nothing reaches the transport.
-        for surface, model, effort in (("codex", "gpt-6-luna", "low"), ("claude", "claude-sonnet-5-5", "medium"),
+        for surface, model, effort in (("claude", "claude-sonnet-5-5", "medium"),
                                        ("claude", "claude-haiku-5-5", "low")):
             with self.subTest(model=model):
                 store = run_state.Store(Path(self.tmp.name) / f"{model}.sqlite3")
@@ -440,20 +448,24 @@ class OrcaAdapterTests(unittest.TestCase):
                 self.assertEqual(store.snapshot()["attempts"], [])
         self.assertEqual(self.starts(), 0)
 
-    def test_d98_artifact_gate_lane_still_needs_the_launch_certificate(self):
-        # D-98 (2026-10-12): the security artifact gate is pinned to gpt-6.1-sol @ xhigh. The lane is
-        # registered, not running: without the account/billing certificate nothing reaches the transport.
-        store = run_state.Store(Path(self.tmp.name) / "d98-gate.sqlite3")
+    def test_d101_artifact_gate_lane_still_needs_the_launch_certificate(self):
+        # D-101 (2026-10-12): the security artifact gate is pinned to gpt-daybreak-blue-latest @ xhigh
+        # again (D-98 had moved it to gpt-6.1-sol). The lane is registered, not running: without the
+        # account/billing certificate nothing reaches the transport. The fixture registry lists the
+        # alias as active; the packaged registry still blocks it with MODEL_NOT_ACTIVE
+        # (test_orchestrate covers that).
+        store = run_state.Store(Path(self.tmp.name) / "d101-gate.sqlite3")
         store.initialize()
         adapter = self.m.Adapter(store, self.transport, clock=lambda: self.clock)
-        c = candidate(model="gpt-6.1-sol", surface="codex", transport="orca", quality_tier=3)  # critical needs tier 3.
+        c = candidate(model="gpt-daybreak-blue-latest", surface="codex", transport="orca",
+                      quality_tier=3)  # critical needs tier 3.
         s = step(proc="security-artifact-gate", demand="critical", **{"class": "B"}, orca=self.binding)
-        plan = orchestrate.make_plan({"run_id": "vibe-d98-gate", "steps": [s]},
+        plan = orchestrate.make_plan({"run_id": "vibe-d101-gate", "steps": [s]},
             {"explain": {"path": "/fixture/SKILL.md"}},
             {"candidates": [c], "tools": [], **self.binding["guards"]}, NOW, fixture_registry([c]))
         self.assertEqual(plan["status"], "ready", plan["errors"])
         self.assertEqual((plan["steps"][0]["route"]["model"], plan["steps"][0]["route"]["requested_effort"]),
-                         ("gpt-6.1-sol", "xhigh"))
+                         ("gpt-daybreak-blue-latest", "xhigh"))
         store.register(plan, now=NOW)
         before = len(self.transport.calls)
         for certificate in (None, {**self.certificate, "verified": False}):

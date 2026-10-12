@@ -190,7 +190,8 @@ class PreparationRefreshTests(unittest.TestCase):
 
     def test_actual_central_planner_runtime_refresh_is_compatible(self):
         self.upgrade()
-        c = store_fixture.candidate(model="gpt-5.6-luna", transport="orca", upper_usd_per_attempt="0.1",
+        c = store_fixture.candidate(surface="claude", model="claude-haiku-5-5", transport="orca",
+            upper_usd_per_attempt="0.1",
             billing={"mode": "api", "verified": True, "account_ref": "test-account"}, observed_at=STALE,
             quota={"used_pct": 10, "observed_at": STALE, "bucket": "test-weekly"})
         new = orchestrate.make_plan({"run_id": self.plan["run_id"], "budget": self.plan["budget"],

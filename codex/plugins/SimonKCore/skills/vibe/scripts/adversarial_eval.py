@@ -89,6 +89,10 @@ VENDOR_CACHE_HOURS = 6
 # 2026-10-05 Simon 지시(2.15.5): A 클래스 새 레인 claude-sonnet-5-5·gpt-6-luna 도 같은 방식으로 더했다.
 # D-99(2026-10-12, 2.16.0): A 클래스 Claude 쪽 첫 폴백 claude-haiku-5-5 를 더했다.
 # D-98: gpt-daybreak-blue-latest 는 원장 호환용 키로 남는다(생성물 게이트는 gpt-6.1-sol).
+# D-101(2026-10-12, 2.17.0, Simon 지시): codex 벤더 후보는 gpt-6-astra 하나다. 철회된 레인
+#   (gpt-6.1-sol·gpt-6-luna·gpt-5.6-sol·gpt-5.6-terra·gpt-5.6-luna)의 키는 평가 원장의 과거 행 때문에 여기 남지만
+#   probes.json 의 lanes 에서는 전부 뺐다 — 새 대진에 나오지 않는다. routing.codex_exec_argv 도 그 레인을 거부한다.
+#   생성물 게이트는 gpt-daybreak-blue-latest 로 되돌아갔고(게이트 전용) 그 키도 대진에는 넣지 않는다.
 VENDOR_OF = {
     "claude-opus-5-5": "claude",
     "claude-opus-5": "claude",
@@ -151,6 +155,10 @@ def load_probes():
         if head not in TRUTH_POST:
             raise SystemExit("probe %s 의 truth_post '%s' 를 모른다 (아는 것: %s)"
                              % (pid, post, sorted(TRUTH_POST)))
+        # D-101 — 철회·폐기 표시된 레인은 새 대진에 넣지 않는다(VENDOR_OF 의 키는 과거 원장 행을 읽는 용도다).
+        retired = sorted(set(p.get("lanes", [])) & (routing.WITHDRAWN_LANES | routing.DEPRECATED_LANES))
+        if retired:
+            raise SystemExit("probe %s 의 lanes 에 철회·폐기 표시된 레인이 있다 (D-101): %s" % (pid, retired))
         vendors = {VENDOR_OF[l] for l in p.get("lanes", []) if l in VENDOR_OF}
         if len(vendors) < 3:
             raise SystemExit("probe %s 의 lanes 가 벤더 %d개뿐이다 (G10 은 3개를 요구한다)"

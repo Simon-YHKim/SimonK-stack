@@ -10,6 +10,7 @@
   "   D-67(2026-10-04): registry legacy_lane_migration 의 후보가 레인이면 옛 레인 옆에 같이 넣는다 - claude-opus-5 옆에 claude-opus-5-5, gpt-5.6-terra 옆에 gpt-6.1-sol. 옛 레인은 원장 호환 때문에 남긴다.",
   "   2026-10-05(2.15.5, Simon 지시): A 클래스 새 레인도 같다 - gpt-5.6-luna 옆에 gpt-6-luna, claude-sonnet-5 옆에 claude-sonnet-5-5.",
   "   D-99(2026-10-12, 2.16.0): 옛 레인이 없는 새 레인 claude-haiku-5-5 는 자기 클래스(A) 문제에만 넣는다 - A 클래스의 Claude 쪽 첫 폴백이라 claude-opus-5-5 뒤에 둔다. B 문제에는 넣지 않는다(판단을 맡기지 않는 레인).",
+  "   D-101(2026-10-12, 2.17.0, Simon 지시 'gpt 쪽은 astra 말고는 쓰지마. gpt 를 넣어야한다면 astra xhigh.'): codex 벤더 후보는 gpt-6-astra 하나다. 철회된 레인(gpt-6.1-sol·gpt-6-luna·gpt-5.6-sol·gpt-5.6-terra·gpt-5.6-luna)은 모든 문제에서 뺐고, 그 자리에 gpt-6-astra 를 한 번 넣었다(이미 있으면 그대로). 평가 원장의 과거 행은 옛 레인명을 그대로 읽는다(VENDOR_OF 에 키가 남는다). 폐기 표시된 gpt-daybreak-blue-latest 는 어느 문제에도 넣지 않는다.",
   "truth_post 는 truth_cmd 의 출력을 '질문이 물은 단위'로 바꾼다. 이게 없으면",
   "세는 문제에 파일 목록이 정답으로 들어간다(2026-09-13 에 실제로 그 상태였다)."
  ],
@@ -31,14 +32,11 @@
    ],
    "truth_post": "count_suffix:.ts",
    "lanes": [
-    "gpt-5.6-luna",
-    "gpt-6-luna",
+    "gpt-6-astra",
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
-    "claude-haiku-5-5",
-    "gpt-5.6-terra",
-    "gpt-6.1-sol"
+    "claude-haiku-5-5"
    ]
   },
   {
@@ -56,8 +54,6 @@
    ],
    "truth_post": "exit_to_yesno",
    "lanes": [
-    "gpt-5.6-luna",
-    "gpt-6-luna",
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
@@ -80,14 +76,11 @@
    ],
    "truth_post": "raw",
    "lanes": [
-    "gpt-5.6-luna",
-    "gpt-6-luna",
+    "gpt-6-astra",
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
-    "claude-haiku-5-5",
-    "gpt-5.6-terra",
-    "gpt-6.1-sol"
+    "claude-haiku-5-5"
    ]
   },
   {
@@ -105,9 +98,7 @@
     "claude-opus-5",
     "claude-opus-5-5",
     "gpt-6-astra",
-    "gemini-3.8-flash",
-    "gpt-5.6-terra",
-    "gpt-6.1-sol"
+    "gemini-3.8-flash"
    ]
   },
   {
@@ -125,8 +116,6 @@
     "claude-opus-5",
     "claude-opus-5-5",
     "gpt-6-astra",
-    "gpt-5.6-terra",
-    "gpt-6.1-sol",
     "gemini-3.8-flash"
    ]
   },
@@ -146,8 +135,6 @@
    ],
    "truth_post": "grep_count:STATE.md",
    "lanes": [
-    "gpt-5.6-luna",
-    "gpt-6-luna",
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
@@ -169,8 +156,7 @@
    ],
    "truth_post": "prefix_count:## Latest",
    "lanes": [
-    "gpt-5.6-luna",
-    "gpt-6-luna",
+    "gpt-6-astra",
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
@@ -213,8 +199,6 @@
    ],
    "truth_post": "raw",
    "lanes": [
-    "gpt-5.6-luna",
-    "gpt-6-luna",
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
@@ -235,14 +219,11 @@
    ],
    "truth_post": "raw",
    "lanes": [
-    "gpt-5.6-luna",
-    "gpt-6-luna",
+    "gpt-6-astra",
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
-    "claude-haiku-5-5",
-    "gpt-5.6-terra",
-    "gpt-6.1-sol"
+    "claude-haiku-5-5"
    ]
   },
   {
@@ -257,14 +238,11 @@
    ],
    "truth_post": "raw",
    "lanes": [
-    "gpt-5.6-luna",
-    "gpt-6-luna",
+    "gpt-6-astra",
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
     "claude-haiku-5-5",
-    "gpt-5.6-terra",
-    "gpt-6.1-sol",
     "grok-4.6"
    ]
   },
@@ -280,14 +258,11 @@
    ],
    "truth_post": "raw",
    "lanes": [
-    "gpt-5.6-luna",
-    "gpt-6-luna",
+    "gpt-6-astra",
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
-    "claude-haiku-5-5",
-    "gpt-5.6-terra",
-    "gpt-6.1-sol"
+    "claude-haiku-5-5"
    ]
   },
   {
@@ -302,14 +277,11 @@
    ],
    "truth_post": "raw",
    "lanes": [
-    "gpt-5.6-luna",
-    "gpt-6-luna",
+    "gpt-6-astra",
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
     "claude-haiku-5-5",
-    "gpt-5.6-terra",
-    "gpt-6.1-sol",
     "grok-4.6"
    ]
   },
@@ -330,8 +302,6 @@
    ],
    "truth_post": "raw",
    "lanes": [
-    "gpt-5.6-luna",
-    "gpt-6-luna",
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
@@ -355,8 +325,6 @@
     "claude-opus-5-5",
     "gpt-6-astra",
     "gemini-3.8-flash",
-    "gpt-5.6-terra",
-    "gpt-6.1-sol",
     "grok-4.6"
    ]
   },
@@ -376,8 +344,6 @@
     "claude-opus-5-5",
     "gpt-6-astra",
     "gemini-3.8-flash",
-    "gpt-5.6-terra",
-    "gpt-6.1-sol",
     "grok-4.6"
    ]
   },
@@ -396,9 +362,7 @@
     "claude-opus-5",
     "claude-opus-5-5",
     "gpt-6-astra",
-    "gemini-3.8-flash",
-    "gpt-5.6-luna",
-    "gpt-6-luna"
+    "gemini-3.8-flash"
    ]
   },
   {
@@ -417,8 +381,6 @@
     "claude-opus-5-5",
     "gpt-6-astra",
     "gemini-3.8-flash",
-    "gpt-5.6-terra",
-    "gpt-6.1-sol",
     "grok-4.6"
    ]
   }

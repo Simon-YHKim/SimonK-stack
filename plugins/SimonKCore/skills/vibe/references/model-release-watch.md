@@ -118,6 +118,12 @@ pressure clue, not subscription pricing. On 2026-10-04 the policy's nine sources
 including GPT-6.1 Sol's model page and AA article, were re-read without a model
 call; the cited claims and the shadow ranks are unchanged. Recent direct X posts were not
 readable without access controls, so no unverified X opinion became a rule.
+On 2026-10-12, D-101 (Simon's directive, no debate) changed the shadow ranks:
+GPT-6.1 Sol, GPT-6 Sol and GPT-6 Luna left every profile, GPT-6 Astra stays at
+`xhigh` only, and simple coding reads Haiku 5.5, then Sonnet 5.5, then Opus 5.5.
+That is an owner directive, not new benchmark evidence: Artificial Analysis had
+not re-measured Sonnet 5.5 as of 2026-10-12 11:48 KST, and Sonnet 5.5 stays out
+of the other three profiles.
 For well-scoped complex coding, Opus 5.5 at `medium` is a **shadow-only**
 effort hypothesis: Anthropic reports a strong FrontierCode result at its
 default effort, and Artificial Analysis places `medium` on its effort/cost

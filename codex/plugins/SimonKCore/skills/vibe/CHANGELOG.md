@@ -1,5 +1,86 @@
 # Changelog
 
+## 2.17.0 - 2026-10-12
+
+- **D-101: GPT 쪽은 `gpt-6-astra` @xhigh 만 쓰고, 보안 생성물 게이트는 Daybreak 로 되돌렸다**(Simon 지시, 토론 없음,
+  허브 DECISIONS D-101). 지시 원문은 셋이다.
+  - "gpt 6.1 sol은 너무 느려서 빼기로 결정. 기획단계 gpt astra xhigh와 opus 5.5. 단순작업 sonet 5.5"
+  - "보안게이트는 데이브레이크로 할려했는데 그게 안돼면 opus 5.5로 하자."
+  - "gpt 쪽은 astra 말고는 쓰지마. gpt 를 넣어야한다면 astra xhigh."
+- **철회된 레인 다섯**: `gpt-6.1-sol`, `gpt-6-luna`, `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`. 레인 키는 원장
+  호환용으로 `LANES` 에 남는다(`ledger.py` 가 `LANES` 에 없는 레인의 원장 행을 거부한다). 새 `WITHDRAWN_LANES` 로
+  계획에 넣으면 `validate_plan` 이 `LANE_WITHDRAWN`(계획기에서는 `ORCA_LANE_WITHDRAWN`)으로 막고 예외 자리는 없다.
+  **결함 때문이 아니다.** `gpt-6-luna` 는 D-91 canary 를, `gpt-6.1-sol` 은 D-67·D-98 canary 를 통과했고 제공사
+  lifecycle 은 active 그대로다. 소유자가 뺀 것이다. `FORBIDDEN_LANES`(용도 미검증·은퇴, `LANES` 밖)와
+  `DEPRECATED_LANES`(제공사 폐기 표시)가 이 경우에 맞지 않아 집합을 따로 뒀다.
+- **`gpt-6-astra` 는 항상 xhigh**: 사다리 std = top = xhigh(옛 std high)이고 새 `EFFORT_PINNED` 로 고정했다.
+  `allow_off_ladder` 로도 다른 값은 열리지 않는다(`validate_effort`, 계획기에서는 `ORCA_DISPATCH_UNSUPPORTED`, 계획
+  검증에서는 `EFFORT_NOT_ALLOWED`). codex 직행 argv(`codex_exec_argv`)는 `gpt-6-astra` @xhigh 만 만들고 철회·폐기
+  표시 레인과 `LANES` 밖 GPT id 를 거부한다. `run_codex_exec` 기본 effort 는 ultra → xhigh 다. 원장은 과거 행
+  (astra@high·@medium, 철회 레인)을 계속 읽는다. 반증 질문과 무관하게 xhigh 라 codex 쿼터를 더 쓴다. 80% 초과
+  강등은 B·A-verify 2순위 `claude-fable-5-1` 로 간다. effort 를 낮추거나 다른 GPT 레인으로 가는 규칙은 없다.
+- **목록**: A = `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5`(오케스트레이터가 Haiku 를 Sonnet 앞에
+  두자고 권했고 Simon 이 반대하지 않았다). C-realtime = `grok-4.6` → `claude-opus-5-5` → `gpt-6-astra`. C-platform =
+  `gemini-3.8-flash` → `claude-opus-5-5` → `gpt-6-astra`. B·A-verify·D·코딩은 그대로다. 코디네이터 =
+  `gpt-6-astra` @xhigh. A 1순위 산출물 제약(`OUTPUT_RULES`)은 `claude-haiku-5-5` 로 합쳤고 `gpt-6-luna` 규칙은 뺐다.
+  - 부작용 둘. A 클래스가 전부 claude 라 claude 가 한도에 닿으면 A 작업은 codex 로 넘어가지 않고 멈춘다. 코디네이터가
+    인가 게이트·B 1순위와 같은 모델이라 코딩 라운드와 대부분의 B 라운드에서 `coordinator_conflict()` 가 참이다
+    (경고이며 디스패치를 막지 않는다. 규칙은 바꾸지 않았다).
+- **보안 생성물 게이트 = `gpt-daybreak-blue-latest` @xhigh**(D-98 의 `gpt-6.1-sol` 이전을 같은 날 뒤집었다).
+  제공사의 deprecated 표시, 레지스트리의 `lifecycle: deprecated`, 중앙 계획기의 `MODEL_NOT_ACTIVE` 는 건드리지
+  않았다. 바뀐 가드는 `LANE_DEPRECATED` 하나다: 새 `DEPRECATED_LANE_PINS` 의 한 자리, 곧 고정 공정
+  `security-artifact-gate` 이고 그 고정 배정이 지금도 이 별칭이며 effort 가 고정값 xhigh(또는 미지정)일 때만
+  통과시킨다. 우선순위 목록·코딩·다른 공정·재시도·다른 effort 는 그대로 막힌다. G1·G1_SEC_SAME_MODEL·쿼터/과금
+  게이트는 그대로다.
+  - **알려진 한계**: packaged registry 를 쓰는 중앙 계획기 경로에서는 게이트 후보가 `MODEL_NOT_ACTIVE` 로 계속
+    막힌다. 게이트 자리는 고정이지 동작이 아니다(D-98 이 풀려던 상태로 돌아갔다).
+  - `references/security-artifact-gate.md`: 고정 레인과 이유를 Daybreak 로 고쳤다. 루브릭·출력 형식·fail-closed
+    규칙은 그대로다. "Before each run" 을 더했다: 코디네이터가 `~/.codex/models_cache.json` 에 별칭이 은퇴·upgrade
+    표시 없이 남아 있는지 확인하고, 없거나 게이트 출력이 비거나 차단되면 게이트는 통과가 아니라 실패다(스크립트가
+    이 확인을 하지는 않는다). 재승격 절은 대체 규칙으로 바꿨다: 더 새로운 cyber 모델은 같은 canary 와 1단 기록
+    뒤에만 별칭을 대체한다. 두 canary 기록(D-98 `gpt-6.1-sol`, D-101 Daybreak)을 모두 남겼다.
+  - **미결(Simon 판정 필요)**: Simon 이 말한 폴백 `claude-opus-5-5` 는 구현하지 않았다. 코딩이
+    `claude-opus-5-5` 라 같은 모델이 자기 산출물을 검사하게 되어 G1 과 충돌한다. 선택지는 (a) Opus 폴백 + 그
+    경우에만 G1 완화(Simon 이 말한 쪽), (b) `gpt-6-astra` 가 두 보안 게이트를 맡고 그 경우에만 G1_SEC_SAME_MODEL
+    완화. 판정 전에는 별칭이 없거나 출력이 비거나 차단되면 게이트 실패이고 코딩 라운드가 멈춘다.
+  - canary(오케스트레이터가 구현 전에 실행, 2026-10-12 15:19~15:20 KST, Orca run `run_b08adccb4ec8`, dispatch
+    `ctx_41243c1a0d26`, 읽기 전용 워커 1개, 도구 금지): `launch.requested` == `launch.effective`
+    (`gpt-daybreak-blue-latest`, xhigh), Codex rollout(originator `codex-tui`, CLI 0.162.1) `turn_context` 가 같은 값.
+    D-98 과 같은 결함 4개 샘플에 `GATE: BLOCK` + CWE-89·78·22·502 를 정확히 보고했고 안전한 함수 2개에는 발견을
+    내지 않았다. 출력은 비거나 차단되지 않았고 약 30초가 걸렸다. 자기보고 모델명 `GPT-5` 는 틀렸다. 워커 정지·터미널
+    종료 확인. 심은 샘플 1건이며 별칭은 예고 없이 사라질 수 있다.
+  - **canary 를 돌리지 않은 것**: 코디네이터로서의 `gpt-6-astra`, A 클래스 순서 변경. 근거는 앞선 것뿐이다
+    (Haiku 5.5 는 D-99 의 정답이 정해진 A 과제 3개, Sonnet 5.5 는 D-91 canary).
+- **shadow task-fit 정책 `2026-10-12-shadow.2`**(`checked_at`·`valid_until` 그대로): GPT 행은 `gpt-6-astra` 의 xhigh
+  뿐이다. `gpt-6.1-sol`·`gpt-6-sol`·`gpt-6-luna` 행을 네 프로필에서 모두 뺐다. PLAN_ARCHITECTURE = `claude-opus-5-5`
+  (high·xhigh)·`gpt-6-astra`(xhigh) 0순위. CODE_COMPLEX = `claude-opus-5-5` medium 0순위·high/xhigh 1순위,
+  `gpt-6-astra` xhigh 0순위. CODE_SIMPLE = `claude-haiku-5-5`(low·medium) 0순위, `claude-sonnet-5-5`(medium) 1순위,
+  `claude-opus-5-5`(medium) 2순위. WRITING = `claude-opus-5-5`(medium·high) 0순위. Sonnet 5.5 가 CODE_SIMPLE 로
+  돌아온 것은 지시 때문이지 D-90 재진입 조건이 충족돼서가 아니다(Artificial Analysis 는 2026-10-12 11:48 KST 까지
+  재측정을 올리지 않았다). 다른 세 프로필은 Sonnet 5.5 를 계속 뺀다. 출처 키 `anthropic_haiku`·
+  `anthropic_haiku_docs` 를 더했고 쓰지 않게 된 키는 기록으로 남겼다. SKILL.md 의 권고 표도 같이 고쳤다.
+- registry `2026-10-12.3`(`checked_at`·`data_as_of`·모델 값 그대로): `legacy_lane_migration` 15건은 `pending-*` 6,
+  `held-*` 5, `keep-*` 4 다. 철회 다섯 건은 `held-withdrawn-by-owner` 이고 후보는 일이 간 곳이다
+  (`gpt-6.1-sol`·`gpt-5.6-sol`·`gpt-5.6-terra` → `gpt-6-astra`, `gpt-6-luna`·`gpt-5.6-luna` → `claude-haiku-5-5`).
+  재개 조건은 Simon 의 명시 지시나 별도 결정 기록, 그리고 같은 canary 의 재통과다. `gpt-daybreak-blue-latest` 는
+  후보 자기 자신, `keep-security-pin-resolve-per-run` 으로 돌아갔다. `gpt-5.6-terra` 의 등급 평가는 대상이
+  철회돼 더 진행하지 않는다.
+- `eval/probes.json`: 문제 18개 중 17개에서 철회 레인을 빼고 그 자리에 `gpt-6-astra` 를 한 번 넣었다(codex 후보는
+  astra 하나). `adversarial_eval.load_probes` 는 철회·폐기 표시 레인이 든 문제를 거부한다. `VENDOR_OF` 의 키는 평가
+  원장의 과거 행 때문에 남는다. `references/legacy-routing.md` 는 `sync_skill_table.py` 로 다시 만들었다(레인 표의
+  기동 칸이 철회·게이트 전용을 적는다).
+- 테스트 픽스처: guarded Orca 어댑터·준비·wave 테스트의 공용 픽스처 레인을 철회된 `gpt-5.6-luna` 에서
+  `claude-haiku-5-5` @low 로 옮겼다(`test_execute_orca.py`, `tests/test_prepare_state.py`,
+  `tests/test_prepare_refresh.py`, `multi-terminal-dispatcher` 의 `test_dispatch_wave.py`). 어댑터는 claude·codex
+  표면을 똑같이 다루고, codex 표면은 `gpt-6-astra` @xhigh 와 Daybreak 게이트 테스트가 계속 본다.
+- **범위 밖(그대로 둔 것)**: Orca 밖 경로(host·direct CLI)의 후보 선택은 호스트가 준 runtime 후보와 레지스트리
+  (제공사 사실)로만 고른다. "GPT 는 astra 만" 은 그 경로에 걸려 있지 않다. 걸려면 계획기에 새 가드가 필요하고
+  Codex 호스트 세션에 영향이 있어 별도 결정으로 남겼다.
+- 검증: scripts 단위 테스트 436 OK(434→436), `tests/` 157 OK, selftest PASS 265 · FAIL 0(215→265),
+  `validate_skill.py` 0 errors / 0 warnings, `sync_skill_table.py --check` 동기 OK, skill CI 141 clean,
+  `multi-terminal-dispatcher` 25 OK(skipped 3). 이 변경에서 모델 호출·Orca 명령·worker-start·설치는 0회다(위
+  canary 는 오케스트레이터가 구현 전에 돌린 것).
+
 ## 2.16.0 - 2026-10-12
 
 - **D-98: 보안 생성물 게이트 레인을 `gpt-6.1-sol` @xhigh 로 옮겼다**(허브 토론 `dbt-261012-124530`, quick,

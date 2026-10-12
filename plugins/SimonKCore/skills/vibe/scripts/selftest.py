@@ -522,32 +522,49 @@ def run():
         check("전 레인 한도 100% 도달 → lane 없음 (Q-05)", lane_b is None, f"lane={lane_b}")
         lane_99, note_99 = MI.pick_default("A", {v: {"pct": 99, "reset": "", "state": "ok", "key": "weekly"}
                                                 for v in routing.VENDORS})
-        check("99% 는 금지가 아니라 강등 — 첫 강등 레인 (Q-05)", lane_99 == "gpt-6-luna", f"{lane_99} {note_99}")
+        check("99% 는 금지가 아니라 강등 — 첫 강등 레인 (Q-05 · D-101 부터 A 1순위는 claude-haiku-5-5)",
+              lane_99 == "claude-haiku-5-5", f"{lane_99} {note_99}")
         check("사유에 축소안 안내", "축소안" in note_b, note_b)
 
         # D-28 #13 — 강등을 모든 순위에 · 첫 강등 레인 폴백 · fable 버킷 · 실호출 · unavailable
         def _q(pct):
             return {"pct": pct, "reset": "", "state": "ok", "key": "weekly"}
         q6190 = {"claude": _q(100), "codex": _q(81), "gemini": _q(0), "grok": _q(0)}   # Q-05: 금지 100 · 강등 >80
-        lane_n6, note_n6 = MI.pick_default("A", q6190)
-        check("ok 레인이 없으면 첫 강등 레인 (D-28 N6)", lane_n6 == "gpt-6-luna", f"{lane_n6} {note_n6}")
+        # D-101: A 는 전부 claude 라 벤더가 섞인 B(astra → fable → opus)로 강등 규칙을 본다.
+        lane_n6, note_n6 = MI.pick_default("B", q6190)
+        check("ok 레인이 없으면 첫 강등 레인 (D-28 N6 · B 목록: codex 81% 강등 · claude 100% 금지)",
+              lane_n6 == "gpt-6-astra", f"{lane_n6} {note_n6}")
+        lane_a0, note_a0 = MI.pick_default("A", q6190)
+        check("D-101 A 클래스는 claude 가 한도에 닿으면 lane 없음 — codex 폴백이 없다",
+              lane_a0 is None and "축소안" in note_a0, f"{lane_a0} {note_a0}")
         q_c61 = dict(q6190, claude=_q(30))
-        lane_d2, _nd2 = MI.pick_default("A", q_c61)
-        check("1순위 81% 면 ok 인 2순위로 강등 (Q-05 강등선 80 · D-99 부터 2순위는 claude-haiku-5-5)",
-              lane_d2 == "claude-haiku-5-5", str(lane_d2))
-        lane_80, _n80 = MI.pick_default("A", dict(q_c61, codex=_q(80)))
-        check("정확히 80% 는 강등이 아니다 (초과만)", lane_80 == "gpt-6-luna", str(lane_80))
+        lane_d2, _nd2 = MI.pick_default("B", q_c61)
+        check("D-101 astra(codex 81%)가 강등되면 Claude 레인으로 간다 — 다른 GPT 레인이나 낮은 effort 가 아니다",
+              lane_d2 == "claude-fable-5-1" and routing.LANES[lane_d2]["vendor"] == "claude", str(lane_d2))
+        lane_ad, _nad = MI.pick_default("A-verify", q_c61, proc="claim-verify")
+        check("D-101 A-verify 도 astra 강등 시 Claude 레인", routing.LANES[lane_ad]["vendor"] == "claude", str(lane_ad))
+        lane_80, _n80 = MI.pick_default("B", dict(q_c61, codex=_q(80)))
+        check("정확히 80% 는 강등이 아니다 (초과만)", lane_80 == "gpt-6-astra", str(lane_80))
+        lane_a1, _na1 = MI.pick_default("A", q_c61)
+        check("D-101 A 기본 채움 = claude-haiku-5-5 (codex 상태와 무관)", lane_a1 == "claude-haiku-5-5", str(lane_a1))
+        for _cls in routing.CLASS_LANES:
+            for _qs in (q6190, q_c61, {v: _q(10) for v in routing.VENDORS}, {v: _q(90) for v in routing.VENDORS}):
+                _l, _n = MI.pick_default(_cls, _qs)
+                if _l is not None and (_l in routing.WITHDRAWN_LANES or _l in routing.DEPRECATED_LANES):
+                    check(f"D-101 기본 채움이 철회·폐기 레인을 고르지 않는다 ({_cls})", False, str(_l))
+        check("D-101 어떤 쿼터 상태에서도 기본 채움은 철회·폐기 레인을 고르지 않는다", True)
         # Q-09 — writes:true 공정은 코딩 규칙
         lane_wr, _nwr = MI.pick_default("B", _q and {v: _q(10) for v in routing.VENDORS}, proc="terminal-ci-git", writes=True)
         check("writes 공정의 기본 채움은 코딩 레인 (Q-09)", lane_wr == routing.PROCESS_LANES["coding"][0], str(lane_wr))
         q_ok = {v: _q(10) for v in routing.VENDORS}
         lane_cp, note_cp = MI.pick_default("C-platform", q_ok)
-        check("dispatch unavailable 인 gemini 는 기본 채움에서 건너뛴다 (D-28 #12)",
-              lane_cp == "gpt-6.1-sol", f"{lane_cp} {note_cp}")
+        check("dispatch unavailable 인 gemini 는 기본 채움에서 건너뛴다 (D-28 #12 · D-101 부터 2순위는 claude-opus-5-5)",
+              lane_cp == "claude-opus-5-5", f"{lane_cp} {note_cp}")
         live_bad = {"at": "t", "age_sec": 10, "stale": False,
                     "vendors": {"grok": False, "codex": True, "claude": True, "gemini": True}}
         lane_rt, _nrt = MI.pick_default("C-realtime", q_ok, live=live_bad)
-        check("실호출 실패 벤더는 쿼터와 무관하게 건너뛴다 (D-28 #13③)", lane_rt == "gpt-6.1-sol", str(lane_rt))
+        check("실호출 실패 벤더는 쿼터와 무관하게 건너뛴다 (D-28 #13③ · D-101 부터 2순위는 claude-opus-5-5)",
+              lane_rt == "claude-opus-5-5", str(lane_rt))
         lane_rt2, note_rt2 = MI.pick_default("C-realtime", q_ok, live=dict(live_bad, stale=True))
         check("오래된 실호출 실패는 막지 않는다 (D-28 #13③)", lane_rt2 == "grok-4.6", f"{lane_rt2} {note_rt2}")
         st_f, why_f = MI.lane_state_for("claude-fable-5-1", q_ok, fable_pct=100)
@@ -621,8 +638,12 @@ def run():
 
         print()
         print("=== 출력 규칙 ===")
-        check("luna 는 우열 판단 금지 명시 (2026-10-05: A 1순위 규칙은 gpt-6-luna 로 옮겼다)",
-              "우열 판단" in routing.OUTPUT_RULES["gpt-6-luna"]["deny"])
+        check("A 1순위 레인은 우열 판단 금지 명시 (D-101: 규칙은 claude-haiku-5-5 에 있다 · 옛 gpt-6-luna 규칙을 받았다)",
+              "우열 판단" in routing.OUTPUT_RULES[routing.lanes_for("A")[0]]["deny"]
+              and routing.lanes_for("A")[0] == "claude-haiku-5-5")
+        check("D-101 철회·미등록 레인에는 산출물 규칙을 두지 않는다",
+              not (set(routing.OUTPUT_RULES) & routing.WITHDRAWN_LANES)
+              and set(routing.OUTPUT_RULES) <= set(routing.LANES), str(sorted(routing.OUTPUT_RULES)))
         check("B 클래스 1순위에 luna 없음",
               "gpt-6-luna" not in routing.lanes_for("B") and "gpt-5.6-luna" not in routing.lanes_for("B"))
         check("코디네이터가 B 워커 겸임 → 경고",
@@ -631,8 +652,11 @@ def run():
         check("코디네이터 겸임은 클래스와 무관하게 경고 (D-28 #6)",
               routing.coordinator_conflict(
                   [{"proc": "research-collect", "lane": routing.COORDINATOR[0], "class": "C-realtime"}]))
-        check("코디네이터는 gpt-6.1-sol · effort 는 xhigh (D-28 #8 · D-67)",
-              routing.COORDINATOR == ("gpt-6.1-sol", "xhigh"), str(routing.COORDINATOR))
+        check("코디네이터는 gpt-6-astra · effort 는 xhigh (D-101 · 옛 값 gpt-6.1-sol)",
+              routing.COORDINATOR == ("gpt-6-astra", "xhigh"), str(routing.COORDINATOR))
+        check("D-101 코디네이터는 종합(D)과 벤더가 다르다 (발주 §5)",
+              routing.LANES[routing.COORDINATOR[0]]["vendor"]
+              != routing.LANES[routing.fixed_for("synthesis")[0]]["vendor"])
         check("terra 사다리 medium/max (D-28 #9)",
               routing.ladder_for("gpt-5.6-terra") == ("medium", "max"), str(routing.ladder_for("gpt-5.6-terra")))
         check("luna 사다리는 low/medium 유지 (D-28 #10 보류 · gpt-6-luna 도 같다)",
@@ -646,18 +670,20 @@ def run():
         check("astra 의 Orca 상한은 xhigh", routing.ceiling_for("gpt-6-astra") == "xhigh")
         check("B(비코딩) 1순위가 astra (D-28 #5)", routing.lanes_for("B")[0] == "gpt-6-astra",
               str(routing.lanes_for("B")))
-        check("sonnet 은 A 의 claude-sonnet-5-5 · 사다리 medium/high — D-99 부터 3순위(2순위는 claude-haiku-5-5) "
+        check("sonnet 은 A 의 claude-sonnet-5-5 · 사다리 medium/high — D-101 부터 2순위(1순위는 claude-haiku-5-5) "
               "(옛 claude-sonnet-5 사다리 medium/xhigh 는 원장 호환용으로 그대로)",
-              routing.lanes_for("A")[1] == "claude-haiku-5-5"
-              and routing.lanes_for("A")[2] == "claude-sonnet-5-5"
+              routing.lanes_for("A")[0] == "claude-haiku-5-5"
+              and routing.lanes_for("A")[1] == "claude-sonnet-5-5"
               and routing.ladder_for("claude-sonnet-5-5") == ("medium", "high")
               and routing.ladder_for("claude-sonnet-5") == ("medium", "xhigh"),
               f"A={routing.lanes_for('A')} ladder={routing.ladder_for('claude-sonnet-5-5')}")
         check("코딩 목록에는 codex 가 끝까지 없다 (D-28 #5)",
               all(routing.LANES[l]["vendor"] == "claude" for l in routing.PROCESS_LANES["coding"]))
-        check("코디네이터(sol)가 B 우선순위 목록에 없다 (D-98 뒤로 고정 게이트가 같은 모델이라 겸임 경고는 따로 뜬다)",
-              routing.COORDINATOR[0] not in routing.lanes_for("B")
-              and "gpt-5.6-sol" not in routing.lanes_for("B"))
+        check("D-101 코디네이터(astra)는 B 1순위·인가 게이트와 같은 모델이다 — 겸임 경고가 뜬다(가드 위반은 아니다)",
+              routing.COORDINATOR[0] == routing.lanes_for("B")[0]
+              and routing.COORDINATOR[0] == routing.fixed_for("security-bizlogic-2nd")[0]
+              and routing.coordinator_conflict([{"proc": "research-deep", "lane": "gpt-6-astra", "class": "B"}])
+              and "gpt-5.6-sol" not in routing.lanes_for("B") and "gpt-6.1-sol" not in routing.lanes_for("B"))
         check("인가 게이트가 astra @xhigh 로 올라갔다 (Simon 결정 2026-09-06)",
               routing.fixed_for("security-bizlogic-2nd") == ("gpt-6-astra", "xhigh"),
               str(routing.fixed_for("security-bizlogic-2nd")))
@@ -692,9 +718,10 @@ def run():
               and all(f[0] != "claude-opus-5" for f in (routing.fixed_for(p[0]) for p in routing.PROCESSES) if f))
         check("D-67 종합 고정 = claude-opus-5-5 @max (ultracode 는 flag 레인이 못 받는다)",
               routing.fixed_for("synthesis") == ("claude-opus-5-5", "max"), str(routing.fixed_for("synthesis")))
-        check("D-67 gpt-5.6-sol 은 gpt-6.1-sol 뒤 폴백",
-              all(routing.lanes_for(c).index("gpt-6.1-sol") < routing.lanes_for(c).index("gpt-5.6-sol")
-                  for c in ("C-realtime", "C-platform")), str(routing.CLASS_LANES))
+        check("D-101 C 클래스 = 1순위 → claude-opus-5-5 → gpt-6-astra (옛 gpt-6.1-sol · gpt-5.6-sol 폴백은 철회)",
+              routing.lanes_for("C-realtime") == ["grok-4.6", "claude-opus-5-5", "gpt-6-astra"]
+              and routing.lanes_for("C-platform") == ["gemini-3.8-flash", "claude-opus-5-5", "gpt-6-astra"],
+              str(routing.CLASS_LANES))
         for bad in ("max", "ultra"):
             try:
                 routing.dispatch_argv("gpt-6.1-sol", bad, "t", "n", "current", allow_off_ladder=True)
@@ -707,9 +734,10 @@ def run():
               and routing.prompt_prefix("claude-opus-5-5", "max") == "", str(argv_o))
 
         # 2026-10-05 Simon 지시 (2.15.5) — A 클래스를 현행 세대 레인으로 (같은 ADD_ALONGSIDE_KEEP_LEGACY)
-        check("2.15.5 A 클래스 = gpt-6-luna → … → claude-sonnet-5-5 → claude-opus-5-5 "
-              "(D-99 가 2순위에 claude-haiku-5-5 를 넣었다 · 1순위와 Sonnet 은 그대로)",
-              routing.lanes_for("A") == ["gpt-6-luna", "claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"],
+        check("D-101 A 클래스 = claude-haiku-5-5 → claude-sonnet-5-5 → claude-opus-5-5 "
+              "(2.15.5 의 1순위 gpt-6-luna 는 철회 · 전부 claude)",
+              routing.lanes_for("A") == ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"]
+              and {routing.LANES[l]["vendor"] for l in routing.lanes_for("A")} == {"claude"},
               str(routing.lanes_for("A")))
         check("2.15.5 새 레인은 flag · orca · 상한 sonnet-5-5=max / 6-luna=xhigh",
               all(routing.LANES[l]["effort_style"] == "flag" and routing.LANES[l]["dispatch"] == "orca"
@@ -746,9 +774,8 @@ def run():
               and routing.ceiling_for("claude-haiku-5-5") == "max"
               and routing.ladder_for("claude-haiku-5-5") == ("low", "medium")
               and "quota_bucket" not in haiku, str(haiku))
-        check("D-99 haiku-5-5 는 A 2순위에만 있다 — 선두가 아니고 다른 클래스·코딩·고정 공정에 없다",
-              routing.lanes_for("A").index("claude-haiku-5-5") == 1
-              and routing.lanes_for("A")[0] == "gpt-6-luna"
+        check("D-99 haiku-5-5 는 A 에만 있다 (D-101 부터 1순위) — 다른 클래스·코딩·고정 공정에 없다",
+              routing.lanes_for("A").index("claude-haiku-5-5") == 0
               and all("claude-haiku-5-5" not in routing.lanes_for(c) for c in routing.CLASS_LANES if c != "A")
               and "claude-haiku-5-5" not in routing.PROCESS_LANES["coding"]
               and all(f[0] != "claude-haiku-5-5"
@@ -773,54 +800,104 @@ def run():
             check("haiku-5-5@ultra → 차단 (Orca 허용목록 밖)", False, "통과되어 버렸다")
         except ValueError:
             check("haiku-5-5@ultra → 차단 (Orca 허용목록 밖)", True)
-        check("D-99 haiku-5-5 는 우열 판단 금지 명시 (싼 레인 규율은 luna 와 같다)",
+        check("D-99 haiku-5-5 는 우열 판단 금지 명시 (싼 레인 규율 · 옛 luna 규칙과 같다)",
               "우열 판단" in routing.OUTPUT_RULES["claude-haiku-5-5"]["deny"])
 
-        # D-98 (2026-10-12 · 2.16.0) — 생성물 게이트를 gpt-6.1-sol @xhigh 로 · Daybreak 키는 원장 호환용
-        gate98 = routing.fixed_for("security-artifact-gate")
+        # D-101 (2026-10-12 · 2.17.0 · Simon 지시) — GPT 쪽은 gpt-6-astra @xhigh 만 · 생성물 게이트는 Daybreak 로 되돌림
+        #   (D-98 은 같은 날 오전 게이트를 gpt-6.1-sol 로 옮겼었다 — 그 이전을 뒤집는다)
+        gate101 = routing.fixed_for("security-artifact-gate")
         daybreak = "gpt-daybreak-blue-latest"
-        check("D-98 생성물 게이트 = gpt-6.1-sol @xhigh (폐기 표시된 Daybreak 별칭이 아니다)",
-              gate98 == ("gpt-6.1-sol", "xhigh"), str(gate98))
-        check("D-98 Daybreak 키는 LANES 에 남지만 어떤 우선순위 목록·고정 공정·코디네이터에도 없다",
+        check("D-101 생성물 게이트 = gpt-daybreak-blue-latest @xhigh (D-98 의 gpt-6.1-sol 이 아니다)",
+              gate101 == (daybreak, "xhigh"), str(gate101))
+        check("D-101 Daybreak 는 여전히 폐기 표시 레인이고 설 자리는 고정 게이트 하나뿐이다",
               daybreak in routing.LANES and routing.ledger_efforts(daybreak)
               and daybreak in routing.DEPRECATED_LANES
+              and routing.DEPRECATED_LANE_PINS == {daybreak: "security-artifact-gate"}
               and daybreak not in listed and routing.COORDINATOR[0] != daybreak
-              and all(f[0] != daybreak for f in (routing.fixed_for(p[0]) for p in routing.PROCESSES) if f))
-        check("D-98 게이트 벤더는 codex 뿐 — 코딩(claude)과 겹치지 않는다 (G1 불변식)",
+              and [p[0] for p in routing.PROCESSES if p[3] and p[3][0] == daybreak] == ["security-artifact-gate"])
+        check("D-101 게이트 벤더는 codex 뿐 — 코딩(claude)과 겹치지 않는다 (G1 불변식)",
               routing.gate_vendors() == {"codex"}, str(sorted(routing.gate_vendors())))
-        for coder in ("gpt-6.1-sol", "gpt-6-astra", "gpt-6-luna"):
-            ok_c98, v_c98, _n98 = routing.validate_plan(
+        codex_keys = {l for l, m in routing.LANES.items() if m["vendor"] == "codex"}
+        check("D-101 codex 레인 키 = {gpt-6-astra} ∪ 폐기 표시 ∪ 철회 (새 codex 키는 결정 없이 일을 받지 못한다)",
+              codex_keys == {"gpt-6-astra"} | routing.DEPRECATED_LANES | routing.WITHDRAWN_LANES
+              and routing.active_codex_lanes() == ["gpt-6-astra"],
+              str(sorted(codex_keys)))
+        check("D-101 철회 레인 다섯 — 원장 호환용 키로 LANES 에 남는다",
+              routing.WITHDRAWN_LANES == {"gpt-6.1-sol", "gpt-6-luna", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"}
+              and all(l in routing.LANES and routing.ledger_efforts(l) for l in routing.WITHDRAWN_LANES))
+        active = (listed | {f[0] for f in (routing.fixed_for(p[0]) for p in routing.PROCESSES) if f}
+                  | {routing.COORDINATOR[0]} | set(routing.OUTPUT_RULES))
+        check("D-101 철회 레인은 어떤 우선순위 목록·고정 공정·코디네이터·산출물 규칙에도 없다",
+              not (active & routing.WITHDRAWN_LANES), str(sorted(active & routing.WITHDRAWN_LANES)))
+        check("D-101 일을 받는 codex 자리는 gpt-6-astra 와 Daybreak 게이트 고정뿐이다",
+              {l for l in active if routing.LANES[l]["vendor"] == "codex"} == {"gpt-6-astra", daybreak})
+        for lane in sorted(routing.WITHDRAWN_LANES):
+            ok_w, v_w, _nw = routing.validate_plan(
+                [{"proc": "research-deep", "lane": lane, "class": "B"}], quota_checked_vendors=routing.VENDORS)
+            check(f"D-101 철회 레인 {lane} 은 새 계획에서 LANE_WITHDRAWN", not ok_w and v_w == ["LANE_WITHDRAWN"], str(v_w))
+        ok_rw, v_rw, _nrw, _ = routing.revalidate_for_retry(
+            a_rd, "research-deep", "gpt-6.1-sol", quota_checked_vendors=routing.VENDORS)
+        check("D-101 재시도로 철회 레인에 옮기는 것도 막는다 (G13)", not ok_rw and "LANE_WITHDRAWN" in v_rw, str(v_rw))
+        for coder in ("gpt-6-astra", "gpt-6.1-sol", "gpt-6-luna"):
+            ok_c, v_c, _nc = routing.validate_plan(
                 [{"proc": "coding", "lane": coder, "class": "B"}] + gate_a,
                 quota_checked_vendors=routing.VENDORS)
-            check(f"D-98 코딩이 codex({coder})면 게이트가 gpt-6.1-sol 이어도 G1",
-                  not ok_c98 and "G1" in v_c98, str(v_c98))
-        for same in ("gpt-6-astra", "gpt-6.1-sol"):
-            ok_s98, v_s98, _ns98 = routing.validate_plan(
+            check(f"D-101 코딩이 codex({coder})면 게이트가 Daybreak 여도 G1",
+                  not ok_c and "G1" in v_c and "CODING_LANE_NOT_ALLOWED" in v_c, str(v_c))
+        for same in ("gpt-6-astra", daybreak):
+            ok_s, v_s, _ns = routing.validate_plan(
                 [{"proc": "coding", "lane": default_coding, "class": "B"},
                  {"proc": "security-artifact-gate", "lane": same, "class": "B"},
                  {"proc": "security-bizlogic-2nd", "lane": same, "class": "B"}],
                 quota_checked_vendors=routing.VENDORS)
-            check(f"D-98 두 게이트가 같은 모델({same})이면 G1_SEC_SAME_MODEL",
-                  not ok_s98 and "G1_SEC_SAME_MODEL" in v_s98, str(v_s98))
-        ok_d98, v_d98, _nd98 = routing.validate_plan(
+            check(f"D-101 두 게이트가 같은 모델({same})이면 G1_SEC_SAME_MODEL",
+                  not ok_s and "G1_SEC_SAME_MODEL" in v_s, str(v_s))
+        ok_op, v_op, _nop = routing.validate_plan(
             [{"proc": "coding", "lane": default_coding, "class": "B"},
-             {"proc": "security-artifact-gate", "lane": daybreak, "class": "B"},
+             {"proc": "security-artifact-gate", "lane": "claude-opus-5-5", "class": "B"},
              {"proc": "security-bizlogic-2nd", "lane": "gpt-6-astra", "class": "B"}],
             quota_checked_vendors=routing.VENDORS)
-        check("D-98 Daybreak 를 게이트에 다시 넣으면 LANE_DEPRECATED + FIXED_LANE_OVERRIDDEN",
-              not ok_d98 and {"LANE_DEPRECATED", "FIXED_LANE_OVERRIDDEN"} <= set(v_d98), str(v_d98))
-        ok_d2, v_d2, _nd2b = routing.validate_plan(
-            [{"proc": "research-deep", "lane": daybreak, "class": "B"}],
+        check("D-101 Opus 폴백은 구현되지 않았다 — 게이트를 claude-opus-5-5 로 두면 G1 + FIXED_LANE_OVERRIDDEN",
+              not ok_op and {"G1", "FIXED_LANE_OVERRIDDEN"} <= set(v_op), str(v_op))
+        ok_pin, v_pin, _npin = routing.validate_plan(
+            [{"proc": "security-artifact-gate", "lane": daybreak, "class": "B", "effort": "xhigh"}],
             quota_checked_vendors=routing.VENDORS)
-        check("D-98 Daybreak 는 게이트 밖 공정에도 새로 배정되지 않는다 (LANE_DEPRECATED)",
-              not ok_d2 and v_d2 == ["LANE_DEPRECATED"], str(v_d2))
-        check("D-98 부작용 — 게이트와 코디네이터가 같은 모델이라 기본 코딩 라운드에 겸임 경고가 뜬다 (가드 위반은 아니다)",
+        check("D-101 Daybreak 는 고정 게이트 · 고정 effort 에서는 통과한다 (LANE_DEPRECATED 의 유일한 예외)",
+              ok_pin, str(v_pin))
+        for eff in ("high", "medium", "low"):
+            ok_e, v_e, _ne = routing.validate_plan(
+                [{"proc": "security-artifact-gate", "lane": daybreak, "class": "B", "effort": eff, "off_ladder": True}],
+                quota_checked_vendors=routing.VENDORS)
+            check(f"D-101 Daybreak 게이트라도 고정 effort 밖({eff})이면 LANE_DEPRECATED",
+                  not ok_e and "LANE_DEPRECATED" in v_e, str(v_e))
+        for proc, cls in (("research-deep", "B"), ("terminal-ci-git", "B"), ("bulk-transform", "A"),
+                          ("claim-verify", "A-verify"), ("research-collect", "C-realtime"),
+                          ("google-platform", "C-platform"), ("security-bizlogic-2nd", "B")):
+            ok_d2, v_d2, _nd2b = routing.validate_plan(
+                [{"proc": proc, "lane": daybreak, "class": cls}], quota_checked_vendors=routing.VENDORS)
+            check(f"D-101 Daybreak 는 게이트 밖 공정({proc})에 배정되지 않는다 (LANE_DEPRECATED)",
+                  not ok_d2 and "LANE_DEPRECATED" in v_d2, str(v_d2))
+        ok_dc, v_dc, _ndc = routing.validate_plan(
+            [{"proc": "coding", "lane": daybreak, "class": "B"}] + gate_a, quota_checked_vendors=routing.VENDORS)
+        check("D-101 Daybreak 로 코딩하면 LANE_DEPRECATED + G1 + CODING_LANE_NOT_ALLOWED",
+              not ok_dc and {"LANE_DEPRECATED", "G1", "CODING_LANE_NOT_ALLOWED"} <= set(v_dc), str(v_dc))
+        ok_dr, v_dr, _ndr, _ = routing.revalidate_for_retry(
+            a_rd, "research-deep", daybreak, quota_checked_vendors=routing.VENDORS)
+        check("D-101 재시도로 다른 공정을 Daybreak 에 옮기는 것도 막는다 (G13)",
+              not ok_dr and "LANE_DEPRECATED" in v_dr, str(v_dr))
+        check("D-101 코디네이터(astra)가 인가 게이트와 같은 모델이라 기본 코딩 라운드에 겸임 경고가 뜬다 (가드 위반은 아니다)",
               routing.coordinator_conflict(a_ok)
               and not routing.check_guards(a_ok, quota_checked_vendors=routing.VENDORS))
-        check("D-98 게이트 출력 규칙이 gpt-6.1-sol 로 옮겨졌다 (빈 출력·차단을 PASS 로 읽지 않는다)",
-              "GATE: BLOCK" in routing.OUTPUT_RULES["gpt-6.1-sol"]["allow"]
-              and "FAIL" in routing.OUTPUT_RULES["gpt-6.1-sol"]["deny"]
-              and daybreak not in routing.OUTPUT_RULES)
+        check("D-101 게이트 출력 규칙이 Daybreak 키로 돌아왔다 (빈 출력·차단을 PASS 로 읽지 않는다)",
+              "GATE: BLOCK" in routing.OUTPUT_RULES[daybreak]["allow"]
+              and "FAIL" in routing.OUTPUT_RULES[daybreak]["deny"]
+              and "gpt-6.1-sol" not in routing.OUTPUT_RULES)
+        check("D-101 astra 사다리는 std = top = xhigh 이고 effort 가 고정이다",
+              routing.ladder_for("gpt-6-astra") == ("xhigh", "xhigh")
+              and routing.EFFORT_PINNED == {"gpt-6-astra": "xhigh"}
+              and routing.effort_for("gpt-6-astra", False) == "xhigh"
+              and routing.effort_for("gpt-6-astra", True) == "xhigh", str(routing.ladder_for("gpt-6-astra")))
+
         gate_doc = os.path.join(os.path.dirname(_HERE), "references", "security-artifact-gate.md")
         try:
             with open(gate_doc, "r", encoding="utf-8") as f:
@@ -830,9 +907,15 @@ def run():
         missing_rules = [s for s in ("FAIL, never PASS", "Empty output", "Refusal or blocked output",
                                      "Missing first line", "Ambiguous verdict", "GATE: BLOCK", "GATE: PASS",
                                      "The gate never grades work made by its own vendor",
-                                     "No automatic promotion")
+                                     "No automatic promotion",
+                                     # D-101 — 실행 전 카탈로그 확인 · 미결 폴백 · 두 canary 기록
+                                     "`gpt-daybreak-blue-latest` @ `xhigh`", "## Before each run",
+                                     "~/.codex/models_cache.json", "the gate **FAILS**",
+                                     "OPEN. Not implemented. Needs Simon's ruling.", "collides with G1",
+                                     "run_b08adccb4ec8", "ctx_41243c1a0d26", "run_8f7a27febc38")
                          if s not in gate_text]
-        check("D-98 게이트 규칙 문서가 fail-closed·G1·재승격 규칙을 적는다 (references/security-artifact-gate.md)",
+        check("D-101 게이트 규칙 문서가 fail-closed·G1·실행 전 확인·미결 폴백·대체 규칙을 적는다 "
+              "(references/security-artifact-gate.md)",
               not missing_rules, str(missing_rules))
 
         # Orca 가 거부하는 값은 allow_off_ladder 로도 열리지 않는다.
@@ -844,22 +927,40 @@ def run():
             except ValueError:
                 check(f"astra@{bad} → 차단", True)
 
-        # 정책 밖이지만 Orca 는 받는 값 = 명시해야만 열린다.
+        # D-101 — astra 는 xhigh 고정이다. Orca 가 받는 낮은 값도 allow_off_ladder 로 열리지 않는다.
+        argv_ax = routing.dispatch_argv("gpt-6-astra", "xhigh", "t", "n", "current")
+        check("D-101 astra@xhigh 는 열린다 (--model · --effort xhigh)",
+              argv_ax[argv_ax.index("--model") + 1] == "gpt-6-astra"
+              and argv_ax[argv_ax.index("--effort") + 1] == "xhigh", str(argv_ax))
+        for low in ("minimal", "low", "medium", "high"):
+            for off_flag in (False, True):
+                try:
+                    routing.dispatch_argv("gpt-6-astra", low, "t", "n", "current", allow_off_ladder=off_flag)
+                    check(f"D-101 astra@{low} (off_ladder={off_flag}) → 차단", False, "통과되어 버렸다")
+                except ValueError:
+                    check(f"D-101 astra@{low} (off_ladder={off_flag}) → 차단", True)
+        ok_ae, v_ae, _nae = routing.validate_plan(
+            [{"proc": "research-deep", "lane": "gpt-6-astra", "class": "B", "effort": "high", "off_ladder": True}],
+            quota_checked_vendors=routing.VENDORS)
+        check("D-101 계획 검증도 astra 의 xhigh 밖 effort 를 막는다 (off_ladder 포함)",
+              not ok_ae and v_ae == ["EFFORT_NOT_ALLOWED"], str(v_ae))
+
+        # 정책 밖이지만 Orca 는 받는 값 = 명시해야만 열린다. (고정이 없는 레인으로 본다 — claude-opus-5-5 사다리 high/max)
         try:
-            routing.dispatch_argv("gpt-6-astra", "medium", "t", "n", "current")
+            routing.dispatch_argv("claude-opus-5-5", "medium", "t", "n", "current")
             check("정책 밖 effort 는 기본적으로 차단", False, "통과되어 버렸다")
         except ValueError:
             check("정책 밖 effort 는 기본적으로 차단", True)
-        off = routing.dispatch_argv("gpt-6-astra", "medium", "t", "n", "current",
+        off = routing.dispatch_argv("claude-opus-5-5", "medium", "t", "n", "current",
                                     allow_off_ladder=True)
         check("allow_off_ladder 면 열린다", "medium" in off, str(off))
-        _, o_off, _, m_off = routing.run_dispatch("gpt-6-astra", "medium", "t", "n",
+        _, o_off, _, m_off = routing.run_dispatch("claude-opus-5-5", "medium", "t", "n",
                                                   "current", dry=True,
                                                   allow_off_ladder=True)
         check("off_ladder 사실이 meta 에 남는다", m_off["off_ladder"] is True, str(m_off))
 
         # 계획 검증이 잘못된 명시 effort 에서 아무것도 실행하지 않는다.
-        # D-98: 게이트 레인은 gpt-6.1-sol 이다(옛 gpt-daybreak-blue-latest). 상한은 둘 다 xhigh 라 ultra 는 거부된다.
+        # D-101: 게이트 레인은 gpt-daybreak-blue-latest 다(D-98 때는 gpt-6.1-sol). 상한이 xhigh 라 ultra 는 거부된다.
         plan_bad = [{"proc": "coding", "lane": "claude-opus-5", "class": "B"},
                     {"proc": "security-artifact-gate",
                      "lane": routing.fixed_for("security-artifact-gate")[0], "class": "B", "effort": "ultra"},
@@ -875,17 +976,31 @@ def run():
               (not okd) and resd == [], str(resd)[:120])
 
         # 원장이 off-ladder effort 를 받아준다 (기록이 빠지면 학습이 멈춘다)
-        check("원장 허용 effort 에 off-ladder 가 포함된다",
-              "medium" in routing.ledger_efforts("gpt-6-astra"))
+        # D-101: astra 는 이제 xhigh 로만 돌지만, 원장은 과거 행(astra@medium·@high)과 철회 레인의 행을 계속 읽는다.
+        check("원장 허용 effort 에 off-ladder 가 포함된다 (D-101 고정과 무관 — 과거 행)",
+              {"medium", "high"} <= routing.ledger_efforts("gpt-6-astra"))
         rec_off = ledger.new_record(RUN, "astra-off", "B", "gpt-6-astra", "medium",
                                     False, False, "done")
         check("off-ladder 레코드가 원장 스키마를 통과한다", rec_off["effort"] == "medium")
+        rec_wd = ledger.new_record(RUN, "withdrawn-row", "A", "gpt-6-luna", "low", False, False, "done")
+        check("D-101 철회 레인의 원장 행은 계속 스키마를 통과한다 (원장 호환)", rec_wd["lane"] == "gpt-6-luna")
 
-        # codex 직행 — Orca 가 못 가는 ultra 로 갈 수 있는 유일한 길
-        cx = routing.codex_exec_argv("gpt-6-astra", "ultra", cwd_check=False)
+        # codex 직행 — D-101 부터 gpt-6-astra @xhigh 만 만든다 (옛 용도: Orca 가 못 가는 ultra)
+        cx = routing.codex_exec_argv("gpt-6-astra", "xhigh", cwd_check=False)
         check("codex 직행 argv 에 모델·effort 가 박힌다",
-              "gpt-6-astra" in cx and any("ultra" in a for a in cx), str(cx))
+              "gpt-6-astra" in cx and any("xhigh" in a for a in cx), str(cx))
         check("codex 직행은 프롬프트를 stdin 으로 받는다", cx[-1] == "-", str(cx))
+        for model, eff in (("gpt-6-astra", "ultra"), ("gpt-6-astra", "high"), ("gpt-6.1-sol", "xhigh"),
+                           ("gpt-6-luna", "low"), ("gpt-5.6-sol", "ultra"), ("gpt-6-sol", "high"),
+                           ("gpt-daybreak-blue-latest", "xhigh")):
+            try:
+                routing.codex_exec_argv(model, eff, cwd_check=False)
+                check(f"D-101 codex 직행 {model}@{eff} → 차단", False, "통과되어 버렸다")
+            except ValueError:
+                check(f"D-101 codex 직행 {model}@{eff} → 차단", True)
+        rc_cx, out_cx, _ecx = routing.run_codex_exec("p", dry=True)
+        check("D-101 codex 직행 기본값은 gpt-6-astra @xhigh",
+              rc_cx == 0 and "gpt-6-astra" in out_cx and "xhigh" in out_cx and "ultra" not in out_cx, out_cx)
         # 2026-09-20: 이 경로가 조용히 죽어 있었다. codex 는 이 머신에서 npm 셰임(.CMD)이라
         # shell=False 로는 CreateProcess 가 못 푼다 - 나머지 CLI 가 .EXE 라 티가 안 났다.
         import os as _os
@@ -978,9 +1093,20 @@ def run():
         a_cl, s_cl = ae.exec_plan("claude-opus-5", "standard", inj)
         check("claude 는 프롬프트를 stdin 으로 넘긴다",
               s_cl == inj and inj not in a_cl, str(a_cl))
-        a_cx, s_cx = ae.exec_plan("gpt-5.6-luna", "low", inj)
+        a_cx, s_cx = ae.exec_plan("gpt-6-astra", "xhigh", inj)   # D-101: codex 백엔드는 astra @xhigh 만 조립한다
         check("codex 는 프롬프트를 stdin 으로 넘긴다",
               s_cx == inj and a_cx[-1] == "-", str(a_cx))
+        try:
+            ae.exec_plan("gpt-5.6-luna", "low", inj)
+            check("D-101 평가 백엔드도 철회 레인의 argv 를 만들지 않는다", False, "통과되어 버렸다")
+        except ValueError:
+            check("D-101 평가 백엔드도 철회 레인의 argv 를 만들지 않는다", True)
+        probes_now = ae.load_probes()
+        probe_lanes = {l for p in probes_now for l in p["lanes"]}
+        check("D-101 평가 문제의 codex 후보는 gpt-6-astra 하나다",
+              {l for l in probe_lanes if ae.VENDOR_OF[l] == "codex"} == {"gpt-6-astra"}
+              and not (probe_lanes & (routing.WITHDRAWN_LANES | routing.DEPRECATED_LANES)),
+              str(sorted(probe_lanes)))
         a_gm, s_gm = ae.exec_plan("gemini-3.8-flash", "medium", inj)
         check("agy 는 effort 가 슬러그에 박힌다",
               "gemini-3.8-flash-medium" in a_gm, str(a_gm))
