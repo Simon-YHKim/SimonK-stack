@@ -740,7 +740,7 @@ class ModelRegistryTests(unittest.TestCase):
     def test_d101_artifact_gate_returns_to_daybreak_as_the_only_deprecated_position(self):
         # D-101 (2026-10-12, Simon: "보안게이트는 데이브레이크로 할려했는데 그게 안돼면 opus 5.5로 하자."):
         # the artifact gate is the deprecated Daybreak alias again. The provider fact and the central
-        # planner block are untouched; the Opus fallback is not implemented.
+        # planner block are untouched; Opus is not a gate lane (the D-102 fallback is gpt-6-astra).
         lanes = ast.literal_eval(module_literal("routing.py", "LANES"))
         classes = ast.literal_eval(module_literal("routing.py", "CLASS_LANES"))
         coding = ast.literal_eval(module_literal("routing.py", "PROCESS_LANES"))["coding"]
@@ -808,7 +808,7 @@ class ModelRegistryTests(unittest.TestCase):
             with self.subTest(section=needle):
                 self.assertIn(needle, section)
 
-    def test_d101_gate_reference_states_the_rubric_fail_closed_rules_and_the_open_fallback(self):
+    def test_d101_gate_reference_states_the_rubric_fail_closed_rules_and_the_d102_fallback(self):
         # The rules are a written contract for whoever reads the gate output; no script parses it.
         path = REFERENCES / "security-artifact-gate.md"
         self.assertTrue(path.is_file(), "security artifact gate reference is missing")
@@ -819,7 +819,7 @@ class ModelRegistryTests(unittest.TestCase):
         pinned = text.split("## Pinned lane", 1)[1].split("## Before each run", 1)[0]
         for needle in ("D-101", "Simon's directive", "gpt 6.1 sol은 너무 느려서 빼기로 결정",
                        "The alias works on this account today", "still marks the alias deprecated",
-                       "`MODEL_NOT_ACTIVE`", "still cannot make this gate ready", "**LANE_DEPRECATED**",
+                       "`MODEL_NOT_ACTIVE`", "cannot route this gate to Daybreak", "**LANE_DEPRECATED**",
                        "Anywhere else it is still rejected", "`keep-security-pin-resolve-per-run`"):
             with self.subTest(pinned=needle):
                 self.assertIn(needle, pinned)
@@ -832,37 +832,58 @@ class ModelRegistryTests(unittest.TestCase):
         shape = text.split("## Required output", 1)[1].split("## Fail-closed rules", 1)[0]
         self.assertIn("The first line is exactly `GATE: BLOCK` or `GATE: PASS`", shape)
         self.assertIn("one finding per line: `CWE-<n> | <location> | <reason>`", shape)
-        rules = text.split("## Fail-closed rules", 1)[1].split("## Open item", 1)[0]
+        rules = text.split("## Fail-closed rules", 1)[1].split("## Fallback:", 1)[0]
         self.assertIn("**FAIL, never PASS**", rules)
         for needle in ("**Empty output**", "**Refusal or blocked output**", "**Missing first line**",
                        "**Ambiguous verdict**", "Do not read silence as a pass",
+                       "never a reason to ask the fallback for a second opinion",
                        "Nothing in the scripts parses gate output today"):
             with self.subTest(rule=needle):
                 self.assertIn(needle, rules)
         self.assertIn("The gate never grades work made by its own vendor", text)
-        # Before each run: the catalog check, and a missing alias or empty/blocked output is a FAIL.
+        # Before each run: the catalog check. A missing alias sends the gate to the fallback through a
+        # re-plan; an empty or blocked output after a run is a FAIL, not a fallback.
         before = text.split("## Before each run", 1)[1].split("## Rubric", 1)[0]
         for needle in ("~/.codex/models_cache.json", "still listed", "no retirement or upgrade entry",
-                       "the gate **FAILS**", "It never passes", "Do not start the gate on another model",
-                       "empty or blocked", "No script performs this catalog check today"):
+                       "Daybreak cannot stand", "Do not start the gate on it", "`available: false`",
+                       "the gate **FAILS**", "It never passes", "empty or blocked",
+                       "not a reason to hand the same run to the fallback",
+                       "No script performs this catalog check today"):
             with self.subTest(before=needle):
                 self.assertIn(needle, before)
-        # The Opus fallback is an open item, not an implemented route.
-        open_item = text.split("## Open item", 1)[1].split("## Replacement rule", 1)[0]
-        for needle in ("**OPEN. Not implemented. Needs Simon's ruling.**", "`claude-opus-5-5`", "collides with G1",
-                       "(a) `claude-opus-5-5` fallback", "G1 is relaxed for this fallback case only",
-                       "(b) `gpt-6-astra` takes both security gates",
-                       "G1_SEC_SAME_MODEL is relaxed for this fallback case only",
-                       "Neither option is coded, tested or canaried", "the gate fails and the coding round stops"):
-            with self.subTest(open_item=needle):
-                self.assertIn(needle, open_item)
+        # D-102: the fallback is decided. The document states when it opens, what stays guarded and its limits.
+        self.assertNotIn("## Open item", text)
+        self.assertNotIn("Needs Simon's ruling", text)
+        fallback = text.split("## Fallback:", 1)[1].split("## Replacement rule", 1)[0]
+        for needle in ("**Decided and implemented.**", "D-102", "Simon's ruling", "`FIXED_FALLBACKS`",
+                       "The pin does not move", "(a) `claude-opus-5-5`", "Not chosen",
+                       "(b) `gpt-6-astra` takes both security gates", "**Chosen.**",
+                       "A host cannot ask for the fallback",
+                       "`GATE_UNAVAILABLE_REASONS`", "`MODEL_NOT_ACTIVE`", "`MODEL_UNAVAILABLE`",
+                       "`available: false`", "The planner drops a `gate_fallback` field",
+                       "A quota state, a stale registry or a gate verdict",
+                       "**G1_SEC_SAME_MODEL is waived in exactly one state**", "**G1 is not waived.**",
+                       "`FIXED_LANE_UNAVAILABLE`", "`ORCA_GATE_FALLBACK_INVALID`",
+                       "no longer independent checks", "not a cyber-specialised model",
+                       "trusts a runtime candidate like every other observation",
+                       "not checked against the pin or the fallback"):
+            with self.subTest(fallback=needle):
+                self.assertIn(needle, fallback)
+        # The reasons the document lists are the ones the planner accepts.
+        spec = importlib.util.spec_from_file_location("vibe_orchestrate_gate_reasons", SCRIPT.with_name("orchestrate.py"))
+        orchestrate = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(orchestrate)
+        for reason in sorted(orchestrate.GATE_UNAVAILABLE_REASONS):
+            with self.subTest(reason=reason):
+                self.assertIn("`" + reason + "`", fallback)
         replacement = text.split("## Replacement rule", 1)[1].split("## Canary records", 1)[0]
         for needle in ("newer cyber model", "~/.codex/models_cache.json", "same seeded canary",
                        "tier-1 record", "No automatic promotion"):
             with self.subTest(replacement=needle):
                 self.assertIn(needle, replacement)
         canary = text.split("## Canary records", 1)[1]
-        for needle in ("run_b08adccb4ec8", "ctx_41243c1a0d26", "run_8f7a27febc38", "ctx_ff39c4a979ba",
+        for needle in ("run_3607f8833d7e", "ctx_56f442610119", "\"unknown\"",
+                       "run_b08adccb4ec8", "ctx_41243c1a0d26", "run_8f7a27febc38", "ctx_ff39c4a979ba",
                        "`launch.requested == launch.effective`", "`GATE: BLOCK`", "one seeded sample",
                        "not proof of parity", "about 30 seconds", "\"GPT-5\"", "may disappear without notice",
                        "not because of a defect"):

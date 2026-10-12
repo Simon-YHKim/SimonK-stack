@@ -165,6 +165,7 @@
 #     ⚠ 그래서 packaged registry 를 쓰는 중앙 계획기 경로에서는 게이트 후보가 MODEL_NOT_ACTIVE 로 계속 막힌다.
 #       게이트 자리는 '고정'이지 '동작'이 아니다. 막히면 게이트는 FAIL 이고(통과가 아니다) 폴백은 Simon 판정 대기다
 #       (references/security-artifact-gate.md 의 Open item). Opus 폴백은 구현하지 않았다 — G1 과 충돌한다.
+#       (그 시점 기록 — 폴백은 D-102 가 gpt-6-astra @xhigh 로 정했다. 아래 절.)
 #   지킨 것: G1 · G1_SEC_SAME_MODEL(생성물 게이트 Daybreak ≠ 인가 게이트 astra) · MODEL_NOT_ACTIVE · $0·G5·인증서 게이트.
 #   canary(오케스트레이터 실행 · 이 변경 자체는 모델 호출 0회): 2026-10-12 15:19~15:20 KST · Orca run_b08adccb4ec8 ·
 #     ctx_41243c1a0d26 · 읽기 전용 워커 1개 · 도구 금지. launch.requested == launch.effective(gpt-daybreak-blue-latest ·
@@ -172,6 +173,29 @@
 #     안전한 함수 2개 미보고 · 약 30초 · 자기보고 "GPT-5"(틀림). 심은 샘플 1건이고 별칭은 예고 없이 사라질 수 있다.
 #   canary 를 돌리지 않은 것: 코디네이터로서의 gpt-6-astra · A 클래스 순서 변경. 근거는 앞선 것뿐이다 —
 #     Haiku 5.5 는 D-99 의 정답이 정해진 A 과제 3개, Sonnet 5.5 는 D-91 canary.
+#
+# ── 2026-10-12 D-102 — 생성물 게이트 폴백: Daybreak 가 설 수 없을 때만 gpt-6-astra @xhigh (2.18.0) ──
+#   Simon 판정(토론 없음 · 허브 DECISIONS D-102): 위 D-101 절의 "폴백은 Simon 판정 대기"가 이것으로 끝났다.
+#   선택지 (가) claude-opus-5-5 + G1 완화 · (나) gpt-6-astra 가 두 보안 게이트를 겸임 + G1_SEC_SAME_MODEL 완화 중 (나).
+#   Simon 의 앞선 말 "그게 안돼면 opus 5.5로 하자"는 이 판정이 대체한다 — 코딩이 claude-opus-5-5 라 (가)는
+#   같은 모델이 자기 산출물을 검사한다.
+#   바뀐 것:
+#   · FIXED_FALLBACKS = {security-artifact-gate: (gpt-6-astra, xhigh)}. 고정 배정은 그대로 Daybreak 다 — 설 수 있으면
+#     Daybreak 가 먼저다.
+#   · validate_plan(..., fixed_unavailable={공정: [사유]}) — 호출자가 "고정 레인이 설 수 없다"를 사유와 함께 밝혔을 때만
+#     그 공정이 폴백 레인(고정 effort)에 서도 FIXED_LANE_OVERRIDDEN 을 내지 않는다. 같은 조건에서, 그리고 인가 게이트가
+#     자기 고정 레인에 있을 때만 G1_SEC_SAME_MODEL 을 면제한다. 면제는 notes 에 남는다.
+#   · 사유 없이 폴백 레인에 두면 예전과 똑같이 FIXED_LANE_OVERRIDDEN + G1_SEC_SAME_MODEL 이다.
+#     설 수 없다고 해 놓고 고정 레인에 배정하면 FIXED_LANE_UNAVAILABLE 이다.
+#   · 중앙 계획기(orchestrate.py)는 호스트의 요청을 받지 않고, 제시받은 후보를 거부한 자기 기록으로 이 사유를 만든다: 게이트 단계에 제시된
+#     Daybreak Orca 후보가 전부 가용성 사유로 거부됐을 때만 단계에 gate_fallback 을 남긴다.
+#   지킨 것: G1(코딩 벤더 claude ≠ 게이트 벤더 codex) · MODEL_NOT_ACTIVE 등 계획기의 Daybreak 차단 · LANE_DEPRECATED 의
+#     한 자리 예외 · $0·G5·인증서 게이트. 폴백은 '설 수 없음'에만 쓴다 — Daybreak 가 실제로 돌아 BLOCK · 빈 출력 ·
+#     차단 · 모호한 판정을 낸 뒤에는 폴백하지 않는다(그건 FAIL 이다. references/security-artifact-gate.md).
+#   잃은 것: 폴백 상태에서는 한 모델이 두 보안 질문에 모두 답한다 — 두 게이트가 서로 독립된 검사가 아니다.
+#   canary(오케스트레이터 실행): 2026-10-12 23:26 KST · Orca run_3607f8833d7e · ctx_56f442610119 · 워커 1개 · 도구 금지.
+#     launch.requested == launch.effective(gpt-6-astra · xhigh) · rollout turn_context 같은 값 · D-98·D-101 과 같은
+#     결함 4개 샘플에 GATE: BLOCK + CWE-89·78·22·502 정확히 · 안전한 함수 2개 미보고 · 자기보고 "unknown". 심은 샘플 1건이다.
 import hashlib
 import json
 import os
@@ -464,6 +488,14 @@ WITHDRAWN_LANES = {"gpt-6.1-sol", "gpt-6-luna", "gpt-5.6-sol", "gpt-5.6-terra", 
 #   원장은 영향받지 않는다: ledger_efforts 는 과거 행(astra@high·@medium)을 계속 읽는다.
 EFFORT_PINNED = {"gpt-6-astra": "xhigh"}
 
+# 고정 공정의 폴백 (D-102 · 2026-10-12 · Simon 판정). {공정: (레인, effort)}.
+#   고정 배정(PROCESSES)은 바뀌지 않는다. 폴백은 호출자가 validate_plan(fixed_unavailable={공정: [사유]})으로
+#   "고정 레인이 설 수 없다"를 사유와 함께 밝혔을 때만 열린다 — 사유가 없으면 예전처럼 FIXED_LANE_OVERRIDDEN 이다.
+#   생성물 게이트가 폴백에 서면 두 보안 게이트가 같은 모델(gpt-6-astra)이 된다. G1_SEC_SAME_MODEL 은 그 상태 하나에서만
+#   면제한다(_sec_same_model_waived). G1(코딩 벤더 ≠ 게이트 벤더)은 면제하지 않는다 — 폴백 레인도 codex 다.
+#   '설 수 없음'은 가용성 문제다(계획기 거부 · 카탈로그에서 사라짐). 게이트가 돌아서 낸 판정은 폴백 사유가 아니다.
+FIXED_FALLBACKS = {"security-artifact-gate": ("gpt-6-astra", "xhigh")}
+
 # ⚠ Orca 는 --model 문자열을 검증하지 않는다 (2026-09-06 실측).
 #   존재하지 않는 gpt-9-nonexistent 도 --effort high 면 effort 검증을 통과한다
 #   (unknown 모델에는 기본 목록 low·medium·high·xhigh 가 적용된다).
@@ -634,7 +666,12 @@ PROCESSES = [
     #     없거나, 게이트 출력이 비거나 차단되면 게이트는 FAIL 이다(통과가 아니다).
     #   미결 — Simon 이 말한 폴백 claude-opus-5-5 는 구현하지 않았다. 코딩이 claude-opus-5-5 라 같은 모델이 자기
     #     산출물을 검사하게 되어 G1 과 충돌한다. 선택지와 판정 요청은 references/security-artifact-gate.md 의 Open item.
+    #     (그 시점 기록 — 아래 D-102 가 정했다.)
     #   재승격 — 더 새로운 cyber 모델이 카탈로그에 나타나면 같은 canary 와 1단 기록 뒤에 별칭을 대체한다.
+    #
+    # 2026-10-12 D-102 (Simon 판정 · 토론 없음): 고정 배정은 그대로 Daybreak 다. 설 수 없을 때만
+    #   FIXED_FALLBACKS 의 gpt-6-astra @xhigh 가 대신 선다(validate_plan 의 fixed_unavailable).
+    #   그때는 아래 인가 게이트와 같은 모델이 되므로 G1_SEC_SAME_MODEL 을 그 상태 하나에서만 면제한다.
     ("security-artifact-gate","B", "보안 — 생성물 안전성 게이트",
      ("gpt-daybreak-blue-latest", "xhigh")),
     ("security-bizlogic-2nd", "B", "보안 — 비즈니스 로직 · 인가",          ("gpt-6-astra", "xhigh")),
@@ -705,7 +742,8 @@ OUTPUT_RULES = {
         "why":   "종합 레인이므로 사람의 결정으로 이어져야 한다",
     },
     "gpt-6-astra": {
-        "allow": "판단마다 근거(파일·행·명령 출력) 첨부 · 반증 시도 1건 이상 명시 · effort 는 항상 `xhigh`(D-101)",
+        "allow": "판단마다 근거(파일·행·명령 출력) 첨부 · 반증 시도 1건 이상 명시 · effort 는 항상 `xhigh`(D-101) · "
+                 "생성물 게이트 폴백으로 설 때(D-102)는 아래 `gpt-daybreak-blue-latest` 행의 게이트 규칙을 그대로 따른다",
         "deny":  "대량 정형 변환에 배치 (A 클래스는 claude-haiku-5-5 로 내린다) · "
                  "`xhigh` 밖 effort 로 부르기 (`ultra`/`max` 는 Orca 가 거부하고, 낮은 값은 D-101 고정이 막는다)",
         "why":   "codex 계열에서 일을 받는 유일한 좌석이다(D-101). 싼 일에 태우면 쿼터만 태우고, "
@@ -1204,12 +1242,14 @@ def prompt_prefix(lane, effort):
 
 
 # ── 가드 자동 검출 (발주 §7 — 이 4개만) ─────────────────────────
-def check_guards(assignments, quota_checked_vendors=None, spawn_counts=None):
+def check_guards(assignments, quota_checked_vendors=None, spawn_counts=None, fixed_unavailable=None):
     """자동 검출 가능한 가드만 본다. 반환: 위반 코드 리스트.
 
     assignments: [{"proc": <proc_id>, "lane": <lane>, "explore": bool}, ...]
     quota_checked_vendors: 디스패치 전 실제로 쿼터를 읽은 벤더 집합
     spawn_counts: {worker_name: spawn 수}
+    fixed_unavailable: {proc_id: [사유]} — 고정 레인이 설 수 없다고 호출자가 밝힌 공정 (D-102).
+        생성물 게이트가 폴백 레인에 선 상태 하나에서만 G1_SEC_SAME_MODEL 을 면제한다.
     """
     v = []
 
@@ -1241,10 +1281,11 @@ def check_guards(assignments, quota_checked_vendors=None, spawn_counts=None):
     # 발주 §5 는 '다른 벤더'를 요구했으나 판단 벤더가 2개뿐이라 G1 과 동시에 만족할 수 없다
     # (D-260904-01). G1 이 우선이므로 여기서는 '다른 모델'을 강제한다.
     # 같은 모델이 두 보안 축을 겸하면 그건 어떤 배치에서도 잘못이다.
+    # D-102 (2026-10-12 · Simon 판정) — 예외는 하나다: 생성물 게이트의 고정 레인이 설 수 없어 폴백 레인에 섰을 때.
     sec_lanes = {a["proc"]: a["lane"] for a in assignments
                  if a.get("proc", "").startswith("security-")}
     if len(sec_lanes) == 2:
-        if len(set(sec_lanes.values())) < 2:
+        if len(set(sec_lanes.values())) < 2 and not _sec_same_model_waived(assignments, fixed_unavailable):
             v.append("G1_SEC_SAME_MODEL")
 
     # G3 — spawn 상한
@@ -1282,8 +1323,58 @@ def _deprecated_pin_ok(a):
     return a.get("effort") in (None, "", fixed[1])
 
 
-def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, quota_states=None):
+def fixed_fallback_for(proc_id):
+    """고정 공정의 폴백이면 (lane, effort), 없으면 None (D-102 · FIXED_FALLBACKS)."""
+    return FIXED_FALLBACKS.get(proc_id)
+
+
+def _unavailable_reasons(fixed_unavailable, proc):
+    """fixed_unavailable 에서 그 공정의 사유 목록을 꺼낸다. 비었거나 형식이 다르면 [] 다(= 폴백 닫힘)."""
+    if fixed_unavailable is None:
+        return []
+    if not isinstance(fixed_unavailable, dict):
+        raise TypeError("fixed_unavailable must be a dict of process id -> list of reasons")
+    reasons = fixed_unavailable.get(proc)
+    if not isinstance(reasons, (list, tuple, set, frozenset)):
+        return []
+    return sorted({r.strip() for r in reasons if isinstance(r, str) and r.strip()})
+
+
+def _fixed_fallback_ok(a, fixed_unavailable):
+    """고정 공정이 폴백 레인에 서도 되는가 (D-102).
+
+    참이려면: 공정에 폴백이 선언돼 있고 · 레인이 그 폴백 레인이며 · 호출자가 그 공정의 고정 레인이
+    설 수 없는 사유를 하나 이상 밝혔고 · 명시 effort 가 없거나 폴백 effort 와 같다.
+    """
+    proc = a.get("proc")
+    fallback = FIXED_FALLBACKS.get(proc)
+    if not fallback or a.get("lane") != fallback[0]:
+        return False
+    if not _unavailable_reasons(fixed_unavailable, proc):
+        return False
+    return a.get("effort") in (None, "", fallback[1])
+
+
+def _sec_same_model_waived(assignments, fixed_unavailable):
+    """두 보안 게이트가 같은 모델이어도 되는 단 한 상태인가 (D-102).
+
+    생성물 게이트가 정확히 하나이고 폴백 조건(_fixed_fallback_ok)을 채우며, 인가 게이트도 정확히 하나이고
+    자기 고정 레인에 있을 때만 참이다. 인가 게이트를 다른 레인으로 옮겨 같아진 경우는 면제하지 않는다.
+    """
+    gate = [a for a in assignments if a.get("proc") == "security-artifact-gate"]
+    biz = [a for a in assignments if a.get("proc") == "security-bizlogic-2nd"]
+    if len(gate) != 1 or len(biz) != 1:
+        return False
+    return (_fixed_fallback_ok(gate[0], fixed_unavailable)
+            and biz[0].get("lane") == fixed_for("security-bizlogic-2nd")[0])
+
+
+def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, quota_states=None,
+                  fixed_unavailable=None):
     """디스패치 전 계획 전체를 검증한다. 반환 (ok, violations, notes).
+
+    fixed_unavailable: {proc_id: [사유]} — 고정 레인이 설 수 없다고 호출자가 사유와 함께 밝힌 공정 (D-102).
+      그 공정은 FIXED_FALLBACKS 의 폴백 레인·effort 에만 설 수 있다. 사유가 비면 폴백은 열리지 않는다.
 
     감사 MED (재검증): check_guards() 는 list 만 돌려주고 run_dispatch() 가
     이를 요구하지 않아서, 호출자가 보안 배정을 목록에서 빼거나 아예 호출하지
@@ -1293,7 +1384,7 @@ def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, qu
     """
     # Iterator 입력도 두 검증 단계에서 동일하게 보도록 한 번만 고정한다.
     checked_vendors = tuple(quota_checked_vendors or ())
-    v = list(check_guards(assignments, checked_vendors, spawn_counts))
+    v = list(check_guards(assignments, checked_vendors, spawn_counts, fixed_unavailable))
     notes = []
 
     procs = {a.get("proc") for a in assignments}
@@ -1358,9 +1449,22 @@ def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, qu
             v.append("LANE_VENDOR_BLOCKED")
             notes.append(f"{a.get('proc')} 의 레인 {lane} 은 벤더 {vendor} 가 사용 금지 상태다 (Q-05 · G13)")
         fixed = fixed_for(a.get("proc"))
+        unavailable = _unavailable_reasons(fixed_unavailable, a.get("proc"))
         if fixed and lane and lane != fixed[0]:
-            v.append("FIXED_LANE_OVERRIDDEN")
-            notes.append(f"{a.get('proc')} 는 {fixed[0]} 고정인데 {lane} 로 배정됨")
+            # D-102 — 고정 레인이 설 수 없다고 사유와 함께 밝혀졌고 폴백 레인·effort 에 섰을 때만 통과한다.
+            if _fixed_fallback_ok(a, fixed_unavailable):
+                fallback = FIXED_FALLBACKS[a["proc"]]
+                notes.append(f"{a.get('proc')}: 고정 레인 {fixed[0]} 가 설 수 없어({', '.join(unavailable)}) "
+                             f"폴백 {fallback[0]} @{fallback[1]} 로 선다 (D-102)")
+                if _sec_same_model_waived(assignments, fixed_unavailable):
+                    notes.append("두 보안 게이트가 같은 모델이다 — G1_SEC_SAME_MODEL 은 이 폴백 상태에서만 면제한다 (D-102)")
+            else:
+                v.append("FIXED_LANE_OVERRIDDEN")
+                notes.append(f"{a.get('proc')} 는 {fixed[0]} 고정인데 {lane} 로 배정됨")
+        elif fixed and lane and unavailable:
+            # 설 수 없다고 해 놓고 그 레인에 배정했다 — 둘 중 하나가 틀렸다. 띄우지 않는다.
+            v.append("FIXED_LANE_UNAVAILABLE")
+            notes.append(f"{a.get('proc')} 의 고정 레인 {fixed[0]} 는 설 수 없다고 보고됐다({', '.join(unavailable)})")
 
         # 명시 effort 는 여기서 미리 검증한다 — 디스패치 루프 중간에 터지면
         # 앞의 워커는 이미 떠 있고 뒤는 안 뜬 반쪽 상태가 된다.
@@ -1377,16 +1481,17 @@ def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, qu
 
 def validate_and_dispatch(assignments, task_of, worktree,
                           quota_checked_vendors=None, spawn_counts=None,
-                          spec_of=None, dry=False, quota_states=None):
+                          spec_of=None, dry=False, quota_states=None, fixed_unavailable=None):
     """계획 검증을 통과해야만 디스패치한다. 위반이 있으면 아무것도 실행하지 않는다.
 
     task_of / spec_of: proc_id -> task_id / spec 을 주는 dict 또는 callable.
+    fixed_unavailable: validate_plan 과 같다 (D-102).
     반환 (ok, results, violations, notes)
     """
     if not dry:
         return False, [], [LEGACY_EXECUTION_DISABLED], [LEGACY_EXECUTION_MESSAGE]
     ok, v, notes = validate_plan(assignments, quota_checked_vendors, spawn_counts,
-                                 quota_states=quota_states)
+                                 quota_states=quota_states, fixed_unavailable=fixed_unavailable)
     if not ok:
         return False, [], v, notes
 
@@ -1402,6 +1507,8 @@ def validate_and_dispatch(assignments, task_of, worktree,
         # 명시 effort 는 validate_plan 에서 이미 검증됐다.
         if a.get("effort"):
             effort = a["effort"]
+        elif fixed and lane != fixed[0] and _fixed_fallback_ok(a, fixed_unavailable):
+            effort = FIXED_FALLBACKS[proc][1]     # D-102 — 폴백 레인에는 폴백의 고정 effort
         elif fixed:
             effort = fixed[1]
         else:
@@ -1576,7 +1683,26 @@ def emit_md():
              "카탈로그를 확인하고, 없거나 출력이 비거나 차단되면 게이트는 FAIL 이다. "
              "**미결**: Simon 이 말한 폴백 `claude-opus-5-5` 는 G1(코딩과 같은 모델이 자기 산출물을 검사)과 충돌해 구현하지 않았다 — "
              "판정 대기(`references/security-artifact-gate.md` 의 Open item). 코디네이터로서의 astra 와 A 클래스 순서 변경은 "
-             "canary 를 돌리지 않았다.")
+             "canary 를 돌리지 않았다. (그 시점 기록 — 폴백은 D-102 가 정했다. 아래.)")
+    L.append("")
+    fb_lane, fb_effort = FIXED_FALLBACKS["security-artifact-gate"]
+    L.append("**D-102 (2026-10-12 밤 · 2.18.0 · Simon 판정 · 토론 없음)**: 생성물 게이트의 폴백을 정했다 — "
+             f"`{gate_lane}` 가 **설 수 없을 때만** `{fb_lane}` @{fb_effort} 가 대신 선다. Simon 이 먼저 말한 "
+             "`claude-opus-5-5` 폴백은 이 판정이 대체한다(코딩과 같은 모델이 자기 산출물을 검사하게 된다). "
+             "① 고정 배정은 그대로다 — 설 수 있으면 Daybreak 가 먼저다. "
+             "② `validate_plan(fixed_unavailable={공정: [사유]})` 로 사유를 밝혔을 때만 폴백 레인이 "
+             "`FIXED_LANE_OVERRIDDEN` 없이 서고, 그 상태 하나에서만 `G1_SEC_SAME_MODEL` 을 면제한다"
+             "(인가 게이트와 같은 모델이 된다). 사유가 없으면 예전과 똑같이 막힌다. "
+             "③ 중앙 계획기는 호스트의 요청이 아니라 제시받은 후보를 거부한 자기 기록으로 사유를 만든다 — 게이트 단계에 제시된 Daybreak "
+             "Orca 후보가 전부 가용성 사유(`MODEL_NOT_ACTIVE` 등)로 거부됐을 때만 단계에 `gate_fallback` 을 남긴다. "
+             "그래서 packaged registry 경로에서는 지금 이 폴백이 게이트를 맡는다. Daybreak 후보를 아예 내지 않으면 "
+             "폴백은 열리지 않는다. "
+             "④ `G1`(코딩 벤더 ≠ 게이트 벤더) · 계획기의 Daybreak 차단 · $0·G5·인증서 게이트는 그대로다. "
+             "⑤ 폴백은 '설 수 없음'에만 쓴다 — Daybreak 가 실제로 돌아 BLOCK · 빈 출력 · 차단 · 모호한 판정을 낸 뒤에는 "
+             "폴백하지 않는다(FAIL 이다). "
+             "⑥ 폴백 상태에서는 한 모델이 두 보안 질문에 모두 답한다 — 두 게이트가 서로 독립된 검사가 아니다. "
+             "canary(오케스트레이터 · run `run_3607f8833d7e` · `ctx_56f442610119` · 23:26 KST): requested == effective"
+             f"(`{fb_lane}` · {fb_effort}), 같은 결함 4개 샘플에 `GATE: BLOCK` 정확히, 심은 샘플 1건.")
     L.append("")
     L.append("### 공정 → 클래스 → 레인")
     L.append("")
@@ -1586,6 +1712,9 @@ def emit_md():
         lanes = lanes_for_proc(pid, cls)
         if fixed:
             cells = [f"**`{fixed[0]}` @{fixed[1]} 고정**", "—", "—"]
+            if pid in FIXED_FALLBACKS:     # D-102 — 고정 레인이 설 수 없을 때만 서는 폴백
+                fb = FIXED_FALLBACKS[pid]
+                cells[1] = f"폴백 `{fb[0]}` @{fb[1]} (고정 레인이 설 수 없을 때만 · D-102)"
         else:
             # D-67: 4번째 이후(같은 벤더 옛 세대 폴백)도 표에서 사라지지 않게 3후보 칸에 잇는다.
             cells = [f"`{l}`" for l in lanes[:2]] + ["—"] * (2 - len(lanes[:2]))
@@ -1660,6 +1789,7 @@ if __name__ == "__main__":
             "deprecated_pins": dict(sorted(DEPRECATED_LANE_PINS.items())),
             "withdrawn": sorted(WITHDRAWN_LANES),
             "effort_pinned": dict(sorted(EFFORT_PINNED.items())),
+            "fixed_fallbacks": {p: list(f) for p, f in sorted(FIXED_FALLBACKS.items())},
             "ceilings": {l: ceiling_for(l) for l in LANES},
             "codex_direct_efforts": list(CODEX_DIRECT_EFFORTS),
         }, ensure_ascii=False, indent=2))
