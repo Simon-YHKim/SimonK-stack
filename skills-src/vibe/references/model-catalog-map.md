@@ -1,10 +1,11 @@
-# Model catalog map — CLI names, registry IDs and the 2026-10-12 refresh
+# Model catalog map — CLI names, registry IDs and the 2026-10-18 refresh
 
 ## Contents
 
 - CLI name map
 - Registered legacy entries
 - Lane migration pending
+- Refresh record (2026-10-18)
 - Refresh record (2026-10-12)
 - Repeating the refresh
 
@@ -22,17 +23,12 @@ no guarded agy execution adapter exists, so this map grants no route.
 
 | Surface | CLI catalog name | Registry ID | Effort in name | Note |
 | --- | --- | --- | --- | --- |
+| `antigravity` | `gemini-4-argon-high` | `gemini-4-argon` | `high` | thinking level high; D-105 ai-debate Gemini seat default |
+| `antigravity` | `gemini-4-argon-medium` | `gemini-4-argon` | `medium` | API default level |
+| `antigravity` | `gemini-4-argon-low` | `gemini-4-argon` | `low` | |
 | `antigravity` | `gemini-3.8-flash-high` | `gemini-3.8-flash` | `high` | thinking level high |
 | `antigravity` | `gemini-3.8-flash-medium` | `gemini-3.8-flash` | `medium` | API default level |
 | `antigravity` | `gemini-3.8-flash-low` | `gemini-3.8-flash` | `low` | |
-| `antigravity` | `gemini-3.1-pro-high` | `gemini-3.1-pro-preview` | `high` | preview, so `MODEL_NOT_ACTIVE` |
-| `antigravity` | `gemini-3.1-pro-low` | `gemini-3.1-pro-preview` | `low` | agy lists no medium |
-| `antigravity` | `gemini-3.7-flash-high` | `unregistered` | `-` | older Flash; `gemini-3.7-flash` is deprecated on the Gemini API since 2026-10-08 (requests are routed to `gemini-3.8-flash`), still listed by agy 1.3.3 |
-| `antigravity` | `gemini-3.7-flash-medium` | `unregistered` | `-` | same |
-| `antigravity` | `gemini-3.7-flash-low` | `unregistered` | `-` | same |
-| `antigravity` | `gemini-3.6-flash-high` | `unregistered` | `-` | older Flash |
-| `antigravity` | `gemini-3.6-flash-medium` | `unregistered` | `-` | older Flash |
-| `antigravity` | `gemini-3.6-flash-low` | `unregistered` | `-` | older Flash |
 | `antigravity` | `claude-opus-5-5-low` | `unregistered` | `-` | Anthropic model on the Google surface; the schema binds antigravity to Google |
 | `antigravity` | `claude-opus-5-5-medium` | `unregistered` | `-` | same |
 | `antigravity` | `claude-opus-5-5-high` | `unregistered` | `-` | same |
@@ -229,6 +225,34 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
   Orca 밖 guarded adapter 는 자기 계정·과금·effort 게이트를 그대로 적용한다. D-101 의 "GPT 는 astra 만" 은 레인 표·
   codex 직행 argv·평가 문제·shadow task-fit 에 걸려 있고, Orca 밖 경로(host·direct CLI)의 후보 선택에는 걸려 있지
   않다. 그 경로는 호스트가 준 runtime 후보와 레지스트리(제공사 사실)로만 고른다.
+
+### D-105 (2026-10-18): `gemini-4-argon` 은 등록만, 레인은 없다
+
+`gemini-4-argon` 은 2026-10-13 Gemini API GA 라 2026-10-18.1 레지스트리에 등록했지만 `routing.py` 레인은 없다. 그래서 계획에 넣으면 지금처럼 `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막힌다. 이유는 둘이다. Orca 의 antigravity 에이전트는 기동 때 모델을 고를 수 없고(D-28 #12), agy CLI 직행 실행기도 없다. 실행기를 만들더라도 다른 실행기처럼 코디네이터 인증서(모델 포함·남은 쿼터·초과 과금 OFF·API 폴백 OFF)가 있어야 돌고, Antigravity 초과 과금 여부는 아직 확인하지 못했다. 허브 토론 D-104 의 B 판정은 이 사실을 빠뜨린 근거로 나와, 사실을 넣어 다시 연 D-105(FINAL 4/4, A, 확신도 92)가 먼저 agy 인증서 경로를 확인하고 토론 좌석 사용을 최대 5건 계측한 뒤 실행기를 다시 보기로 정했다. 지금 Argon 이 실제로 쓰이는 곳은 ai-debate 의 Gemini 좌석(`gemini-4-argon-high`, ai-debate 0.2.8)이다. 2026-10-18 canary 두 건(화면 녹화 검토, 심어 둔 주장 10개 대조)은 통과했지만 둘 다 n=1 합성 표본이다.
+
+## Refresh record (2026-10-18)
+
+시각은 모두 KST 다. 이 재확인 자체는 모델·Bot·유료 API 호출 0회다(출처 읽기는 하위 에이전트가 curl 로 했고,
+CLI 는 목록·버전·도움말만 읽었다). 같은 날 따로 돈 Argon canary(agy 3회, Codex 1회)와 허브 토론 D-104·D-105 는 이 기록의 근거가 아니다.
+
+| 근거 | 관측 | 결과 |
+| --- | --- | --- |
+| Codex `~/.codex/models_cache.json` | `fetched_at` 2026-10-18T00:27:34Z(09:27:34), 클라이언트 0.162.1 | 10개 slug(10-12 11개): 숨김 `gpt-5.5` 가 빠졌다(10-12 캐시의 10-14 19:00Z 은퇴 예고대로). 우선순위 1 `gpt-6.1-sol`, Daybreak alias 는 목록에 그대로(우선순위 11). 등록된 slug 의 effort 는 10-12 와 같다 |
+| `~/.grok/models_cache.json`, `grok --no-auto-update models` | `fetched_at` 00:25:29Z(09:25:29), 09:27:57 실행 뒤에도 같다 | 그대로: `grok-4.7`(기본)·`grok-4.7-build-fast`·`grok-4.6`·`grok-4.5`. 목록만 읽었다 |
+| `codex --version`, `grok --no-auto-update --version`, `agy --version`, `claude --version` | 09:27:57 | Codex 0.162.1·grok 1.0.46 은 10-12 와 같다. agy 1.4.1(10-12 1.3.3), Claude Code 2.1.302(10-12 2.1.296) |
+| `agy models`(`AGY_CLI_DISABLE_AUTO_UPDATE=true`) | 09:11:29, 09:28:05 | 13개 이름(10-12 18개). `gemini-4-argon-low/medium/high` 가 새로 생겼고 `gemini-3.1-pro-*` 2개·`gemini-3.7-flash-*` 3개·`gemini-3.6-flash-*` 3개가 빠졌다. `--model gemini-3.1-pro-high` 는 0턴에 "not recognized as a known model" 로 거부된다 — ai-debate Gemini 좌석 기본값을 `gemini-4-argon-high` 로 바꾼 이유(ai-debate 0.2.8) |
+| `claude --help` | 09:28 | `--effort` 는 low, medium, high, xhigh, max 그대로 |
+| 레지스트리·task-fit 출처 36개(중복 제거) | 첫 요청 09:19:19 | 32개는 첫 요청 200. `ai.google.dev` 4개는 처음에 `oauth2authorize` 로 302 리다이렉트돼 쿠키를 받은 뒤 200(10-12 에는 전부 첫 요청 200). 불일치 2개: `gg_latest` 페이지가 Gemini 4 Argon 안내로 바뀌었고, task-fit 의 D-90 노트 한 구절이 AA 원문과 방향이 반대다(정책 D-103 노트에서 바로잡음). 확인 불가 2개(`gpt-5.6-terra`·`gpt-5.6-luna` 장문 cached)는 10-12 와 같다. Sonnet 5.5 는 바뀐 것이 없고 AA 는 재측정을 올리지 않았다 |
+| Gemini 4 Argon 공식 페이지(모델 페이지·changelog·가격·thinking·Antigravity 글·모델 카드) | 같은 실행 | API ID `gemini-4-argon`(stable, preview ID 없음), 2026-10-13 GA, thinking low·medium·high(기본 medium), 통합 컨텍스트 1,048,576, 기본 출력 65,536(long decode 로 1,048,576 까지), 11-30 까지 $2 / $0.10 / $10 이고 12-01 부터 $4 / $0.20 / $20, 무료 등급 없음, Google Cloud 은퇴 2027-10-13 이후, 지식 기준 2026-03(모델 카드). Antigravity 글은 AI Pro·Ultra, blog.google 글은 Ultra 라고 적어 서로 다르다 |
+| `model_watch.py status` | 09:28:25 | 새 후보 0. 대기 후보: Gemini 4 Argon 글 2건(이번에 등록), Claude Haiku 5.5 글 2건(10-12 등록), Grok 4.7, OpenAI 글 3건 |
+
+바뀐 등록 사실.
+- 새 모델 `gemini-4-argon`(active). 레인은 없다(위 "D-105" 절).
+- `gemini-3.8-flash` 의 출처 `gg_latest` 를 `whats-new-gemini-3.8` 로 옮기고 `source_updated_at` 을 그 페이지의 2026-10-13 으로 고쳤다. effort·가격·GA 상태는 그대로다.
+- `gemini-3.1-pro-preview` 는 API 에서 그대로 preview(종료일 공지 없음)라 값을 바꾸지 않았다. agy 목록에서만 빠졌다.
+
+레지스트리 `checked_at` 은 실제로 쓴 근거 중 가장 이른 시각인 출처 첫 요청 2026-10-18 09:19:19 라 사실은
+2026-10-25 09:19:19 KST 에 만료된다. task-fit 정책도 같은 실행에서 자기 출처를 읽어 같은 구간이다.
 
 ## Refresh record (2026-10-12)
 

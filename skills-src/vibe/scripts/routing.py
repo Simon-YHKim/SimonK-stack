@@ -579,8 +579,14 @@ CLASS_LANES = {
 #   불변식: PROCESS_LANES["coding"] 의 벤더 ∩ 보안 게이트 벤더 = ∅ (selftest 가 잡는다).
 #   fable 은 M1 실워커 1회 통과 뒤 2순위로 들어간다.
 #   D-67 (2026-10-04): 1순위 opus 를 claude-opus-5 → claude-opus-5-5 로 옮겼다(옛 레인은 guarded Orca 로 못 뜬다).
+#   D-103 (2026-10-18 · Simon 지시 "sonnet은 사용하는걸로 설정하자" · 토론 없음): claude-sonnet-5-5 를 2순위로 넣고
+#     fable 은 3순위로 민다. D-90 이 재진입 첫 자리로 적은 곳이 CODE_COMPLEX high 이고(Artificial Analysis
+#     Terminal-Bench 4.0 Sonnet 5.5 64% · Opus 5.5 60%), 지시가 AA 재측정 조건을 대신한다. 1순위 opus 는 그대로다(D-101 "코딩 Opus 5.5").
+#     sonnet 은 opus 와 같은 claude 일반 weekly 를 쓴다 — claude 가 강등 기준을 넘으면 둘이 함께 밀리고, 자기 버킷
+#     (fableWeekly)이 있는 fable 이 받는다. sonnet 이 실제로 쓰이는 때는 opus 만 설 수 없을 때다.
+#     effort 는 레인 사다리(medium/high)를 따른다. 동작 레인이 되려면 다른 flag 레인처럼 인증서가 먼저다.
 PROCESS_LANES = {
-    "coding": ["claude-opus-5-5", "claude-fable-5-1"],   # 2단계: fable 은 M1 통과 뒤 2순위 (D-28 갈린 쟁점 ① = opus 먼저)
+    "coding": ["claude-opus-5-5", "claude-sonnet-5-5", "claude-fable-5-1"],
 }
 
 CLASS_LABEL = {
