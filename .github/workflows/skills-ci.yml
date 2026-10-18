@@ -15,6 +15,8 @@ jobs:
         run: python3 -B -m unittest discover -s skills-src/qa/scripts -p test_qa_gate.py -q
       - name: Offline benchmark freshness regressions (no network or real Wiki)
         run: python3 -m unittest discover -s scripts/tests -p test_fetch_model_benchmarks.py
+      - name: claude.ai app skill ZIP regressions (temp files only)
+        run: python3 -B -m unittest discover -s scripts/tests -p test_claude_app_skill_zip.py -q
       - name: Offline model release watch regressions (no network or model calls)
         run: python3 -B -m unittest discover -s skills-src/vibe/scripts -p test_model_watch.py -q
       - name: Offline Grok runtime metadata regressions (no network or model calls)
