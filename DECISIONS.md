@@ -932,3 +932,11 @@ last-sync: 2026-07-05
   - **반영**: `npm install -g --ignore-scripts @earendil-works/pi-coding-agent@1.3.0`(원격 설치 스크립트 대신, 공식 저장소 연결 확인) → `pi install npm:pi-blackhole`(0.5.14, `pi list` 등록). 설정 `~/.pi/agent/pi-blackhole/pi-blackhole-config.json` = compaction auto · engine blackhole · `memory:false` · `sessionFallback:false` · `observeOnShutdown:false`(작성자 말로 기억 작업 3개는 실제 과금 호출이고 실패 시 주력 모델로 대체됨 → 둘 다 끔, 압축 자체는 모델 호출 없음). `~/.pi/agent/settings.json` `enableInstallTelemetry:false`. 환경변수에 과금 API 키 없음.
   - **남은 것**: Simon 이 `pi` 실행 후 `/login`(구독 또는 키). 확장이 실제로 로드되는지는 첫 실행에서 확인. Claude 구독으로 Pi 에 로그인할 때 추가 과금 여부는 미확인. 4-AI 허브 좌석·/vibe 레인 아님. Claude Code 의 컨텍스트 관리에는 붙지 않는다.
   - **뒤집는 조건**: 쓰지 않거나 과금이 보이면 `pi uninstall npm:pi-blackhole` → `npm uninstall -g @earendil-works/pi-coding-agent`, `~/.pi` 는 `_archive` 로 옮김.
+- 2026-10-19 01:25:58 KST | DECIDE | **D-111 스킬 자동 사용 규칙의 대상은 Claude 앱 프로필 지침** (Simon 결정) | claude
+  - **근거**: Simon 10-19 "지금 하는 작업은 클로드 프로필 설정을 위한것이고, 클로드에서 사용하기 위함이야" · "다 모델의 점검은 필요없어(e.g. humanize korean - 아르곤 초안 필요 없음)" · "각 스킬별 사용처를 판단해서 적용해도 좋아".
+  - **반영**: 대상 = claude.ai 대화·Cowork 프로필(단일본 claude-ai 사본). Claude Code §21·Codex·agy 는 대상 아님. 한국어 글은 humanize-korean 단독(D-107 의 Argon 초안 단계는 이 프로필에 넣지 않음). 스킬 사용처는 앱에서 실제로 쓸 수 있는지로 판단. 보고서 https://claude.ai/artifact/45myr5ugvLiE4ifYuo5dUE
+  - **뒤집는 조건**: Simon 이 Claude Code 쪽 자동 사용 규칙을 따로 요청할 때.
+- 2026-10-19 01:25:58 KST | DECIDE | **D-112 프로필 §9 스킬 규칙은 '상황 → 스킬' 한 줄, 스킬 설명이 이미 덮는 것은 적지 않음** (Simon 제안 · 35.8 1단) | claude
+  - **근거**: Simon "프로필을 늘리는 형태로 하면 손해니까, 00경우 00스킬 사용 이런식으로 하면 어때?". 앞 초안 642자·9줄 → 압축안 192자·3줄. §8-8 '스킬은 쓰기 전 `/`로 로드됐는지 확인한다'(27자)를 §9 첫 줄로 합쳐 순증 165자, claude.ai 사본 10,491 → 10,656자. 앱 스킬 설명 원문 확인: docx·xlsx·pptx·pdf·deep-research·schedule·built-in-browser 는 'Use this skill whenever/any time…'로 그 상황을 이미 덮음, karpathy-guidelines 는 'Use when starting any coding task'.
+  - **반영**: §9 = 한국어 글(메일·공지·문서) 작성·윤문 → humanize-korean · 흔한 기능·화면 → simon-design-first · 반복 요청인데 맞는 스킬 없음 → skill-creator 제안. 단일본 v8.1.7 PR 은 Q-261019-05 업로드와 함께 진행.
+  - **뒤집는 조건**: 뺀 스킬이 앱에서 실제로 안 켜지는 사례가 보이면 그 스킬만 한 줄 추가.
