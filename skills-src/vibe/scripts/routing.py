@@ -579,14 +579,22 @@ CLASS_LANES = {
 #   불변식: PROCESS_LANES["coding"] 의 벤더 ∩ 보안 게이트 벤더 = ∅ (selftest 가 잡는다).
 #   fable 은 M1 실워커 1회 통과 뒤 2순위로 들어간다.
 #   D-67 (2026-10-04): 1순위 opus 를 claude-opus-5 → claude-opus-5-5 로 옮겼다(옛 레인은 guarded Orca 로 못 뜬다).
-#   D-103 (2026-10-18 · Simon 지시 "sonnet은 사용하는걸로 설정하자" · 토론 없음): claude-sonnet-5-5 를 2순위로 넣고
-#     fable 은 3순위로 민다. D-90 이 재진입 첫 자리로 적은 곳이 CODE_COMPLEX high 이고(Artificial Analysis
-#     Terminal-Bench 4.0 Sonnet 5.5 64% · Opus 5.5 60%), 지시가 AA 재측정 조건을 대신한다. 1순위 opus 는 그대로다(D-101 "코딩 Opus 5.5").
-#     sonnet 은 opus 와 같은 claude 일반 weekly 를 쓴다 — claude 가 강등 기준을 넘으면 둘이 함께 밀리고, 자기 버킷
-#     (fableWeekly)이 있는 fable 이 받는다. sonnet 이 실제로 쓰이는 때는 opus 만 설 수 없을 때다.
-#     effort 는 레인 사다리(medium/high)를 따른다. 동작 레인이 되려면 다른 flag 레인처럼 인증서가 먼저다.
+#   D-103 (2026-10-18): Simon 의 "sonnet은 사용하는걸로 설정하자" 로 claude-sonnet-5-5 를 2순위에 넣었다 — 자리는
+#     오케스트레이터가 정했고 같은 날 D-106 이 바로잡았다.
+#   D-106 (2026-10-18 · Simon 지시 "sonnet5.5는 간단한 코딩에 써야 하는거 아니야? 복잡한 코딩은 opus5.5 xhigh가 해야지." ·
+#     토론 없음): 복잡한 코딩의 기본·폴백은 opus → fable 이다(fable 은 자기 버킷 fableWeekly). sonnet 은 끝에 남긴다 —
+#     기본 채움으로 오는 자리가 아니라, 단순 코딩 단계(중앙 계획기 CODE_SIMPLE)가 sonnet 을 고를 수 있게 허용 목록에 두는 것이다.
+#     코딩 공정의 opus 기본 effort 는 PROCESS_EFFORTS 가 xhigh 로 정한다.
 PROCESS_LANES = {
-    "coding": ["claude-opus-5-5", "claude-sonnet-5-5", "claude-fable-5-1"],
+    "coding": ["claude-opus-5-5", "claude-fable-5-1", "claude-sonnet-5-5"],
+}
+
+# 공정별 기본 effort (D-106 · 2026-10-18 · Simon 지시). {공정: {레인: effort}}.
+#   그 공정에서만 레인 사다리(std/top)보다 먼저다: effort_for 의 기본값이 되고, validate_effort 는 이 값을
+#   정책 단으로 받는다(allow_off_ladder 없이). 다른 공정의 opus(A·C 폴백 등)는 사다리 high/max 그대로다.
+#   중앙 계획기는 CODE_COMPLEX 단계의 opus 를 이 값으로만 받는다(orchestrate.OWNER_TASK_EFFORTS).
+PROCESS_EFFORTS = {
+    "coding": {"claude-opus-5-5": "xhigh"},
 }
 
 CLASS_LABEL = {
@@ -891,11 +899,22 @@ def fixed_for(proc_id):
     return p[3] if p else None
 
 
-def effort_for(lane, falsifiable):
-    """발주 §5: effort 는 클래스가 아니라 태스크 속성(반증가능성)으로 정한다."""
+def process_effort(proc, lane):
+    """D-106: 그 공정에서 이 레인이 쓰는 기본 effort. 없으면 None."""
+    return PROCESS_EFFORTS.get(proc, {}).get(lane) if proc else None
+
+
+def effort_for(lane, falsifiable, proc=None):
+    """발주 §5: effort 는 클래스가 아니라 태스크 속성(반증가능성)으로 정한다.
+
+    D-106: proc 를 주면 PROCESS_EFFORTS 의 공정별 값이 사다리보다 먼저다(코딩의 opus 는 xhigh).
+    """
     m = LANES.get(lane)
     if not m:
         raise KeyError(f"unknown lane: {lane}")
+    pinned = process_effort(proc, lane)
+    if pinned:
+        return pinned
     return m["top"] if falsifiable else m["std"]
 
 
@@ -928,7 +947,7 @@ def ledger_efforts(lane):
     return ({m.get("top"), m.get("std")} | set(m.get("orca_efforts") or ())) - {None}
 
 
-def validate_effort(lane, effort, allow_off_ladder=False):
+def validate_effort(lane, effort, allow_off_ladder=False, proc=None):
     """effort 가 이 레인에서 쓸 수 있는 값인지 본다. 아니면 ValueError.
 
     기본은 정책 두 단(top/std)만 허용한다 — 발주 C3·G7 의 규율이다.
@@ -952,6 +971,8 @@ def validate_effort(lane, effort, allow_off_ladder=False):
             f"allow_off_ladder 로도 열리지 않는다")
     physical = set(orca_efforts_for(lane))
     policy = {m["top"], m["std"]}
+    if process_effort(proc, lane) in physical:
+        policy.add(process_effort(proc, lane))    # D-106 — 공정별 기본값은 그 공정에서 정책 단이다
     allowed = (physical | policy) if allow_off_ladder else policy
     if effort not in allowed:
         if effort in physical and not allow_off_ladder:
@@ -975,7 +996,7 @@ def slug_for(lane, effort):
 
 
 def dispatch_argv(lane, effort, task_id, name, worktree="new-top-level",
-                  allow_off_ladder=False):
+                  allow_off_ladder=False, proc=None):
     """디스패치 커맨드를 '배열'로 만든다.
 
     발주 C3: effort 가 반드시 박히도록 코드에서 강제한다 (sol 기본 low 함정).
@@ -987,7 +1008,7 @@ def dispatch_argv(lane, effort, task_id, name, worktree="new-top-level",
     m = LANES.get(lane)
     if not m:
         raise ValueError(f"unknown lane: {_safe(lane)}")
-    validate_effort(lane, effort, allow_off_ladder=allow_off_ladder)
+    validate_effort(lane, effort, allow_off_ladder=allow_off_ladder, proc=proc)
 
     # 실전 검증에서 잡힘 (2026-09-04): 생성 플래그(--name/--repo/--base-branch/
     # --display-name/--comment/--setup)는 **새 워크트리에만** 허용된다.
@@ -1045,7 +1066,7 @@ def spec_digest(text):
 
 
 def run_dispatch(lane, effort, task_id, name, worktree,
-                 spec=None, timeout=600, dry=False, allow_off_ladder=False):
+                 spec=None, timeout=600, dry=False, allow_off_ladder=False, proc=None):
     """디스패치를 '배열 그대로' 실행한다. 문자열로 합치지 않는다.
 
     감사 HIGH-6 (2026-09-04): dispatch_argv() 는 안전한 배열을 돌려주는데
@@ -1073,7 +1094,7 @@ def run_dispatch(lane, effort, task_id, name, worktree,
             f"{lane}@{effort} 는 프롬프트 첫 줄 키워드로 발동한다 — spec 을 넘겨야 한다. "
             f"반환된 meta['spec'] 을 task-create --spec 으로 그대로 쓸 것")
     argv = dispatch_argv(lane, effort, task_id, name, worktree,
-                         allow_off_ladder=allow_off_ladder)
+                         allow_off_ladder=allow_off_ladder, proc=proc)
     final_spec = build_spec(lane, effort, spec)
     meta = {"spec": final_spec, "spec_sha": spec_digest(final_spec),
             "prompt_prefix": prompt_prefix(lane, effort),
@@ -1477,7 +1498,7 @@ def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, qu
         if lane in LANES and a.get("effort"):
             try:
                 validate_effort(lane, a["effort"],
-                                allow_off_ladder=bool(a.get("off_ladder")))
+                                allow_off_ladder=bool(a.get("off_ladder")), proc=a.get("proc"))
             except ValueError as e:
                 v.append("EFFORT_NOT_ALLOWED")
                 notes.append(f"{a.get('proc')}: {e}")
@@ -1518,11 +1539,11 @@ def validate_and_dispatch(assignments, task_of, worktree,
         elif fixed:
             effort = fixed[1]
         else:
-            effort = effort_for(lane, a.get("falsifiable", False))
+            effort = effort_for(lane, a.get("falsifiable", False), proc=proc)
         rc, out, err, meta = run_dispatch(
             lane, effort, _get(task_of, proc), a.get("name") or proc, worktree,
             spec=_get(spec_of, proc), dry=dry,
-            allow_off_ladder=bool(a.get("off_ladder")))
+            allow_off_ladder=bool(a.get("off_ladder")), proc=proc)
         results.append({"proc": proc, "lane": lane, "effort": effort,
                         "rc": rc, "out": out, "err": err, **meta})
         if rc != 0 and not dry:

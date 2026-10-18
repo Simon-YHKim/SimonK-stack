@@ -571,14 +571,16 @@ class ModelRegistryTests(unittest.TestCase):
                 self.assertNotIn("`" + lane + "`", blocked)
         self.assertIn("run_0a369252175f", " ".join(section.split()))
 
-    def test_task_fit_policy_d103_sonnet_back_where_d90_removed_it_and_astra_xhigh_only(self):
+    def test_task_fit_policy_d106_sonnet_simple_opus_xhigh_complex_and_astra_xhigh_only(self):
         # D-90 took Sonnet 5.5 out of all four profiles (Artificial Analysis puts it off the
         # intelligence/cost-per-task frontier at every effort). D-101 (2026-10-12, Simon's directive)
         # returned it to CODE_SIMPLE rank 1. D-103 (2026-10-18, Simon: "sonnet은 사용하는걸로 설정하자")
         # returns it to CODE_COMPLEX high and WRITING medium at rank 1, behind Opus. Both are directives,
         # not re-measurements. PLAN_ARCHITECTURE stays Opus + Astra because D-101 named the planners.
+        # D-106 (same day, Simon: "sonnet5.5는 간단한 코딩에 써야 하는거 아니야? 복잡한 코딩은 opus5.5 xhigh가
+        # 해야지.") corrects D-103: CODE_COMPLEX is Opus xhigh first, CODE_SIMPLE is Sonnet first.
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
-        self.assertEqual(policy["version"], "2026-10-18-shadow.3")
+        self.assertEqual(policy["version"], "2026-10-18-shadow.4")
         self.assertEqual((policy["checked_at"], policy["valid_until"]),
                          ("2026-10-18T09:19:19+09:00", "2026-10-25T09:19:19+09:00"))
         profiles = policy["profiles"]
@@ -586,22 +588,19 @@ class ModelRegistryTests(unittest.TestCase):
         def rows(profile):
             return [(e["model"], tuple(e["efforts"]), e["rank"]) for e in profiles[profile]]
 
-        self.assertEqual(rows("CODE_SIMPLE"), [("claude-haiku-5-5", ("low", "medium"), 0),
-                                               ("claude-sonnet-5-5", ("medium",), 1),
-                                               ("claude-opus-5-5", ("medium",), 2)])
+        self.assertEqual(rows("CODE_SIMPLE"), [("claude-sonnet-5-5", ("medium",), 0),
+                                               ("claude-opus-5-5", ("medium",), 1)])
         self.assertEqual(rows("PLAN_ARCHITECTURE"), [("claude-opus-5-5", ("high", "xhigh"), 0),
                                                      ("gpt-6-astra", ("xhigh",), 0)])
-        self.assertEqual(rows("CODE_COMPLEX"), [("claude-opus-5-5", ("medium",), 0),
-                                                ("claude-opus-5-5", ("high", "xhigh"), 1),
-                                                ("claude-sonnet-5-5", ("high",), 1),
-                                                ("gpt-6-astra", ("xhigh",), 0)])
+        self.assertEqual(rows("CODE_COMPLEX"), [("claude-opus-5-5", ("xhigh",), 0),
+                                                ("gpt-6-astra", ("xhigh",), 1)])
         self.assertEqual(rows("WRITING"), [("claude-opus-5-5", ("medium", "high"), 0),
                                            ("claude-sonnet-5-5", ("medium",), 1)])
         self.assertNotIn("claude-sonnet-5-5", {e["model"] for e in profiles["PLAN_ARCHITECTURE"]})
-        for profile in ("CODE_COMPLEX", "WRITING", "CODE_SIMPLE"):
-            with self.subTest(profile=profile):
-                ranks = {e["rank"] for e in profiles[profile] if e["model"] == "claude-sonnet-5-5"}
-                self.assertEqual(ranks, {1})
+        self.assertNotIn("claude-sonnet-5-5", {e["model"] for e in profiles["CODE_COMPLEX"]})
+        self.assertEqual({e["rank"] for e in profiles["CODE_SIMPLE"] if e["model"] == "claude-sonnet-5-5"}, {0})
+        self.assertEqual({e["rank"] for e in profiles["WRITING"] if e["model"] == "claude-sonnet-5-5"}, {1})
+        self.assertNotIn("claude-haiku-5-5", {e["model"] for e in profiles["CODE_SIMPLE"]})
         # GPT side: gpt-6-astra at xhigh only, in every profile.
         registry = {m["id"]: m for m in self.m.load_registry()["models"]}
         for profile, entries in profiles.items():
@@ -624,6 +623,41 @@ class ModelRegistryTests(unittest.TestCase):
                        "opus → sonnet → fable", "측정이 아니라 소유자 지시다"):
             with self.subTest(note=needle):
                 self.assertIn(needle, note)
+        note = next(n for n in policy["notes"] if n.startswith("D-106("))
+        for needle in ("sonnet5.5는 간단한 코딩에 써야 하는거 아니야?", "opus5.5 xhigh가 해야지",
+                       "claude-opus-5-5 xhigh 0순위", "claude-sonnet-5-5 medium 0순위",
+                       "opus → fable → sonnet", "routing.PROCESS_EFFORTS", "shadow-only"):
+            with self.subTest(note=needle):
+                self.assertIn(needle, note)
+
+    def test_d106_coding_lane_and_opus_xhigh_only_inside_coding(self):
+        # D-106 (Simon, 2026-10-18): complex coding = Opus 5.5 xhigh, Sonnet 5.5 is for simple coding.
+        import routing
+        self.assertEqual(routing.PROCESS_LANES["coding"],
+                         ["claude-opus-5-5", "claude-fable-5-1", "claude-sonnet-5-5"])
+        self.assertEqual(routing.PROCESS_EFFORTS, {"coding": {"claude-opus-5-5": "xhigh"}})
+        opus = "claude-opus-5-5"
+        for falsifiable in (False, True):
+            with self.subTest(falsifiable=falsifiable):
+                self.assertEqual(routing.effort_for(opus, falsifiable, proc="coding"), "xhigh")
+        # Outside coding the Opus ladder (high / max) is unchanged.
+        self.assertEqual((routing.effort_for(opus, False), routing.effort_for(opus, True)), ("high", "max"))
+        self.assertEqual(routing.effort_for(opus, False, proc="research-deep"), "high")
+        self.assertEqual(routing.validate_effort(opus, "xhigh", proc="coding"), "xhigh")
+        with self.assertRaises(ValueError):
+            routing.validate_effort(opus, "xhigh")
+        with self.assertRaises(ValueError):
+            routing.validate_effort(opus, "xhigh", proc="research-deep")
+        argv = routing.dispatch_argv(opus, "xhigh", "t", "n", "current", proc="coding")
+        self.assertEqual(argv[argv.index("--effort") + 1], "xhigh")
+        coding = [{"proc": "coding", "class": "B", "lane": opus, "effort": "xhigh", "writes": True}]
+        ok, violations, _ = routing.validate_plan(coding)
+        self.assertNotIn("EFFORT_NOT_ALLOWED", violations)
+        other = [{"proc": "research-deep", "class": "B", "lane": opus, "effort": "xhigh"}]
+        self.assertIn("EFFORT_NOT_ALLOWED", routing.validate_plan(other)[1])
+        # Sonnet stays allowed in coding (simple coding), and every coding lane is still Claude (G1).
+        self.assertTrue(all(routing.LANES[l]["vendor"] == "claude" for l in routing.PROCESS_LANES["coding"]))
+        self.assertEqual(routing.lanes_for_proc("coding")[0], opus)
 
     def test_catalog_map_states_lane_dispositions_and_legacy_routing_as_built(self):
         migration = self.m.load_registry()["legacy_lane_migration"]
@@ -707,15 +741,15 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertEqual(fixed["security-bizlogic-2nd"], (astra, "xhigh"))
         self.assertEqual(fixed[gate], (daybreak, "xhigh"))
 
-        # Final class lists (D-101). B, A-verify and D are unchanged. Coding gained Sonnet 5.5 second
-        # under D-103 (Simon, 2026-10-18); it is still Claude only, so the gates stay on another vendor.
+        # Final class lists (D-101). B, A-verify and D are unchanged. Coding is Opus -> Fable -> Sonnet
+        # under D-106 (Simon, 2026-10-18); it is still Claude only, so the gates stay on another vendor.
         self.assertEqual(classes["A"], ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"])
         self.assertEqual(classes["B"], [astra, "claude-fable-5-1", "claude-opus-5-5"])
         self.assertEqual(classes["A-verify"], [astra, "claude-fable-5-1", "claude-opus-5-5"])
         self.assertEqual(classes["C-realtime"], ["grok-4.6", "claude-opus-5-5", astra])
         self.assertEqual(classes["C-platform"], ["gemini-3.8-flash", "claude-opus-5-5", astra])
         self.assertEqual(classes["D"], ["claude-opus-5-5"])
-        self.assertEqual(process_lanes["coding"], ["claude-opus-5-5", "claude-sonnet-5-5", "claude-fable-5-1"])
+        self.assertEqual(process_lanes["coding"], ["claude-opus-5-5", "claude-fable-5-1", "claude-sonnet-5-5"])
         # A quota demotion past gpt-6-astra lands on a Claude lane, never on another GPT lane.
         for name, order in classes.items():
             if astra in order[:-1]:
@@ -1019,11 +1053,12 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertIn("ctx_cd78cf210447", " ".join(section.split()))
         # A registry ID is no longer a CLI-only catalog name.
         self.assertNotIn(new, {row[1] for row in catalog_map_rows()})
-        # D-99 left the shadow task-fit policy alone. D-101 names it in CODE_SIMPLE only (rank 0).
+        # D-99 left the shadow task-fit policy alone. D-101 named it in CODE_SIMPLE (rank 0); D-106
+        # took it out again because no coding lane carries Haiku (class A keeps it first).
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
         named = {profile for profile, entries in policy["profiles"].items()
                  if new in {entry["model"] for entry in entries}}
-        self.assertEqual(named, {"CODE_SIMPLE"})
+        self.assertEqual(named, set())
         # Eval probes offer it for class A problems only.
         probes = json.loads((SCRIPT.parent.parent / "eval" / "probes.json").read_text(encoding="utf-8"))["probes"]
         for probe in probes:
