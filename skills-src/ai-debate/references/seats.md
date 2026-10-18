@@ -21,7 +21,7 @@ re-checks right before spawning and never spawns a seat that is not READY (UNKNO
 | anthropic | Claude | claude-opus-5-5 · max | stdin to `claude -p` (UNKNOWN by default) |
 | openai | Codex | gpt-6-astra · xhigh | stdin (`-`); answer read from the `-o` file |
 | xai | Grok | grok-4.7 · xhigh | `--prompt-file` (UTF-8 `.txt`) |
-| google | Gemini via `agy` | gemini-4-argon-high (effort = model-name suffix; D-104, 2026-10-18 — agy 1.4.1 dropped gemini-3.1-pro) | argv after `--print`; the command line is kept at or under 32000 UTF-16 units |
+| google | Gemini via `agy` | gemini-4-argon-high (effort = model-name suffix; D-105, 2026-10-18 — agy 1.4.1 dropped gemini-3.1-pro) | argv after `--print`; the command line is kept at or under 32000 UTF-16 units |
 
 Whichever vendor hosts (`--orchestrator`) answers its own seat in-session and registers it with `submit`;
 that seat is never spawned. `--model` and `--effort` pass through to `call`; for agy the effort

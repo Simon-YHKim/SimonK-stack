@@ -1054,7 +1054,7 @@ class DebateTests(unittest.TestCase):
         self.assertEqual(debate.agy_model("gemini-4-argon-xhigh", "high"), ("gemini-4-argon-high", "high"))
         with self.assertRaises(debate.DebateError):
             debate.agy_model("gemini-4-argon-high", "--sandbox")
-        # D-104: the default seat model is the one agy 1.4.1 lists (gemini-3.1-pro is gone from it).
+        # D-105: the default seat model is the one agy 1.4.1 lists (gemini-3.1-pro is gone from it).
         self.assertEqual(debate.DEFAULTS["google"], ("gemini-4-argon-high", None))
         self.new()
         self.setting("answer-google", r1_answer("GEM"))

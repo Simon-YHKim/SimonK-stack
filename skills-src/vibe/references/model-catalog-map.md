@@ -23,7 +23,7 @@ no guarded agy execution adapter exists, so this map grants no route.
 
 | Surface | CLI catalog name | Registry ID | Effort in name | Note |
 | --- | --- | --- | --- | --- |
-| `antigravity` | `gemini-4-argon-high` | `gemini-4-argon` | `high` | thinking level high; D-104 ai-debate Gemini seat default |
+| `antigravity` | `gemini-4-argon-high` | `gemini-4-argon` | `high` | thinking level high; D-105 ai-debate Gemini seat default |
 | `antigravity` | `gemini-4-argon-medium` | `gemini-4-argon` | `medium` | API default level |
 | `antigravity` | `gemini-4-argon-low` | `gemini-4-argon` | `low` | |
 | `antigravity` | `gemini-3.8-flash-high` | `gemini-3.8-flash` | `high` | thinking level high |
@@ -226,14 +226,14 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
   codex 직행 argv·평가 문제·shadow task-fit 에 걸려 있고, Orca 밖 경로(host·direct CLI)의 후보 선택에는 걸려 있지
   않다. 그 경로는 호스트가 준 runtime 후보와 레지스트리(제공사 사실)로만 고른다.
 
-### D-104 (2026-10-18): `gemini-4-argon` 은 등록만, 레인은 없다
+### D-105 (2026-10-18): `gemini-4-argon` 은 등록만, 레인은 없다
 
-`gemini-4-argon` 은 2026-10-13 Gemini API GA 라 2026-10-18.1 레지스트리에 등록했지만 `routing.py` 레인은 없다. 그래서 계획에 넣으면 지금처럼 `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막힌다. 이유는 둘이다. Orca 의 antigravity 에이전트는 기동 때 모델을 고를 수 없고(D-28 #12), agy CLI 직행 실행기도 없다. 실행기를 만들더라도 다른 실행기처럼 코디네이터 인증서(모델 포함·남은 쿼터·초과 과금 OFF·API 폴백 OFF)가 있어야 돌고, Antigravity 초과 과금 여부는 아직 확인하지 못했다. 허브 토론 D-104 를 다시 연 판정이 이 순서(먼저 인증서 경로 확인)를 정했다. 지금 Argon 이 실제로 쓰이는 곳은 ai-debate 의 Gemini 좌석(`gemini-4-argon-high`, ai-debate 0.2.8)이다. 2026-10-18 canary 두 건(화면 녹화 검토, 심어 둔 주장 10개 대조)은 통과했지만 둘 다 n=1 합성 표본이다.
+`gemini-4-argon` 은 2026-10-13 Gemini API GA 라 2026-10-18.1 레지스트리에 등록했지만 `routing.py` 레인은 없다. 그래서 계획에 넣으면 지금처럼 `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막힌다. 이유는 둘이다. Orca 의 antigravity 에이전트는 기동 때 모델을 고를 수 없고(D-28 #12), agy CLI 직행 실행기도 없다. 실행기를 만들더라도 다른 실행기처럼 코디네이터 인증서(모델 포함·남은 쿼터·초과 과금 OFF·API 폴백 OFF)가 있어야 돌고, Antigravity 초과 과금 여부는 아직 확인하지 못했다. 허브 토론 D-104 의 B 판정은 이 사실을 빠뜨린 근거로 나와, 사실을 넣어 다시 연 D-105(FINAL 4/4, A, 확신도 92)가 먼저 agy 인증서 경로를 확인하고 토론 좌석 사용을 최대 5건 계측한 뒤 실행기를 다시 보기로 정했다. 지금 Argon 이 실제로 쓰이는 곳은 ai-debate 의 Gemini 좌석(`gemini-4-argon-high`, ai-debate 0.2.8)이다. 2026-10-18 canary 두 건(화면 녹화 검토, 심어 둔 주장 10개 대조)은 통과했지만 둘 다 n=1 합성 표본이다.
 
 ## Refresh record (2026-10-18)
 
 시각은 모두 KST 다. 이 재확인 자체는 모델·Bot·유료 API 호출 0회다(출처 읽기는 하위 에이전트가 curl 로 했고,
-CLI 는 목록·버전·도움말만 읽었다). 같은 날 따로 돈 Argon canary(agy 3회, Codex 1회)와 허브 토론 D-104 는 이 기록의 근거가 아니다.
+CLI 는 목록·버전·도움말만 읽었다). 같은 날 따로 돈 Argon canary(agy 3회, Codex 1회)와 허브 토론 D-104·D-105 는 이 기록의 근거가 아니다.
 
 | 근거 | 관측 | 결과 |
 | --- | --- | --- |
@@ -247,7 +247,7 @@ CLI 는 목록·버전·도움말만 읽었다). 같은 날 따로 돈 Argon can
 | `model_watch.py status` | 09:28:25 | 새 후보 0. 대기 후보: Gemini 4 Argon 글 2건(이번에 등록), Claude Haiku 5.5 글 2건(10-12 등록), Grok 4.7, OpenAI 글 3건 |
 
 바뀐 등록 사실.
-- 새 모델 `gemini-4-argon`(active). 레인은 없다(위 "D-104" 절).
+- 새 모델 `gemini-4-argon`(active). 레인은 없다(위 "D-105" 절).
 - `gemini-3.8-flash` 의 출처 `gg_latest` 를 `whats-new-gemini-3.8` 로 옮기고 `source_updated_at` 을 그 페이지의 2026-10-13 으로 고쳤다. effort·가격·GA 상태는 그대로다.
 - `gemini-3.1-pro-preview` 는 API 에서 그대로 preview(종료일 공지 없음)라 값을 바꾸지 않았다. agy 목록에서만 빠졌다.
 

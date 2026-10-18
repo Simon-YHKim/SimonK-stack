@@ -43,7 +43,7 @@ ROUNDS = ("r1", "r2", "judge", "ratify", "catchup")
 MODES = ("quick", "full", "interject")
 CALLS = ("CONTINUE", "RESCOPE", "SHIP_NOW", "STOP", "ASK_USER")
 # openai: gpt-6-astra @ xhigh is the only GPT model in use (hub D-101, 2026-10-12, owner directive).
-# google: gemini-4-argon-high (hub D-104, 2026-10-18). agy 1.4.1 no longer lists gemini-3.1-pro and
+# google: gemini-4-argon-high (hub D-105, 2026-10-18). agy 1.4.1 no longer lists gemini-3.1-pro and
 # refuses "--model gemini-3.1-pro-high" before any turn, so the old default left the seat unable to answer.
 DEFAULTS = {"anthropic": ("claude-opus-5-5", "max"), "openai": ("gpt-6-astra", "xhigh"),
             "xai": ("grok-4.7", "xhigh"), "google": ("gemini-4-argon-high", None)}
