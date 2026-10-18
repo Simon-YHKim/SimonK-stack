@@ -898,3 +898,9 @@ last-sync: 2026-07-05
   - **결정**: D-103 에서 내가 Sonnet 을 복잡한 코딩(CODE_COMPLEX high 2순위, 코딩 레인 2순위)에 넣은 것을 되돌린다. 단순 코딩은 Sonnet 5.5, 복잡한 코딩은 Opus 5.5 xhigh.
   - **반영(vibe 2.20.0 예정, 이행 세부는 오케스트레이터 1단 · 이의 시 승격)**: ① 코딩 레인 = `claude-opus-5-5` → `claude-fable-5-1` → `claude-sonnet-5-5`. 복잡한 코딩의 기본·폴백은 Opus → Fable(자기 버킷)이고, Sonnet 은 단순 코딩 단계가 쓰도록 허용 목록에 남긴다. ② 코딩 공정에서 Opus 의 기본 effort 를 xhigh 로 둔다(Opus 사다리 high/max 는 다른 공정에서 그대로). ③ 중앙 계획기는 CODE_COMPLEX 단계의 Opus 를 xhigh 로만 받는다(`EFFORT_PINNED_BY_OWNER`). ④ shadow task-fit: CODE_SIMPLE = Sonnet medium 0순위 · Opus medium 1순위(Haiku 는 코딩 레인이 없어 뺀다, A 클래스 1순위는 그대로), CODE_COMPLEX = Opus xhigh 0순위 · Astra xhigh 1순위, WRITING 의 Sonnet medium 1순위는 지시 밖이라 그대로 둔다.
   - **뒤집는 조건**: Simon 이 단순 코딩에 Haiku 를 다시 쓰라고 하거나 복잡한 코딩 effort 를 바꾸라고 할 때, Opus xhigh 가 같은 작업 짝 평가에서 high 보다 낫지 않으면서 쿼터를 더 쓸 때.
+- 2026-10-18 11:43:34 KST | DECIDE | **D-107 한국어 글 초안은 Gemini 4 Argon — 호스트 세션이 agy 로 직접 받는다** (오케스트레이터 단독 · 35.8 1단 · Simon 블라인드 비교 근거) | claude
+  - **근거**: Simon "argon은 한국어 글쓰기에 적용하는건 어때?" 뒤 블라인드 비교(같은 과제문, 과제마다 1회 생성, 이름 가림): ① 사내 공지문 → Argon ② 주간보고 한 단락 → Opus 5.5 ③ AI 티 나는 글 윤문 → Argon. 합계 Argon 2 · Opus 1. Argon 은 과제당 64~106초, 3.4만~6.8만 토큰(매 호출 약 3만 토큰은 agy 기본 프롬프트), Opus(하위 에이전트)는 세 과제 합쳐 58초.
+  - **결정**: Simon 이 한국어 산문(공지·안내문·윤문·짧은 카피)을 맡기면 호스트 세션이 `gemini-4-argon-high` 초안을 `agy --print ... --mode plan --sandbox`(PowerShell, 콘솔 UTF-8)로 받아 낸다. Claude 는 원문 대비 수치·고유명사·사실만 대조해 고치고 고친 곳을 밝힌다. 보고서 단락과 기술 문서는 당분간 Claude 가 쓴다(②에서 Opus 가 골림). 중요한 글은 두 초안을 함께 보여 고르게 할 수 있다.
+  - **경계**: /vibe 레인이 아니다(D-105 승격 조건 그대로). 회사 기밀은 agy 로 보내지 않는다. 비용은 Gemini 구독 한도(주간 99% 남음, 10-18).
+  - **계측**: 두 초안을 보여 준 경우 Simon 의 선택을 메모리에 누적하고 10건 뒤 다시 본다.
+  - **뒤집는 조건**: 실제 사용에서 Simon 이 Claude 초안을 더 자주 고르거나, Argon 초안의 수치·사실 오류 수정이 잦거나, agy 지연·한도가 문제가 될 때. 이의 시 2단으로 올린다.
