@@ -1,9 +1,9 @@
 {
-  "bundle_digest": "bf661032f54129d4d93bfb224281841a40b68779fbfde85c9fef2b37f317f144",
-  "codex_content_digest": "4f6257e4b64814a3ead9b8c53c07c11237759868d6fe295cef0680b2e81c0fbb",
-  "codex_overlay_digest": "ab4f79d8d6b9af36550e1aa375eaab9ca29933ac469a5ea56df6fadde774340f",
-  "codex_subset_digest": "9372c5a50b135b1373ab68b7cd444ca6cdf9f472a43a2692088afa1e779c7c35",
-  "content_digest": "f812e5c83815deced94f325506aab3e46c7120d64214e53cf7baa87219ded4c3",
+  "bundle_digest": "617ba87087a669cc4995ef6e26a7071d3a1d7103d500d0b213c1f0a9601ba52d",
+  "codex_content_digest": "032d9047388d03fe30299b5d6cf40a9c5a2b4b5ef001589b8a5e0dcd23c7d04e",
+  "codex_overlay_digest": "c9af207bce2e092ab8a21e19594d49b387c7fad006ef55f3cda3351b2e0ff750",
+  "codex_subset_digest": "4902be066d85e65d0827f180334cbe4345efa9be5685d610f58af8c486178085",
+  "content_digest": "c0495e7a66592a5981ae9cf9af028f70ff9ce444e375dadbdb8a0c4df66abba0",
   "pins": {
     "SimonKAIHub": "d523b3e1cfa800ef60c690d40b7256abf5bcba1e",
     "SimonKCore": "24a17a1d59d03e75d3ac57643e91789cd640350e",
@@ -11,10 +11,10 @@
     "SimonKMarket": "54f757f8f8f6cd73b2a470c4a13417c2e268b304",
     "SimonKStack": "7f866e71e3e37e147410cdc55a5a786cf19fd2b6"
   },
-  "run": "https://github.com/Simon-YHKim/SimonK-stack/actions/runs/39085329647",
+  "run": "https://github.com/Simon-YHKim/SimonK-stack/actions/runs/39091570013",
   "schema_version": 2,
   "scope": "five-plugin-dist-v1",
-  "source_commit": "839b368ada62130e1143c0d54aea955e4006dd25",
-  "source_digest": "49c2e6c4a26d39670e8e466c93f3d7a1ac24a0da65300b229262e4c43c3b2ad8",
-  "version": "1.860.0"
+  "source_commit": "0f718bbc21e738697d4e73cb0ef996023513de0f",
+  "source_digest": "c9bb6be63d6ef0fc61267d0e7c13d7b1b1a184863649103a2fa3bb869a653d21",
+  "version": "1.867.0"
 }

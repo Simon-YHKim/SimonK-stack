@@ -348,10 +348,16 @@ def run():
             check("fable 에 ultra → 차단 (Orca 실측 거부)", False, "통과되어 버렸다")
         except ValueError:
             check("fable 에 ultra → 차단 (Orca 실측 거부)", True)
+        check("D-106: 코딩 공정의 opus 기본 effort 는 xhigh, 다른 공정은 사다리 그대로",
+              routing.effort_for("claude-opus-5-5", False, proc="coding") == "xhigh"
+              and routing.effort_for("claude-opus-5-5", True, proc="coding") == "xhigh"
+              and routing.effort_for("claude-opus-5-5", False) == "high"
+              and routing.validate_effort("claude-opus-5-5", "xhigh", proc="coding") == "xhigh",
+              str(routing.PROCESS_EFFORTS))
         check("fable 쿼터 버킷은 fableWeekly",
               routing.LANES["claude-fable-5-1"].get("quota_bucket") == "fableWeekly")
-        check("코딩 = opus → sonnet → fable (D-103) · fable 은 B 비코딩 2순위 (D-28 2단계)",
-              routing.PROCESS_LANES["coding"] == ["claude-opus-5-5", "claude-sonnet-5-5", "claude-fable-5-1"]
+        check("코딩 = opus → fable → sonnet (D-106) · fable 은 B 비코딩 2순위 (D-28 2단계)",
+              routing.PROCESS_LANES["coding"] == ["claude-opus-5-5", "claude-fable-5-1", "claude-sonnet-5-5"]
               and routing.lanes_for("B")[1] == "claude-fable-5-1",
               f"coding={routing.PROCESS_LANES['coding']} B={routing.lanes_for('B')}")
         # 이름이 실제로 전달되는 것은 '새 워크트리' 뿐이다 —

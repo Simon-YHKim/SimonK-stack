@@ -65,7 +65,7 @@ are relative to the `/vibe` skill root.
 | 장문 로그 · 커밋히스토리 분류 집계 | A | `claude-haiku-5-5` | `claude-sonnet-5-5` | `claude-opus-5-5` |
 | 기록↔사실 대조 · 주장 판정 (읽기 전용) | A-verify | `gpt-6-astra` | `claude-fable-5-1` | `claude-opus-5-5` |
 | 웹 리서치 — 정독 · 모순 종합 | B | `gpt-6-astra` | `claude-fable-5-1` | `claude-opus-5-5` |
-| 코딩 — 구현 · 대규모 리팩터링 **(공정 전용 목록)** | B | `claude-opus-5-5` | `claude-sonnet-5-5` | `claude-fable-5-1` |
+| 코딩 — 구현 · 대규모 리팩터링 **(공정 전용 목록)** | B | `claude-opus-5-5` | `claude-fable-5-1` | `claude-sonnet-5-5` |
 | 터미널 · CI · git (판단 섞인 경우) | B | `gpt-6-astra` | `claude-fable-5-1` | `claude-opus-5-5` |
 | 보안 — 생성물 안전성 게이트 | B | **`gpt-daybreak-blue-latest` @xhigh 고정** | 폴백 `gpt-6-astra` @xhigh (고정 레인이 설 수 없을 때만 · D-102) | — |
 | 보안 — 비즈니스 로직 · 인가 | B | **`gpt-6-astra` @xhigh 고정** | — | — |

@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.20.0 - 2026-10-18
+
+- **D-106: 단순 코딩은 Sonnet 5.5, 복잡한 코딩은 Opus 5.5 xhigh**(Simon 지시 "sonnet5.5는 간단한 코딩에 써야 하는거 아니야?
+  복잡한 코딩은 opus5.5 xhigh가 해야지.", 토론 없음, 허브 DECISIONS D-106). 2.19.0(D-103)이 Sonnet 을 복잡한 코딩 쪽에 둔 것을 바로잡는다.
+  - 코딩 레인 `PROCESS_LANES["coding"]` = `claude-opus-5-5` → `claude-fable-5-1` → `claude-sonnet-5-5`. 복잡한 코딩의 기본·폴백은
+    Opus → Fable 이고, Sonnet 은 단순 코딩 단계가 고를 수 있게 허용 목록 끝에 둔다.
+  - 새 `routing.PROCESS_EFFORTS = {"coding": {"claude-opus-5-5": "xhigh"}}`. 코딩 공정에서 Opus 의 기본 effort 가 xhigh 이고
+    `validate_effort` 는 그 공정에서만 xhigh 를 정책 단으로 받는다. `effort_for`·`validate_effort`·`dispatch_argv`·`run_dispatch` 에
+    `proc` 인자가 생겼고 `validate_plan`·`validate_and_dispatch`·중앙 계획기의 Orca 검사·`execute_orca` 가 공정을 넘긴다.
+    다른 공정의 Opus(A·C 폴백 등)는 사다리 high/max 그대로다.
+  - 중앙 계획기: `OWNER_TASK_EFFORTS = {"CODE_COMPLEX": {"claude-opus-5-5": "xhigh"}}`. CODE_COMPLEX 단계에서 cli·orca 로 가는 Opus
+    후보는 xhigh 가 아니면 `EFFORT_PINNED_BY_OWNER` 로 거부된다. 호스트 세션 자신의 effort 는 묶지 않는다(D-102 와 같은 선).
+  - shadow task-fit `2026-10-18-shadow.4`: CODE_COMPLEX = Opus xhigh 0순위 · Astra xhigh 1순위, CODE_SIMPLE = Sonnet medium 0순위 ·
+    Opus medium 1순위. Haiku 는 CODE_SIMPLE 에서 뺐다(코딩 레인에 Haiku 가 없다). A 클래스(haiku → sonnet → opus)와 WRITING 은 그대로다.
+  - 테스트: 새 테스트 2개(레인 표·계획기). 두 가드를 일부러 망가뜨린 변형을 둘 다 잡는 것을 확인했다.
+
 ## 2.19.0 - 2026-10-18
 
 - **D-103: Sonnet 5.5 를 쓰는 것으로 설정했다**(Simon 지시 "sonnet은 사용하는걸로 설정하자", 토론 없음, 허브 DECISIONS D-103).

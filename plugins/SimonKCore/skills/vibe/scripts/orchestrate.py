@@ -57,6 +57,9 @@ TASK_TYPE_MAP = {
 # Effort demand and capability quality are different axes. A short coding task
 # can use low reasoning without admitting an unproven low-quality model.
 TASK_QUALITY_FLOOR = {"CODE_SIMPLE": 2, "CODE_COMPLEX": 3}
+# Hub D-106 (2026-10-18, owner directive): complex coding runs on claude-opus-5-5 at xhigh.
+# Dispatched transports (cli, orca) are held to it; a host session's own effort is not.
+OWNER_TASK_EFFORTS = {"CODE_COMPLEX": {"claude-opus-5-5": "xhigh"}}
 ORCHESTRATORS = {"vibe", "simonk", "app-dev-orchestrator", "dev-orchestrator"}
 # Hosts can prefix exports per bash block; Orca worker-start cannot pass env.
 GSTACK_ISOLATION = {"host": "required", "orca": "best-effort"}
@@ -866,6 +869,14 @@ def owner_gpt_policy(c, effort):
     return errors
 
 
+def owner_task_effort(c, step, effort):
+    """Hub D-106: complex coding on claude-opus-5-5 runs at xhigh only (dispatched transports)."""
+    pins = OWNER_TASK_EFFORTS.get(step.get("task_type"), {})
+    names = {c.get("model"), c.get("requested_model"), c.get("resolved_model")} - {None}
+    wanted = {pins[name] for name in names if name in pins}
+    return ["EFFORT_PINNED_BY_OWNER"] if wanted and wanted != {effort} else []
+
+
 def gate_pin(step):
     """(pinned lane, (fallback lane, fallback effort)) for a process with a declared fallback, else None."""
     proc = step.get("proc")
@@ -934,6 +945,8 @@ def assess_candidate(c, step, policy, now, producer_vendor=None, debate=None):
             errors.append("HOST_EFFORT_MISMATCH")
         if (surface, c.get("transport")) == ("codex", "cli"):
             errors.extend(owner_gpt_policy(c, effort))
+        if c.get("transport") in {"cli", "orca"}:
+            errors.extend(owner_task_effort(c, step, effort))
     billing = c.get("billing", {})
     account_ref = billing.get("account_ref")
     if not isinstance(account_ref, str) or not account_ref.strip():
@@ -1072,7 +1085,7 @@ def _legacy_validation(nodes, runtime):
             return ["ORCA_UNREGISTERED_PROCESS_OR_MODEL"]
         try:
             routing.dispatch_argv(a["lane"], a["effort"], "dry-task", s["id"],
-                                  worktree="current", allow_off_ladder=a["off_ladder"])
+                                  worktree="current", allow_off_ladder=a["off_ladder"], proc=a["proc"])
         except ValueError:
             return ["ORCA_DISPATCH_UNSUPPORTED"]
         record = s.get("gate_fallback")

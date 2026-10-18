@@ -280,7 +280,8 @@ class Adapter:
         try:
             self.preflight(plan, node_id, certificate)
             argv = routing.dispatch_argv(route["model"], route["requested_effort"], binding["task_id"], node_id,
-                worktree="id:" + binding["worktree_id"], allow_off_ladder=node.get("off_ladder", False))
+                worktree="id:" + binding["worktree_id"], allow_off_ladder=node.get("off_ladder", False),
+                proc=node.get("proc"))
             # One call only. Orca retry identity is additional deduplication, not
             # permission to replay an absent/pending request or claim exactly-once.
             self.transport.call(*argv[1:-1], "--run", binding["run_id"], "--retry-request", request_id(plan, node_id))

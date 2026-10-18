@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan and reports blocked coding or image routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.19.0
+version: 2.20.0
 author: simon-stack
 ---
 
@@ -399,7 +399,7 @@ legacy CLI entrypoints now blocks bytecode before their first local import;
 module imports by other callers still need the caller's own no-bytecode policy.
 
 - [Orchestration schema and cost policy](references/orchestration.md)
-- [Model catalog map, 2026-10-18 refresh(`gemini-4-argon` 등록 · 레인 없음 D-105), D-101 레인 상태(GPT 는 `gpt-6-astra` @xhigh 만 · 철회 레인 5개 · A 클래스 `claude-haiku-5-5` 선두 · 코딩 opus → sonnet → fable D-103 · 인증서 대기)](references/model-catalog-map.md)
+- [Model catalog map, 2026-10-18 refresh(`gemini-4-argon` 등록 · 레인 없음 D-105), D-101 레인 상태(GPT 는 `gpt-6-astra` @xhigh 만 · 철회 레인 5개 · A 클래스 `claude-haiku-5-5` 선두 · 코딩 opus(xhigh) → fable → sonnet D-106 · 인증서 대기)](references/model-catalog-map.md)
 - [Guarded Orca workflow and preparation limits](references/orca-workflow.md)
 - [D-28 route decisions](references/d28-routing.md) · [Security artifact gate: D-101 Daybreak lane, D-102 gpt-6-astra fallback, rubric and fail-closed rules](references/security-artifact-gate.md)
 - [Astra effort transport cap](references/v2.2-astra-effort-cap.md)
