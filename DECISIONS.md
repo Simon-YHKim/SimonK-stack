@@ -909,3 +909,6 @@ last-sync: 2026-07-05
   - 검증: vibe 단위 441(새 2) · scripts/tests 157 · test_dist_release 38 · 하네스 24/24 · validate_skill 0/0, PR CI 두 번 통과. 두 가드(공정별 effort, CODE_COMPLEX 고정)를 일부러 망가뜨린 변형을 새 테스트가 잡았다.
 - 2026-10-18 12:51:04 KST | AMEND | **D-107 한국어 글 초안은 Gemini 4 Argon** — 공용 지침에 반영 | claude
   - `E:\Coding Infra` 의 CLAUDE.md · AGENTS.md · GEMINI.md §21 Skill routing 에 같은 한 줄을 넣었다(§18 3파일 동기화). 이 폴더는 git 이 아니라 바꾸기 전 사본을 `_archive/instructions-261018-d107/` 에 두었다. 스킬(vibe 등)에는 넣지 않았다 — /vibe 계획기는 Argon 을 배정하지 못하고(D-105) 이 규칙은 /vibe 를 부르지 않은 세션에도 적용돼야 해서다.
+- 2026-10-18 21:27:09 KST | AMEND | **D-107 한국어 글 초안은 Gemini 4 Argon** — 전역 지침(v8.1.3)이 정본 위치를 가리킨다 | claude
+  - Simon "고고"(그 폴더 밖 세션에도 닿게 하자는 제안에 대한 답). 지침 단일본 §7 첫 줄에 조건부 참조 한 구절: 작업별 모델·도구 배정의 정본은 `E:\Coding Infra\CLAUDE.md` 21절이고, 한국어 산문을 쓰기 전에 그 절을 읽는다. 규칙 본문은 복사하지 않았다(§0-2), 새 규칙 줄 0.
+  - SimonK-stack PR #178 머지 → main `f39c0b4`(단일본 sha256 `fc4f7d7a80f0`, `split.py --verify` exit 0, CI 4/4). `split.py --apply` 로 `~/.claude/CLAUDE.md` 교체(백업 `CLAUDE.md.bak_261018_2126`), 설치본 본문 = 커밋된 사본(차이 0줄). claude.ai 사본은 머리말 sha 만 바뀌어 다시 붙일 필요 없음.
