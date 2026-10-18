@@ -868,3 +868,17 @@ last-sync: 2026-07-05
   - **심판 독립성**: 심판 순번이 Gemini 좌석(gemini-4-argon-high, 설치된 기본값이 깨져 `--model` 로 지정)을 골랐다. 안건의 대상 모델이 심판을 본 셈이다. 그 심판은 자기 R1 입장(C)이 아니라 B 를 골랐고, 판정은 순번 규칙 그대로 받아들인다.
   - **사실 정정**: 판정 근거 1번의 "C-platform 이 Opus 로 떨어지면 코딩 모델이 자기 결과물을 검토하게 되어 G1 에 어긋난다"는 맞지 않다. G1 은 코딩 벤더와 보안 게이트 벤더가 같으면 안 된다는 규칙이고, C-platform 의 Opus 폴백은 G1 위반이 아니라 Claude 토큰 비용 문제다. 결론(B)에는 영향이 없다.
   - **진행 계획**: ① vibe 2.19.0 + ai-debate 0.2.8 릴리스에 D-103(Sonnet), ai-debate Gemini 좌석 기본값 gemini-4-argon-high, 레지스트리 주간 재확인(Argon 등록)을 싣는다. ② 그 뒤 `execute_agy_cli.py`(읽기 전용 · plan+sandbox · 하드 타임박스 · 출력 상한 · 근거 없는 줄 폐기)와 C-platform = gemini-4-argon → gemini-3.8-flash → claude-opus-5-5 를 별도 릴리스로 낸다. A-verify 편입(C)은 고난도 카나리와 실전 영수증 뒤다.
+
+- 2026-10-18 09:45:02 KST | DECIDE | **D-105 Gemini 4 Argon의 /vibe 레인 편입 방식** (§35 4벤더 토론 · FINAL 4/4 · 재개: dbt-261018-091941) | claude
+  - **안건**: Gemini 4 Argon이 이 PC의 agy(구독, 추가 과금 0)에서 쓸 수 있게 됐다. Simon은 검토 위주 사용과 Gemini 구독 한도 활용을 원하고, 헛소리로 Claude 재확인 토큰이 늘어나는 것을 걱정한다. 지금 무엇까지 하는 것이 맞는가? — 선택지: 1) A: 레지스트리 등록 + ai-debate Gemini 좌석 기본값을 gemini-4-argon-high로 교체(고장 난 좌석 복구)만. /vibe 배정은 그대로 / 2) B: A + /vibe에 agy CLI 직행 실행기(읽기 전용, plan+sandbox, --model/--effort 명시, 영수증) 추가 후 C-platform 1순위를 gemini-4-argon으로(그다음 Flash, Opus) / 3) C: B + A-verify 2순위에 gemini-4-argon 추가(astra -> argon -> fable -> opus) / 4) D: B + A-verify 1순위를 gemini-4-argon으로
+  - **참석**: Claude ✓(claude-opus-5-5, 세션 내) · Codex ✓(gpt-6-astra) · Grok ✓(grok-4.7) · Gemini ✓(gemini-4-argon-high)
+  - **입장**: Claude[회의]: 선택지 1 (A) — 확신도 80 · Codex[대안]: 선택지 E: A + 인증 경로 선검증·기존 ai-debate 좌석 사용 계측, /vibe 실행기와 배정 변경은 보류 — 확신도 87 · Grok[사용자 이익]: 선택지 1 — 확신도 80 · Gemini[찬성]: 선택지 1 (A: 레지스트리 등록 + ai-debate Gemini 좌석 기본값을 gemini-4-argon-high로 교체만, /vibe 배정 유지) — 확신도 88
+  - **교차검증**: quick 모드 생략
+  - **심판**: Gemini (블라인드·새 세션·자기 벤더 입장 포함) — VERDICT: 선택지 1(A) 채택(레지스트리 정리 및 ai-debate 기본값을 gemini-4-argon-high로 교체, /vibe 실행기·레인 배정은 유지) + P1·P2의 승격 조건(agy 인증서 요건 선검증 및 예정된 ai-debate 최대 5건 계측 후 B 재검토) 결합 · CONFIDENCE 92
+  - **소수의견**: **시각·문서 검증(C-platform) 강점의 활용 지연 우려 (전 위원 공통 반론 보존)**: 화면 녹화 카나리(Canary 1)에서 `gemini-4-argon-high`는 41.5초, 34,016토큰(캐시 29,061) 만에 네이티브 미디어 입력으로 4개 코드, 화면 전환 시점, 저대비·초소형 버튼 결함 및 raw i18n 키를 모두 잡아내어 초소형 크기를 놓친 `gemini-3.8-flash-high`(46초, 약 67k 토큰)보다 빠르고 정확하며 토큰도 적게 썼다. 또한 외부 벤치마크에서 AutomationBench-A…
+  - **후속**: **즉시 실행 — 레지스트리 및 `ai-debate` 복구 (선택지 A)**: 모델 레지스트리에서 제거된 `gemini-3.1-pro`를 정리하고 `gemini-4-argon-{low,medium,high}`(및 현행 `agy models` 목록)를 반영한다. `ai-debate`의 Gemini 좌석 기본값을 `gemini-4-argon-high`로 변경하여 0턴 실패 장애를 즉시 복구한다. `/vibe` 실행 어댑터(`execute_agy_cli.py`) 추가 및 `C-platform`·`A-verify` 레인 배정 변경은 지금…
+  - **원문**: C:/Users/202502/AppData/Local/SimonKStack/ai-debate/debates/dbt-261018-092922
+- 2026-10-18 09:45:17 KST | AMEND | **D-104 Gemini 4 Argon의 /vibe 레인 편입 방식** — D-105 가 B 판정을 대체 | claude
+  - **대체**: D-104 의 B 판정은 오케스트레이터가 근거에서 사실 하나를 빼서 나왔다 — 모든 /vibe 실행기는 코디네이터 인증서(모델 포함·남은 쿼터·초과 과금 OFF·API 폴백 OFF) 없이는 돌지 않고 그 인증서를 만드는 도우미는 없다(`execute_grok_cli.py` 는 `NATIVE_DISPATCH_ENABLED = False`). 정정 근거로 다시 연 토론 `dbt-261018-092922` 가 D-105(FINAL 4/4, A, 확신도 92)로 판정했다. B 의 실행기·C-platform 배정은 하지 않는다.
+  - **시각 정정**: 위 09:33:00 AMEND 의 시각은 시계를 읽지 않고 적었다. 실제로는 09:28 무렵 커밋됐다(커밋 `9652b647`). 다시 연 토론 근거의 "09:40 KST" 도 같은 실수로, 실제 작성은 09:28 무렵이다.
+  - **심판 재호출**: D-105 첫 심판 호출은 agy 가 답(A, 확신도 91)을 stdout 에 쓴 뒤 자식 프로세스와 함께 끝나지 않아(09:33:26 시작, 09:42 무렵까지) 오케스트레이터가 그 agy 프로세스 트리만 끝냈다. 호출은 실패로 기록됐고, 다시 부른 심판이 09:44:46 에 같은 결론(A, 확신도 92)을 냈다. agy 1.4.1 print 모드가 끝나지 않는 일이 한 번 있었다는 관측으로 남긴다.
