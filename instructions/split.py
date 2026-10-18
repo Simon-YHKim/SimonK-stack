@@ -35,7 +35,7 @@ KST = timezone(timedelta(hours=9))
 #  GLOBAL 이 '전역 범위 판정'이다. §0 이 여기 들어 있어야 모든 사본에 실린다.
 #  (v8.1 에서 §0 을 추가했다. 그 전에는 {1..6} 이었다.)
 GLOBAL = list(range(0, 7))          # §0~§6 — 어느 환경에서나 읽는다
-ENV_ONLY = {7: "Claude Code", 8: "claude.ai(파일 작업)"}
+ENV_ONLY = {7: "Claude Code", 8: "claude.ai(파일 작업)", 9: "claude.ai"}
 
 TARGETS = {
     # 2026-10-04 Simon: "클로드 일반 대화와 코워크는 통합됐어." → claude.ai 사본 하나가
@@ -43,8 +43,8 @@ TARGETS = {
     #   이력: 2026-09-10 B안(Q-260830-01) — 그때는 Cowork 세션에서 '📌 채팅 제목' 규칙이 1번만
     #   보여 프로필이 Cowork 에 닿지 않는다고 보고 Cowork 사본을 따로 뒀다. 통합 뒤 같은 질문을
     #   Cowork 작업에서 다시 던져 1이면 이 배정이 맞고, 0이면 프로필이 Cowork 에 안 닿는 것이다.
-    "claude-ai_§0-6+§8": {
-        "sections": GLOBAL + [8],
+    "claude-ai_§0-6+§8-9": {
+        "sections": GLOBAL + [8, 9],
         "place": "claude.ai → 설정 → 개인 프로필 지침 (대화·파일 작업 공통)",
     },
     "claude-code_§0-7": {
@@ -99,7 +99,8 @@ def header_for(name, spec, src_sha, stamp, secs):
     missing = [n for n in sorted(secs) if n not in have]
     where = []
     for n in missing:
-        where.append(f"§{n}은 {ENV_ONLY.get(n, '다른')} 사본에" if n in ENV_ONLY
+        josa = "는" if n % 10 in (2, 4, 5, 9) else "은"   # 구·이·사·오 뒤는 '는'
+        where.append(f"§{n}{josa} {ENV_ONLY.get(n, '다른')} 사본에" if n in ENV_ONLY
                      else f"§{n} 없음")
     tail = " · ".join(where) if where else "빠진 절 없음"
     return (
@@ -162,7 +163,7 @@ def check_sha(text):
 #  가리키고(안내), §8 이 §7 을 참조하는 것은 v8.0 부터의 기존 결함이다(Q-260830-03).
 #  그래서 절대값이 아니라 **래칫**으로 지킨다 — 늘면 실패, 줄면 기준선을 내리라고 알린다.
 REFS_BASELINE = {
-    "claude-ai_§0-6+§8": 1,     # §8 → §7 (Q-260830-03, v8.0 부터의 기존 결함). §6 → §8 은 이제 같은 사본 안
+    "claude-ai_§0-6+§8-9": 1,     # §8 → §7 (Q-260830-03, v8.0 부터의 기존 결함). §6 → §8 은 이제 같은 사본 안
     "claude-code_§0-7": 1,      # §6 → §8 (안내)
 }
 

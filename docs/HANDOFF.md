@@ -1,6 +1,21 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-18 23:22 / 지침 v8.1.6: 본문에는 지시만 남김
+## Latest — 2026-10-19 01:54 / 지침 v8.1.7: claude.ai 전용 §9 '상황 → 스킬' 3줄 + 앱 업로드 ZIP
+
+갱신 시각: 2026-10-19 01:54 KST · 갱신자: Claude Code(Opus 5.5). Simon: "프로필을 늘리는 형태로 하면 손해니까, 00경우 00스킬 사용 이런식으로 하면 어때?" → "진행해줘".
+
+- §9 '〔claude.ai에서만〕 스킬' 신설(claude.ai 사본에만): 한국어 글(메일·공지·문서) 작성·윤문 → humanize-korean · 흔한 기능·화면 → simon-design-first · 반복 요청인데 맞는 스킬 없음 → skill-creator 제안. 앱 스킬 설명 원문이 이미 덮는 스킬(docx·xlsx·pptx·pdf·deep-research·schedule·built-in-browser·karpathy-guidelines·plan-*)은 적지 않았다(허브 D-111·D-112).
+- §8-8 '스킬은 쓰기 전 `/`로 로드됐는지 확인한다'를 §9 첫 줄로 합쳤다(§9 = 표 1개, 규칙 회계 0). Q-261019-07: §6 S 필수의 그래픽 줄을 '요약 탭에 그림 1장 + 길면 표·차트'로 바꿨다(줄 교체).
+- 사본 이름 `claude-ai_§0-6+§8` → `claude-ai_§0-6+§8-9`(git mv). `split.py` 는 §9 를 claude.ai 사본에만 배정하고, 머리말 조사(§9는)를 맞춘다.
+- `split.py --verify` 통과(sha256 `8478c8ba0eb3` · 불일치 0 · 절 구성 OK · 기준선 초과 0). claude.ai 사본 10,491 → 10,681자. 머지 뒤 `--apply`.
+- 앱 업로드 ZIP: PR #181 `scripts/claude_app_skill_zip.py`(frontmatter 를 앱 허용 키로 정리). 산출물·재생성 스크립트는 레포 밖 `E:\Coding Infra\Harrness Eng\claude-app-skills\`(`build.ps1`, `dist\*.zip` 3개). humanize-korean 은 외부 스킬이고 라이선스 파일이 없어 앱판 SKILL.md(`overrides\`, 보조 에이전트 작성·호스트 검토)를 공개 레포에 넣지 않는다.
+
+### 다음 작업 큐
+- Simon(카드 https://claude.ai/artifact/YKXcXAEnu1rXTet14cpLB2): ① ZIP 3개 업로드 ② 프로필에 v8.1.7 사본 붙이기(성공 신호 sha256 `8478c8ba0eb3`) ③ gstack 스킬 25개 끄기 ④ 플러그인 6개 Disable.
+- 확인: 업로드 뒤 claude.ai 대화에서 "공지 초안 써줘" → humanize-korean 이 불리는지. 안 불리면 §9 줄이나 설명을 고친다.
+- 그 밖에는 아래 12:04 블록 그대로.
+
+## 2026-10-18 23:22 / 지침 v8.1.6: 본문에는 지시만 남김
 
 갱신 시각: 2026-10-18 23:22 KST · 갱신자: Claude Code(Opus 5.5). Simon: "기능적인것만 명시하도록 수정하자. 불필요한 표기는 모두 삭제해."
 
