@@ -458,14 +458,15 @@ class PublishWorkflowTests(unittest.TestCase):
         # D-102 (2026-10-12): vibe 2.18.0 (security artifact gate falls back to gpt-6-astra at xhigh when Daybreak cannot stand).
         # D-103 + D-105 (2026-10-18): vibe 2.19.0 (Sonnet 5.5 back in coding, registry 2026-10-18.1 with gemini-4-argon) and
         # ai-debate 0.2.8 (Gemini seat on gemini-4-argon-high).
+        # D-106 (2026-10-18): vibe 2.20.0 (simple coding on Sonnet 5.5, complex coding on Opus 5.5 xhigh).
         allow = dist.validate_allow(json.loads((ROOT / dist.ALLOW).read_text(encoding="utf-8")))
         self.assertEqual(allow["schema_version"], 2)
-        self.assertEqual(allow["decision"], "D-105")
-        self.assertEqual(allow["source_commit"], "69759ab218896c6029ca8d43c7bde057ddb33019")
+        self.assertEqual(allow["decision"], "D-106")
+        self.assertEqual(allow["source_commit"], "df2869e38d5c86e9f8979ba5ae79ad4c445c750a")
         self.assertEqual(allow["content_digest"],
-                         "f812e5c83815deced94f325506aab3e46c7120d64214e53cf7baa87219ded4c3")
+                         "c0495e7a66592a5981ae9cf9af028f70ff9ce444e375dadbdb8a0c4df66abba0")
         self.assertEqual(allow["codex_content_digest"],
-                         "4f6257e4b64814a3ead9b8c53c07c11237759868d6fe295cef0680b2e81c0fbb")
+                         "032d9047388d03fe30299b5d6cf40a9c5a2b4b5ef001589b8a5e0dcd23c7d04e")
 
 
 class StageTests(unittest.TestCase):
