@@ -1993,6 +1993,36 @@ class OrchestrationTests(unittest.TestCase):
         host = cli_plan("gpt-6.1-sol", demand="routine", transport="host", effective_effort="low")
         self.assertEqual(host["status"], "ready", host["steps"][0]["rejected_candidates"])
 
+    def test_d106_complex_coding_runs_opus_at_xhigh_and_simple_coding_is_not_pinned(self):
+        # D-106 (2026-10-18, owner directive): simple coding is Sonnet 5.5's, complex coding is
+        # claude-opus-5-5 at xhigh. Dispatched transports are held to the pin; the host is not.
+        def plan_for(task_type, demand, model="claude-opus-5-5", transport="cli", **changes):
+            c = candidate("claude", surface="claude", model=model, transport=transport, quality_tier=3, **changes)
+            node = step(surface="claude", skills=[], task_type=task_type, demand=demand,
+                        needs=["code", "reasoning"], writes=False)
+            if transport == "cli":
+                node["cli"] = cli_binding("claude")
+            return self.plan([node], [c])
+
+        def reasons(plan):
+            return {r for item in plan["steps"][0]["rejected_candidates"] for r in item["reasons"]}
+
+        ready = plan_for("CODE_COMPLEX", "critical")  # the fixture maps critical to xhigh.
+        self.assertEqual(ready["status"], "ready", ready["steps"][0]["rejected_candidates"])
+        self.assertEqual(ready["steps"][0]["route"]["requested_effort"], "xhigh")
+        high = plan_for("CODE_COMPLEX", "reasoning")  # reasoning maps to high.
+        self.assertEqual(high["status"], "blocked")
+        self.assertEqual(reasons(high), {"EFFORT_PINNED_BY_OWNER"})
+        # Simple coding is not pinned, and Sonnet 5.5 takes it at a low effort.
+        self.assertEqual(plan_for("CODE_SIMPLE", "routine")["status"], "ready")
+        sonnet = plan_for("CODE_SIMPLE", "routine", model="claude-sonnet-5-5")
+        self.assertEqual(sonnet["status"], "ready", sonnet["steps"][0]["rejected_candidates"])
+        # Another model on a complex step and the host transport are not held to the Opus pin.
+        self.assertEqual(plan_for("CODE_COMPLEX", "reasoning", model="claude-fable-5-1")["status"], "ready")
+        host = plan_for("CODE_COMPLEX", "reasoning", transport="host", effective_effort="high")
+        self.assertEqual(host["status"], "ready", host["steps"][0]["rejected_candidates"])
+        self.assertEqual(self.m.OWNER_TASK_EFFORTS, {"CODE_COMPLEX": {"claude-opus-5-5": "xhigh"}})
+
     def test_cli_plan_round_trip_is_read_only(self):
         import json
         import subprocess
@@ -2528,22 +2558,28 @@ class OrchestrationTests(unittest.TestCase):
             self.assertEqual(repeat["status"], "uncertain")
             self.assertEqual((host.sends, host.lookups), (0, 2))
 
-    def test_packaged_complex_coding_fit_can_advise_opus_medium_without_dispatch(self):
+    def test_packaged_complex_coding_fit_can_advise_opus_xhigh_without_dispatch(self):
+        # D-106: the packaged policy advises claude-opus-5-5 at xhigh for complex coding (was medium).
         policy = self.m.load_task_fit_policy()
         observed = (datetime.fromisoformat(policy["checked_at"])
                     + timedelta(minutes=1)).isoformat()
         active = candidate("generic", model="gpt-6-sol", quality_tier=3)
-        opus = candidate("opus-medium", surface="claude", model="claude-opus-5-5",
+        opus = candidate("opus-xhigh", surface="claude", model="claude-opus-5-5",
                          quality_tier=3, resource_rank=9)
         result = self.m.shadow_task_fit({"task_type": "CODE_COMPLEX"},
                                         [(0, active, "high", 0),
-                                         (1, opus, "medium", 0)],
+                                         (1, opus, "xhigh", 0)],
                                         active, policy, observed)
         self.assertEqual(result["status"], "ranked")
-        self.assertEqual(result["suggested_candidate_id"], "opus-medium")
-        self.assertEqual(result["suggested_effort"], "medium")
+        self.assertEqual(result["suggested_candidate_id"], "opus-xhigh")
+        self.assertEqual(result["suggested_effort"], "xhigh")
         self.assertEqual(result["advisory_rank"], 0)
         self.assertEqual(result["active_candidate_id"], "generic")
+        # Opus at medium no longer matches any complex-coding row.
+        medium = self.m.shadow_task_fit({"task_type": "CODE_COMPLEX"},
+                                        [(0, active, "high", 0), (1, opus, "medium", 0)],
+                                        active, policy, observed)
+        self.assertEqual(medium["status"], "no-matched-evidence")
 
     def test_packaged_task_fit_entries_use_registered_models_and_api_efforts(self):
         policy = self.m.load_task_fit_policy()
