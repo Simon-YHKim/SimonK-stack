@@ -1,6 +1,37 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-13 00:20 / D-102: 게이트 폴백 gpt-6-astra@xhigh 확정 · dist 1.854.0
+## Latest — 2026-10-18 10:17 / D-103 Sonnet 재진입 · D-105 Argon 등록(레인 없음) · dist 1.860.0
+
+갱신 시각: 2026-10-18 10:17 KST · 갱신자: Claude Code(Opus 5.5). Simon: "gemini에서 argon 사용 가능해. 다시 검토 해봐. sonnet은 사용하는걸로 설정하자."
+
+### 어디까지 왔나
+- **D-103**(#172, Simon 지시, 토론 없음): vibe 2.19.0. 코딩 레인 `claude-opus-5-5` → `claude-sonnet-5-5` → `claude-fable-5-1`. task-fit `2026-10-18-shadow.3` 에서 Sonnet 5.5 가 CODE_COMPLEX high · WRITING medium 1순위로 돌아왔다. AA 재측정이 아니라 소유자 지시다. 매일 AA 감시 예약은 지웠다.
+- **D-104 → D-105**(Argon, 4벤더 토론 두 번): 첫 토론(B, 실행기 + C-platform 1순위)은 내가 근거에서 "모든 /vibe 실행기는 코디네이터 인증서 없이는 돌지 않는다"를 빼서 나왔다. 사실을 넣어 다시 연 토론이 D-105(FINAL 4/4, A, 확신도 92)다.
+  - 레지스트리 `2026-10-18.1`(만료 2026-10-25 09:19 KST)에 `gemini-4-argon` 등록, `routing.py` 레인은 없다.
+  - ai-debate 0.2.8: Gemini 좌석 기본값 `gemini-4-argon-high`. agy 1.4.1 이 `gemini-3.1-pro` 를 0턴에 거부해 옛 기본값으로는 좌석이 답할 수 없었다.
+  - 승격 조건: agy 인증서 경로 증명(초과 과금 없음 · API 키 폴백 없음 · 0턴 /usage) + 예정된 실제 토론 최대 5건 계측 → 그다음 B. A-verify 는 고난도 canary 뒤.
+- Argon canary(10-18, 합성 n=1): 화면 녹화 검토는 코드 4개 · 심은 결함 2개 모두(34k 토큰, 41.5초), 심은 주장 10개는 10/10(Astra xhigh 도 10/10, 96.8초).
+- **dist 1.860.0**(`62b9f07`, Claude `f812e5c8…` · Codex `4f6257e4…`). 이 PC 후보 `20261018-vibe-2190-839b368`(selftest 282/0 · 104/0, problems 0, 미리보기 current).
+
+### 알고 넘어갈 한계
+- /vibe 의 어떤 레인도 코디네이터 인증서 없이는 자동 실행되지 않는다. 레인 변경을 토큰 절감으로 설명할 때는 이걸 먼저 적는다.
+- agy print 모드 심판 호출 한 번이 답을 쓴 뒤 자식 프로세스 때문에 끝나지 않아 그 트리만 끝냈다(토론은 재호출로 마침).
+- task-fit 의 D-90 노트 한 구절이 AA 원문과 방향이 반대였다(D-103 노트에서 바로잡음, 원문 노트는 기록으로 둠).
+- CI 가 돌리지 않는 테스트 13건 실패는 그대로다.
+
+### 다음 작업 큐
+| # | 작업 | 시점 | 단 |
+|---|---|---|---|
+| A | Grok catch-up: `dbt-261012-124530`(D-98) · `dbt-261012-124540`(D-99) | Grok 95% 미만일 때(10-18 09:11 에 92%) | 의무 |
+| B | grok-4.6 → 4.7 레인 canary | A 와 같이 | 1단 |
+| C | agy 인증서 경로 확인(Antigravity 초과 과금 · API 폴백 여부) | 다음 Argon 논의 전 | 1단 |
+| D | ai-debate Gemini 좌석(Argon) 실전 계측 최대 5건(시간 · 길이 · 근거 누락) | 다음 토론부터 | 1단 |
+| E | 클라우드 봇 워크북 D-93 Relay 과제 | 봇 사용량 증거 확보 시 | 1단 |
+| F | 레지스트리 재확인 | 2026-10-25 09:19 KST 전 | 1단 |
+
+Simon 몫: "astra 말고는"에 Daybreak 포함 여부, Codex `service_tier = "priority"`, Codex Daybreak 하드웨어 키 안내.
+
+## 2026-10-13 00:20 / D-102: 게이트 폴백 gpt-6-astra@xhigh 확정 · dist 1.854.0
 
 갱신 시각: 2026-10-13 00:20 KST · 갱신자: Claude Code(Opus 5.5). Simon: "권장안대로 진행해"(10-12 17:07 보고에서 오케스트레이터가 (나)를 권했다).
 
