@@ -1,6 +1,18 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-18 12:04 / D-106 코딩 분리(Sonnet 단순 · Opus xhigh 복잡) · D-107 한국어 글은 Argon 초안 · dist 1.867.0
+## Latest — 2026-10-18 21:24 / 지침 v8.1.3: 전역 §7 이 한국어 산문 규칙(D-107)의 정본 위치를 가리킨다
+
+갱신 시각: 2026-10-18 21:24 KST · 갱신자: Claude Code(Opus 5.5). Simon: "고고"(D-107 을 `E:\Coding Infra` 밖 세션에도 닿게 하자는 제안에 대한 답).
+
+- D-107 규칙은 12:50 에 `E:\Coding Infra` 의 CLAUDE.md·AGENTS.md·GEMINI.md 21절에 들어갔다(git 밖 파일, 사전 사본 `_archive/instructions-261018-d107/`). 그 폴더 밖 Claude Code 세션(예: `E:\2ndB`)에는 닿지 않았다.
+- 단일본 v8.1.3: §7 첫 줄에 조건부 참조 한 구절을 붙였다 — 작업별 모델·도구 배정의 정본은 `E:\Coding Infra\CLAUDE.md` 21절이고, 한국어 산문을 쓰기 전에 그 절을 읽는다. 규칙 본문은 복사하지 않았다(§0-2). 새 규칙 줄 0.
+- `split.py --verify` 통과(sha 불일치 0 · 절 구성 OK · 끊긴 참조 기준선 유지). 머지 뒤 `split.py --apply` 로 `~/.claude/CLAUDE.md` 를 교체한다(백업 자동).
+- claude.ai 사본은 머리말 sha 한 줄만 바뀌었다. 본문이 같아서 다시 붙이지 않아도 된다.
+
+### 다음 작업 큐
+- 바뀐 것 없음(아래 12:04 블록 그대로).
+
+## 2026-10-18 12:04 / D-106 코딩 분리(Sonnet 단순 · Opus xhigh 복잡) · D-107 한국어 글은 Argon 초안 · dist 1.867.0
 
 갱신 시각: 2026-10-18 12:04 KST · 갱신자: Claude Code(Opus 5.5). Simon: "sonnet5.5는 간단한 코딩에 써야 하는거 아니야? 복잡한 코딩은 opus5.5 xhigh가 해야지." · "argon은 한국어 글쓰기에 적용하는건 어때?"
 
