@@ -846,3 +846,11 @@ last-sync: 2026-07-05
   - **시험(canary)**: 2026-10-12 23:26 KST, Orca run_3607f8833d7e · ctx_56f442610119, 워커 1개. launch.requested == launch.effective(gpt-6-astra · xhigh), rollout turn_context 같은 값. 오전·오후 시험과 같은 결함 4개 샘플에 GATE: BLOCK + CWE-89 · 78 · 22 · 502 정확히, 안전한 함수 2개 미보고, 52초. 심은 샘플 1건이고 루브릭 9개 검사 중 4개만 본다.
   - **알고 넘어갈 한계**: ① 폴백 상태에서는 한 모델이 두 보안 질문에 모두 답한다(두 게이트가 독립된 검사가 아니다). ② gpt-6-astra는 cyber 전용 모델이 아니다. ③ 가드는 Orca 경로만 본다 — host · 직접 CLI로 간 게이트 단계는 고정 · 폴백 검사를 받지 않는다. ④ 실행 전 Codex 카탈로그 확인은 여전히 서면 규칙이다. ⑤ 호스트가 멀쩡한 Daybreak를 available:false로 보고하면 폴백이 열린다(사유는 단계에 남는다). ⑥ Orca 레인은 여전히 인증서 전이라 자동 실행되지 않는다. 바뀐 것은 계획 단계다.
   - **남은 것**: 코디네이터로서의 astra · A 클래스 새 순서 · ai-debate Codex 좌석은 실제 사용에서 아직 확인하지 않았다. Grok catch-up(dbt-261012-124530 · dbt-261012-124540)은 10-17 23:12 KST 뒤. 레지스트리 재확인은 2026-10-19 11:43 KST 전. CI 밖 테스트 13건 실패(test_install_simonk_profile 10 · test_multi_terminal_entrypoint 3)는 그대로다.
+
+- 2026-10-18 09:26:08 KST | DECIDE | **D-103 Sonnet 5.5 를 쓰는 것으로 설정 — D-90 재진입 대기를 소유자 지시로 끝낸다** (Simon 지시 · 토론 없음) | claude
+  - **지시 원문**: "sonnet은 사용하는걸로 설정하자" (2026-10-18, D-90 재진입 감시 예약 보고 직후).
+  - **결정**: D-90 이 Artificial Analysis 공개판 재측정까지 미뤄 둔 Sonnet 5.5 재진입을 지금 한다. AA 는 2026-10-18 09:43 KST 기준으로도 재측정을 올리지 않았다(9-28 출시 전 측정 지수 56 · max 약 193k 토큰 · 'we will be re-running relevant evaluations soon'). 이 복귀는 측정이 아니라 소유자 지시다.
+  - **반영(vibe 2.19.0 예정)**: ① 실제 코딩 레인 `PROCESS_LANES["coding"]` = `claude-opus-5-5` → `claude-sonnet-5-5` → `claude-fable-5-1`(sonnet 2순위, fable 3순위). 1순위 Opus 는 D-101 "코딩 Opus 5.5" 그대로. ② shadow task-fit 정책: CODE_COMPLEX 에 sonnet high 1순위(D-90 이 재진입 첫 자리로 적은 곳, AA Terminal-Bench 4.0 64%), WRITING 에 sonnet medium 1순위. CODE_SIMPLE 은 D-101 그대로(haiku → sonnet → opus). PLAN_ARCHITECTURE 에는 넣지 않는다(D-101 이 기획을 astra xhigh + opus 로 정함). A 클래스 순서(haiku → sonnet → opus)도 그대로.
+  - **오케스트레이터 판단(1단, 이의 시 승격)**: 어디에 넣을지는 지시에 없어 내가 정했다 — D-90 이 뺀 자리로 되돌리되 Simon 이 이름을 정해 둔 자리(기획 · 코딩 1순위 · 단순 작업 순서)는 건드리지 않는다. sonnet 은 opus 와 같은 claude 일반 weekly 라, claude 가 강등 기준을 넘으면 둘이 함께 밀리고 자기 버킷(fableWeekly)이 있는 fable 이 받는다. 그래서 코딩에서 sonnet 이 실제로 쓰이는 때는 opus 만 설 수 없을 때다. 동작 레인이 되려면 다른 flag 레인처럼 인증서가 먼저다.
+  - **같이 정리**: AA 재측정 매일 감시 예약(e4ed080b)은 목적이 사라져 지웠다(2026-10-18 09:12 KST).
+  - **뒤집는 조건**: Simon 이 sonnet 을 단순 작업 1순위로 올리거나 코딩에서 빼라고 할 때, 같은 작업 짝 평가에서 sonnet 이 opus 보다 품질이 낮거나 쿼터를 더 쓸 때.
