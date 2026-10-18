@@ -927,3 +927,8 @@ last-sync: 2026-07-05
   - **반영**: SimonK-stack PR #180 → main `2139f30`(지침 v8.1.6, 단일본 sha256 `f79d6df97602`, verify exit 0, CI 4/4). §0~§8 본문에서 이력·날짜·버전·출처 표기, 근거만 설명하는 문장, 절 사이 관계 메모, 유지보수 메모를 지우고(35곳), 섞인 문장은 지시만 남김. §8-8 Rewind 줄은 8-4 와 중복이라 삭제(규칙 −1). 단일본 머리말 유지 규칙에 '본문에는 지시만, 이력·근거는 변경 로그에'를 더함. `--apply` 로 `~/.claude/CLAUDE.md` 교체(백업 `CLAUDE.md.bak_261018_2325`, 본문 차이 0줄). claude.ai 사본 10,491자, 붙여넣기 카드 v5.
   - **적용 범위**: 지침 단일본 본문. 변경 로그·머리말은 어느 사본에도 실리지 않으므로 이력을 거기 둔다.
   - **뒤집는 조건**: Simon 이 근거 문장을 되살리라고 하거나, 근거가 빠져 모델이 규칙을 잘못 적용하는 사례가 나올 때.
+- 2026-10-18 23:51:13 KST | DECIDE | **D-110 Pi 코딩 에이전트 + pi-blackhole 설치, 기억 작업은 끈 채로** (Simon 결정) | claude
+  - **근거**: Simon "스킬 설치 해줘 https://github.com/k0valik/pi-blackhole". 확인 결과 Claude Code 스킬이 아니라 Pi(earendil-works/pi) 전용 확장(결정적 압축 + 관찰 기억). 선택지(설치 안 함 권고 / Pi까지 설치 / 아이디어만 Claude Code로) 중 Simon 이 'Pi까지 설치'를 고름.
+  - **반영**: `npm install -g --ignore-scripts @earendil-works/pi-coding-agent@1.3.0`(원격 설치 스크립트 대신, 공식 저장소 연결 확인) → `pi install npm:pi-blackhole`(0.5.14, `pi list` 등록). 설정 `~/.pi/agent/pi-blackhole/pi-blackhole-config.json` = compaction auto · engine blackhole · `memory:false` · `sessionFallback:false` · `observeOnShutdown:false`(작성자 말로 기억 작업 3개는 실제 과금 호출이고 실패 시 주력 모델로 대체됨 → 둘 다 끔, 압축 자체는 모델 호출 없음). `~/.pi/agent/settings.json` `enableInstallTelemetry:false`. 환경변수에 과금 API 키 없음.
+  - **남은 것**: Simon 이 `pi` 실행 후 `/login`(구독 또는 키). 확장이 실제로 로드되는지는 첫 실행에서 확인. Claude 구독으로 Pi 에 로그인할 때 추가 과금 여부는 미확인. 4-AI 허브 좌석·/vibe 레인 아님. Claude Code 의 컨텍스트 관리에는 붙지 않는다.
+  - **뒤집는 조건**: 쓰지 않거나 과금이 보이면 `pi uninstall npm:pi-blackhole` → `npm uninstall -g @earendil-works/pi-coding-agent`, `~/.pi` 는 `_archive` 로 옮김.
