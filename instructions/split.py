@@ -35,7 +35,7 @@ KST = timezone(timedelta(hours=9))
 #  GLOBAL 이 '전역 범위 판정'이다. §0 이 여기 들어 있어야 모든 사본에 실린다.
 #  (v8.1 에서 §0 을 추가했다. 그 전에는 {1..6} 이었다.)
 GLOBAL = list(range(0, 7))          # §0~§6 — 어느 환경에서나 읽는다
-ENV_ONLY = {7: "Claude Code", 8: "claude.ai(Cowork)"}
+ENV_ONLY = {7: "Claude Code", 8: "claude.ai(파일 작업)"}
 
 TARGETS = {
     # 2026-10-04 Simon: "클로드 일반 대화와 코워크는 통합됐어." → claude.ai 사본 하나가
@@ -45,7 +45,7 @@ TARGETS = {
     #   Cowork 작업에서 다시 던져 1이면 이 배정이 맞고, 0이면 프로필이 Cowork 에 안 닿는 것이다.
     "claude-ai_§0-6+§8": {
         "sections": GLOBAL + [8],
-        "place": "claude.ai → 설정 → 개인 프로필 지침 (일반 대화·Cowork 공통)",
+        "place": "claude.ai → 설정 → 개인 프로필 지침 (대화·파일 작업 공통)",
     },
     "claude-code_§0-7": {
         "sections": GLOBAL + [7],
@@ -158,7 +158,7 @@ def check_sha(text):
 
 
 # 끊긴 참조 기준선 — 2026-09-10 v8.1 시점의 실측값.
-#  0 을 요구할 수 없다: §6 이 "Cowork 에서는 §8-3 을 따른다"고 **일부러** 다른 환경을
+#  0 을 요구할 수 없다: §6 이 "파일 작업에서는 §8-3 을 따른다"고 **일부러** 다른 환경을
 #  가리키고(안내), §8 이 §7 을 참조하는 것은 v8.0 부터의 기존 결함이다(Q-260830-03).
 #  그래서 절대값이 아니라 **래칫**으로 지킨다 — 늘면 실패, 줄면 기준선을 내리라고 알린다.
 REFS_BASELINE = {
@@ -170,7 +170,7 @@ REFS_BASELINE = {
 def check_refs(text):
     """완료조건 8 — 그 사본에 없는 절을 본문이 참조하는가. 래칫으로 판정한다.
 
-    §8 이 §7 을 참조하는데 claude.ai(Cowork) 사본에는 §7 이 없다(Q-260830-03). §0 이 §1·§5 를
+    §8 이 §7 을 참조하는데 claude.ai 사본에는 §7 이 없다(Q-260830-03). §0 이 §1·§5 를
     참조하므로 폐기된 A안(§0+§8)에서는 결함이 2건 더 늘어났었다 — B안은 §1~§6 을 갖고
     있어 §0 의 참조가 전부 해소된다.
     """
@@ -222,7 +222,7 @@ def check_sections(text):
 
 
 def apply_copies(out):
-    """--apply — 붙일 수 있는 자리에만 붙인다. claude.ai(일반 대화·Cowork 공통)는 사람이 붙인다."""
+    """--apply — 붙일 수 있는 자리에만 붙인다. claude.ai(대화·파일 작업 공통)는 사람이 붙인다."""
     stamp = datetime.now(KST).strftime("%y%m%d_%H%M")
     for name, spec in TARGETS.items():
         dest = spec.get("apply_to")
@@ -264,7 +264,7 @@ def main():
     if a.apply:
         print("[적용]"); apply_copies(out)
     else:
-        print("적용하려면 --apply. claude.ai(일반 대화·Cowork 공통)는 out/ 의 파일을 사람이 붙인다.")
+        print("적용하려면 --apply. claude.ai(대화·파일 작업 공통)는 out/ 의 파일을 사람이 붙인다.")
 
 
 if __name__ == "__main__":
