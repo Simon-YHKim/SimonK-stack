@@ -893,3 +893,8 @@ last-sync: 2026-07-05
 - 2026-10-18 10:22:12 KST | AMEND | **D-102** — Codex 카탈로그 점검(예약 점검) | claude
   - `~/.codex/models_cache.json`(fetched_at 2026-10-18T01:21:00Z, 클라이언트 0.163.0): `gpt-daybreak-blue-latest` 는 우선순위 11 · visibility list · upgrade 없음으로 그대로 있고, 폐기 별칭이 아닌 cyber 모델은 없다. 고정 레인 이전 없음, 폴백 그대로.
   - 10-13 이후 토론의 Codex 좌석: 10-18 두 토론은 `codex.exe` · `gpt-6-astra` · xhigh. 10-15 Codex 가 연 토론 `dbt-261015-021749`(agents/codex D-4)는 좌석 모델을 "GPT-6"(자기 신고, effort 없음)로만 남겼다. 같은 시각(10-15 02:07~02:17) Codex 세션 기록은 모두 `gpt-6-astra`(xhigh 3, high 1)였지만 그 토론을 연 세션은 특정하지 못했다.
+- 2026-10-18 11:22:58 KST | DECIDE | **D-106 Sonnet 5.5 는 단순 코딩, 복잡한 코딩은 Opus 5.5 xhigh — D-103 배치를 바로잡는다** (Simon 지시 · 토론 없음) | claude
+  - **지시 원문**: "sonnet5.5는 간단한 코딩에 써야 하는거 아니야? 복잡한 코딩은 opus5.5 xhigh가 해야지." (2026-10-18, D-103 보고를 보고)
+  - **결정**: D-103 에서 내가 Sonnet 을 복잡한 코딩(CODE_COMPLEX high 2순위, 코딩 레인 2순위)에 넣은 것을 되돌린다. 단순 코딩은 Sonnet 5.5, 복잡한 코딩은 Opus 5.5 xhigh.
+  - **반영(vibe 2.20.0 예정, 이행 세부는 오케스트레이터 1단 · 이의 시 승격)**: ① 코딩 레인 = `claude-opus-5-5` → `claude-fable-5-1` → `claude-sonnet-5-5`. 복잡한 코딩의 기본·폴백은 Opus → Fable(자기 버킷)이고, Sonnet 은 단순 코딩 단계가 쓰도록 허용 목록에 남긴다. ② 코딩 공정에서 Opus 의 기본 effort 를 xhigh 로 둔다(Opus 사다리 high/max 는 다른 공정에서 그대로). ③ 중앙 계획기는 CODE_COMPLEX 단계의 Opus 를 xhigh 로만 받는다(`EFFORT_PINNED_BY_OWNER`). ④ shadow task-fit: CODE_SIMPLE = Sonnet medium 0순위 · Opus medium 1순위(Haiku 는 코딩 레인이 없어 뺀다, A 클래스 1순위는 그대로), CODE_COMPLEX = Opus xhigh 0순위 · Astra xhigh 1순위, WRITING 의 Sonnet medium 1순위는 지시 밖이라 그대로 둔다.
+  - **뒤집는 조건**: Simon 이 단순 코딩에 Haiku 를 다시 쓰라고 하거나 복잡한 코딩 effort 를 바꾸라고 할 때, Opus xhigh 가 같은 작업 짝 평가에서 high 보다 낫지 않으면서 쿼터를 더 쓸 때.
