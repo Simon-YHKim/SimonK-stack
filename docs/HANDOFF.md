@@ -1,6 +1,23 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-18 10:22 / 예약 점검: Grok 402 로 catch-up 연기 · Daybreak 카탈로그 그대로
+## Latest — 2026-10-18 12:04 / D-106 코딩 분리(Sonnet 단순 · Opus xhigh 복잡) · D-107 한국어 글은 Argon 초안 · dist 1.867.0
+
+갱신 시각: 2026-10-18 12:04 KST · 갱신자: Claude Code(Opus 5.5). Simon: "sonnet5.5는 간단한 코딩에 써야 하는거 아니야? 복잡한 코딩은 opus5.5 xhigh가 해야지." · "argon은 한국어 글쓰기에 적용하는건 어때?"
+
+- **D-106**(#175, Simon 지시): vibe 2.20.0. D-103 이 Sonnet 을 복잡한 코딩 쪽에 둔 것을 바로잡았다.
+  - 코딩 레인 `claude-opus-5-5` → `claude-fable-5-1` → `claude-sonnet-5-5`(Sonnet 은 단순 코딩 단계용으로 허용 목록 끝).
+  - `routing.PROCESS_EFFORTS`: 코딩 공정의 Opus 기본 effort xhigh(다른 공정의 Opus 는 사다리 high/max 그대로). `effort_for`·`validate_effort`·`dispatch_argv`·`run_dispatch` 가 공정을 받는다.
+  - 중앙 계획기 `OWNER_TASK_EFFORTS`: CODE_COMPLEX 의 Opus 는 cli·orca 에서 xhigh 만(호스트 세션은 묶지 않음).
+  - task-fit `shadow.4`: CODE_COMPLEX = Opus xhigh 0순위 · Astra xhigh 1순위, CODE_SIMPLE = Sonnet medium 0순위 · Opus medium 1순위(Haiku 는 코딩 레인이 없어 뺌). A 클래스·WRITING 그대로.
+- **D-107**(1단, Simon 블라인드 비교 근거): 한국어 산문(공지·안내·윤문·짧은 카피)은 호스트 세션이 `gemini-4-argon-high` 초안을 agy 로 받아 사실만 대조해 낸다. 블라인드 3과제: 공지 → Argon, 주간보고 단락 → Opus, 윤문 → Argon. 보고서·기술 문서는 당분간 Claude. /vibe 레인은 아니다(D-105 그대로).
+- **dist 1.867.0**(`164a9b3`). 이 PC 후보 `20261018-vibe-2200-0f718bb`(selftest 283/0 · 104/0, 미리보기 current).
+
+### 다음 작업 큐(바뀐 것만)
+- Grok catch-up·4.7 canary: Grok 402, 리셋 ~2026-10-23 12:38 KST. one-shot 예약 10-23 12:47(이 세션에서만 유효).
+- D-107 계측: 두 초안을 보여 준 경우 Simon 의 선택을 누적, 10건 뒤 재검토.
+- 레지스트리 재확인: 2026-10-25 09:19 KST 전.
+
+## 2026-10-18 10:22 / 예약 점검: Grok 402 로 catch-up 연기 · Daybreak 카탈로그 그대로
 
 갱신 시각: 2026-10-18 10:22 KST · 갱신자: Claude Code(Opus 5.5). 10-13 에 걸어 둔 예약 작업(Simon "남은것까지 진행")을 처리했다. 코드 변경 없음.
 
