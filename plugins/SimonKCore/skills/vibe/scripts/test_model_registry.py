@@ -345,11 +345,11 @@ class ModelRegistryTests(unittest.TestCase):
             wrong["access_proof"].update(change)
             self.assertFalse(self.bind(wrong, data)["candidates"][0]["available"])
 
-    def test_registry_and_task_fit_windows_cover_the_2026_10_12_recheck(self):
-        # The 2026-10-06 facts (12:45 KST) would expire REGISTRY_STALE on 2026-10-13 12:45 KST.
+    def test_registry_and_task_fit_windows_cover_the_2026_10_18_recheck(self):
+        # The 2026-10-12 facts (11:43 KST) would expire REGISTRY_STALE on 2026-10-19 11:43 KST.
         data = self.m.load_registry()
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
-        floor = datetime.fromisoformat("2026-10-12T11:00:00+09:00")
+        floor = datetime.fromisoformat("2026-10-18T09:00:00+09:00")
         checked = datetime.fromisoformat(data["checked_at"])
         self.assertGreaterEqual(checked, floor)
         self.assertGreaterEqual(datetime.fromisoformat(policy["checked_at"]), floor)
@@ -357,7 +357,7 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertLessEqual(checked, datetime.fromisoformat(policy["checked_at"]))
         earliest = min(checked + timedelta(seconds=self.m.MAX_FACT_AGE_SECONDS),
                        datetime.fromisoformat(policy["valid_until"]))
-        self.assertGreaterEqual(earliest, datetime.fromisoformat("2026-10-19T11:00:00+09:00"))
+        self.assertGreaterEqual(earliest, datetime.fromisoformat("2026-10-25T09:00:00+09:00"))
 
     def test_2026_10_12_provider_fact_changes_are_registered_and_fail_closed(self):
         # Three provider facts changed between the 2026-10-06 and 2026-10-12 rechecks.
@@ -366,7 +366,9 @@ class ModelRegistryTests(unittest.TestCase):
         # Anthropic halved Sonnet 5.5 cache reads on 2026-10-07 ($0.20 -> $0.10 / MTok).
         self.assertEqual(models["claude-sonnet-5-5"]["pricing"]["cached_input"], "0.1")
         self.assertEqual(models["claude-sonnet-5"]["pricing"]["cached_input"], "0.2")
-        self.assertEqual(models["gemini-3.8-flash"]["source_updated_at"], "2026-10-09")
+        # 2026-10-18: the latest-model page became the Gemini 4 Argon guide; the 3.8 Flash guide moved
+        # to whats-new-gemini-3.8 (Last updated 2026-10-13). The efforts are unchanged.
+        self.assertEqual(models["gemini-3.8-flash"]["source_updated_at"], "2026-10-13")
         # OpenAI marked the Daybreak Blue alias deprecated; no shutdown date or replacement ID yet.
         alias = models["gpt-daybreak-blue-latest"]
         self.assertEqual((alias["lifecycle"], alias["documented_target"]), ("deprecated", "gpt-5.6-sol"))
@@ -441,7 +443,7 @@ class ModelRegistryTests(unittest.TestCase):
         keys = {key for m in data["models"] for key in [m["id"], *m.get("aliases", [])]}
         rows = catalog_map_rows()
         self.assertTrue({"grok-4.7-build-fast", "gemini-3.8-flash-high", "gemini-3.8-flash-medium",
-                         "gemini-3.8-flash-low", "gemini-3.1-pro-high", "gemini-3.1-pro-low",
+                         "gemini-3.8-flash-low", "gemini-4-argon-high", "gemini-4-argon-low",
                          "claude-haiku-4-5-20251001", "claude-opus-5-5-high",
                          "claude-sonnet-5-5-medium"} <= {row[1] for row in rows})
         for surface, name, target, effort in rows:
@@ -569,15 +571,16 @@ class ModelRegistryTests(unittest.TestCase):
                 self.assertNotIn("`" + lane + "`", blocked)
         self.assertIn("run_0a369252175f", " ".join(section.split()))
 
-    def test_task_fit_policy_d101_claude_order_for_simple_code_and_astra_xhigh_only(self):
+    def test_task_fit_policy_d103_sonnet_back_where_d90_removed_it_and_astra_xhigh_only(self):
         # D-90 took Sonnet 5.5 out of all four profiles (Artificial Analysis puts it off the
         # intelligence/cost-per-task frontier at every effort). D-101 (2026-10-12, Simon's directive)
-        # returns it to CODE_SIMPLE rank 1 only. That is a directive, not a re-measurement: the other
-        # three profiles still exclude it and the D-90 re-entry conditions stay written down.
+        # returned it to CODE_SIMPLE rank 1. D-103 (2026-10-18, Simon: "sonnet은 사용하는걸로 설정하자")
+        # returns it to CODE_COMPLEX high and WRITING medium at rank 1, behind Opus. Both are directives,
+        # not re-measurements. PLAN_ARCHITECTURE stays Opus + Astra because D-101 named the planners.
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
-        self.assertEqual(policy["version"], "2026-10-12-shadow.2")
+        self.assertEqual(policy["version"], "2026-10-18-shadow.3")
         self.assertEqual((policy["checked_at"], policy["valid_until"]),
-                         ("2026-10-12T11:48:51+09:00", "2026-10-19T11:48:51+09:00"))
+                         ("2026-10-18T09:19:19+09:00", "2026-10-25T09:19:19+09:00"))
         profiles = policy["profiles"]
 
         def rows(profile):
@@ -590,11 +593,15 @@ class ModelRegistryTests(unittest.TestCase):
                                                      ("gpt-6-astra", ("xhigh",), 0)])
         self.assertEqual(rows("CODE_COMPLEX"), [("claude-opus-5-5", ("medium",), 0),
                                                 ("claude-opus-5-5", ("high", "xhigh"), 1),
+                                                ("claude-sonnet-5-5", ("high",), 1),
                                                 ("gpt-6-astra", ("xhigh",), 0)])
-        self.assertEqual(rows("WRITING"), [("claude-opus-5-5", ("medium", "high"), 0)])
-        for profile in ("PLAN_ARCHITECTURE", "CODE_COMPLEX", "WRITING"):
+        self.assertEqual(rows("WRITING"), [("claude-opus-5-5", ("medium", "high"), 0),
+                                           ("claude-sonnet-5-5", ("medium",), 1)])
+        self.assertNotIn("claude-sonnet-5-5", {e["model"] for e in profiles["PLAN_ARCHITECTURE"]})
+        for profile in ("CODE_COMPLEX", "WRITING", "CODE_SIMPLE"):
             with self.subTest(profile=profile):
-                self.assertNotIn("claude-sonnet-5-5", {e["model"] for e in profiles[profile]})
+                ranks = {e["rank"] for e in profiles[profile] if e["model"] == "claude-sonnet-5-5"}
+                self.assertEqual(ranks, {1})
         # GPT side: gpt-6-astra at xhigh only, in every profile.
         registry = {m["id"]: m for m in self.m.load_registry()["models"]}
         for profile, entries in profiles.items():
@@ -609,6 +616,12 @@ class ModelRegistryTests(unittest.TestCase):
         note = next(n for n in policy["notes"] if n.startswith("D-101("))
         for needle in ("gpt 6.1 sol은 너무 느려서 빼기로 결정", "gpt 쪽은 astra 말고는 쓰지마. gpt 를 넣어야한다면 astra xhigh.",
                        "D-90 재진입 조건이 충족돼서가 아니다", "재측정을 올리지 않았고", "소유자 지시", "shadow-only"):
+            with self.subTest(note=needle):
+                self.assertIn(needle, note)
+        note = next(n for n in policy["notes"] if n.startswith("D-103("))
+        for needle in ("sonnet은 사용하는걸로 설정하자", "D-90 의 재진입 조건", "재측정을 올리지 않았다",
+                       "CODE_COMPLEX high 1순위", "WRITING medium 1순위", "PLAN_ARCHITECTURE 에는 넣지 않는다",
+                       "opus → sonnet → fable", "측정이 아니라 소유자 지시다"):
             with self.subTest(note=needle):
                 self.assertIn(needle, note)
 
@@ -694,14 +707,15 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertEqual(fixed["security-bizlogic-2nd"], (astra, "xhigh"))
         self.assertEqual(fixed[gate], (daybreak, "xhigh"))
 
-        # Final class lists (D-101). B, A-verify, D and coding are unchanged.
+        # Final class lists (D-101). B, A-verify and D are unchanged. Coding gained Sonnet 5.5 second
+        # under D-103 (Simon, 2026-10-18); it is still Claude only, so the gates stay on another vendor.
         self.assertEqual(classes["A"], ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"])
         self.assertEqual(classes["B"], [astra, "claude-fable-5-1", "claude-opus-5-5"])
         self.assertEqual(classes["A-verify"], [astra, "claude-fable-5-1", "claude-opus-5-5"])
         self.assertEqual(classes["C-realtime"], ["grok-4.6", "claude-opus-5-5", astra])
         self.assertEqual(classes["C-platform"], ["gemini-3.8-flash", "claude-opus-5-5", astra])
         self.assertEqual(classes["D"], ["claude-opus-5-5"])
-        self.assertEqual(process_lanes["coding"], ["claude-opus-5-5", "claude-fable-5-1"])
+        self.assertEqual(process_lanes["coding"], ["claude-opus-5-5", "claude-sonnet-5-5", "claude-fable-5-1"])
         # A quota demotion past gpt-6-astra lands on a Claude lane, never on another GPT lane.
         for name, order in classes.items():
             if astra in order[:-1]:
@@ -773,8 +787,8 @@ class ModelRegistryTests(unittest.TestCase):
                       SCRIPT.with_name("routing.py").read_text(encoding="utf-8"))
 
         data = self.m.load_registry()
-        self.assertEqual(data["version"], "2026-10-12.3")
-        self.assertEqual((data["checked_at"], data["data_as_of"]), ("2026-10-12T11:43:08+09:00", "2026-10-12"))
+        self.assertEqual(data["version"], "2026-10-18.1")
+        self.assertEqual((data["checked_at"], data["data_as_of"]), ("2026-10-18T09:19:19+09:00", "2026-10-18"))
         models = {m["id"]: m for m in data["models"]}
         self.assertEqual(models[gate]["lifecycle"], "deprecated")  # the move does not revive the alias.
         migration = data["legacy_lane_migration"]

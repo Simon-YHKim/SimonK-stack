@@ -1,25 +1,25 @@
 {
-  "content_digest": "e0ca0f50be32446e0e12a1f17a8022442a92bee31c3dcefc46144cf328780dc4",
+  "content_digest": "4f6257e4b64814a3ead9b8c53c07c11237759868d6fe295cef0680b2e81c0fbb",
   "decision_ref": "D-29",
   "excluded_members": [
     {
       "path": "plugins/SimonKAIHub/.claude-plugin/marketplace.json",
-      "sha256": "3c305117ddb50a605a7a2e80a72213d52539d0bbee65ea7bf3fe4d52d954cb10",
+      "sha256": "5b40feedcbb3cbecbd704cd46832aede2854f54fb387d64d6a710769e9792adb",
       "size": 631
     },
     {
       "path": "plugins/SimonKAIHub/.claude-plugin/plugin.json",
-      "sha256": "440d7be8d0b4f1c8d3611d0c1cd63c47397741691f3160f7c5496f48c44ac0de",
+      "sha256": "66134130de7889bf3835c4f5cb213739204054c23684402296c1654b257bd56b",
       "size": 678
     },
     {
       "path": "plugins/SimonKCore/.claude-plugin/marketplace.json",
-      "sha256": "4d9eed7d55dd1c9b3dae7e0bdcb77cbae2a5d82aadd7ef80e415cf09252619da",
+      "sha256": "49d665fcd08d6d85f38a8f2e944c23915f9d3e9a975ce8d10d51f3585f1d0823",
       "size": 640
     },
     {
       "path": "plugins/SimonKCore/.claude-plugin/plugin.json",
-      "sha256": "5be57e5fc44044fbf0bb9e6fa724319cf9c3b6265b020d1cf4c6598c0ff878b6",
+      "sha256": "854df6901b92036d74a530d8f661f7eb66c6a21c5b8ba3a51e83bef41fa89c96",
       "size": 2525
     },
     {
@@ -84,32 +84,32 @@
     },
     {
       "path": "plugins/SimonKDesign/.claude-plugin/marketplace.json",
-      "sha256": "e9a99388bb21b88b171d9202f00ff4e7332986a65ff195fbfb3241781856c261",
+      "sha256": "ae93e49031f392e68dc726c55950b2517b226739dae0b439d1bc06afd7f672c3",
       "size": 584
     },
     {
       "path": "plugins/SimonKDesign/.claude-plugin/plugin.json",
-      "sha256": "f6d3a6434d8f2ca508b1ef8f7b3f626ad14a310804d775e52d2c6bc7ae582503",
+      "sha256": "8548d887ccc0e6e26b856f6504ee2790d173de97ceaeafaeba1a01ff19c5c004",
       "size": 1156
     },
     {
       "path": "plugins/SimonKMarket/.claude-plugin/marketplace.json",
-      "sha256": "0e90d7caa5658e3e0ae6b19804f434efca896e4bc00bed5f51f40fae86c38bac",
+      "sha256": "77b82e94376e816e055bff72336173971d3c7c13c3f50e846035a29f1b00faf6",
       "size": 615
     },
     {
       "path": "plugins/SimonKMarket/.claude-plugin/plugin.json",
-      "sha256": "a34b06df12e139658c2749f5efbd1066c970c6a67a4db4d88158b6e1fbca08c8",
+      "sha256": "e80ad8ac210bde294d39d308c8bc6be471aa109be11e57d3b72077cfbe38caaf",
       "size": 1643
     },
     {
       "path": "plugins/SimonKStack/.claude-plugin/marketplace.json",
-      "sha256": "573f41e6223a0d04cbf49c9d72fbecb1f6d3843778cfb42d3bfd75105ae012b3",
+      "sha256": "7293e4edb1cc2f5dd7da60c30a78f9e9b08150073d77948f03c87c1757157ba0",
       "size": 586
     },
     {
       "path": "plugins/SimonKStack/.claude-plugin/plugin.json",
-      "sha256": "8aa5b4e936531dff7553549b65625679f8f72d2ee8dc5bf7db8f2689923a2033",
+      "sha256": "eb105f5761afe2d6060b7e0de8fed6afe50dc5406693285edf766a54c09f94c6",
       "size": 2776
     },
     {
@@ -204,17 +204,17 @@
   "included_members": [
     {
       "path": "bundle.json",
-      "sha256": "69015822a477be84ca461c267ad8510e7eac0d5fe932cf49280d31204fc05454",
+      "sha256": "bf661032f54129d4d93bfb224281841a40b68779fbfde85c9fef2b37f317f144",
       "size": 1851179
     },
     {
       "path": "overlay.json",
-      "sha256": "1ccc80ffb99dbceeb2b3710ba071b6a644b73469c95691790b964b46a8e1868a",
+      "sha256": "ab4f79d8d6b9af36550e1aa375eaab9ca29933ac469a5ea56df6fadde774340f",
       "size": 5853
     },
     {
       "path": "plugins/SimonKAIHub/.codex-plugin/plugin.json",
-      "sha256": "ba30a79cca35b7c52afad3e5efac3875df69197c0256dbe548f39bebc72cc362",
+      "sha256": "316289b4f58f20ae4751fd6cdc1978ec74096e52294e2e70e37ea55ed9ae81d6",
       "size": 943
     },
     {
@@ -519,7 +519,7 @@
     },
     {
       "path": "plugins/SimonKCore/.codex-plugin/plugin.json",
-      "sha256": "514ad38f45a55388c67cacb3fb257a13c0f1b3d808b3f4ce0bb3a294784e87e2",
+      "sha256": "6a7374ad01d15b9875ed0eac0781f355fd0454ac039e57825e41cdac6446cb3f",
       "size": 1228
     },
     {
@@ -644,7 +644,7 @@
     },
     {
       "path": "plugins/SimonKCore/skills/ai-debate/SKILL.md",
-      "sha256": "760c0c1f2ec3476f94645b6b282aa5ec71258e9dbf1fe1bf0fb270f06d7dfcc8",
+      "sha256": "ac8da838a70356dbf94f5b4d62e3db27a5ce4ae11a2a5050f6680d9ccd731b25",
       "size": 25900
     },
     {
@@ -654,13 +654,13 @@
     },
     {
       "path": "plugins/SimonKCore/skills/ai-debate/references/seats.md",
-      "sha256": "a5642afcc1439d8441ff0ce1d2ef8a06f77514844583271fa1475772f6f90bbf",
-      "size": 21232
+      "sha256": "1b2109150921359dc4bd20bd49a40616524fdcaf2d3b018562a199dcfc391eff",
+      "size": 21288
     },
     {
       "path": "plugins/SimonKCore/skills/ai-debate/scripts/debate.py",
-      "sha256": "e9cb815f619f006515d06dfe4a44c9b88e15967f494e85ae6d7700653d5750b1",
-      "size": 146437
+      "sha256": "20fbf5fcd89e99b74e65ebb84a92f6d99d3c490e2fc041a3cbc091d553aac191",
+      "size": 146645
     },
     {
       "path": "plugins/SimonKCore/skills/ai-debate/scripts/interject_scan.py",
@@ -669,8 +669,8 @@
     },
     {
       "path": "plugins/SimonKCore/skills/ai-debate/scripts/test_debate.py",
-      "sha256": "ea5fd010db8f5e156a1be4713d908a83f33da1b981f41030383bb691cf215e61",
-      "size": 110972
+      "sha256": "592704bc7bc1a77207e683a04554877d2c99a28acb48b92ceaf9cfcb0dc0150c",
+      "size": 111156
     },
     {
       "path": "plugins/SimonKCore/skills/ai-debate/scripts/test_interject_scan.py",
@@ -1439,13 +1439,13 @@
     },
     {
       "path": "plugins/SimonKCore/skills/vibe/CHANGELOG.md",
-      "sha256": "03114a34f4ccd80f4d3f1fe4ca414edcc8af7840d288de0a95f9e49cf4180384",
-      "size": 61093
+      "sha256": "1c996c2041eee26a226cf069d34d2a03fed832d3cf7c3adbd3acd55a17b718a0",
+      "size": 63342
     },
     {
       "path": "plugins/SimonKCore/skills/vibe/SKILL.md",
-      "sha256": "495922ad3893ee8115d66195e5e3afed474045d1953c32653ea951098e5a454b",
-      "size": 28900
+      "sha256": "c67a0caa4cf511d3f803b0bcbb887a83d9ea73ead6c70ae6aed6305d17fdf5ba",
+      "size": 28990
     },
     {
       "path": "plugins/SimonKCore/skills/vibe/eval/probes.json",
@@ -1524,18 +1524,18 @@
     },
     {
       "path": "plugins/SimonKCore/skills/vibe/references/legacy-routing.md",
-      "sha256": "dc778c7dffa13960ee7edfebf6856ebef5635477e7552049416d8811fd399cfc",
-      "size": 22522
+      "sha256": "053730750ebb2c42d1da718bacb2dc4236cad10742a39bbf523d68d92b9c1a82",
+      "size": 22538
     },
     {
       "path": "plugins/SimonKCore/skills/vibe/references/model-catalog-map.md",
-      "sha256": "12d6c40e106c72aa57a7a1f5ae3e57929ee3e6de3c46af951d9bcb17341113e0",
-      "size": 36446
+      "sha256": "6d4b98f17db428ee70bb9151a8d1e7c9e7e6df104ad506c81f3e03ae20a6be45",
+      "size": 40953
     },
     {
       "path": "plugins/SimonKCore/skills/vibe/references/model-registry.json",
-      "sha256": "8389cca4a005d82bcc9015a7b3fa741b25ffcb1a44f54fb385f6a785ccaf8f1b",
-      "size": 31258
+      "sha256": "b93f397c92500535dbb4913e28ee1a637d35ee7528e139f9cd4d292dfbcfb86a",
+      "size": 34344
     },
     {
       "path": "plugins/SimonKCore/skills/vibe/references/model-release-watch.md",
@@ -1564,8 +1564,8 @@
     },
     {
       "path": "plugins/SimonKCore/skills/vibe/references/task-fit-policy.json",
-      "sha256": "c168cc534d603b19de5d6c3f4cb61f335b6cb7ad7123301c1a303068ff833526",
-      "size": 6704
+      "sha256": "5ea475e0fb0a2c61210492f22ff27622eb3863049a437edee7c1ac63bdd8a47e",
+      "size": 8496
     },
     {
       "path": "plugins/SimonKCore/skills/vibe/references/v2.2-astra-effort-cap.md",
@@ -1664,8 +1664,8 @@
     },
     {
       "path": "plugins/SimonKCore/skills/vibe/scripts/routing.py",
-      "sha256": "319b592d1f0b78919d744458968d288e108c757b36df3a152d8f21e3dc1b718b",
-      "size": 132618
+      "sha256": "e8443a5ac666499cf533fda5e4e6ac66cf39daab60647a36b08d8af7ca9c1f9a",
+      "size": 133388
     },
     {
       "path": "plugins/SimonKCore/skills/vibe/scripts/run_state.py",
@@ -1679,8 +1679,8 @@
     },
     {
       "path": "plugins/SimonKCore/skills/vibe/scripts/selftest.py",
-      "sha256": "8551fd9be7a82062dc7fbeddc0662b8b3ec1c68bee8fd97fb756867cee71adc3",
-      "size": 84967
+      "sha256": "929daa3f7bf3ad5d63e1f08dc5a99ae69ab20a625b02dbbfacfe06bb4b606b7f",
+      "size": 85013
     },
     {
       "path": "plugins/SimonKCore/skills/vibe/scripts/sync_skill_table.py",
@@ -1709,8 +1709,8 @@
     },
     {
       "path": "plugins/SimonKCore/skills/vibe/scripts/test_model_registry.py",
-      "sha256": "c1c83e50b93a952f9b2b88a70716a527c83deb750e7c4bd47c24055830491ed2",
-      "size": 67784
+      "sha256": "b7c1b1ff081e29ed928e71b27e021024701223b8ce065b00446d37e50b8ea49d",
+      "size": 69081
     },
     {
       "path": "plugins/SimonKCore/skills/vibe/scripts/test_model_watch.py",
@@ -1824,7 +1824,7 @@
     },
     {
       "path": "plugins/SimonKDesign/.codex-plugin/plugin.json",
-      "sha256": "71cab4a7c159776b274c69e0e9abf8832b59923cbdc9ede9e9ceec22622aa2fd",
+      "sha256": "3142f5490de20bdc3c61fdc8915c030f35315d2ab6eee95050201aff69778b63",
       "size": 816
     },
     {
@@ -2249,7 +2249,7 @@
     },
     {
       "path": "plugins/SimonKMarket/.codex-plugin/plugin.json",
-      "sha256": "5d5670da9c24783ab277dbc81eb0347b85842a3a531217628da9639d05566fd5",
+      "sha256": "3b3c5cdfe1abbf4ea36a91902ced59301ed8c39474d18bb4de409ed5148fda98",
       "size": 861
     },
     {
@@ -2869,7 +2869,7 @@
     },
     {
       "path": "plugins/SimonKStack/.codex-plugin/plugin.json",
-      "sha256": "47a9b9e6328bfb8f65d1bd402946fca68f49808136af7a0cde63a696ab06d848",
+      "sha256": "50657f206736f447976199f5182d7110a2acef29da46f2655fabc9ea407073a2",
       "size": 1079
     },
     {
@@ -3904,23 +3904,23 @@
   ],
   "replaced_members": [
     {
-      "original_base64": "ewogICJhdXRob3IiOiB7CiAgICAibmFtZSI6ICJTaW1vbiBLaW0iLAogICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vU2ltb24tWUhLaW0iCiAgfSwKICAiZGVzY3JpcHRpb24iOiAiU2ltb25LIO2UjOufrOq3uOyduCDqs7XsnKAg7J247ZSE6528ICjsnITsnoTCt+uqqOuNuOudvOyasO2MhcK366mU66qo66aswrfsp4Dsi53rj4TqtazCt+2OmOultOyGjOuCmOqygOymncK37JmE66OM67O06rOgKS4gY2FyZWZ1bCDslYjsoIQg7ZuF7J2AIFdpbmRvd3Mg7KCE7Jqp7J206528IOuLpOuluCBPU+yXkOyEnOuKlCBCYXNowrdQb3dlclNoZWxsIOuqheugueydhCDsnbzrtoDrn6wg66qo65GQIOunieuKlOuLpC4iLAogICJpbnRlcmZhY2UiOiB7CiAgICAiY2FwYWJpbGl0aWVzIjogW10sCiAgICAiY2F0ZWdvcnkiOiAiUHJvZHVjdGl2aXR5IiwKICAgICJkZWZhdWx0UHJvbXB0IjogIlVzZSBTaW1vbksgQ29yZSBza2lsbHMgZm9yIHRoaXMgdGFzay4iLAogICAgImRldmVsb3Blck5hbWUiOiAiU2ltb24gS2ltIiwKICAgICJkaXNwbGF5TmFtZSI6ICJTaW1vbksgQ29yZSIsCiAgICAibG9uZ0Rlc2NyaXB0aW9uIjogIlNpbW9uSyDtlIzrn6zqt7jsnbgg6rO17JygIOyduO2UhOudvCAo7JyE7J6EwrfrqqjrjbjrnbzsmrDtjIXCt+uplOuqqOumrMK37KeA7Iud64+E6rWswrftjpjrpbTshozrgpjqsoDspp3Ct+yZhOujjOuztOqzoCkuIGNhcmVmdWwg7JWI7KCEIO2bheydgCBXaW5kb3dzIOyghOyaqeydtOudvCDri6TrpbggT1Psl5DshJzripQgQmFzaMK3UG93ZXJTaGVsbCDrqoXroLnsnYQg7J2867aA65+sIOuqqOuRkCDrp4nripTri6QuIiwKICAgICJzaG9ydERlc2NyaXB0aW9uIjogIlNpbW9uSyDtlIzrn6zqt7jsnbgg6rO17JygIOyduO2UhOudvCAo7JyE7J6EwrfrqqjrjbjrnbzsmrDtjIXCt+uplOuqqOumrMK37KeA7Iud64+E6rWswrftjpjrpbTshozrgpjqsoDspp3Ct+yZhOujjOuztOqzoCkuIGNhcmVmdWwg7JWI7KCEIO2bheydgCBXaW5kb3dzIOyghOyaqeydtOudvCDri6TrpbggT1Psl5DshJzripQgQmFzaMK3UG93ZXJTaGVsbCDrqoXroLnsnYQg7J2867aA65+sIOuqqOuRkCDrp4nripTri6QuIgogIH0sCiAgImtleXdvcmRzIjogWwogICAgImNsYXVkZS1jb2RlIiwKICAgICJwbHVnaW4iLAogICAgInNoYXJlZCIsCiAgICAic2ltb25rIiwKICAgICJjb3JlIgogIF0sCiAgImxpY2Vuc2UiOiAiTUlUIiwKICAibmFtZSI6ICJzaW1vbmstY29yZSIsCiAgInJlcG9zaXRvcnkiOiAiaHR0cHM6Ly9naXRodWIuY29tL1NpbW9uLVlIS2ltL1NpbW9uS0NvcmUiLAogICJza2lsbHMiOiAiLi9za2lsbHMvIiwKICAidmVyc2lvbiI6ICIxLjg1NC4wIgp9Cg==",
-      "original_sha256": "071d06632c43d8ecfb5a5fd1658ea88d456db55c86382d03e133aeeed70e63e9",
+      "original_base64": "ewogICJhdXRob3IiOiB7CiAgICAibmFtZSI6ICJTaW1vbiBLaW0iLAogICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vU2ltb24tWUhLaW0iCiAgfSwKICAiZGVzY3JpcHRpb24iOiAiU2ltb25LIO2UjOufrOq3uOyduCDqs7XsnKAg7J247ZSE6528ICjsnITsnoTCt+uqqOuNuOudvOyasO2MhcK366mU66qo66aswrfsp4Dsi53rj4TqtazCt+2OmOultOyGjOuCmOqygOymncK37JmE66OM67O06rOgKS4gY2FyZWZ1bCDslYjsoIQg7ZuF7J2AIFdpbmRvd3Mg7KCE7Jqp7J206528IOuLpOuluCBPU+yXkOyEnOuKlCBCYXNowrdQb3dlclNoZWxsIOuqheugueydhCDsnbzrtoDrn6wg66qo65GQIOunieuKlOuLpC4iLAogICJpbnRlcmZhY2UiOiB7CiAgICAiY2FwYWJpbGl0aWVzIjogW10sCiAgICAiY2F0ZWdvcnkiOiAiUHJvZHVjdGl2aXR5IiwKICAgICJkZWZhdWx0UHJvbXB0IjogIlVzZSBTaW1vbksgQ29yZSBza2lsbHMgZm9yIHRoaXMgdGFzay4iLAogICAgImRldmVsb3Blck5hbWUiOiAiU2ltb24gS2ltIiwKICAgICJkaXNwbGF5TmFtZSI6ICJTaW1vbksgQ29yZSIsCiAgICAibG9uZ0Rlc2NyaXB0aW9uIjogIlNpbW9uSyDtlIzrn6zqt7jsnbgg6rO17JygIOyduO2UhOudvCAo7JyE7J6EwrfrqqjrjbjrnbzsmrDtjIXCt+uplOuqqOumrMK37KeA7Iud64+E6rWswrftjpjrpbTshozrgpjqsoDspp3Ct+yZhOujjOuztOqzoCkuIGNhcmVmdWwg7JWI7KCEIO2bheydgCBXaW5kb3dzIOyghOyaqeydtOudvCDri6TrpbggT1Psl5DshJzripQgQmFzaMK3UG93ZXJTaGVsbCDrqoXroLnsnYQg7J2867aA65+sIOuqqOuRkCDrp4nripTri6QuIiwKICAgICJzaG9ydERlc2NyaXB0aW9uIjogIlNpbW9uSyDtlIzrn6zqt7jsnbgg6rO17JygIOyduO2UhOudvCAo7JyE7J6EwrfrqqjrjbjrnbzsmrDtjIXCt+uplOuqqOumrMK37KeA7Iud64+E6rWswrftjpjrpbTshozrgpjqsoDspp3Ct+yZhOujjOuztOqzoCkuIGNhcmVmdWwg7JWI7KCEIO2bheydgCBXaW5kb3dzIOyghOyaqeydtOudvCDri6TrpbggT1Psl5DshJzripQgQmFzaMK3UG93ZXJTaGVsbCDrqoXroLnsnYQg7J2867aA65+sIOuqqOuRkCDrp4nripTri6QuIgogIH0sCiAgImtleXdvcmRzIjogWwogICAgImNsYXVkZS1jb2RlIiwKICAgICJwbHVnaW4iLAogICAgInNoYXJlZCIsCiAgICAic2ltb25rIiwKICAgICJjb3JlIgogIF0sCiAgImxpY2Vuc2UiOiAiTUlUIiwKICAibmFtZSI6ICJzaW1vbmstY29yZSIsCiAgInJlcG9zaXRvcnkiOiAiaHR0cHM6Ly9naXRodWIuY29tL1NpbW9uLVlIS2ltL1NpbW9uS0NvcmUiLAogICJza2lsbHMiOiAiLi9za2lsbHMvIiwKICAidmVyc2lvbiI6ICIxLjg2MC4wIgp9Cg==",
+      "original_sha256": "07dc936017878cedf98c0250bc0722118cd0d279678132f7924f99f38adc893a",
       "original_size": 1339,
       "path": "plugins/SimonKCore/.codex-plugin/plugin.json",
-      "sha256": "514ad38f45a55388c67cacb3fb257a13c0f1b3d808b3f4ce0bb3a294784e87e2",
+      "sha256": "6a7374ad01d15b9875ed0eac0781f355fd0454ac039e57825e41cdac6446cb3f",
       "size": 1228
     },
     {
-      "original_base64": "ewogICJhdXRob3IiOiB7CiAgICAibmFtZSI6ICJTaW1vbiBLaW0iLAogICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vU2ltb24tWUhLaW0iCiAgfSwKICAiZGVzY3JpcHRpb24iOiAi7KCc7ZKIL+yEnOu5hOyKpCDruYzrk5wg7Jik7LyA7Iqk7Yq466CI7J207IWYIO2UjOufrOq3uOyduC4g66CI6rGw7IucIHNpbW9uay1zdGFjayAwLjEuMOyXkOyEnCDsl4XrjbDsnbTtirjtlojri6TrqbQg64KY66i47KeAIOuEt+ydhCDrlLDroZwg7ISk7LmY7ZW07JW8IG1hcmtldMK3ZGVzaWdu7Jy866GcIOyYruq4tCDsiqTtgqwgMTDqsJzqsIAg64+M7JWE7Jio64ukOiBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLWNvcmVAc2ltb25rLXN0YWNrIMK3IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstbWFya2V0QHNpbW9uay1zdGFjayDCtyBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLWRlc2lnbkBzaW1vbmstc3RhY2sgwrcgY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1haWh1YkBzaW1vbmstc3RhY2suIGZyZWV6ZcK3Z3VhcmTCt2ludmVzdGlnYXRlIOyViOyghCDtm4XsnYAgV2luZG93cyDsoITsmqnsnbTrnbwg64uk66W4IE9T7JeQ7ISc64qUIEVkaXTCt1dyaXRlwrdCYXNo66W8IOydvOu2gOufrCDrqqjrkZAg66eJ64qU64ukLiIsCiAgImludGVyZmFjZSI6IHsKICAgICJjYXBhYmlsaXRpZXMiOiBbXSwKICAgICJjYXRlZ29yeSI6ICJQcm9kdWN0aXZpdHkiLAogICAgImRlZmF1bHRQcm9tcHQiOiAiVXNlIFNpbW9uSyBTdGFjayBza2lsbHMgZm9yIHRoaXMgdGFzay4iLAogICAgImRldmVsb3Blck5hbWUiOiAiU2ltb24gS2ltIiwKICAgICJkaXNwbGF5TmFtZSI6ICJTaW1vbksgU3RhY2siLAogICAgImxvbmdEZXNjcmlwdGlvbiI6ICLsoJztkogv7ISc67mE7IqkIOu5jOuTnCDsmKTsvIDsiqTtirjroIjsnbTshZgg7ZSM65+s6re47J24LiDroIjqsbDsi5wgc2ltb25rLXN0YWNrIDAuMS4w7JeQ7IScIOyXheuNsOydtO2KuO2WiOuLpOuptCDrgpjrqLjsp4Ag64S37J2EIOuUsOuhnCDshKTsuZjtlbTslbwgbWFya2V0wrdkZXNpZ27snLzroZwg7Jiu6ri0IOyKpO2CrCAxMOqwnOqwgCDrj4zslYTsmKjri6Q6IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstY29yZUBzaW1vbmstc3RhY2sgwrcgY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1tYXJrZXRAc2ltb25rLXN0YWNrIMK3IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstZGVzaWduQHNpbW9uay1zdGFjayDCtyBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLWFpaHViQHNpbW9uay1zdGFjay4gZnJlZXplwrdndWFyZMK3aW52ZXN0aWdhdGUg7JWI7KCEIO2bheydgCBXaW5kb3dzIOyghOyaqeydtOudvCDri6TrpbggT1Psl5DshJzripQgRWRpdMK3V3JpdGXCt0Jhc2jrpbwg7J2867aA65+sIOuqqOuRkCDrp4nripTri6QuIiwKICAgICJzaG9ydERlc2NyaXB0aW9uIjogIuygnO2SiC/shJzruYTsiqQg67mM65OcIOyYpOy8gOyKpO2KuOugiOydtOyFmCDtlIzrn6zqt7jsnbguIOugiOqxsOyLnCBzaW1vbmstc3RhY2sgMC4xLjDsl5DshJwg7JeF642w7J207Yq47ZaI64uk66m0IOuCmOuouOyngCDrhLfsnYQg65Sw66GcIOyEpOy5mO2VtOyVvCBtYXJrZXTCt2Rlc2lnbuycvOuhnCDsmK7quLQg7Iqk7YKsIDEw6rCc6rCAIOuPjOyVhOyYqOuLpDogY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1jb3JlQHNpbW9uay1zdGFjayDCtyBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLW1hcmtldEBzaW1vbmstc3RhY2sgwrcgY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1kZXNpZ25Ac2ltb25rLXN0YWNrIMK3IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstYWlodWJAc2ltb25rLXN0YWNrLiBmcmVlemXCt2d1YXJkwrdpbnZlc3RpZ2F0ZSDslYjsoIQg7ZuF7J2AIFdpbmRvd3Mg7KCE7Jqp7J206528IOuLpOuluCBPU+yXkOyEnOuKlCBFZGl0wrdXcml0ZcK3QmFzaOulvCDsnbzrtoDrn6wg66qo65GQIOunieuKlOuLpC4iCiAgfSwKICAia2V5d29yZHMiOiBbCiAgICAiY2xhdWRlLWNvZGUiLAogICAgInBsdWdpbiIsCiAgICAib3JjaGVzdHJhdGlvbiIsCiAgICAic2ltb25rIiwKICAgICJidWlsZCIKICBdLAogICJsaWNlbnNlIjogIk1JVCIsCiAgIm5hbWUiOiAic2ltb25rLXN0YWNrIiwKICAicmVwb3NpdG9yeSI6ICJodHRwczovL2dpdGh1Yi5jb20vU2ltb24tWUhLaW0vU2ltb25LLXN0YWNrIiwKICAic2tpbGxzIjogIi4vc2tpbGxzLyIsCiAgInZlcnNpb24iOiAiMS44NTQuMCIKfQo=",
-      "original_sha256": "4664579a0400b262d7196256d0ac1b6c9f3f92b59d19d9880843514bc1dd9cf0",
+      "original_base64": "ewogICJhdXRob3IiOiB7CiAgICAibmFtZSI6ICJTaW1vbiBLaW0iLAogICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vU2ltb24tWUhLaW0iCiAgfSwKICAiZGVzY3JpcHRpb24iOiAi7KCc7ZKIL+yEnOu5hOyKpCDruYzrk5wg7Jik7LyA7Iqk7Yq466CI7J207IWYIO2UjOufrOq3uOyduC4g66CI6rGw7IucIHNpbW9uay1zdGFjayAwLjEuMOyXkOyEnCDsl4XrjbDsnbTtirjtlojri6TrqbQg64KY66i47KeAIOuEt+ydhCDrlLDroZwg7ISk7LmY7ZW07JW8IG1hcmtldMK3ZGVzaWdu7Jy866GcIOyYruq4tCDsiqTtgqwgMTDqsJzqsIAg64+M7JWE7Jio64ukOiBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLWNvcmVAc2ltb25rLXN0YWNrIMK3IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstbWFya2V0QHNpbW9uay1zdGFjayDCtyBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLWRlc2lnbkBzaW1vbmstc3RhY2sgwrcgY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1haWh1YkBzaW1vbmstc3RhY2suIGZyZWV6ZcK3Z3VhcmTCt2ludmVzdGlnYXRlIOyViOyghCDtm4XsnYAgV2luZG93cyDsoITsmqnsnbTrnbwg64uk66W4IE9T7JeQ7ISc64qUIEVkaXTCt1dyaXRlwrdCYXNo66W8IOydvOu2gOufrCDrqqjrkZAg66eJ64qU64ukLiIsCiAgImludGVyZmFjZSI6IHsKICAgICJjYXBhYmlsaXRpZXMiOiBbXSwKICAgICJjYXRlZ29yeSI6ICJQcm9kdWN0aXZpdHkiLAogICAgImRlZmF1bHRQcm9tcHQiOiAiVXNlIFNpbW9uSyBTdGFjayBza2lsbHMgZm9yIHRoaXMgdGFzay4iLAogICAgImRldmVsb3Blck5hbWUiOiAiU2ltb24gS2ltIiwKICAgICJkaXNwbGF5TmFtZSI6ICJTaW1vbksgU3RhY2siLAogICAgImxvbmdEZXNjcmlwdGlvbiI6ICLsoJztkogv7ISc67mE7IqkIOu5jOuTnCDsmKTsvIDsiqTtirjroIjsnbTshZgg7ZSM65+s6re47J24LiDroIjqsbDsi5wgc2ltb25rLXN0YWNrIDAuMS4w7JeQ7IScIOyXheuNsOydtO2KuO2WiOuLpOuptCDrgpjrqLjsp4Ag64S37J2EIOuUsOuhnCDshKTsuZjtlbTslbwgbWFya2V0wrdkZXNpZ27snLzroZwg7Jiu6ri0IOyKpO2CrCAxMOqwnOqwgCDrj4zslYTsmKjri6Q6IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstY29yZUBzaW1vbmstc3RhY2sgwrcgY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1tYXJrZXRAc2ltb25rLXN0YWNrIMK3IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstZGVzaWduQHNpbW9uay1zdGFjayDCtyBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLWFpaHViQHNpbW9uay1zdGFjay4gZnJlZXplwrdndWFyZMK3aW52ZXN0aWdhdGUg7JWI7KCEIO2bheydgCBXaW5kb3dzIOyghOyaqeydtOudvCDri6TrpbggT1Psl5DshJzripQgRWRpdMK3V3JpdGXCt0Jhc2jrpbwg7J2867aA65+sIOuqqOuRkCDrp4nripTri6QuIiwKICAgICJzaG9ydERlc2NyaXB0aW9uIjogIuygnO2SiC/shJzruYTsiqQg67mM65OcIOyYpOy8gOyKpO2KuOugiOydtOyFmCDtlIzrn6zqt7jsnbguIOugiOqxsOyLnCBzaW1vbmstc3RhY2sgMC4xLjDsl5DshJwg7JeF642w7J207Yq47ZaI64uk66m0IOuCmOuouOyngCDrhLfsnYQg65Sw66GcIOyEpOy5mO2VtOyVvCBtYXJrZXTCt2Rlc2lnbuycvOuhnCDsmK7quLQg7Iqk7YKsIDEw6rCc6rCAIOuPjOyVhOyYqOuLpDogY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1jb3JlQHNpbW9uay1zdGFjayDCtyBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLW1hcmtldEBzaW1vbmstc3RhY2sgwrcgY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1kZXNpZ25Ac2ltb25rLXN0YWNrIMK3IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstYWlodWJAc2ltb25rLXN0YWNrLiBmcmVlemXCt2d1YXJkwrdpbnZlc3RpZ2F0ZSDslYjsoIQg7ZuF7J2AIFdpbmRvd3Mg7KCE7Jqp7J206528IOuLpOuluCBPU+yXkOyEnOuKlCBFZGl0wrdXcml0ZcK3QmFzaOulvCDsnbzrtoDrn6wg66qo65GQIOunieuKlOuLpC4iCiAgfSwKICAia2V5d29yZHMiOiBbCiAgICAiY2xhdWRlLWNvZGUiLAogICAgInBsdWdpbiIsCiAgICAib3JjaGVzdHJhdGlvbiIsCiAgICAic2ltb25rIiwKICAgICJidWlsZCIKICBdLAogICJsaWNlbnNlIjogIk1JVCIsCiAgIm5hbWUiOiAic2ltb25rLXN0YWNrIiwKICAicmVwb3NpdG9yeSI6ICJodHRwczovL2dpdGh1Yi5jb20vU2ltb24tWUhLaW0vU2ltb25LLXN0YWNrIiwKICAic2tpbGxzIjogIi4vc2tpbGxzLyIsCiAgInZlcnNpb24iOiAiMS44NjAuMCIKfQo=",
+      "original_sha256": "43a88629846bc0555de0cdc5d81a89baa3fb69c89705a1d89ba36298548432f2",
       "original_size": 2267,
       "path": "plugins/SimonKStack/.codex-plugin/plugin.json",
-      "sha256": "47a9b9e6328bfb8f65d1bd402946fca68f49808136af7a0cde63a696ab06d848",
+      "sha256": "50657f206736f447976199f5182d7110a2acef29da46f2655fabc9ea407073a2",
       "size": 1079
     }
   ],
   "schema_version": 2,
   "scope": "five-plugin-codex-general-skills-only-v2",
-  "source_overlay_digest": "1ccc80ffb99dbceeb2b3710ba071b6a644b73469c95691790b964b46a8e1868a"
+  "source_overlay_digest": "ab4f79d8d6b9af36550e1aa375eaab9ca29933ac469a5ea56df6fadde774340f"
 }

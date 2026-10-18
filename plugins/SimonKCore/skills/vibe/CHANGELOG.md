@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.19.0 - 2026-10-18
+
+- **D-103: Sonnet 5.5 를 쓰는 것으로 설정했다**(Simon 지시 "sonnet은 사용하는걸로 설정하자", 토론 없음, 허브 DECISIONS D-103).
+  D-90 이 Artificial Analysis 공개판 재측정까지 미뤄 둔 재진입을 소유자 지시가 대신한다. AA 는 2026-10-18 09:43 KST 에도
+  재측정을 올리지 않았다. 측정이 아니라 지시라는 점은 정책 노트에 그대로 적었다.
+  - 코딩 레인 `PROCESS_LANES["coding"]` = `claude-opus-5-5` → `claude-sonnet-5-5` → `claude-fable-5-1`.
+    1순위 Opus 는 D-101 그대로다. sonnet 은 opus 와 같은 claude 일반 weekly 라 쿼터 강등 때는 둘이 함께 밀리고,
+    자기 버킷(fableWeekly)이 있는 fable 이 받는다. 코딩 레인은 여전히 claude 뿐이라 보안 게이트(codex)와 벤더가 겹치지 않는다(G1).
+  - shadow task-fit 정책 `2026-10-18-shadow.3`: CODE_COMPLEX 에 sonnet high 1순위, WRITING 에 sonnet medium 1순위.
+    PLAN_ARCHITECTURE 는 D-101 이 정한 opus + astra 그대로, CODE_SIMPLE·A 클래스 순서(haiku → sonnet → opus)도 그대로다.
+  - `references/legacy-routing.md` 표를 다시 만들었다(코딩 행 3칸).
+- **레지스트리 주간 재확인 `2026-10-18.1`**(만료 2026-10-25 09:19:19 KST, task-fit 정책도 같은 구간). 출처 36개를 모델 호출 없이
+  다시 읽었고 바뀐 것은 셋이다.
+  - 새 모델 `gemini-4-argon`(2026-10-13 Gemini API GA, low·medium·high, 통합 컨텍스트 1,048,576, 기본 출력 65,536,
+    11-30 까지 $2 / $0.10 / $10 뒤 $4 / $0.20 / $20). 등록만 하고 `routing.py` 레인은 없다(허브 D-105).
+  - Google 의 latest-model 페이지가 Argon 안내로 바뀌어 `gemini-3.8-flash` 출처를 `whats-new-gemini-3.8` 로 옮겼다(`source_updated_at` 2026-10-13).
+  - task-fit 정책의 D-90 노트 한 구절이 AA 원문과 방향이 반대였다(원문: Sol 이 더 적은 토큰으로 더 높은 성능). D-103 노트에서 바로잡았다.
+  - 관측만: agy 1.4.1 목록이 13개로 줄었다(`gemini-3.1-pro-*`·3.7·3.6 Flash 가 빠짐). Codex 캐시는 숨김 `gpt-5.5` 가 빠져 10개다.
+    `references/model-catalog-map.md` 의 agy 행과 새 갱신 기록에 적었다.
+
 ## 2.18.0 - 2026-10-12
 
 - **D-102: 보안 생성물 게이트의 폴백을 `gpt-6-astra` @xhigh 로 정했다**(Simon 판정, 토론 없음, 허브 DECISIONS D-102).

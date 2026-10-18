@@ -23,5 +23,5 @@
     "./skills/rag-builder/",
     "./skills/skaihub/"
   ],
-  "version": "1.854.0"
+  "version": "1.860.0"
 }
