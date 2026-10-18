@@ -940,3 +940,9 @@ last-sync: 2026-07-05
   - **근거**: Simon "프로필을 늘리는 형태로 하면 손해니까, 00경우 00스킬 사용 이런식으로 하면 어때?". 앞 초안 642자·9줄 → 압축안 192자·3줄. §8-8 '스킬은 쓰기 전 `/`로 로드됐는지 확인한다'(27자)를 §9 첫 줄로 합쳐 순증 165자, claude.ai 사본 10,491 → 10,656자. 앱 스킬 설명 원문 확인: docx·xlsx·pptx·pdf·deep-research·schedule·built-in-browser 는 'Use this skill whenever/any time…'로 그 상황을 이미 덮음, karpathy-guidelines 는 'Use when starting any coding task'.
   - **반영**: §9 = 한국어 글(메일·공지·문서) 작성·윤문 → humanize-korean · 흔한 기능·화면 → simon-design-first · 반복 요청인데 맞는 스킬 없음 → skill-creator 제안. 단일본 v8.1.7 PR 은 Q-261019-05 업로드와 함께 진행.
   - **뒤집는 조건**: 뺀 스킬이 앱에서 실제로 안 켜지는 사례가 보이면 그 스킬만 한 줄 추가.
+- 2026-10-19 01:58:22 KST | AMEND | **D-112 프로필 §9 스킬 규칙은 '상황 → 스킬' 한 줄** — 반영: SimonK-stack PR #182(ddb40ac) 지침 v8.1.7(sha256 8478c8ba0eb3, claude.ai 사본 claude-ai_§0-6+§8-9 10,681자), split.py --apply(~/.claude/CLAUDE.md, 백업 bak_261019_0157), 붙여넣기 카드 v6 https://claude.ai/artifact/YKXcXAEnu1rXTet14cpLB2 | claude
+- 2026-10-19 01:58:22 KST | DECIDE | **D-113 Claude 앱 스킬 정리 Q-261019-05~08 권고대로 진행** (Simon "진행해줘" · 35.8 1단) | claude
+  - **근거**: 보고서 https://claude.ai/artifact/45myr5ugvLiE4ifYuo5dUE 결정 탭 권고 A. Simon "진행해줘". Q-08(Remotion)은 답이 없어 기본값 A.
+  - **반영**: Q-05 앱 업로드 ZIP 3개 — SimonK-stack PR #181(cb9681d) scripts/claude_app_skill_zip.py(앱 허용 frontmatter 키만 남기고 나머지는 metadata, 설명 1024자·이름 검사, Claude Code 전용 참조 --strict). 산출물·재생성 build.ps1 은 레포 밖 E:\Coding Infra\Harrness Eng\claude-app-skills\(dist 3개: humanize-korean 29,690B · karpathy-guidelines 3,172B · simon-design-first 12,383B). humanize-korean 앱판 SKILL.md(윤문+작성 모드, 대화 안 단일 패스, 서브에이전트·_workspace 없음, 다른 모델 점검 없음)는 외부 스킬·라이선스 파일 없음이라 공개 레포 제외. Q-06 gstack 25개 스킬 끄기 + 플러그인 6개 Disable plugin(Remove 아님) — Simon GUI(카드 3·4). Q-07 §6 S 필수 '요약 탭에 그림 1장 + 길면 표·차트'(v8.1.7). Q-08 Remotion 은 검색 규칙에 넣지 않음.
+  - **남은 것**: Simon 이 카드 1~4 실행(업로드·붙여넣기·끄기). 업로드 뒤 claude.ai 에서 '공지 초안 써줘'로 humanize-korean 호출 확인.
+  - **뒤집는 조건**: 업로드가 거부되거나 앱에서 스킬이 안 불리면 변환 규칙·§9 줄 수정. 끈 스킬이 필요해지면 다시 켬.
