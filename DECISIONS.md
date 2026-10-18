@@ -888,3 +888,8 @@ last-sync: 2026-07-05
 - 2026-10-18 10:16:55 KST | AMEND | **D-105** — 배포 완료(같은 PR) | claude
   - 레지스트리 `2026-10-18.1`(사실 만료 2026-10-25 09:19:19 KST)에 `gemini-4-argon` 등록, 레인 없음. 설치된 ai-debate 의 Gemini 좌석 기본값은 `gemini-4-argon-high` 다(설치본 debate.py 로 확인).
   - 승격 조건(그대로): agy 인증서 경로 증명(초과 과금 없음 · API 키 폴백 없음 · 0턴 /usage) + 예정된 실제 토론 최대 5건 계측 → 그다음 B 재검토.
+- 2026-10-18 10:22:12 KST | AMEND | **D-98 · D-99** — Grok catch-up 다시 미룸(예약 점검) | claude
+  - 10-18 10:20 KST `seats`: Grok ✗(402, 리셋 ~2026-10-23 12:38 KST). 같은 날 09:11 에는 92% 로 READY 였고, D-104·D-105 토론 R1 두 번 뒤 402 가 됐다. `dbt-261012-124530`·`dbt-261012-124540` catch-up 과 grok-4.6 → 4.7 canary 는 리셋 뒤로 미룬다(두 결정의 배치는 D-101 이 대체해 답은 기록용).
+- 2026-10-18 10:22:12 KST | AMEND | **D-102** — Codex 카탈로그 점검(예약 점검) | claude
+  - `~/.codex/models_cache.json`(fetched_at 2026-10-18T01:21:00Z, 클라이언트 0.163.0): `gpt-daybreak-blue-latest` 는 우선순위 11 · visibility list · upgrade 없음으로 그대로 있고, 폐기 별칭이 아닌 cyber 모델은 없다. 고정 레인 이전 없음, 폴백 그대로.
+  - 10-13 이후 토론의 Codex 좌석: 10-18 두 토론은 `codex.exe` · `gpt-6-astra` · xhigh. 10-15 Codex 가 연 토론 `dbt-261015-021749`(agents/codex D-4)는 좌석 모델을 "GPT-6"(자기 신고, effort 없음)로만 남겼다. 같은 시각(10-15 02:07~02:17) Codex 세션 기록은 모두 `gpt-6-astra`(xhigh 3, high 1)였지만 그 토론을 연 세션은 특정하지 못했다.
