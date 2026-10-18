@@ -904,3 +904,6 @@ last-sync: 2026-07-05
   - **경계**: /vibe 레인이 아니다(D-105 승격 조건 그대로). 회사 기밀은 agy 로 보내지 않는다. 비용은 Gemini 구독 한도(주간 99% 남음, 10-18).
   - **계측**: 두 초안을 보여 준 경우 Simon 의 선택을 메모리에 누적하고 10건 뒤 다시 본다.
   - **뒤집는 조건**: 실제 사용에서 Simon 이 Claude 초안을 더 자주 고르거나, Argon 초안의 수치·사실 오류 수정이 잦거나, agy 지연·한도가 문제가 될 때. 이의 시 2단으로 올린다.
+- 2026-10-18 12:04:36 KST | AMEND | **D-106 Sonnet 5.5 는 단순 코딩, 복잡한 코딩은 Opus 5.5 xhigh** — 배포 완료 | claude
+  - SimonK-stack PR #175(내용 `df2869e` + 승인 `db8f62b`) 머지 → main `0f718bb`, dist 1.867.0(`164a9b3`, Claude `c0495e7a…` · Codex `032d9047…` = 승인 파일). 이 PC 후보 `20261018-vibe-2200-0f718bb`(vibe 2.20.0, selftest 283/0 · 104/0, problems 0, 미리보기 current).
+  - 검증: vibe 단위 441(새 2) · scripts/tests 157 · test_dist_release 38 · 하네스 24/24 · validate_skill 0/0, PR CI 두 번 통과. 두 가드(공정별 effort, CODE_COMPLEX 고정)를 일부러 망가뜨린 변형을 새 테스트가 잡았다.
