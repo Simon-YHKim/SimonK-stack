@@ -1048,22 +1048,24 @@ class DebateTests(unittest.TestCase):
         self.assertEqual(self.meta("r1", "anthropic", "dbt-m")["model"], "claude-opus-5-5")
 
     def test_agy_effort_is_the_model_name_suffix(self):
-        self.assertEqual(debate.agy_model("gemini-3.1-pro-high", None), ("gemini-3.1-pro-high", "high"))
-        self.assertEqual(debate.agy_model("gemini-3.1-pro-high", "low"), ("gemini-3.1-pro-low", "low"))
-        self.assertEqual(debate.agy_model("gemini-3.1-pro", "high"), ("gemini-3.1-pro-high", "high"))
-        self.assertEqual(debate.agy_model("gemini-3.1-pro-xhigh", "high"), ("gemini-3.1-pro-high", "high"))
+        self.assertEqual(debate.agy_model("gemini-4-argon-high", None), ("gemini-4-argon-high", "high"))
+        self.assertEqual(debate.agy_model("gemini-4-argon-high", "low"), ("gemini-4-argon-low", "low"))
+        self.assertEqual(debate.agy_model("gemini-4-argon", "high"), ("gemini-4-argon-high", "high"))
+        self.assertEqual(debate.agy_model("gemini-4-argon-xhigh", "high"), ("gemini-4-argon-high", "high"))
         with self.assertRaises(debate.DebateError):
-            debate.agy_model("gemini-3.1-pro-high", "--sandbox")
+            debate.agy_model("gemini-4-argon-high", "--sandbox")
+        # D-104: the default seat model is the one agy 1.4.1 lists (gemini-3.1-pro is gone from it).
+        self.assertEqual(debate.DEFAULTS["google"], ("gemini-4-argon-high", None))
         self.new()
         self.setting("answer-google", r1_answer("GEM"))
         rc, _out, err = self.run_cli("call", "--id", "dbt-test", "--round", "r1", "--vendor", "google",
                                      "--effort", "low")
         self.assertEqual(rc, 0, err)
         argv = [c for c in self.calls("google") if "/usage" not in c["argv"]][-1]["argv"]
-        self.assertEqual(argv[argv.index("--model") + 1], "gemini-3.1-pro-low")
+        self.assertEqual(argv[argv.index("--model") + 1], "gemini-4-argon-low")
         self.assertNotIn("--effort", argv)
         self.assertEqual((self.meta("r1", "google")["model"], self.meta("r1", "google")["effort"]),
-                         ("gemini-3.1-pro-low", "low"))
+                         ("gemini-4-argon-low", "low"))
 
     def test_max_used_rejects_non_finite_and_clock_needs_test_flag(self):
         for raw, expected in (("nan", 95.0), ("inf", 95.0), ("-5", 95.0), ("0", 95.0), ("abc", 95.0),

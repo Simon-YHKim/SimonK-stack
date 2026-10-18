@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "version": "2026-10-12-shadow.2",
+  "version": "2026-10-18-shadow.3",
   "status": "shadow-only",
-  "checked_at": "2026-10-12T11:48:51+09:00",
-  "valid_until": "2026-10-19T11:48:51+09:00",
+  "checked_at": "2026-10-18T09:19:19+09:00",
+  "valid_until": "2026-10-25T09:19:19+09:00",
   "notes": [
     "Public task fit is a hypothesis, not proof of host behavior or subscription inclusion.",
     "No entry changes dispatch; paired same-task Claude/Codex evaluation gates activation.",
@@ -11,7 +11,8 @@
     "For complex coding, Opus 5.5 medium is an evidence-backed shadow hypothesis: Anthropic reports a FrontierCode result at default medium, and Artificial Analysis places medium on its effort/cost frontier. This is not host-specific proof.",
     "2026-10-12 재확인(11:48 KST): 출처 9개를 모델 호출 없이 다시 읽었다(전부 첫 요청 HTTP 200, openai.com Astra 페이지도 첫 요청 200). 인용한 주장 3개와 D-90 이 든 Artificial Analysis 의 Sonnet 5.5 근거(프런티어 밖, Terminal-Bench 4.0 64%)는 원문 그대로다. Artificial Analysis 는 아직 재측정을 올리지 않았다('we will be re-running relevant evaluations soon' 이 그대로이고, 글의 Sonnet 5.5 캐시 읽기 가격도 인하 전 $0.2 다). Anthropic 이 2026-10-07 에 Sonnet 5.5 캐시 읽기를 $0.10 으로 내리고 Haiku 5.5 를 출시했지만 D-90 재진입 조건(AA 재측정)은 충족되지 않았다. 이 재확인(shadow.1)에서는 순위·effort 를 바꾸지 않았다. 같은 날 오후 D-101 이 순위를 바꿨다(마지막 노트).",
     "D-90(2026-10-05, 4벤더 quick 토론 FINAL 4/4, 심판 확신도 76): claude-sonnet-5-5 를 네 프로필에서 모두 뺐었다. Artificial Analysis(독립 측정)는 Sonnet 5.5 가 모든 effort 에서 지능 대비 작업당 비용 Pareto 프런티어 밖이고, low·medium·high 가 GPT-6 Sol high·xhigh·max 보다 적은 토큰으로 낮은 성능이라고 적는다. 구독 환경에서는 작업당 토큰이 실제 비용(쿼터)이다. 이 제외는 PLAN_ARCHITECTURE·CODE_COMPLEX·WRITING 세 프로필에 그대로 남는다. 재진입 조건: Artificial Analysis 가 공개판을 재측정해 해당 effort 가 더 적은 토큰으로 프런티어에 오르고, 같은 작업 짝 평가에서 필요한 품질을 충족하면서 그때 쓸 수 있는 대체 모델보다 쿼터 효율이 좋을 때만, 그 프로필에만 되돌린다. 먼저 볼 자리는 CODE_COMPLEX high 다(AA Terminal-Bench 4.0 64%, Opus 5.5·Astra 60%). 옛 claude-sonnet-5 A 클래스 폴백 레인(D-28)은 이 정책 밖이라 그대로다. D-90 이 정한 CODE_SIMPLE 순위(0순위 gpt-6.1-sol·gpt-6-sol, 2순위 claude-opus-5-5 medium)와 WRITING 의 GPT 행은 D-101 로 바뀌었다(다음 노트).",
-    "D-101(2026-10-12, Simon 지시, 토론 없음, 2026-10-12-shadow.2): 지시 원문은 \"gpt 6.1 sol은 너무 느려서 빼기로 결정. 기획단계 gpt astra xhigh와 opus 5.5. 단순작업 sonet 5.5\" 와 \"gpt 쪽은 astra 말고는 쓰지마. gpt 를 넣어야한다면 astra xhigh.\" 다. 그래서 GPT 쪽 행은 gpt-6-astra 의 xhigh 만 남겼고, gpt-6.1-sol·gpt-6-sol·gpt-6-luna 행을 네 프로필에서 모두 뺐다. 결함이나 새 측정 때문이 아니라 소유자 지시다. PLAN_ARCHITECTURE 는 0순위 claude-opus-5-5(high·xhigh)와 gpt-6-astra(xhigh), CODE_COMPLEX 는 claude-opus-5-5 medium 0순위·high/xhigh 1순위와 gpt-6-astra xhigh 0순위, WRITING 은 claude-opus-5-5(medium·high) 0순위뿐이다. CODE_SIMPLE 은 0순위 claude-haiku-5-5(low·medium), 1순위 claude-sonnet-5-5(medium), 2순위 claude-opus-5-5(medium)이고 GPT 행이 없다. Sonnet 5.5 가 CODE_SIMPLE 1순위로 돌아온 것은 이 지시 때문이지 D-90 재진입 조건이 충족돼서가 아니다: Artificial Analysis 는 2026-10-12 11:48 KST 기준으로 재측정을 올리지 않았고, 이 행의 출처 aa_sonnet 은 여전히 Sonnet 5.5 가 비용 프런티어 밖이라고 적는다. Haiku 5.5 를 Sonnet 5.5 앞에 둔 것은 오케스트레이터의 권고이고 Simon 이 반대하지 않았다. Haiku 5.5 의 근거는 Anthropic 발표문과 모델 개요(2026-10-12 13:01 KST 에 읽음, 이 정책의 checked_at 보다 늦다)와 D-99 canary(정답이 정해진 작은 A 과제 3개, effort low)뿐이고 Artificial Analysis 측정은 인용하지 않았다. gpt-6-astra 의 high 를 뺀 근거도 측정이 아니라 지시다. 쓰지 않게 된 출처 키(openai_sol·openai_sol61·openai_luna·aa_sol61)는 기록으로 남긴다(검증기는 쓰지 않는 키를 허용한다). 이 정책은 여전히 shadow-only 이고 디스패치를 바꾸지 않는다."
+    "D-101(2026-10-12, Simon 지시, 토론 없음, 2026-10-12-shadow.2): 지시 원문은 \"gpt 6.1 sol은 너무 느려서 빼기로 결정. 기획단계 gpt astra xhigh와 opus 5.5. 단순작업 sonet 5.5\" 와 \"gpt 쪽은 astra 말고는 쓰지마. gpt 를 넣어야한다면 astra xhigh.\" 다. 그래서 GPT 쪽 행은 gpt-6-astra 의 xhigh 만 남겼고, gpt-6.1-sol·gpt-6-sol·gpt-6-luna 행을 네 프로필에서 모두 뺐다. 결함이나 새 측정 때문이 아니라 소유자 지시다. PLAN_ARCHITECTURE 는 0순위 claude-opus-5-5(high·xhigh)와 gpt-6-astra(xhigh), CODE_COMPLEX 는 claude-opus-5-5 medium 0순위·high/xhigh 1순위와 gpt-6-astra xhigh 0순위, WRITING 은 claude-opus-5-5(medium·high) 0순위뿐이다. CODE_SIMPLE 은 0순위 claude-haiku-5-5(low·medium), 1순위 claude-sonnet-5-5(medium), 2순위 claude-opus-5-5(medium)이고 GPT 행이 없다. Sonnet 5.5 가 CODE_SIMPLE 1순위로 돌아온 것은 이 지시 때문이지 D-90 재진입 조건이 충족돼서가 아니다: Artificial Analysis 는 2026-10-12 11:48 KST 기준으로 재측정을 올리지 않았고, 이 행의 출처 aa_sonnet 은 여전히 Sonnet 5.5 가 비용 프런티어 밖이라고 적는다. Haiku 5.5 를 Sonnet 5.5 앞에 둔 것은 오케스트레이터의 권고이고 Simon 이 반대하지 않았다. Haiku 5.5 의 근거는 Anthropic 발표문과 모델 개요(2026-10-12 13:01 KST 에 읽음, 이 정책의 checked_at 보다 늦다)와 D-99 canary(정답이 정해진 작은 A 과제 3개, effort low)뿐이고 Artificial Analysis 측정은 인용하지 않았다. gpt-6-astra 의 high 를 뺀 근거도 측정이 아니라 지시다. 쓰지 않게 된 출처 키(openai_sol·openai_sol61·openai_luna·aa_sol61)는 기록으로 남긴다(검증기는 쓰지 않는 키를 허용한다). 이 정책은 여전히 shadow-only 이고 디스패치를 바꾸지 않는다.",
+    "D-103(2026-10-18, Simon 지시, 토론 없음, 2026-10-18-shadow.3): 지시 원문은 \"sonnet은 사용하는걸로 설정하자\" 다. D-90 의 재진입 조건(Artificial Analysis 공개판 재측정)을 소유자 지시가 대신한다. 2026-10-18 09:43 KST 에도 AA 는 재측정을 올리지 않았다('we will be re-running relevant evaluations soon' 그대로, 9-28 출시 전 측정 지수 56·max 약 193k 토큰). 그래서 claude-sonnet-5-5 를 D-90 이 빼 둔 두 프로필에 되돌린다: CODE_COMPLEX high 1순위(D-90 이 재진입 첫 자리로 적은 곳, AA Terminal-Bench 4.0 64%), WRITING medium 1순위. 0순위는 그대로 claude-opus-5-5 다. PLAN_ARCHITECTURE 에는 넣지 않는다: D-101 지시가 기획을 gpt-6-astra xhigh 와 claude-opus-5-5 로 정했다. 같은 지시로 실제 코딩 레인(routing.py PROCESS_LANES coding)도 opus → sonnet → fable 이 됐다. 출처 aa_sonnet 은 여전히 Sonnet 5.5 가 비용 프런티어 밖이라고 적는다 — 이 복귀는 측정이 아니라 소유자 지시다. 2026-10-18 재확인(출처 11개 포함 36개, 첫 요청 09:19:19 KST)에서 위 D-90 노트의 한 구절이 원문과 방향이 반대인 것을 찾았다: 'low·medium·high 가 GPT-6 Sol high·xhigh·max 보다 적은 토큰으로 낮은 성능'이 아니라, 원문은 Sol 이 더 적은 출력 토큰으로 더 높은 성능을 낸다고 적는다. D-90 의 결론(Sonnet 5.5 는 비용 프런티어 밖)은 원문과 같다. 노트 원문은 기록으로 두고 여기서 바로잡는다."
   ],
   "sources": {
     "anthropic_opus": "https://www.anthropic.com/claude-opus-5-5",
@@ -34,6 +35,7 @@
     "CODE_COMPLEX": [
       {"model": "claude-opus-5-5", "efforts": ["medium"], "rank": 0, "sources": ["anthropic_opus", "aa_opus"]},
       {"model": "claude-opus-5-5", "efforts": ["high", "xhigh"], "rank": 1, "sources": ["anthropic_opus", "aa_opus"]},
+      {"model": "claude-sonnet-5-5", "efforts": ["high"], "rank": 1, "sources": ["anthropic_sonnet", "aa_sonnet"]},
       {"model": "gpt-6-astra", "efforts": ["xhigh"], "rank": 0, "sources": ["openai_astra"]}
     ],
     "CODE_SIMPLE": [
@@ -42,7 +44,8 @@
       {"model": "claude-opus-5-5", "efforts": ["medium"], "rank": 2, "sources": ["anthropic_opus", "aa_opus"]}
     ],
     "WRITING": [
-      {"model": "claude-opus-5-5", "efforts": ["medium", "high"], "rank": 0, "sources": ["anthropic_opus", "aa_opus"]}
+      {"model": "claude-opus-5-5", "efforts": ["medium", "high"], "rank": 0, "sources": ["anthropic_opus", "aa_opus"]},
+      {"model": "claude-sonnet-5-5", "efforts": ["medium"], "rank": 1, "sources": ["anthropic_sonnet", "aa_sonnet"]}
     ]
   }
 }
