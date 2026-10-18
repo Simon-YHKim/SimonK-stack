@@ -907,3 +907,5 @@ last-sync: 2026-07-05
 - 2026-10-18 12:04:36 KST | AMEND | **D-106 Sonnet 5.5 는 단순 코딩, 복잡한 코딩은 Opus 5.5 xhigh** — 배포 완료 | claude
   - SimonK-stack PR #175(내용 `df2869e` + 승인 `db8f62b`) 머지 → main `0f718bb`, dist 1.867.0(`164a9b3`, Claude `c0495e7a…` · Codex `032d9047…` = 승인 파일). 이 PC 후보 `20261018-vibe-2200-0f718bb`(vibe 2.20.0, selftest 283/0 · 104/0, problems 0, 미리보기 current).
   - 검증: vibe 단위 441(새 2) · scripts/tests 157 · test_dist_release 38 · 하네스 24/24 · validate_skill 0/0, PR CI 두 번 통과. 두 가드(공정별 effort, CODE_COMPLEX 고정)를 일부러 망가뜨린 변형을 새 테스트가 잡았다.
+- 2026-10-18 12:51:04 KST | AMEND | **D-107 한국어 글 초안은 Gemini 4 Argon** — 공용 지침에 반영 | claude
+  - `E:\Coding Infra` 의 CLAUDE.md · AGENTS.md · GEMINI.md §21 Skill routing 에 같은 한 줄을 넣었다(§18 3파일 동기화). 이 폴더는 git 이 아니라 바꾸기 전 사본을 `_archive/instructions-261018-d107/` 에 두었다. 스킬(vibe 등)에는 넣지 않았다 — /vibe 계획기는 Argon 을 배정하지 못하고(D-105) 이 규칙은 /vibe 를 부르지 않은 세션에도 적용돼야 해서다.
