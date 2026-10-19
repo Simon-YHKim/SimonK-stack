@@ -1,8 +1,8 @@
 # SimonK-Stack
 
-> Claude Code용 스킬 182개를 다섯 플러그인으로 묶은 작업 도구 상자입니다. 아이디어 검증부터 기획·개발·테스트·보안·배포, 디자인, AI 기능, 마케팅까지 "무엇을 하고 싶은지"만 말하면 알맞은 스킬과 모델로 이어 줍니다.
+> Claude Code용 스킬 183개를 다섯 플러그인으로 묶은 작업 도구 상자입니다. 아이디어 검증부터 기획·개발·테스트·보안·배포, 디자인, AI 기능, 마케팅까지 "무엇을 하고 싶은지"만 말하면 알맞은 스킬과 모델로 이어 줍니다.
 
-![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) ![plugins](https://img.shields.io/badge/plugins-5-5b8cff) ![skills](https://img.shields.io/badge/skills-182-brightgreen)
+![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) ![plugins](https://img.shields.io/badge/plugins-5-5b8cff) ![skills](https://img.shields.io/badge/skills-183-brightgreen)
 
 **사이트**: [simonk-stack.pages.dev](https://simonk-stack.pages.dev) · **English**: [README.en.md](README.en.md) · **변경 기록**: [CHANGELOG.md](CHANGELOG.md)
 
@@ -46,7 +46,7 @@
 | `simonk-core` | 공용 기반. 작업 조정(`vibe`), 스프린트(`simonk`), 모델 배정, AI 토론, 메모리·위키, 보고서, 세션 인수인계, 안전(`careful`·`unfreeze`) | 61 | `/simonk-core:vibe` |
 | `simonk-stack` | 제품 만들기. 기획·스펙, 개발·리팩터링, 디버깅, QA, 보안, 배포·릴리스, 안전(`freeze`·`guard`) | 60 | `/simonk-stack:skstack` |
 | `simonk-aihub` | AI 기능 만들기. 모델 선택, 프롬프트, 에이전트, RAG, LLM 평가·안전 평가 | 7 | `/simonk-aihub:skaihub` |
-| `simonk-design` | 디자인. UI 방향 잡기, 디자인 시스템, 로고·소셜 그래픽, 슬라이드, 접근성 점검 | 22 | `/simonk-design:skdesign` |
+| `simonk-design` | 디자인. UI 방향 잡기, 디자인 시스템, 로고·소셜 그래픽, 슬라이드, 접근성 점검 | 23 | `/simonk-design:skdesign` |
 | `simonk-market` | 시장과 매출. 아이디어 검증, PMF, 그로스·리텐션, 광고·결제·구독, 출시 | 32 | `/simonk-market:skmarket` |
 
 플러그인 스킬을 슬래시로 부를 때는 `/<플러그인>:<스킬>` 형식이 확실합니다(예: `/simonk-core:careful`). 각 플러그인에 들어 있는 스킬 전체 목록은 [5절 끝](#전체-스킬-목록)에 있습니다.
@@ -90,7 +90,7 @@ POSIX 셸에서는 `claude plugin list --json | grep -o 'simonk-[a-z]*@simonk-st
 
 ### Codex CLI에서 쓰기
 
-Codex는 같은 저장소에서 **Codex판**(177개)을 받습니다. Claude Code 전용 안전 스킬 5개(`careful`·`freeze`·`guard`·`investigate`·`unfreeze`)는 Codex에서 차단을 보장할 수 없어 빠져 있습니다(허브 D-29·D-88).
+Codex는 같은 저장소에서 **Codex판**(178개)을 받습니다. Claude Code 전용 안전 스킬 5개(`careful`·`freeze`·`guard`·`investigate`·`unfreeze`)는 Codex에서 차단을 보장할 수 없어 빠져 있습니다(허브 D-29·D-88).
 
 ```
 codex plugin marketplace add Simon-YHKim/SimonK-stack
@@ -174,9 +174,9 @@ agent-builder, ai-model-selector, ai-safety-eval, llm-eval, prompt-engineering, 
 </details>
 
 <details>
-<summary><code>simonk-design</code> — 22개</summary>
+<summary><code>simonk-design</code> — 23개</summary>
 
-accessibility-audit, coloring-art, consistency-guard, dashboard-review, design-consultation, design-html, design-review, design-shotgun, design-system-keeper, design-system-page, inclusive-ux, logo-generator, persona-simulation, photo-album, plan-design-review, remotion-best-practices, scientific-paper, simon-design-first, skdesign, slides, social-graphic, stitch-design-flow
+accessibility-audit, coloring-art, consistency-guard, dashboard-review, design-consultation, design-html, design-review, design-shotgun, design-system-keeper, design-system-page, inclusive-ux, logo-generator, persona-simulation, photo-album, plan-design-review, remotion-best-practices, scientific-paper, simon-design-first, simon-motion-reference, skdesign, slides, social-graphic, stitch-design-flow
 </details>
 
 <details>
@@ -268,7 +268,7 @@ Claude Code에서 `/simonk-core:ai-usage-widget-install` 또는 "AI 사용량 �
 ### 저장소 구조
 
 ```
-skills-src/        배포할 스킬 소스 137개 (SKILL.md, evals/, scripts/, references/)
+skills-src/        배포할 스킬 소스 138개 (SKILL.md, evals/, scripts/, references/)
 .claude/skills/    이 저장소에서 쓰는 개발용 스킬 4개
 scripts/           빌드·검증 도구 (skill_release, plugin_bundle, codex_overlay, codex_safe_subset, dist_release)
 scripts/windows/   Windows 사용자 홈 설치 도구 (update-local.ps1)
