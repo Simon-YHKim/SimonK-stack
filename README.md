@@ -46,7 +46,7 @@
 | `simonk-core` | 공용 기반. 작업 조정(`vibe`), 스프린트(`simonk`), 모델 배정, AI 토론, 메모리·위키, 보고서, 세션 인수인계, 안전(`careful`·`unfreeze`) | 61 | `/simonk-core:vibe` |
 | `simonk-stack` | 제품 만들기. 기획·스펙, 개발·리팩터링, 디버깅, QA, 보안, 배포·릴리스, 안전(`freeze`·`guard`) | 60 | `/simonk-stack:skstack` |
 | `simonk-aihub` | AI 기능 만들기. 모델 선택, 프롬프트, 에이전트, RAG, LLM 평가·안전 평가 | 7 | `/simonk-aihub:skaihub` |
-| `simonk-design` | 디자인. UI 방향 잡기, 디자인 시스템, 로고·소셜 그래픽, 슬라이드, 접근성 점검 | 22 | `/simonk-design:skdesign` |
+| `simonk-design` | 디자인. UI 방향 잡기, 디자인 시스템, 로고·소셜 그래픽, 슬라이드, 접근성 점검 | 23 | `/simonk-design:skdesign` |
 | `simonk-market` | 시장과 매출. 아이디어 검증, PMF, 그로스·리텐션, 광고·결제·구독, 출시 | 32 | `/simonk-market:skmarket` |
 
 플러그인 스킬을 슬래시로 부를 때는 `/<플러그인>:<스킬>` 형식이 확실합니다(예: `/simonk-core:careful`). 각 플러그인에 들어 있는 스킬 전체 목록은 [5절 끝](#전체-스킬-목록)에 있습니다.
@@ -174,9 +174,9 @@ agent-builder, ai-model-selector, ai-safety-eval, llm-eval, prompt-engineering, 
 </details>
 
 <details>
-<summary><code>simonk-design</code> — 22개</summary>
+<summary><code>simonk-design</code> — 23개</summary>
 
-accessibility-audit, coloring-art, consistency-guard, dashboard-review, design-consultation, design-html, design-review, design-shotgun, design-system-keeper, design-system-page, inclusive-ux, logo-generator, persona-simulation, photo-album, plan-design-review, remotion-best-practices, scientific-paper, simon-design-first, skdesign, slides, social-graphic, stitch-design-flow
+accessibility-audit, coloring-art, consistency-guard, dashboard-review, design-consultation, design-html, design-review, design-shotgun, design-system-keeper, design-system-page, inclusive-ux, logo-generator, persona-simulation, photo-album, plan-design-review, remotion-best-practices, scientific-paper, simon-design-first, simon-motion-reference, skdesign, slides, social-graphic, stitch-design-flow
 </details>
 
 <details>

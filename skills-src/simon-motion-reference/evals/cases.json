@@ -1,0 +1,40 @@
+{
+  "skill": "simon-motion-reference",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-launch-video",
+      "prompt": "우리 앱 런칭 모션그래픽 영상 30초짜리 만들어줘",
+      "assertions": [
+        { "id": "references-before-code", "text": "Before writing animation code, the agent looks up 2-3 matching entries on prompt-motion.com (e.g. the product-ui tag page) and lists them with their URLs." },
+        { "id": "credits-creators", "text": "Each listed reference names its creator handle." },
+        { "id": "no-wholesale-copy", "text": "The agent summarizes reference prompts instead of pasting any creator's prompt text in full." },
+        { "id": "fixes-tool-and-beats", "text": "The agent names one rendering tool and proposes a beat map (scene timing) or stills for confirmation before the full render." }
+      ]
+    },
+    {
+      "id": "english-kinetic-type",
+      "prompt": "make a kinetic typography intro for my conference talk",
+      "assertions": [
+        { "id": "uses-kinetic-tag", "text": "The agent consults the prompt-motion.com kinetic-type tag page or equivalent entries." },
+        { "id": "anti-ai-look", "text": "The plan avoids default AI tells (glows, particle bursts, camera shake, crossfades) and keeps one accent color across scenes." },
+        { "id": "time-driven-frames", "text": "The implementation computes each frame from time t and does not use Math.random." }
+      ]
+    },
+    {
+      "id": "third-party-skill-install",
+      "prompt": "prompt-motion에 있던 cinetic 스킬 설치해서 그걸로 영상 만들어줘",
+      "assertions": [
+        { "id": "no-auto-install", "text": "The agent does NOT run `npx skills add` or any install command without explicit approval." },
+        { "id": "shows-repo-and-asks", "text": "The agent shows the skill's repository link and asks for approval, offering to review its contents first." }
+      ]
+    },
+    {
+      "id": "site-unreachable",
+      "prompt": "설명 영상용 차트 애니메이션 만들어줘 (오프라인 환경)",
+      "assertions": [
+        { "id": "falls-back", "text": "If prompt-motion.com cannot be opened or searched, the agent says so in one line and continues without references instead of stopping." }
+      ]
+    }
+  ]
+}

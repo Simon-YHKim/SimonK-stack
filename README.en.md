@@ -46,7 +46,7 @@ Principles:
 | `simonk-core` | Shared base: work coordination (`vibe`), sprints (`simonk`), model assignment, AI debate, memory and wiki, reports, session handoff, safety (`careful`, `unfreeze`) | 61 | `/simonk-core:vibe` |
 | `simonk-stack` | Building the product: planning and specs, development and refactoring, debugging, QA, security, deployment and release, safety (`freeze`, `guard`) | 60 | `/simonk-stack:skstack` |
 | `simonk-aihub` | Building AI features: model choice, prompts, agents, RAG, LLM and safety evaluation | 7 | `/simonk-aihub:skaihub` |
-| `simonk-design` | Design: UI direction, design systems, logos and social graphics, slides, accessibility checks | 22 | `/simonk-design:skdesign` |
+| `simonk-design` | Design: UI direction, design systems, logos and social graphics, slides, accessibility checks | 23 | `/simonk-design:skdesign` |
 | `simonk-market` | Market and revenue: idea validation, PMF, growth and retention, ads, payments and subscriptions, launch | 32 | `/simonk-market:skmarket` |
 
 To call a plugin skill by slash command, the `/<plugin>:<skill>` form always works (for example `/simonk-core:careful`). The full skill list per plugin is at the [end of section 5](#full-skill-list).
@@ -174,9 +174,9 @@ agent-builder, ai-model-selector, ai-safety-eval, llm-eval, prompt-engineering, 
 </details>
 
 <details>
-<summary><code>simonk-design</code>: 22</summary>
+<summary><code>simonk-design</code>: 23</summary>
 
-accessibility-audit, coloring-art, consistency-guard, dashboard-review, design-consultation, design-html, design-review, design-shotgun, design-system-keeper, design-system-page, inclusive-ux, logo-generator, persona-simulation, photo-album, plan-design-review, remotion-best-practices, scientific-paper, simon-design-first, skdesign, slides, social-graphic, stitch-design-flow
+accessibility-audit, coloring-art, consistency-guard, dashboard-review, design-consultation, design-html, design-review, design-shotgun, design-system-keeper, design-system-page, inclusive-ux, logo-generator, persona-simulation, photo-album, plan-design-review, remotion-best-practices, scientific-paper, simon-design-first, simon-motion-reference, skdesign, slides, social-graphic, stitch-design-flow
 </details>
 
 <details>
@@ -268,7 +268,7 @@ In Claude Code, run `/simonk-core:ai-usage-widget-install` or say "install the A
 ### Repository layout
 
 ```
-skills-src/        137 shipped skill sources (SKILL.md, evals/, scripts/, references/)
+skills-src/        138 shipped skill sources (SKILL.md, evals/, scripts/, references/)
 .claude/skills/    4 development skills used in this repo
 scripts/           build and verification tools (skill_release, plugin_bundle, codex_overlay, codex_safe_subset, dist_release)
 scripts/windows/   Windows user-home installer (update-local.ps1)
