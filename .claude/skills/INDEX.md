@@ -224,7 +224,7 @@
 
 ## 부록 — Gstack 홈 설치본 (위 142개 소스 카운트 제외)
 
-> 아래는 **gstack 홈 설치본**(`~/.claude/skills/`)에 함께 깔리는 gstack skill 로, simon-stack 큐레이션 셋이 아니다 (위 141개 소스 카운트에 미포함). 전체 목록·진입점은 `/gstack` 로 조회. 여기 등재는 가시성 용도이며, **gstack skill 자체는 SimonK-stack 에서 수정하지 않는다** (upstream garrytan/gstack 책임 도메인).
+> 아래는 **gstack 홈 설치본**(`~/.claude/skills/`)에 함께 깔리는 gstack skill 로, simon-stack 큐레이션 셋이 아니다 (위 142개 소스 카운트에 미포함). 전체 목록·진입점은 `/gstack` 로 조회. 여기 등재는 가시성 용도이며, **gstack skill 자체는 SimonK-stack 에서 수정하지 않는다** (upstream garrytan/gstack 책임 도메인).
 
 | Skill | 역할 |
 |---|---|
