@@ -2,10 +2,12 @@
 import importlib.util
 import json
 import os
+import posixpath
 import tempfile
 import unittest
 import zipfile
 from pathlib import Path
+from unittest import mock
 
 REPO = Path(__file__).resolve().parents[2]
 SCRIPT = REPO / "scripts" / "claude_app_skill_zip.py"
@@ -152,19 +154,70 @@ class AppSkillZipTests(unittest.TestCase):
         report = mod.build(d, self.out)
         self.assertEqual(report["description_chars"], len("Use when x."))
         skill_md = self.read_zip("note-skill")["note-skill/SKILL.md"]
-        self.assertTrue(skill_md.startswith("---\nname: note-skill\ndescription: Use when x.\nmetadata:\n"))
+        # kept keys are re-emitted verbatim (valid YAML); only their string values drop the comment
+        self.assertTrue(skill_md.startswith(
+            "---\nname: note-skill  # the folder name\ndescription: Use when x. # trailing\nmetadata:\n"))
         self.assertIn('  allowed-tools: "Read, Bash"\n', skill_md)
         self.assertIn('  notes: "# literal content, not a comment\\nsecond line"\n', skill_md)
         self.assertIn('  version: "1.0"\n', skill_md)
         self.assertIn('  topic: "C#, F#"\n', skill_md)
-        for gone in ("leading comment", "between keys", "after the block", "trailing", "languages"):
+        for gone in ("leading comment", "between keys", "after the block", "languages", "shell", "may call"):
             self.assertNotIn(gone, skill_md)
 
         quoted = self.skill("hash-skill", 'name: hash-skill\ndescription: "Use when #tags matter." # c\n')
         self.assertEqual(mod.build(quoted, self.out)["description_chars"], len("Use when #tags matter."))
         multi = self.skill("multi-skill", 'name: multi-skill\ndescription: "Use when\n  #tag shows up."\n')
-        mod.build(multi, self.out)  # a '#' line inside an open quote is text; dropping it would unbalance the quote
+        self.assertEqual(mod.build(multi, self.out)["description_chars"], len("Use when #tag shows up."))
         self.assertIn('description: "Use when\n  #tag shows up."\n', self.read_zip("multi-skill")["multi-skill/SKILL.md"])
+
+    def test_quoted_list_items_keep_their_hash(self):
+        d = self.skill("list-hash", 'name: list-hash\ndescription: Use when x.\n'
+                       'compatibility:\n  - "Claude #1"\n  - codex # a comment\n  # a comment line\n'
+                       "tags:\n  - 'C# tips' # c\n  - plain\n")
+        mod.build(d, self.out)
+        skill_md = self.read_zip("list-hash")["list-hash/SKILL.md"]
+        self.assertIn('\ncompatibility: "Claude #1, codex"\n', skill_md)
+        self.assertIn('  tags: "C# tips, plain"\n', skill_md)
+
+    def test_nested_block_scalars_in_metadata_survive(self):
+        d = self.skill("nested-block", "name: nested-block\ndescription: Use when x.\n"
+                       "metadata:\n  # owner notes\n  note: |\n    # Markdown heading\n    body\n  owner: s\n"
+                       "version: 2\n")
+        mod.build(d, self.out)
+        skill_md = self.read_zip("nested-block")["nested-block/SKILL.md"]
+        self.assertIn("metadata:\n  # owner notes\n  note: |\n    # Markdown heading\n    body\n"
+                      '  owner: s\n  version: "2"\n---\n', skill_md)
+
+    def test_multi_line_quoted_values_are_unquoted(self):
+        d = self.skill("multi-quote", 'name: multi-quote\ndescription: Use when x.\n'
+                       'compatibility: "Claude\n  Code" # c\n'
+                       "summary: 'it''s\n  long'\n"
+                       'hint:\n  "on the next line"\n')
+        mod.build(d, self.out)
+        skill_md = self.read_zip("multi-quote")["multi-quote/SKILL.md"]
+        self.assertIn('\ncompatibility: "Claude Code"\n', skill_md)
+        self.assertIn('  summary: "it\'s long"\n', skill_md)
+        self.assertIn('  hint: "on the next line"\n', skill_md)
+
+    def test_output_folder_is_matched_by_identity_not_spelling(self):
+        d = self.skill("case-out", "name: case-out\ndescription: Use when x.\n", extra={"a.md": "a\n"})
+        real = d / "Dist"
+        real.mkdir()
+        (real / "case-out.zip").write_bytes(b"an earlier build")
+        (real / "old-notes.md").write_text("old\n", encoding="utf-8")
+        alias = d / "dist"  # another spelling of Dist/ on a case-insensitive file system (Windows, macOS)
+        if not alias.exists():  # case-sensitive (Linux CI): reach Dist/ through a symlink instead
+            alias = d / "dist-link"
+            try:
+                os.symlink(real, alias, target_is_directory=True)
+            except OSError as exc:
+                self.skipTest(f"no case-insensitive alias or symlink available: {exc}")
+        # Emulate macOS path functions: realpath keeps the spelling given, normcase does not fold.
+        # Only file identity can then tell that the alias is Dist/.
+        with mock.patch("os.path.normcase", posixpath.normcase), \
+                mock.patch.object(mod.Path, "resolve", lambda self, strict=False: self.absolute()):
+            report = mod.build(d, alias)
+        self.assertEqual(report["files"], ["SKILL.md", "a.md"])
 
     def test_executable_helpers_keep_their_exec_bit(self):
         d = self.skill(

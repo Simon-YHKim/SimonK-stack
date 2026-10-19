@@ -5,7 +5,9 @@ license, compatibility, metadata and allowed-tools. Our skills carry version/aut
 this script moves every other key into `metadata` as a string. `allowed-tools` is moved
 too: it names Claude Code tools, which do not exist in the app. `compatibility` is written
 as one string of at most 500 chars, as the Agent Skills spec requires: a list such as
-[claude-code, codex] becomes "claude-code, codex". YAML comments are dropped.
+[claude-code, codex] becomes "claude-code, codex". name, description, license and
+metadata are copied as written; top-level comment lines are dropped, and comments are cut
+from every value that is turned into a string.
 
 The ZIP root is a folder named after the skill. Output is deterministic (sorted entries,
 fixed timestamps, Unix modes), so the same input gives the same bytes. A file that starts
@@ -76,8 +78,8 @@ def split_frontmatter(text):
     return text[4:end + 1], text[end + 5:]
 
 
-def scan_quotes(v):
-    """([(index, char) outside quotes], True when a quote is still open at the end).
+def unquoted_chars(v):
+    """[(index, char)] of a one-line YAML value for the chars that are outside quotes.
 
     A quote opens a quoted scalar only at the start of the value or, in a flow
     collection, at the start of an item; an apostrophe inside plain text is text."""
@@ -98,13 +100,13 @@ def scan_quotes(v):
         elif not quote:
             chars.append((i, c))
         i += 1
-    return chars, quote is not None
+    return chars
 
 
 def strip_comment(v):
     """A one-line YAML value without its comment ('#' at the start or after a space)."""
     v = v.strip()
-    for i, c in scan_quotes(v)[0]:
+    for i, c in unquoted_chars(v):
         if c == "#" and (i == 0 or v[i - 1] in " \t"):
             return v[:i].rstrip()
     return v
@@ -114,25 +116,18 @@ def is_block_scalar(first):
     return bool(BLOCK_RE.match(first))
 
 
-def lines_are_content(first):
-    """True when indented lines after this value belong to it even if they start with '#':
-    a '|' or '>' block scalar, or a quoted value that continues on the next line."""
-    return is_block_scalar(first) or scan_quotes(first)[1]
-
-
 def parse_entries(fm):
-    """Top-level keys in order: [key, text after the colon, continuation lines].
+    """Top-level keys in order: [key, raw text after the colon, raw continuation lines].
 
-    Comment lines are dropped, except indented lines of a '|' or '>' block scalar or of
-    a multi-line quoted value (those are content). A trailing comment is cut from the
-    text after the colon."""
+    Only column-0 '#' lines (top-level comments) are dropped. Indented lines are kept as
+    they are, so kept keys are re-emitted verbatim; scalar() drops comments where a value
+    becomes a string."""
     entries = []
     for line in fm.split("\n"):
         m = KEY_RE.match(line)
         if m and not line[:1].isspace():
-            entries.append([m.group(1), strip_comment(m.group(2)), []])
-        elif line.lstrip().startswith("#") and not (
-                line[:1].isspace() and entries and lines_are_content(entries[-1][1])):
+            entries.append([m.group(1), m.group(2).strip(), []])
+        elif line.startswith("#"):
             continue
         elif entries:
             entries[-1][2].append(line)
@@ -164,7 +159,7 @@ def flow_items(v):
     if not (v.startswith("[") and v.endswith("]")):
         return None
     depth, cuts, end = 0, [], None
-    for i, c in scan_quotes(v)[0]:
+    for i, c in unquoted_chars(v):
         if end is not None:
             return None
         if c in "[{":
@@ -183,20 +178,36 @@ def flow_items(v):
     return [unquote(p) for p in parts if p]
 
 
+def plain_line(line):
+    """One continuation line of a plain value or block list, without its comment.
+
+    A list item loses its '- ' before the comment is cut, so a quote opening the item is
+    seen at position 0 and a '#' inside it is kept."""
+    s = line.strip()
+    if s.startswith("- "):
+        item = strip_comment(s[2:])
+        return f"- {item}" if item else ""
+    return strip_comment(s)
+
+
 def scalar(first, cont):
-    """The string value of one entry (plain, quoted, folded, literal, block or flow list)."""
+    """The string value of one entry (plain, quoted, folded, literal, block or flow list).
+
+    Comments are dropped here, where a value becomes a string."""
+    first = strip_comment(first)
+    rest = [c.strip() for c in cont if c.strip()]
     if is_block_scalar(first):
-        lines = [c.strip() for c in cont if c.strip()]
-        return (" " if first[0] == ">" else "\n").join(lines)
-    quoted = first[:1] in ('"', "'")
-    lines = [x for x in (c.strip() if quoted else strip_comment(c) for c in cont) if x]
+        return (" " if first[0] == ">" else "\n").join(rest)
+    head = first or (rest[0] if rest else "")
+    if head[:1] in ('"', "'"):
+        # A quoted value may span lines; YAML folds the line breaks into single spaces.
+        return unquote(strip_comment(" ".join(([first] if first else []) + rest)))
+    lines = [x for x in (plain_line(c) for c in rest) if x]
     if not first and lines and all(x.startswith("- ") for x in lines):
-        return ", ".join(unquote(x[2:].strip()) for x in lines)
+        return ", ".join(unquote(x[2:]) for x in lines)
     text = " ".join(([first] if first else []) + lines)
     items = flow_items(text)
-    if items is not None:
-        return ", ".join(items)
-    return text if lines else unquote(first)
+    return ", ".join(items) if items is not None else unquote(text)
 
 
 def entry_text(e):
@@ -241,10 +252,10 @@ def app_frontmatter(fm, expected_name):
     meta_lines = []
     indent = "  "
     if meta:
-        if meta[1]:
+        if strip_comment(meta[1]):
             raise BuildError("inline 'metadata:' values are not supported; use an indented block")
         meta_lines = list(meta[2])
-        first_child = next((c for c in meta_lines if c.strip()), "")
+        first_child = next((c for c in meta_lines if c.strip() and not c.lstrip().startswith("#")), "")
         indent = first_child[: len(first_child) - len(first_child.lstrip())] or "  "
         existing = {KEY_RE.match(c.strip()).group(1) for c in meta_lines
                     if c[:1].isspace() and KEY_RE.match(c.strip())}
@@ -262,23 +273,45 @@ def app_frontmatter(fm, expected_name):
     return "\n".join(out) + "\n", [k for k, _ in moved], desc
 
 
-def inside(path, root):
-    """True when path is root or below it (case-insensitive where the OS is)."""
-    p, r = os.path.normcase(str(path)), os.path.normcase(str(root))
-    return p == r or p.startswith(r.rstrip(os.sep) + os.sep)
+def output_stats(out_dir, target):
+    """Identities of the build's existing outputs: the --out folder, the ZIP and its temp file.
+
+    A path that does not exist yet cannot contain anything, so it is left out."""
+    stats = []
+    for p in (out_dir, target, target.with_suffix(".zip.tmp")):
+        try:
+            stats.append(os.stat(p))
+        except OSError:
+            pass
+    return stats
+
+
+def is_output(p, src, outputs):
+    """True when p, or a folder between src and p, is one of the outputs (by file identity,
+    so a differently spelled or cased path to the same folder still matches)."""
+    for q in (p, *p.parents):
+        if q == src:
+            return False
+        try:
+            st = os.lstat(q)
+        except OSError:
+            return False
+        if any(os.path.samestat(st, o) for o in outputs):
+            return True
+    return False
 
 
 def is_secret(rel):
     return any(fnmatch.fnmatch(posixpath.basename(rel), g) for g in SECRET_NAMES)
 
 
-def select_files(src, include, exclude, skip=()):
+def select_files(src, include, exclude, outputs=()):
     """Packaged files, skipped symlinks and excluded secret files (all relative to src).
 
-    `skip` holds absolute paths (files or folders) that are never packaged."""
+    `outputs` holds os.stat results of build outputs; nothing inside them is packaged."""
     files, skipped_links, secrets = [], [], []
     for p in sorted(src.rglob("*")):
-        if any(inside(p, s) for s in skip):
+        if outputs and is_output(p, src, outputs):
             continue
         rel = p.relative_to(src).as_posix()
         if p.is_symlink():
@@ -300,15 +333,6 @@ def select_files(src, include, exclude, skip=()):
             note = f"; secret files are never packaged: {secrets}" if secrets else ""
             raise BuildError(f"--include matched nothing: {missing}{note}")
     return files, skipped_links, secrets
-
-
-def output_paths(src, out_dir, target):
-    """Paths under src that a build writes and must not package on the next run."""
-    out_real = out_dir.resolve()
-    skip = [target.resolve(), target.with_suffix(".zip.tmp").resolve()]
-    if inside(out_real, src) and os.path.normcase(str(out_real)) != os.path.normcase(str(src)):
-        skip.append(out_real)
-    return skip
 
 
 def scan_claude_code_only(texts):
@@ -342,8 +366,7 @@ def build(src, out_dir, skill_md=None, include=(), exclude=(), strict=False):
     out_dir = Path(out_dir)
     target = out_dir / f"{src.name}.zip"
     tmp = target.with_suffix(".zip.tmp")
-    files, skipped_links, secrets = select_files(
-        src, include, exclude, skip=output_paths(src, out_dir, target))
+    files, skipped_links, secrets = select_files(src, include, exclude, output_stats(out_dir, target))
     texts = {"SKILL.md": skill_text}
     for rel in files:
         if rel.endswith(".md"):
