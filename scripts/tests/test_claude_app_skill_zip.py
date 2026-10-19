@@ -1,10 +1,13 @@
 """claude.ai app skill ZIP regressions; every file is written inside a temp directory."""
 import importlib.util
 import json
+import os
+import posixpath
 import tempfile
 import unittest
 import zipfile
 from pathlib import Path
+from unittest import mock
 
 REPO = Path(__file__).resolve().parents[2]
 SCRIPT = REPO / "scripts" / "claude_app_skill_zip.py"
@@ -119,6 +122,188 @@ class AppSkillZipTests(unittest.TestCase):
                 skill_md = self.read_zip(name)[f"{name}/SKILL.md"]
                 self.assertLessEqual(set(top_keys(skill_md)), APP_KEYS)
                 self.assertNotIn("evals/cases.json", report["files"])
+
+    def test_output_folder_inside_the_skill_is_never_packaged(self):
+        d = self.skill("self-out", "name: self-out\ndescription: Use when x.\n",
+                       extra={"a.md": "a\n", "stale.zip.tmp": "partial"})
+        self.addCleanup(os.chdir, os.getcwd())
+        os.chdir(d)
+        mod.build(d, "dist")  # the reported case: --out dist, run from inside the skill
+        first = (d / "dist" / "self-out.zip").read_bytes()
+        report = mod.build(d, "dist")
+        self.assertEqual(report["files"], ["SKILL.md", "a.md"])
+        self.assertEqual(first, (d / "dist" / "self-out.zip").read_bytes())
+
+        same = self.skill("same-out", "name: same-out\ndescription: Use when x.\n", extra={"a.md": "a\n"})
+        mod.build(same, same)  # --out is the skill folder itself
+        self.assertEqual(mod.build(same, same)["files"], ["SKILL.md", "a.md"])
+
+    def test_yaml_comments_are_ignored(self):
+        d = self.skill(
+            "note-skill",
+            "# leading comment\n"
+            "name: note-skill  # the folder name\n"
+            "# between keys\n"
+            "description: Use when x. # trailing\n"
+            "allowed-tools:\n  # tools the skill may call\n  - Read\n  - Bash  # shell\n"
+            "notes: |\n  # literal content, not a comment\n  second line\n"
+            "# after the block\n"
+            "version: '1.0' # quoted, then a comment\n"
+            "topic: C#, F# # languages\n",
+        )
+        report = mod.build(d, self.out)
+        self.assertEqual(report["description_chars"], len("Use when x."))
+        skill_md = self.read_zip("note-skill")["note-skill/SKILL.md"]
+        # kept keys are re-emitted verbatim (valid YAML); only their string values drop the comment
+        self.assertTrue(skill_md.startswith(
+            "---\nname: note-skill  # the folder name\ndescription: Use when x. # trailing\nmetadata:\n"))
+        self.assertIn('  allowed-tools: "Read, Bash"\n', skill_md)
+        self.assertIn('  notes: "|\\n# literal content, not a comment\\nsecond line"\n', skill_md)
+        self.assertIn('  version: "1.0"\n', skill_md)
+        self.assertIn('  topic: "C#, F#"\n', skill_md)
+        for gone in ("leading comment", "between keys", "after the block", "languages", "shell", "may call"):
+            self.assertNotIn(gone, skill_md)
+
+        quoted = self.skill("hash-skill", 'name: hash-skill\ndescription: "Use when #tags matter." # c\n')
+        self.assertEqual(mod.build(quoted, self.out)["description_chars"], len("Use when #tags matter."))
+        multi = self.skill("multi-skill", 'name: multi-skill\ndescription: "Use when\n  #tag shows up."\n')
+        self.assertEqual(mod.build(multi, self.out)["description_chars"], len("Use when #tag shows up."))
+        self.assertIn('description: "Use when\n  #tag shows up."\n', self.read_zip("multi-skill")["multi-skill/SKILL.md"])
+
+    def test_quoted_list_items_keep_their_hash(self):
+        d = self.skill("list-hash", 'name: list-hash\ndescription: Use when x.\n'
+                       'compatibility:\n  - "Claude #1"\n  - codex # a comment\n  # a comment line\n'
+                       "tags:\n  - 'C# tips' # c\n  - plain\n")
+        mod.build(d, self.out)
+        skill_md = self.read_zip("list-hash")["list-hash/SKILL.md"]
+        self.assertIn('\ncompatibility: "Claude #1, codex"\n', skill_md)
+        self.assertIn('  tags: "C# tips, plain"\n', skill_md)
+
+    def test_nested_block_scalars_in_metadata_survive(self):
+        d = self.skill("nested-block", "name: nested-block\ndescription: Use when x.\n"
+                       "metadata:\n  # owner notes\n  note: |\n    # Markdown heading\n    body\n  owner: s\n"
+                       "version: 2\n")
+        mod.build(d, self.out)
+        skill_md = self.read_zip("nested-block")["nested-block/SKILL.md"]
+        self.assertIn("metadata:\n  # owner notes\n  note: |\n    # Markdown heading\n    body\n"
+                      '  owner: s\n  version: "2"\n---\n', skill_md)
+
+    def test_multi_line_quoted_values_are_never_half_unquoted(self):
+        refused = self.skill("multi-quote", 'name: multi-quote\ndescription: Use when x.\n'
+                             'compatibility: "Claude\n  Code" # c\n')
+        with self.assertRaisesRegex(mod.BuildError, "one-line string or a list; got a multi-line"):
+            mod.build(refused, self.out)
+        kept = self.skill("multi-moved", "name: multi-moved\ndescription: Use when x.\n"
+                          "summary: 'it''s\n  long' # c\n")
+        mod.build(kept, self.out)
+        self.assertIn("  summary: \"'it''s\\nlong' # c\"\n", self.read_zip("multi-moved")["multi-moved/SKILL.md"])
+
+    def test_secret_names_match_in_any_case(self):
+        secrets = {".ENV": "TOKEN=x\n", "config/.Env.Local": "K=v\n", "keys/server.PEM": "p\n",
+                   "keys/Api.Key": "k\n", "ID_RSA": "k\n", "ssh/Id_Ed25519.pub": "k\n", ".NPMRC": "t\n"}
+        d = self.skill("case-secret", "name: case-secret\ndescription: Use when x.\n",
+                       extra={**secrets, "keys/README.md": "r\n"})
+        with mock.patch("os.path.normcase", posixpath.normcase):  # POSIX fnmatch: no case folding
+            report = mod.build(d, self.out, include=["*"])
+        self.assertEqual(report["files"], ["SKILL.md", "keys/README.md"])
+        self.assertEqual(sorted(report["excluded_secrets"]), sorted(secrets))
+
+    def test_complex_compatibility_is_refused(self):
+        forms = {
+            "folded-compat": "compatibility: >-\n  claude-code\n\n  codex\n    indented\n",
+            "literal-compat": "compatibility: |\n  claude-code\n",
+            "mapping-compat": "compatibility:\n  claude-code: '>=1'\n",
+            "nested-compat": "compatibility:\n  - [claude-code, codex]\n",
+        }
+        for name, fm in forms.items():
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(mod.BuildError, "compatibility must be a one-line string or a list; got "):
+                    mod.build(self.skill(name, f"name: {name}\ndescription: Use when x.\n{fm}"), self.out)
+
+    def test_complex_moved_values_are_kept_verbatim(self):
+        d = self.skill("verbatim", "name: verbatim\ndescription: Use when x.\n"
+                       'notes:\n  title: "Claude #1"\n  # a note\n  tags: [a, b]\n'
+                       "usage: >-\n  first # not a comment\n\n    more-indented\n  last\n")
+        mod.build(d, self.out)
+        skill_md = self.read_zip("verbatim")["verbatim/SKILL.md"]
+        self.assertIn('  notes: "title: \\"Claude #1\\"\\n# a note\\ntags: [a, b]"\n', skill_md)
+        self.assertIn('  usage: ">-\\nfirst # not a comment\\n\\n  more-indented\\nlast"\n', skill_md)
+
+    def test_output_folder_is_matched_by_identity_not_spelling(self):
+        d = self.skill("case-out", "name: case-out\ndescription: Use when x.\n", extra={"a.md": "a\n"})
+        real = d / "Dist"
+        real.mkdir()
+        (real / "case-out.zip").write_bytes(b"an earlier build")
+        (real / "old-notes.md").write_text("old\n", encoding="utf-8")
+        alias = d / "dist"  # another spelling of Dist/ on a case-insensitive file system (Windows, macOS)
+        if not alias.exists():  # case-sensitive (Linux CI): reach Dist/ through a symlink instead
+            alias = d / "dist-link"
+            try:
+                os.symlink(real, alias, target_is_directory=True)
+            except OSError as exc:
+                self.skipTest(f"no case-insensitive alias or symlink available: {exc}")
+        # Emulate macOS path functions: realpath keeps the spelling given, normcase does not fold.
+        # Only file identity can then tell that the alias is Dist/.
+        with mock.patch("os.path.normcase", posixpath.normcase), \
+                mock.patch.object(mod.Path, "resolve", lambda self, strict=False: self.absolute()):
+            report = mod.build(d, alias)
+        self.assertEqual(report["files"], ["SKILL.md", "a.md"])
+
+    def test_executable_helpers_keep_their_exec_bit(self):
+        d = self.skill(
+            "exec-skill", "name: exec-skill\ndescription: Use when x.\n",
+            extra={"scripts/run.sh": "#!/bin/sh\necho hi\n", "scripts/tool.py": "print(1)\n", "notes.md": "n\n"},
+        )
+        if os.name != "nt":  # an exec bit only exists on POSIX; SKILL.md stays 0644 regardless
+            os.chmod(d / "scripts" / "tool.py", 0o755)
+            os.chmod(d / "SKILL.md", 0o755)
+        tool_mode = 0o644 if os.name == "nt" else 0o755
+        report = mod.build(d, self.out)
+        with zipfile.ZipFile(self.out / "exec-skill.zip") as z:
+            infos = z.infolist()
+        self.assertEqual({i.create_system for i in infos}, {3})
+        modes = {i.filename.split("/", 1)[1]: i.external_attr >> 16 for i in infos}
+        self.assertEqual(modes, {
+            "SKILL.md": 0o100644, "notes.md": 0o100644,
+            "scripts/run.sh": 0o100755, "scripts/tool.py": 0o100000 | tool_mode,
+        })
+        self.assertEqual(sorted(report["executables"]),
+                         sorted(["scripts/run.sh"] + (["scripts/tool.py"] if tool_mode == 0o755 else [])))
+
+    def test_secret_files_are_never_packaged(self):
+        secrets = {
+            ".env": "TOKEN=sk-live-123\n", ".env.local": "K=v\n", "config/.env": "X=1\n",
+            "keys/server.pem": "pem\n", "keys/api.key": "k\n", "certs/a.p12": "p\n", "certs/b.pfx": "p\n",
+            "id_rsa": "k\n", "ssh/id_ed25519.pub": "k\n", ".npmrc": "t\n", "home/.netrc": "t\n", ".pypirc": "t\n",
+        }
+        keep = {"scripts/env.py": "print(1)\n", "environment.md": "e\n", "keys/README.md": "r\n"}
+        d = self.skill("secret-skill", "name: secret-skill\ndescription: Use when x.\n", extra={**secrets, **keep})
+        report = mod.build(d, self.out, include=["*"])
+        self.assertEqual(sorted(self.read_zip("secret-skill")),
+                         sorted(f"secret-skill/{p}" for p in ["SKILL.md", *keep]))
+        self.assertEqual(sorted(report["excluded_secrets"]), sorted(secrets))
+        self.assertNotIn("sk-live-123", json.dumps(report))
+        with self.assertRaises(mod.BuildError):
+            mod.build(d, self.out, include=[".env"])
+
+    def test_compatibility_is_written_as_one_string(self):
+        cases = {
+            "flow-compat": ("compatibility: [claude-code, codex]\ntags: [a, 'b c']\n", "claude-code, codex"),
+            "block-compat": ("compatibility:\n  - claude-code\n  - grok\n", "claude-code, grok"),
+            "plain-compat": ("compatibility: Requires Python 3.11\n", "Requires Python 3.11"),
+        }
+        for name, (fm, want) in cases.items():
+            with self.subTest(name=name):
+                mod.build(self.skill(name, f"name: {name}\ndescription: Use when x.\n{fm}"), self.out)
+                skill_md = self.read_zip(name)[f"{name}/SKILL.md"]
+                self.assertIn(f"\ncompatibility: {json.dumps(want)}\n", skill_md)
+                self.assertEqual(top_keys(skill_md)[:3], ["name", "description", "compatibility"])
+        self.assertIn('  tags: "a, b c"\n', self.read_zip("flow-compat")["flow-compat/SKILL.md"])
+        for name, value in {"long-compat": "x" * 501, "empty-compat": "[]"}.items():
+            with self.subTest(name=name):
+                with self.assertRaises(mod.BuildError):
+                    mod.build(self.skill(name, f"name: {name}\ndescription: Use when x.\ncompatibility: {value}\n"),
+                              self.out)
 
     def test_cli_reports_json_and_error_exit(self):
         d = self.skill("cli-skill", "name: cli-skill\ndescription: Use when x.\n")

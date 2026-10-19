@@ -3,10 +3,22 @@
 The app rejects a SKILL.md whose frontmatter has keys other than name, description,
 license, compatibility, metadata and allowed-tools. Our skills carry version/author, so
 this script moves every other key into `metadata` as a string. `allowed-tools` is moved
-too: it names Claude Code tools, which do not exist in the app.
+too: it names Claude Code tools, which do not exist in the app. A simple value (a one-line
+string, [a, b], or a block list of one-line items) becomes "a, b"; any other form (block
+scalar, nested mapping, multi-line value) is kept as written, so nothing is cut.
+`compatibility` is written as one string of at most 500 chars, as the Agent Skills spec
+requires: only a one-line string or a list is accepted, anything else is refused.
+name, description, license and metadata are copied as written; top-level comment lines
+are dropped.
 
 The ZIP root is a folder named after the skill. Output is deterministic (sorted entries,
-fixed timestamps), so the same input gives the same bytes.
+fixed timestamps, Unix modes), so the same input gives the same bytes. A file that starts
+with '#!' or has an exec bit (POSIX) is stored as 0755, every other file as 0644.
+
+Never packaged: this build's own output (an --out folder inside the skill, *.zip.tmp),
+secret-bearing files at any depth, in any letter case (.env, .env.*, *.pem, *.key, *.p12,
+*.pfx, id_rsa*, id_ed25519*, .npmrc, .netrc, .pypirc; left out even when --include matches them and
+listed by name in the report's excluded_secrets), evals/, caches and backups.
 
 Usage:
   python scripts/claude_app_skill_zip.py skills-src/karpathy-guidelines --out dist/claude-app
@@ -15,14 +27,16 @@ Usage:
 
 --skill-md   use this SKILL.md instead of the one in the skill folder (an app edition)
 --include    only package these files (relative paths or globs); SKILL.md is always included
---exclude    extra globs to leave out (evals/, caches and backups are always left out)
+--exclude    extra globs to leave out (on top of the defaults above)
 --strict     fail when packaged Markdown still has Claude Code-only references
 """
 import argparse
 import fnmatch
 import json
 import os
+import posixpath
 import re
+import stat
 import sys
 import zipfile
 from pathlib import Path
@@ -30,10 +44,18 @@ from pathlib import Path
 KEEP_KEYS = ("name", "description", "license", "compatibility", "metadata")
 DEFAULT_EXCLUDE = (
     "evals/*", "__pycache__/*", "*/__pycache__/*", "*.pyc", "*.bak", "*.bak*",
-    "*.tmpl", ".DS_Store", ".git/*",
+    "*.tmpl", ".DS_Store", ".git/*", "*.zip.tmp",
 )
+# Matched against the file name alone, so they apply at the root and at any depth.
+SECRET_NAMES = (
+    ".env", ".env.*", "*.pem", "*.key", "*.p12", "*.pfx", "id_rsa*", "id_ed25519*",
+    ".npmrc", ".netrc", ".pypirc",
+)
+COMPATIBILITY_MAX = 500
 NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 KEY_RE = re.compile(r"^([A-Za-z0-9_-]+):(.*)$")
+MAPPING_RE = re.compile(r"^[^:]+:(\s|$)")  # "key: value" or "key:", but not "https://x"
+BLOCK_RE = re.compile(r"^[|>][-+0-9]*$")
 XML_TAG_RE = re.compile(r"</?[A-Za-z][^>]*>")
 CLAUDE_CODE_ONLY = {
     "${CLAUDE_SKILL_DIR}": re.compile(r"\$\{CLAUDE_SKILL_DIR\}"),
@@ -42,6 +64,7 @@ CLAUDE_CODE_ONLY = {
     "subagent_type": re.compile(r"subagent_type"),
 }
 ZIP_TIME = (1980, 1, 1, 0, 0, 0)
+ZIP_UNIX = 3  # "made by Unix": extractors read the mode bits on every build platform
 
 
 class BuildError(Exception):
@@ -58,13 +81,64 @@ def split_frontmatter(text):
     return text[4:end + 1], text[end + 5:]
 
 
+def scan_quotes(v):
+    """([(index, char) outside quotes], True when a quote is still open at the end).
+
+    A quote opens a quoted scalar only at the start of the value or, in a flow
+    collection, at the start of an item; an apostrophe inside plain text is text."""
+    flow = v[:1] in ("[", "{")
+    chars, quote, i = [], None, 0
+    while i < len(v):
+        c = v[i]
+        if quote == '"' and c == "\\":
+            i += 2
+            continue
+        if quote and c == quote:
+            if quote == "'" and v[i + 1:i + 2] == "'":
+                i += 2
+                continue
+            quote = None
+        elif not quote and c in "\"'" and (i == 0 or flow and v[:i].rstrip()[-1:] in ("[", "{", ",")):
+            quote = c
+        elif not quote:
+            chars.append((i, c))
+        i += 1
+    return chars, quote is not None
+
+
+def is_quoted(v):
+    """True for exactly one complete quoted scalar, such as "a #1" or 'it''s'."""
+    if v[:1] not in ('"', "'"):
+        return False
+    outside, still_open = scan_quotes(v)
+    return not outside and not still_open
+
+
+def strip_comment(v):
+    """A one-line YAML value without its comment ('#' at the start or after a space)."""
+    v = v.strip()
+    for i, c in scan_quotes(v)[0]:
+        if c == "#" and (i == 0 or v[i - 1] in " \t"):
+            return v[:i].rstrip()
+    return v
+
+
+def is_block_scalar(first):
+    return bool(BLOCK_RE.match(first))
+
+
 def parse_entries(fm):
-    """Top-level keys in order: [key, text after the colon, continuation lines]."""
+    """Top-level keys in order: [key, raw text after the colon, raw continuation lines].
+
+    Only column-0 '#' lines (top-level comments) are dropped. Indented lines are kept as
+    they are, so kept keys are re-emitted verbatim."""
     entries = []
     for line in fm.split("\n"):
         m = KEY_RE.match(line)
         if m and not line[:1].isspace():
             entries.append([m.group(1), m.group(2).strip(), []])
+        elif line.startswith("#"):
+            continue
         elif entries:
             entries[-1][2].append(line)
         elif line.strip():
@@ -90,21 +164,141 @@ def unquote(v):
     return v
 
 
+def flow_items(v):
+    """Items of a flow sequence such as '[a, "b"]', or None when v is not a flat one."""
+    if not (v.startswith("[") and v.endswith("]")):
+        return None
+    depth, cuts, end = 0, [], None
+    for i, c in scan_quotes(v)[0]:
+        if end is not None:
+            return None
+        if c in "[{":
+            depth += 1
+        elif c in "]}":
+            depth -= 1
+        elif c == "," and depth == 1:
+            cuts.append(i)
+        if depth > 1:
+            return None
+        if depth == 0:
+            end = i
+    if end != len(v) - 1:
+        return None
+    parts = [v[a + 1:b].strip() for a, b in zip([0] + cuts, cuts + [end])]
+    return [unquote(p) for p in parts if p]
+
+
+def plain_line(line):
+    """One continuation line of a plain value or block list, without its comment.
+
+    A list item loses its '- ' before the comment is cut, so a quote opening the item is
+    seen at position 0 and a '#' inside it is kept."""
+    s = line.strip()
+    if s.startswith("- "):
+        item = strip_comment(s[2:])
+        return f"- {item}" if item else ""
+    return strip_comment(s)
+
+
 def scalar(first, cont):
-    """The string value of one entry (plain, quoted, folded, literal or a list)."""
-    lines = [c.strip() for c in cont if c.strip()]
-    if first[:1] in (">", "|") and len(first) <= 2:
-        return (" " if first[0] == ">" else "\n").join(lines)
-    if not cont:
-        return unquote(first)
+    """The string value of name or description, for their checks only (they are copied as
+    written): plain, quoted, folded, literal, block or flow list."""
+    first = strip_comment(first)
+    rest = [c.strip() for c in cont if c.strip()]
+    if is_block_scalar(first):
+        return (" " if first[0] == ">" else "\n").join(rest)
+    head = first or (rest[0] if rest else "")
+    if head[:1] in ('"', "'"):
+        # A quoted value may span lines; YAML folds the line breaks into single spaces.
+        return unquote(strip_comment(" ".join(([first] if first else []) + rest)))
+    lines = [x for x in (plain_line(c) for c in rest) if x]
     if not first and lines and all(x.startswith("- ") for x in lines):
-        return ", ".join(unquote(x[2:].strip()) for x in lines)
-    return " ".join(([first] if first else []) + lines)
+        return ", ".join(unquote(x[2:]) for x in lines)
+    text = " ".join(([first] if first else []) + lines)
+    items = flow_items(text)
+    return ", ".join(items) if items is not None else unquote(text)
+
+
+def one_line(v, item=False):
+    """The string of a one-line plain or quoted scalar, or of a flat flow list [a, b] when v
+    is not itself a list item; None for anything else."""
+    if not v or is_block_scalar(v):
+        return None
+    if v[:1] in ('"', "'"):
+        return unquote(v) if is_quoted(v) else None
+    if v[:1] in ("[", "{"):
+        items = None if item else flow_items(v)
+        return None if items is None else ", ".join(items)
+    if item and (v.startswith("- ") or MAPPING_RE.match(v)):
+        return None
+    return v
+
+
+def simple_value(first, cont):
+    """The string of a simple value, or None when the value has another form.
+
+    Simple forms: a one-line plain or quoted scalar, a flat flow list [a, b], or a block
+    list of one-line scalars (joined with ", "). Comments are cut only here, and an
+    indented '#' line between list items is a comment."""
+    first = strip_comment(first)
+    rest = [c.strip() for c in cont if c.strip() and not c.strip().startswith("#")]
+    if first:
+        return None if rest else one_line(first)
+    if not rest:
+        return ""
+    if not all(x.startswith("- ") for x in rest):
+        return None
+    items = [one_line(strip_comment(x[2:]), item=True) for x in rest]
+    return None if None in items else ", ".join(items)
+
+
+def raw_value(first, cont):
+    """The value exactly as written: the text after the colon, then the continuation lines
+    with their common indent removed, joined by newlines. Nothing is unquoted or cut."""
+    indents = [len(c) - len(c.lstrip()) for c in cont if c.strip()]
+    cut = min(indents) if indents else 0
+    return "\n".join(([first] if first else []) + [c[cut:] if c.strip() else "" for c in cont])
+
+
+def value_form(first, cont):
+    """A short name for a value form that simple_value() does not read."""
+    first = strip_comment(first)
+    rest = [c.strip() for c in cont if c.strip() and not c.strip().startswith("#")]
+    if is_block_scalar(first):
+        return f"a block scalar ('{first}')"
+    if first[:1] in ('"', "'"):
+        return "a multi-line or malformed quoted value"
+    if not first and rest and MAPPING_RE.match(rest[0]):
+        return "a nested mapping"
+    if first[:1] in ("[", "{") or rest[:1] and rest[0].startswith("- "):
+        return "a nested or multi-line list"
+    return "a multi-line value"
 
 
 def entry_text(e):
     head = f"{e[0]}:" + (f" {e[1]}" if e[1] else "")
     return "\n".join([head] + e[2])
+
+
+def moved_value(e):
+    """A moved key's metadata string: read exactly when simple, otherwise kept as written."""
+    value = simple_value(e[1], e[2])
+    return raw_value(e[1], e[2]) if value is None else value
+
+
+def compatibility_text(e):
+    """`compatibility` as the single string (at most 500 chars) the Agent Skills spec requires.
+
+    Only a one-line string or a list is accepted; any other form is refused, not guessed."""
+    text = simple_value(e[1], e[2])
+    if text is None:
+        raise BuildError(f"compatibility must be a one-line string or a list; got {value_form(e[1], e[2])}")
+    text = text.strip()
+    if not text:
+        raise BuildError("compatibility is empty; name the environment or remove the key")
+    if len(text) > COMPATIBILITY_MAX:
+        raise BuildError(f"compatibility is {len(text)} chars; the spec allows {COMPATIBILITY_MAX}")
+    return text
 
 
 def app_frontmatter(fm, expected_name):
@@ -129,15 +323,15 @@ def app_frontmatter(fm, expected_name):
     if XML_TAG_RE.search(desc):
         raise BuildError("description contains an XML tag")
 
-    moved = [(e[0], scalar(e[1], e[2])) for e in entries if e[0] not in KEEP_KEYS]
+    moved = [(e[0], moved_value(e)) for e in entries if e[0] not in KEEP_KEYS]
     meta = by_key.get("metadata")
     meta_lines = []
     indent = "  "
     if meta:
-        if meta[1]:
+        if strip_comment(meta[1]):
             raise BuildError("inline 'metadata:' values are not supported; use an indented block")
         meta_lines = list(meta[2])
-        first_child = next((c for c in meta_lines if c.strip()), "")
+        first_child = next((c for c in meta_lines if c.strip() and not c.lstrip().startswith("#")), "")
         indent = first_child[: len(first_child) - len(first_child.lstrip())] or "  "
         existing = {KEY_RE.match(c.strip()).group(1) for c in meta_lines
                     if c[:1].isspace() and KEY_RE.match(c.strip())}
@@ -146,20 +340,65 @@ def app_frontmatter(fm, expected_name):
             raise BuildError(f"metadata already has {clash}")
     meta_lines += [f"{indent}{k}: {json.dumps(v, ensure_ascii=False)}" for k, v in moved]
 
-    out = [entry_text(by_key[k]) for k in KEEP_KEYS[:4] if k in by_key]
+    out = [entry_text(by_key[k]) for k in ("name", "description", "license") if k in by_key]
+    if "compatibility" in by_key:
+        compat = compatibility_text(by_key["compatibility"])
+        out.append(f"compatibility: {json.dumps(compat, ensure_ascii=False)}")
     if meta_lines:
         out.append("\n".join(["metadata:"] + meta_lines))
     return "\n".join(out) + "\n", [k for k, _ in moved], desc
 
 
-def select_files(src, include, exclude):
-    files, skipped_links = [], []
+def output_stats(out_dir, target):
+    """Identities of the build's existing outputs: the --out folder, the ZIP and its temp file.
+
+    A path that does not exist yet cannot contain anything, so it is left out."""
+    stats = []
+    for p in (out_dir, target, target.with_suffix(".zip.tmp")):
+        try:
+            stats.append(os.stat(p))
+        except OSError:
+            pass
+    return stats
+
+
+def is_output(p, src, outputs):
+    """True when p, or a folder between src and p, is one of the outputs (by file identity,
+    so a differently spelled or cased path to the same folder still matches)."""
+    for q in (p, *p.parents):
+        if q == src:
+            return False
+        try:
+            st = os.lstat(q)
+        except OSError:
+            return False
+        if any(os.path.samestat(st, o) for o in outputs):
+            return True
+    return False
+
+
+def is_secret(rel):
+    """True for a secret-bearing file name, ignoring case on every platform (.ENV, ID_RSA)."""
+    name = posixpath.basename(rel).casefold()
+    return any(fnmatch.fnmatchcase(name, g.casefold()) for g in SECRET_NAMES)
+
+
+def select_files(src, include, exclude, outputs=()):
+    """Packaged files, skipped symlinks and excluded secret files (all relative to src).
+
+    `outputs` holds os.stat results of build outputs; nothing inside them is packaged."""
+    files, skipped_links, secrets = [], [], []
     for p in sorted(src.rglob("*")):
+        if outputs and is_output(p, src, outputs):
+            continue
         rel = p.relative_to(src).as_posix()
         if p.is_symlink():
             skipped_links.append(rel)
             continue
         if not p.is_file() or rel == "SKILL.md":
+            continue
+        if is_secret(rel):
+            secrets.append(rel)
             continue
         if any(fnmatch.fnmatch(rel, g) for g in DEFAULT_EXCLUDE + tuple(exclude)):
             continue
@@ -169,8 +408,9 @@ def select_files(src, include, exclude):
     if include:
         missing = [g for g in include if not any(fnmatch.fnmatch(f, g) for f in files)]
         if missing:
-            raise BuildError(f"--include matched nothing: {missing}")
-    return files, skipped_links
+            note = f"; secret files are never packaged: {secrets}" if secrets else ""
+            raise BuildError(f"--include matched nothing: {missing}{note}")
+    return files, skipped_links, secrets
 
 
 def scan_claude_code_only(texts):
@@ -181,6 +421,13 @@ def scan_claude_code_only(texts):
             if n:
                 found.setdefault(rel, {})[label] = n
     return found
+
+
+def file_mode(path, data):
+    """0o755 for a helper meant to run (an exec bit on POSIX, or a '#!' first line), else 0o644."""
+    if os.name != "nt" and path.stat().st_mode & 0o111:
+        return 0o755
+    return 0o755 if data.startswith(b"#!") else 0o644
 
 
 def build(src, out_dir, skill_md=None, include=(), exclude=(), strict=False):
@@ -194,7 +441,10 @@ def build(src, out_dir, skill_md=None, include=(), exclude=(), strict=False):
     new_fm, moved, desc = app_frontmatter(fm, src.name)
     skill_text = f"---\n{new_fm}---\n{body}"
 
-    files, skipped_links = select_files(src, include, exclude)
+    out_dir = Path(out_dir)
+    target = out_dir / f"{src.name}.zip"
+    tmp = target.with_suffix(".zip.tmp")
+    files, skipped_links, secrets = select_files(src, include, exclude, output_stats(out_dir, target))
     texts = {"SKILL.md": skill_text}
     for rel in files:
         if rel.endswith(".md"):
@@ -203,16 +453,21 @@ def build(src, out_dir, skill_md=None, include=(), exclude=(), strict=False):
     if strict and warnings:
         raise BuildError(f"Claude Code-only references remain: {warnings}")
 
-    out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    target = out_dir / f"{src.name}.zip"
-    tmp = target.with_suffix(".zip.tmp")
+    executables = []
     with zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as z:
         for rel in ["SKILL.md"] + files:
+            if rel == "SKILL.md":
+                data, mode = skill_text.encode("utf-8"), 0o644
+            else:
+                data = (src / rel).read_bytes()
+                mode = file_mode(src / rel, data)
+            if mode == 0o755:
+                executables.append(rel)
             info = zipfile.ZipInfo(f"{src.name}/{rel}", date_time=ZIP_TIME)
             info.compress_type = zipfile.ZIP_DEFLATED
-            info.external_attr = 0o644 << 16
-            data = skill_text.encode("utf-8") if rel == "SKILL.md" else (src / rel).read_bytes()
+            info.create_system = ZIP_UNIX
+            info.external_attr = (stat.S_IFREG | mode) << 16
             z.writestr(info, data)
     os.replace(tmp, target)
     return {
@@ -220,11 +475,13 @@ def build(src, out_dir, skill_md=None, include=(), exclude=(), strict=False):
         "zip": str(target),
         "bytes": target.stat().st_size,
         "files": ["SKILL.md"] + files,
+        "executables": executables,
         "moved_to_metadata": moved,
         "description_chars": len(desc),
         "skill_md_lines": skill_text.count("\n"),
         "claude_code_only": warnings,
         "skipped_symlinks": skipped_links,
+        "excluded_secrets": secrets,
     }
 
 
