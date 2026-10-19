@@ -1,8 +1,8 @@
 # SimonK-Stack
 
-> Claude Code용 스킬 182개를 다섯 플러그인으로 묶은 작업 도구 상자입니다. 아이디어 검증부터 기획·개발·테스트·보안·배포, 디자인, AI 기능, 마케팅까지 "무엇을 하고 싶은지"만 말하면 알맞은 스킬과 모델로 이어 줍니다.
+> Claude Code용 스킬 183개를 다섯 플러그인으로 묶은 작업 도구 상자입니다. 아이디어 검증부터 기획·개발·테스트·보안·배포, 디자인, AI 기능, 마케팅까지 "무엇을 하고 싶은지"만 말하면 알맞은 스킬과 모델로 이어 줍니다.
 
-![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) ![plugins](https://img.shields.io/badge/plugins-5-5b8cff) ![skills](https://img.shields.io/badge/skills-182-brightgreen)
+![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) ![plugins](https://img.shields.io/badge/plugins-5-5b8cff) ![skills](https://img.shields.io/badge/skills-183-brightgreen)
 
 **사이트**: [simonk-stack.pages.dev](https://simonk-stack.pages.dev) · **English**: [README.en.md](README.en.md) · **변경 기록**: [CHANGELOG.md](CHANGELOG.md)
 
@@ -90,7 +90,7 @@ POSIX 셸에서는 `claude plugin list --json | grep -o 'simonk-[a-z]*@simonk-st
 
 ### Codex CLI에서 쓰기
 
-Codex는 같은 저장소에서 **Codex판**(177개)을 받습니다. Claude Code 전용 안전 스킬 5개(`careful`·`freeze`·`guard`·`investigate`·`unfreeze`)는 Codex에서 차단을 보장할 수 없어 빠져 있습니다(허브 D-29·D-88).
+Codex는 같은 저장소에서 **Codex판**(178개)을 받습니다. Claude Code 전용 안전 스킬 5개(`careful`·`freeze`·`guard`·`investigate`·`unfreeze`)는 Codex에서 차단을 보장할 수 없어 빠져 있습니다(허브 D-29·D-88).
 
 ```
 codex plugin marketplace add Simon-YHKim/SimonK-stack
@@ -268,7 +268,7 @@ Claude Code에서 `/simonk-core:ai-usage-widget-install` 또는 "AI 사용량 �
 ### 저장소 구조
 
 ```
-skills-src/        배포할 스킬 소스 137개 (SKILL.md, evals/, scripts/, references/)
+skills-src/        배포할 스킬 소스 138개 (SKILL.md, evals/, scripts/, references/)
 .claude/skills/    이 저장소에서 쓰는 개발용 스킬 4개
 scripts/           빌드·검증 도구 (skill_release, plugin_bundle, codex_overlay, codex_safe_subset, dist_release)
 scripts/windows/   Windows 사용자 홈 설치 도구 (update-local.ps1)

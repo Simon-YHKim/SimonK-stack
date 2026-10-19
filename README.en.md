@@ -1,8 +1,8 @@
 # SimonK-Stack
 
-> A toolbox of 182 Claude Code skills in five plugins. It covers idea validation, planning, building, testing, security, shipping, design, AI features and marketing. Describe what you want done, and it hands the work to the right skill and model.
+> A toolbox of 183 Claude Code skills in five plugins. It covers idea validation, planning, building, testing, security, shipping, design, AI features and marketing. Describe what you want done, and it hands the work to the right skill and model.
 
-![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) ![plugins](https://img.shields.io/badge/plugins-5-5b8cff) ![skills](https://img.shields.io/badge/skills-182-brightgreen)
+![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) ![plugins](https://img.shields.io/badge/plugins-5-5b8cff) ![skills](https://img.shields.io/badge/skills-183-brightgreen)
 
 **Site**: [simonk-stack.pages.dev](https://simonk-stack.pages.dev) · **한국어**: [README.md](README.md) · **Changes**: [CHANGELOG.md](CHANGELOG.md)
 
@@ -90,7 +90,7 @@ In a POSIX shell: `claude plugin list --json | grep -o 'simonk-[a-z]*@simonk-sta
 
 ### Using it from Codex CLI
 
-Codex gets the **Codex edition** (177 skills) from the same repository. The five Claude Code-only safety skills (`careful`, `freeze`, `guard`, `investigate`, `unfreeze`) are left out because Codex cannot guarantee their blocking (hub D-29, D-88).
+Codex gets the **Codex edition** (178 skills) from the same repository. The five Claude Code-only safety skills (`careful`, `freeze`, `guard`, `investigate`, `unfreeze`) are left out because Codex cannot guarantee their blocking (hub D-29, D-88).
 
 ```
 codex plugin marketplace add Simon-YHKim/SimonK-stack

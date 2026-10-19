@@ -1,6 +1,6 @@
 # CLAUDE.md — Gstack-Ultraplan-Superpowers (simon-stack)
 
-Claude Code reads this file at session start. This is a **skill development repo** — this branch has 138 `skills-src/` skills plus 4 development skills (142 source/development skills). The separately assembled five-plugin v23 candidate has 182 skills; neither count proves what is installed in a user profile. You are not building an app; you are curating a skill library.
+Claude Code reads this file at session start. This is a **skill development repo** — this branch has 138 `skills-src/` skills plus 4 development skills (142 source/development skills). The separately assembled five-plugin build has 183 skills; neither count proves what is installed in a user profile. You are not building an app; you are curating a skill library.
 
 ## 🎯 작업 맥락
 

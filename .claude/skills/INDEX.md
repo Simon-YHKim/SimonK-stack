@@ -3,7 +3,7 @@
 **curated simon-stack** skill 세트의 카테고리별 맵. 세션 시작 시 참고용.
 이 표는 simon-stack 큐레이션 셋(skills-src + 개발용 dev skill)을 매핑한다. gstack 홈 설치본(`~/.claude/skills/gstack/` 및 약 21개 gstack 홈 skill — `skillify`, `spec`, `scrape`, `diagram`, `make-pdf`, `ios-*` 등)은 여기에 카탈로그하지 않으며, 전체 목록은 `/gstack` 진입점으로 조회한다. 일부 자주 쓰는 gstack 홈 skill 은 아래 카테고리 표에 `(Gstack)` 표기로 교차 등재돼 있고, 나머지는 부록(맨 아래 "Gstack 홈 설치본" 표) 참고.
 
-**`skills-src/` 배포 소스 138개** + `.claude/skills/` 개발용 4개 = **총 142개** (2026-10-19 main 의 `SKILL.md` 실측). 이 인덱스는 레거시 소스·개발 스킬의 맵이며, 별도로 조립한 5플러그인 v23 후보의 182개 스킬이나 Gstack 홈 설치본은 이 카운트에 포함하지 않는다. 아래 카테고리 표는 2026-06-13 cycle-2 분류를 기반으로 하므로 최신 파일 목록 확인은 실제 두 소스 디렉터리 또는 후보 영수증을 기준으로 한다.
+**`skills-src/` 배포 소스 138개** + `.claude/skills/` 개발용 4개 = **총 142개** (2026-10-19 main 의 `SKILL.md` 실측). 이 인덱스는 레거시 소스·개발 스킬의 맵이며, 별도로 조립한 5플러그인 빌드의 183개 스킬이나 Gstack 홈 설치본은 이 카운트에 포함하지 않는다. 아래 카테고리 표는 2026-06-13 cycle-2 분류를 기반으로 하므로 최신 파일 목록 확인은 실제 두 소스 디렉터리 또는 후보 영수증을 기준으로 한다.
 
 > **검증**: `python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py <path>` (Windows는 `PYTHONIOENCODING=utf-8` 또는 검증기 UTF-8 패치 필요). **2026-06-13 재검증**: simon-stack 스킬 전부 통과(`wiki-query` E013 수정). 검증기 cp949 크래시·E008 "Todo-list" 오탐 수정(SimonK-stack `4aacecd`). Gstack 스킬은 긴 커맨드-doc 포맷이라 E007/E008 평가 제외.
 > **신규 (PR #8)**: `session-context-tracker` · `html-default-output` (+ `context-guardian` 1.1.0 / `agent-delegate` 1.1.0 보강)
