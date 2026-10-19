@@ -158,7 +158,7 @@ class AppSkillZipTests(unittest.TestCase):
         self.assertTrue(skill_md.startswith(
             "---\nname: note-skill  # the folder name\ndescription: Use when x. # trailing\nmetadata:\n"))
         self.assertIn('  allowed-tools: "Read, Bash"\n', skill_md)
-        self.assertIn('  notes: "# literal content, not a comment\\nsecond line"\n', skill_md)
+        self.assertIn('  notes: "|\\n# literal content, not a comment\\nsecond line"\n', skill_md)
         self.assertIn('  version: "1.0"\n', skill_md)
         self.assertIn('  topic: "C#, F#"\n', skill_md)
         for gone in ("leading comment", "between keys", "after the block", "languages", "shell", "may call"):
@@ -188,16 +188,46 @@ class AppSkillZipTests(unittest.TestCase):
         self.assertIn("metadata:\n  # owner notes\n  note: |\n    # Markdown heading\n    body\n"
                       '  owner: s\n  version: "2"\n---\n', skill_md)
 
-    def test_multi_line_quoted_values_are_unquoted(self):
-        d = self.skill("multi-quote", 'name: multi-quote\ndescription: Use when x.\n'
-                       'compatibility: "Claude\n  Code" # c\n'
-                       "summary: 'it''s\n  long'\n"
-                       'hint:\n  "on the next line"\n')
+    def test_multi_line_quoted_values_are_never_half_unquoted(self):
+        refused = self.skill("multi-quote", 'name: multi-quote\ndescription: Use when x.\n'
+                             'compatibility: "Claude\n  Code" # c\n')
+        with self.assertRaisesRegex(mod.BuildError, "one-line string or a list; got a multi-line"):
+            mod.build(refused, self.out)
+        kept = self.skill("multi-moved", "name: multi-moved\ndescription: Use when x.\n"
+                          "summary: 'it''s\n  long' # c\n")
+        mod.build(kept, self.out)
+        self.assertIn("  summary: \"'it''s\\nlong' # c\"\n", self.read_zip("multi-moved")["multi-moved/SKILL.md"])
+
+    def test_secret_names_match_in_any_case(self):
+        secrets = {".ENV": "TOKEN=x\n", "config/.Env.Local": "K=v\n", "keys/server.PEM": "p\n",
+                   "keys/Api.Key": "k\n", "ID_RSA": "k\n", "ssh/Id_Ed25519.pub": "k\n", ".NPMRC": "t\n"}
+        d = self.skill("case-secret", "name: case-secret\ndescription: Use when x.\n",
+                       extra={**secrets, "keys/README.md": "r\n"})
+        with mock.patch("os.path.normcase", posixpath.normcase):  # POSIX fnmatch: no case folding
+            report = mod.build(d, self.out, include=["*"])
+        self.assertEqual(report["files"], ["SKILL.md", "keys/README.md"])
+        self.assertEqual(sorted(report["excluded_secrets"]), sorted(secrets))
+
+    def test_complex_compatibility_is_refused(self):
+        forms = {
+            "folded-compat": "compatibility: >-\n  claude-code\n\n  codex\n    indented\n",
+            "literal-compat": "compatibility: |\n  claude-code\n",
+            "mapping-compat": "compatibility:\n  claude-code: '>=1'\n",
+            "nested-compat": "compatibility:\n  - [claude-code, codex]\n",
+        }
+        for name, fm in forms.items():
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(mod.BuildError, "compatibility must be a one-line string or a list; got "):
+                    mod.build(self.skill(name, f"name: {name}\ndescription: Use when x.\n{fm}"), self.out)
+
+    def test_complex_moved_values_are_kept_verbatim(self):
+        d = self.skill("verbatim", "name: verbatim\ndescription: Use when x.\n"
+                       'notes:\n  title: "Claude #1"\n  # a note\n  tags: [a, b]\n'
+                       "usage: >-\n  first # not a comment\n\n    more-indented\n  last\n")
         mod.build(d, self.out)
-        skill_md = self.read_zip("multi-quote")["multi-quote/SKILL.md"]
-        self.assertIn('\ncompatibility: "Claude Code"\n', skill_md)
-        self.assertIn('  summary: "it\'s long"\n', skill_md)
-        self.assertIn('  hint: "on the next line"\n', skill_md)
+        skill_md = self.read_zip("verbatim")["verbatim/SKILL.md"]
+        self.assertIn('  notes: "title: \\"Claude #1\\"\\n# a note\\ntags: [a, b]"\n', skill_md)
+        self.assertIn('  usage: ">-\\nfirst # not a comment\\n\\n  more-indented\\nlast"\n', skill_md)
 
     def test_output_folder_is_matched_by_identity_not_spelling(self):
         d = self.skill("case-out", "name: case-out\ndescription: Use when x.\n", extra={"a.md": "a\n"})

@@ -3,19 +3,21 @@
 The app rejects a SKILL.md whose frontmatter has keys other than name, description,
 license, compatibility, metadata and allowed-tools. Our skills carry version/author, so
 this script moves every other key into `metadata` as a string. `allowed-tools` is moved
-too: it names Claude Code tools, which do not exist in the app. `compatibility` is written
-as one string of at most 500 chars, as the Agent Skills spec requires: a list such as
-[claude-code, codex] becomes "claude-code, codex". name, description, license and
-metadata are copied as written; top-level comment lines are dropped, and comments are cut
-from every value that is turned into a string.
+too: it names Claude Code tools, which do not exist in the app. A simple value (a one-line
+string, [a, b], or a block list of one-line items) becomes "a, b"; any other form (block
+scalar, nested mapping, multi-line value) is kept as written, so nothing is cut.
+`compatibility` is written as one string of at most 500 chars, as the Agent Skills spec
+requires: only a one-line string or a list is accepted, anything else is refused.
+name, description, license and metadata are copied as written; top-level comment lines
+are dropped.
 
 The ZIP root is a folder named after the skill. Output is deterministic (sorted entries,
 fixed timestamps, Unix modes), so the same input gives the same bytes. A file that starts
 with '#!' or has an exec bit (POSIX) is stored as 0755, every other file as 0644.
 
 Never packaged: this build's own output (an --out folder inside the skill, *.zip.tmp),
-secret-bearing files at any depth (.env, .env.*, *.pem, *.key, *.p12, *.pfx, id_rsa*,
-id_ed25519*, .npmrc, .netrc, .pypirc; left out even when --include matches them and
+secret-bearing files at any depth, in any letter case (.env, .env.*, *.pem, *.key, *.p12,
+*.pfx, id_rsa*, id_ed25519*, .npmrc, .netrc, .pypirc; left out even when --include matches them and
 listed by name in the report's excluded_secrets), evals/, caches and backups.
 
 Usage:
@@ -52,6 +54,7 @@ SECRET_NAMES = (
 COMPATIBILITY_MAX = 500
 NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 KEY_RE = re.compile(r"^([A-Za-z0-9_-]+):(.*)$")
+MAPPING_RE = re.compile(r"^[^:]+:(\s|$)")  # "key: value" or "key:", but not "https://x"
 BLOCK_RE = re.compile(r"^[|>][-+0-9]*$")
 XML_TAG_RE = re.compile(r"</?[A-Za-z][^>]*>")
 CLAUDE_CODE_ONLY = {
@@ -78,8 +81,8 @@ def split_frontmatter(text):
     return text[4:end + 1], text[end + 5:]
 
 
-def unquoted_chars(v):
-    """[(index, char)] of a one-line YAML value for the chars that are outside quotes.
+def scan_quotes(v):
+    """([(index, char) outside quotes], True when a quote is still open at the end).
 
     A quote opens a quoted scalar only at the start of the value or, in a flow
     collection, at the start of an item; an apostrophe inside plain text is text."""
@@ -100,13 +103,21 @@ def unquoted_chars(v):
         elif not quote:
             chars.append((i, c))
         i += 1
-    return chars
+    return chars, quote is not None
+
+
+def is_quoted(v):
+    """True for exactly one complete quoted scalar, such as "a #1" or 'it''s'."""
+    if v[:1] not in ('"', "'"):
+        return False
+    outside, still_open = scan_quotes(v)
+    return not outside and not still_open
 
 
 def strip_comment(v):
     """A one-line YAML value without its comment ('#' at the start or after a space)."""
     v = v.strip()
-    for i, c in unquoted_chars(v):
+    for i, c in scan_quotes(v)[0]:
         if c == "#" and (i == 0 or v[i - 1] in " \t"):
             return v[:i].rstrip()
     return v
@@ -120,8 +131,7 @@ def parse_entries(fm):
     """Top-level keys in order: [key, raw text after the colon, raw continuation lines].
 
     Only column-0 '#' lines (top-level comments) are dropped. Indented lines are kept as
-    they are, so kept keys are re-emitted verbatim; scalar() drops comments where a value
-    becomes a string."""
+    they are, so kept keys are re-emitted verbatim."""
     entries = []
     for line in fm.split("\n"):
         m = KEY_RE.match(line)
@@ -159,7 +169,7 @@ def flow_items(v):
     if not (v.startswith("[") and v.endswith("]")):
         return None
     depth, cuts, end = 0, [], None
-    for i, c in unquoted_chars(v):
+    for i, c in scan_quotes(v)[0]:
         if end is not None:
             return None
         if c in "[{":
@@ -191,9 +201,8 @@ def plain_line(line):
 
 
 def scalar(first, cont):
-    """The string value of one entry (plain, quoted, folded, literal, block or flow list).
-
-    Comments are dropped here, where a value becomes a string."""
+    """The string value of name or description, for their checks only (they are copied as
+    written): plain, quoted, folded, literal, block or flow list."""
     first = strip_comment(first)
     rest = [c.strip() for c in cont if c.strip()]
     if is_block_scalar(first):
@@ -210,14 +219,81 @@ def scalar(first, cont):
     return ", ".join(items) if items is not None else unquote(text)
 
 
+def one_line(v, item=False):
+    """The string of a one-line plain or quoted scalar, or of a flat flow list [a, b] when v
+    is not itself a list item; None for anything else."""
+    if not v or is_block_scalar(v):
+        return None
+    if v[:1] in ('"', "'"):
+        return unquote(v) if is_quoted(v) else None
+    if v[:1] in ("[", "{"):
+        items = None if item else flow_items(v)
+        return None if items is None else ", ".join(items)
+    if item and (v.startswith("- ") or MAPPING_RE.match(v)):
+        return None
+    return v
+
+
+def simple_value(first, cont):
+    """The string of a simple value, or None when the value has another form.
+
+    Simple forms: a one-line plain or quoted scalar, a flat flow list [a, b], or a block
+    list of one-line scalars (joined with ", "). Comments are cut only here, and an
+    indented '#' line between list items is a comment."""
+    first = strip_comment(first)
+    rest = [c.strip() for c in cont if c.strip() and not c.strip().startswith("#")]
+    if first:
+        return None if rest else one_line(first)
+    if not rest:
+        return ""
+    if not all(x.startswith("- ") for x in rest):
+        return None
+    items = [one_line(strip_comment(x[2:]), item=True) for x in rest]
+    return None if None in items else ", ".join(items)
+
+
+def raw_value(first, cont):
+    """The value exactly as written: the text after the colon, then the continuation lines
+    with their common indent removed, joined by newlines. Nothing is unquoted or cut."""
+    indents = [len(c) - len(c.lstrip()) for c in cont if c.strip()]
+    cut = min(indents) if indents else 0
+    return "\n".join(([first] if first else []) + [c[cut:] if c.strip() else "" for c in cont])
+
+
+def value_form(first, cont):
+    """A short name for a value form that simple_value() does not read."""
+    first = strip_comment(first)
+    rest = [c.strip() for c in cont if c.strip() and not c.strip().startswith("#")]
+    if is_block_scalar(first):
+        return f"a block scalar ('{first}')"
+    if first[:1] in ('"', "'"):
+        return "a multi-line or malformed quoted value"
+    if not first and rest and MAPPING_RE.match(rest[0]):
+        return "a nested mapping"
+    if first[:1] in ("[", "{") or rest[:1] and rest[0].startswith("- "):
+        return "a nested or multi-line list"
+    return "a multi-line value"
+
+
 def entry_text(e):
     head = f"{e[0]}:" + (f" {e[1]}" if e[1] else "")
     return "\n".join([head] + e[2])
 
 
+def moved_value(e):
+    """A moved key's metadata string: read exactly when simple, otherwise kept as written."""
+    value = simple_value(e[1], e[2])
+    return raw_value(e[1], e[2]) if value is None else value
+
+
 def compatibility_text(e):
-    """`compatibility` as the single string (at most 500 chars) the Agent Skills spec requires."""
-    text = scalar(e[1], e[2]).strip()
+    """`compatibility` as the single string (at most 500 chars) the Agent Skills spec requires.
+
+    Only a one-line string or a list is accepted; any other form is refused, not guessed."""
+    text = simple_value(e[1], e[2])
+    if text is None:
+        raise BuildError(f"compatibility must be a one-line string or a list; got {value_form(e[1], e[2])}")
+    text = text.strip()
     if not text:
         raise BuildError("compatibility is empty; name the environment or remove the key")
     if len(text) > COMPATIBILITY_MAX:
@@ -247,7 +323,7 @@ def app_frontmatter(fm, expected_name):
     if XML_TAG_RE.search(desc):
         raise BuildError("description contains an XML tag")
 
-    moved = [(e[0], scalar(e[1], e[2])) for e in entries if e[0] not in KEEP_KEYS]
+    moved = [(e[0], moved_value(e)) for e in entries if e[0] not in KEEP_KEYS]
     meta = by_key.get("metadata")
     meta_lines = []
     indent = "  "
@@ -302,7 +378,9 @@ def is_output(p, src, outputs):
 
 
 def is_secret(rel):
-    return any(fnmatch.fnmatch(posixpath.basename(rel), g) for g in SECRET_NAMES)
+    """True for a secret-bearing file name, ignoring case on every platform (.ENV, ID_RSA)."""
+    name = posixpath.basename(rel).casefold()
+    return any(fnmatch.fnmatchcase(name, g.casefold()) for g in SECRET_NAMES)
 
 
 def select_files(src, include, exclude, outputs=()):
