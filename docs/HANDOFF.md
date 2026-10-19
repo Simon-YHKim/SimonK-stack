@@ -1,6 +1,23 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-19 01:54 / 지침 v8.1.7: claude.ai 전용 §9 '상황 → 스킬' 3줄 + 앱 업로드 ZIP
+## Latest — 2026-10-19 10:45 / 모션그래픽 레퍼런스 스킬 · 리뷰 후속(v8.1.8 · ZIP 변환기) · catch-up 8건
+
+갱신 시각: 2026-10-19 10:45 KST · 갱신자: Claude Code(Opus 5.5). Simon: "진행" → "모션그래픽 작업시 아래의 주소를 참고하게 할수 있을까? 스킬화 하던지 해서. 자동 사용 이라든가. https://prompt-motion.com/"
+
+- **#184 `simon-motion-reference` 1.0.0**(f64804e, 허브 D-114): 모션그래픽·코드 렌더 영상 요청이면 prompt-motion.com 태그·항목·가이드 글에서 레퍼런스 2~3개를 링크·만든 사람과 함께 보여 주고, 도구 하나·비트맵·스틸을 정한 뒤 AI 티 줄이기 규칙으로 만든다. 사이트 신호 `use=reference`·`ai-train=no` 라 원문 복사 금지, 항목의 `npx skills add` 는 승인 전 설치 금지. 소유 SimonKDesign(디자인 22→23, 5플러그인 183, Codex판 178, skills-src 138). 이 PC: `update-local.ps1 -PhysicalSkills …,simon-motion-reference -Apply -Selftest` → 후보 `20261019-vibe-2200-f64804e`, selftest 283/0·104/0.
+- **#183 지침 v8.1.8**(fffffff): #182 Codex P2 3건 — §9 첫 줄 '실제로 불러온 뒤 따른다', design-first 는 화면·UI·랜딩만, §6 강등에서 요약 그림 1장 유지. sha256 `7354408a1329`, claude.ai 사본 10,715자. `--apply` 백업 `CLAUDE.md.bak_261019_1001`.
+- **#185 ZIP 변환기**(e970329): #181 Codex P2 5건 + 재리뷰 7건(출력 폴더·비밀 파일·실행 비트·주석·compatibility·복잡한 이동 값 원문 보존). 테스트 9→21. 앱 ZIP 4개 재빌드(내용 불변, 헤더만 변경). 남은 P2 3건(흐름 리스트 축약 매핑·JSON 미지원 YAML 이스케이프·`|+` 끝 빈 줄)은 실제 스킬에 없는 형태라 보류.
+- **catch-up 8건**(허브 D-115): Codex 가 연 토론의 Claude 좌석을 이 세션이 채움(ACCEPT 7 · D-5 OBJECT → Codex 타이브레이크 요청 4133684b). `record --amend` 가 `agents/codex/*` 에 붙어 Single-Writer 와 충돌 — ai-debate 수정 후보.
+- claude.ai 설정 화면은 Grok Bot 에 넘기지 않음(공용 클라우드 머신에 계정 로그인 = 커넥터·대화 노출).
+
+### 다음 작업 큐
+- Simon(카드 v7 https://claude.ai/artifact/YKXcXAEnu1rXTet14cpLB2): ① ZIP 4개 업로드(이미 3개 올렸으면 simon-motion-reference 만) ② 프로필에 v8.1.8 사본(성공 신호 sha256 `7354408a1329`) ③ gstack 스킬 25개 끄기 ④ 플러그인 6개 Disable.
+- 확인: claude.ai 에서 "공지 초안 써줘" → humanize-korean, "런칭 모션그래픽 만들어줘" → simon-motion-reference 가 불리는지.
+- ai-debate: 다른 벤더 기록에 대한 amend 는 자기 outbox 로(수정 후보). Codex D-5 타이브레이크, Grok catch-up 8건(Grok 402, ~10-23 이후).
+- ZIP 변환기 보류 P2 3건 — 실제 스킬에 그 형태가 생기면 처리.
+- 그 밖에는 아래 12:04 블록 그대로(레지스트리 재확인 10-25 09:19 전).
+
+## 2026-10-19 01:54 / 지침 v8.1.7: claude.ai 전용 §9 '상황 → 스킬' 3줄 + 앱 업로드 ZIP
 
 갱신 시각: 2026-10-19 01:54 KST · 갱신자: Claude Code(Opus 5.5). Simon: "프로필을 늘리는 형태로 하면 손해니까, 00경우 00스킬 사용 이런식으로 하면 어때?" → "진행해줘".
 
