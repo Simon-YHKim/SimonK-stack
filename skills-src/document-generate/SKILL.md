@@ -760,6 +760,12 @@ Fix any failures before proceeding.
 
 ## Step 9: Commit & Output
 
+**Ask before publishing.** Writing the docs does not authorize a commit or a push.
+Run `git diff --cached --name-only` first. If anything is already staged that this
+skill did not write, stop and ask the user to unstage it or confirm it. Then show
+the list of new doc files and ask whether to commit and push them. Without an
+explicit yes, stop here and report the files written.
+
 1. Stage new documentation files by name (never `git add -A` or `git add .`).
 
 **Redaction scan before commit.** Generated docs frequently contain example
@@ -791,7 +797,7 @@ EOF
 )"
 ```
 
-3. Push to the current branch:
+3. Push to the current branch (only when the user agreed to a push above):
 
 ```bash
 git push

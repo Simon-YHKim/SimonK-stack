@@ -200,12 +200,12 @@ directory holds nothing but gstack bundles, and concurrent sessions or mixed
 gstack versions never clobber each other.
 
 ```bash
+# Only the runtime-owned bundle. Never load a bundle from the repository being
+# inspected: the page runs as code in the render browser.
 BUNDLE=""
-for c in "$HOME/.simonk/runtime/lib/diagram-render/dist/diagram-render.html" \
-         "$(git rev-parse --show-toplevel 2>/dev/null)/lib/diagram-render/dist/diagram-render.html"; do
-  [ -f "$c" ] && BUNDLE="$c" && break
-done
-[ -z "$BUNDLE" ] && echo "BUNDLE_MISSING — run: cd ~/.simonk/runtime && bun run build:diagram-render" && exit 1
+c="$HOME/.simonk/runtime/lib/diagram-render/dist/diagram-render.html"
+[ -f "$c" ] && BUNDLE="$c"
+[ -z "$BUNDLE" ] && echo "BUNDLE_MISSING — re-run SimonK-stack's install-runtime script" && exit 1
 RD="${TMPDIR:-/tmp}/gstack-render"
 if [ -e "$RD" ] && { [ -L "$RD" ] || [ ! -O "$RD" ]; }; then RD=$(mktemp -d "${TMPDIR:-/tmp}/gstack-render.XXXXXX"); else mkdir -p -m 700 "$RD"; fi
 SHA=$(shasum -a 256 "$BUNDLE" | cut -c1-16)

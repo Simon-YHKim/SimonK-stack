@@ -662,7 +662,7 @@ Record the one-sentence answer: a feeling, visual, claim, or posture. Every subs
 Read this project's taste profile:
 
 ```bash
-eval "$("~/.simonk/runtime/bin/gstack-slug" 2>/dev/null)"
+eval "$("$HOME/.simonk/runtime/bin/gstack-slug" 2>/dev/null)"
 [ -n "${SLUG:-}" ] || { echo "NO_TASTE_PROFILE"; exit 0; }
 _TASTE_PROFILE=~/.simonk/state/projects/$SLUG/taste-profile.json
 if [ -f "$_TASTE_PROFILE" ]; then

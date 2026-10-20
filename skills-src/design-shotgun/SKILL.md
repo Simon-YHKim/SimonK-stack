@@ -550,7 +550,7 @@ designs to bias generation toward the user's demonstrated taste.
 Read this project's taste profile:
 
 ```bash
-eval "$("~/.simonk/runtime/bin/gstack-slug" 2>/dev/null)"
+eval "$("$HOME/.simonk/runtime/bin/gstack-slug" 2>/dev/null)"
 [ -n "${SLUG:-}" ] || { echo "NO_TASTE_PROFILE"; exit 0; }
 _TASTE_PROFILE=~/.simonk/state/projects/$SLUG/taste-profile.json
 if [ -f "$_TASTE_PROFILE" ]; then

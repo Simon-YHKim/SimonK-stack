@@ -326,7 +326,7 @@ After your analysis, output a single JSON object on the LAST LINE of your respon
    `tests_extended`, `tests_rejected` and `regression_proof`. A missing new key counts
    as empty; say so in the summary (an older installed prompt must not fail the gate).
    A key with the wrong type (for example `weak_gaps` not an array) is ignored the same
-   way and printed as: malformed <key> ignored: the audit returned the wrong type, so it counts as empty. The likely cause is an outdated installed skill; run /gstack-upgrade. (see ~/.simonk/runtime/docs/test-value-bar.md#malformed-key-ignored)
+   way and printed as: malformed <key> ignored: the audit returned the wrong type, so it counts as empty. The likely cause is an outdated install; re-run SimonK-stack's install-runtime script. (see ~/.simonk/runtime/docs/test-value-bar.md#malformed-key-ignored)
 3. **Machine checks** on every test written in this run (`tests_added` and
    `tests_extended`): a value-card header with four non-empty fields (else
    `incomplete_card`); `protects` unique across the run after casefolding and stripping
@@ -382,7 +382,7 @@ Read CLAUDE.md's `## Test Coverage` section for `Minimum:` and `Target:`; otherw
 | Rating dispatch failed or timed out | skip the gate | rating unavailable: the read-only rating dispatch failed or timed out, so the coverage gate is skipped for this run. Re-run Step 7 to re-rate the tests. (see ~/.simonk/runtime/docs/test-value-bar.md#rating-unavailable) |
 | Zero paths, test-only diff, or `coverage_pct` null or unparseable | skip the gate | "Coverage gate: could not determine percentage — skipping." |
 | `Star rating: off` | `coverage_pct` | "Star rating off: gate uses coverage_pct; weak paths still listed." |
-| `coverage_pct_value` missing, not a number, or outside 0..100 | `coverage_pct` | value-weighted coverage unavailable (outdated installed skill); run /gstack-upgrade. The gate used coverage_pct (any test) this run. (see ~/.simonk/runtime/docs/test-value-bar.md#value-weighted-coverage-unavailable) |
+| `coverage_pct_value` missing, not a number, or outside 0..100 | `coverage_pct` | value-weighted coverage unavailable (outdated install); re-run SimonK-stack's install-runtime script. The gate used coverage_pct (any test) this run. (see ~/.simonk/runtime/docs/test-value-bar.md#value-weighted-coverage-unavailable) |
 | `coverage_pct_value` > `coverage_pct` | `coverage_pct` (clamped) | inconsistent coverage inputs: coverage_pct_value was above coverage_pct, so it was clamped to coverage_pct. Re-run Step 7 if the numbers look wrong. (see ~/.simonk/runtime/docs/test-value-bar.md#inconsistent-coverage-inputs) |
 | Otherwise | `coverage_pct_value` | — |
 

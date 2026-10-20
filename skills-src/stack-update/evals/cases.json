@@ -19,10 +19,10 @@
       ]
     },
     {
-      "id": "gstack-only-routes-away",
-      "prompt": "gstack만 업그레이드해줘",
+      "id": "runtime-only-routes-away",
+      "prompt": "런타임만 업그레이드해줘",
       "assertions": [
-        {"id": "scope", "text": "Routes the single-vendor request to gstack-upgrade rather than refreshing the entire ecosystem."}
+        {"id": "scope", "text": "Treats the single-component request separately from a full ecosystem refresh and does not run a guessed or unreviewed updater."}
       ]
     }
   ]

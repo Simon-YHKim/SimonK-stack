@@ -542,7 +542,7 @@ _RM="$HOME/.simonk/runtime/bin/gstack-retro-metrics"
   || echo "RETRO_METRICS: unavailable — stale install (read the helper source for manual computation)"
 ```
 
-Read the `METRIC_NAME: value` lines. **Degraded mode:** without `RETRO_METRICS_PROTO: 1`, reproduce computations from the installed `bin/gstack-retro-metrics` source, not the presentation steps below. If source or metrics are unavailable, say so; never invent values. Suggest `/gstack-upgrade` to restore the helper.
+Read the `METRIC_NAME: value` lines. **Degraded mode:** without `RETRO_METRICS_PROTO: 1`, reproduce computations from the installed `bin/gstack-retro-metrics` source, not the presentation steps below. If source or metrics are unavailable, say so; never invent values. Suggest re-running SimonK-stack's install-runtime script to restore the helper.
 
 **Identity:** `USER_NAME` is **"you"** — the person reading this retro. All other authors are teammates. Orient the narrative around this: "your" commits vs teammate contributions.
 
