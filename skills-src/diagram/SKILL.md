@@ -207,9 +207,11 @@ c="$HOME/.simonk/runtime/lib/diagram-render/dist/diagram-render.html"
 [ -z "$BUNDLE" ] && echo "BUNDLE_MISSING — re-run SimonK-stack's install-runtime script" && exit 1
 RD="${TMPDIR:-/tmp}/gstack-render"
 if [ -e "$RD" ] && { [ -L "$RD" ] || [ ! -O "$RD" ]; }; then RD=$(mktemp -d "${TMPDIR:-/tmp}/gstack-render.XXXXXX"); else mkdir -p -m 700 "$RD"; fi
-SHA=$(shasum -a 256 "$BUNDLE" | cut -c1-16)
+_sha256() { if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1"; else shasum -a 256 "$1"; fi; }
+SHA=$(_sha256 "$BUNDLE" | cut -c1-16)
+[ -n "$SHA" ] || { echo "NO_SHA256_TOOL — install sha256sum or shasum"; exit 1; }
 STAGED="$RD/gstack-diagram-render-$SHA.html"
-[ -f "$STAGED" ] && shasum -a 256 "$STAGED" | grep -q "^$SHA" || { cp "$BUNDLE" "$STAGED.$$" && mv "$STAGED.$$" "$STAGED"; }
+[ -f "$STAGED" ] && _sha256 "$STAGED" | grep -q "^$SHA" || { cp "$BUNDLE" "$STAGED.$$" && mv "$STAGED.$$" "$STAGED"; }
 echo "STAGED: $STAGED"
 ```
 

@@ -952,6 +952,8 @@ D=""
 [ -x "$D" ] && echo "DESIGN_READY" || echo "DESIGN_NOT_AVAILABLE"
 ```
 
+Bash calls do not share variables: start every later block that uses `$D` with `D="$HOME/.simonk/runtime/design/dist/design"`.
+
 **If `DESIGN_NOT_AVAILABLE`:** Fall back to the HTML wireframe approach below
 (the existing DESIGN_SKETCH section). Visual mockups require the design binary.
 

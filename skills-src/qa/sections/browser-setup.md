@@ -76,6 +76,8 @@ B=""
 [ -x "$B" ] && echo "READY: $B" || echo "NEEDS_SETUP"
 ```
 
+Bash calls do not share variables: start every later block that uses `$B` with `B="$HOME/.simonk/runtime/browse/dist/browse"`.
+
 If `NEEDS_SETUP`, follow the **Browser access decision** above for install-runtime authority. Without a ready browser, mark its probes blocked; never substitute unit tests or curl for the browser step.
 
 ### Translate the Aside scripts step by step

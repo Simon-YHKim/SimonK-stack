@@ -508,7 +508,9 @@ B=""
 [ -x "$B" ] && echo "READY: $B" || echo "NEEDS_SETUP"
 ```
 
-If `NEEDS_SETUP`: tell the user "the SimonK runtime browser needs a one-time build (~10 seconds). OK to proceed?", STOP for the answer, then run SimonK-stack's install-runtime script (it needs bun). If neither Aside nor `$B` is available after that, stop and say so — never substitute unit tests or curl for the browser step.
+Bash calls do not share variables: start every later block that uses `$B` with `B="$HOME/.simonk/runtime/browse/dist/browse"`.
+
+If `NEEDS_SETUP`: tell the user "the SimonK runtime browser needs a one-time build (~10 seconds). OK to proceed?", STOP for the answer, then install `bun` if it is missing and run SimonK-stack's install-runtime script. If neither Aside nor `$B` is available after that, stop and say so — never substitute unit tests or curl for the browser step.
 
 ### Translate the Aside scripts step by step
 
@@ -744,6 +746,8 @@ else
   echo "DESIGN_NOT_AVAILABLE"
 fi
 ```
+
+Bash calls do not share variables: start every later block that uses `$D` with `D="$HOME/.simonk/runtime/design/dist/design"`.
 
 If `DESIGN_NOT_AVAILABLE`: skip visual mockup generation and fall back to the
 existing HTML wireframe approach (`DESIGN_SKETCH`). Design mockups are a

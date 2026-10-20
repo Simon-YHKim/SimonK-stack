@@ -422,6 +422,8 @@ else
 fi
 ```
 
+Bash calls do not share variables: start every later block that uses `$D` with `D="$HOME/.simonk/runtime/design/dist/design"`.
+
 If `DESIGN_NOT_AVAILABLE`: skip visual mockup generation and fall back to the
 existing HTML wireframe approach (`DESIGN_SKETCH`). Design mockups are a
 progressive enhancement, not a hard requirement.

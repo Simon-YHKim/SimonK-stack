@@ -778,7 +778,10 @@ REDACT_VIS=$(~/.simonk/runtime/bin/gstack-config get redact_repo_visibility 2>/d
 [ -z "$REDACT_VIS" ] && REDACT_VIS=$(gh repo view --json visibility -q .visibility 2>/dev/null | tr 'A-Z' 'a-z')
 git diff --cached --no-color | grep '^+' | sed 's/^+//' | \
   ~/.simonk/runtime/bin/gstack-redact --repo-visibility "${REDACT_VIS:-unknown}" --json
+# exit 0 → continue. exit 2 (MEDIUM) → ask about each finding before committing.
 # exit 3 (HIGH) → unstage the offending doc, remove the secret, re-stage. Do NOT commit.
+# Any other status (scanner missing, crashed, unexpected) → stop. Do NOT commit
+# until the scan completes; a stale runtime must not drop this guard.
 ```
 
 2. Create a commit:

@@ -106,6 +106,8 @@ _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 echo "READY: $B"
 ```
 
+Bash calls do not share variables: start every later block that uses `$B` with `B="$HOME/.simonk/runtime/browse/dist/browse"`.
+
 If `NEEDS_SETUP`, invoke the `browse` skill once (it builds the daemon), then re-run.
 
 ### 2. Build the schema (first time per site)

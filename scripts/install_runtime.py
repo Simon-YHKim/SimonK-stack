@@ -21,7 +21,9 @@ Preview by default. With --apply it:
      "~/.simonk/runtime/<skill>/..." reference (sections, templates, another
      skill's SKILL.md) reads the SimonK text, not the upstream one;
   4. installs dependencies from the pinned bun.lock (--frozen-lockfile) and
-     rebuilds the compiled tools so they carry the new paths;
+     rebuilds the compiled tools so they carry the new paths; tries the native
+     /cso launcher build (scripts/build-cso.sh) and reports when the platform
+     toolchain is missing;
   5. builds everything in a staging folder and swaps it in, so --force leaves
      no files from an earlier runtime behind;
   6. turns off update checks, telemetry and auto-upgrade and reads them back;
@@ -205,7 +207,8 @@ def overlay_skills(staging: Path, skills_src: Path, pin: dict) -> int:
     return copied
 
 
-def build(staging: Path, bash: str) -> None:
+def build(staging: Path, bash: str) -> str:
+    """Build the tools in staging. Returns how the optional CSO launcher went."""
     bun = shutil.which("bun")
     if not bun:
         raise InstallError("bun is required to rebuild the runtime tools (or pass --skip-build)")
@@ -216,9 +219,19 @@ def build(staging: Path, bash: str) -> None:
     for src, out in COMPILE:
         run([bun, "build", "--compile", src, "--outfile", out], cwd=staging, env=env)
     run([bash, "browse/scripts/build-node-server.sh"], cwd=staging, env=env)
+    # The /cso launcher is native code; upstream builds it only when the platform
+    # toolchain is present (C compiler, codesign on macOS, MSVC on Windows) and
+    # /cso reports "not assessed" without it. Try the same build; it is not fatal.
+    cso = run([bash, "scripts/build-cso.sh"], cwd=staging, env=dict(env, BUN_CMD=bun), check=False)
     for f in staging.glob(".*.bun-build"):
         f.unlink()
     (staging / "browse" / "dist" / ".build-complete").write_text("complete\n", encoding="utf-8")
+    if cso.returncode == 0:
+        return "built"
+    text = (cso.stderr or cso.stdout).decode("utf-8", "replace").replace("\r", "\n")
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    reason = " ".join(lines[-3:])[-200:] if lines else f"exit {cso.returncode}"
+    return f"not built ({reason}); /cso will report not assessed"
 
 
 def configure(target: Path, state: Path, pin: dict, bash: str) -> dict:
@@ -288,8 +301,9 @@ def main(argv=None) -> int:
                 if "skill_overlay" in pin:
                     print(f"laid {overlay_skills(staging, a.skills_src, pin)} SimonK skill files over upstream")
                 if not a.skip_build:
-                    build(staging, bash)
+                    cso = build(staging, bash)
                     print("rebuilt the compiled tools")
+                    print(f"cso launcher: {cso}")
                 if a.target.exists():
                     old = a.target.parent / f".{a.target.name}.old-{uuid.uuid4().hex[:8]}"
                     a.target.rename(old)

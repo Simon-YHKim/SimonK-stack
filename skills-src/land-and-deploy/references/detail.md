@@ -171,9 +171,8 @@ fi
 ```
 
 If `NEEDS_SETUP`:
-1. Tell the user: "gstack browse needs a one-time build (~10 seconds). OK to proceed?" Then STOP and wait.
-2. Run: SimonK-stack's install-runtime script (it needs bun)
-3. If `bun` is not installed:
+1. Tell the user: "the SimonK runtime browser needs a one-time build (~10 seconds). OK to proceed?" Then STOP and wait.
+2. If `bun` is not installed:
    ```bash
    if ! command -v bun >/dev/null 2>&1; then
      BUN_VERSION="1.3.10"
@@ -191,6 +190,7 @@ If `NEEDS_SETUP`:
      rm "$tmpfile"
    fi
    ```
+3. Run SimonK-stack's install-runtime script, then re-run the check above.
 
 ## Step 0: Detect platform and base branch
 
