@@ -6,6 +6,19 @@
 ## [Unreleased]
 
 ### Added
+- **gstack 완전 통합 (허브 D-117)**: garrytan/gstack 출신 스킬과 그 런타임을 SimonK-stack 이 소유한다.
+  - 런타임: `runtime/RUNTIME.json`(gstack 1.91.9.0 고정, MIT) + `scripts/windows/install-runtime.ps1`. 실행 파일·도구를 `~/.simonk/runtime` 으로 복사하고 설치 경로를 바꿔 bun 으로 다시 빌드한다. 상태는 `~/.simonk/state`, 업데이트 확인·자동 업그레이드는 끔. 미리보기 기본, 원본은 고치지 않는다. 테스트 4개.
+  - 스킬: 28개를 이 PC 가 실제로 쓰던 1.91.9.0 본문으로 다시 들여오고(설명·버전·평가 케이스는 SimonK 것 유지), 9개를 새로 이식: `pr-review`(upstream `review` — 레포 개발용 `review` 와 이름이 겹쳐 바꿈), `make-pdf`, `diagram`, `document-generate`, `scrape`, `context-save`, `context-restore`, `test-audit`, `deslop-shared-libs`. upstream `spec` 은 SimonK 플러그인에 같은 이름이 있어 들이지 않았다.
+  - 설치·상태 경로를 `~/.simonk/runtime`·`~/.simonk/state` 로 바꾸고, 설명의 "(gstack)" 표시·upstream 생성 배너·업그레이드 안내를 정리했다. `open-gstack-browser` → `open-browser`.
+  - `investigate` 는 훅이 SimonK `freeze` 검사기를 부르게 되어 D-68 의 Windows 결함이 닫혔으므로 다시 설치 대상이다.
+  - CI: `skills-src/VENDORED.md` 목록의 스킬만 E007(본문 길이)·E008(TODO 표기)을 면제한다(검증기 docstring 의 의도). 검증기는 코드 블록 안의 링크를 링크로 보지 않는다.
+  - `vibe` 2.20.1: gstack 출신 스킬 감지가 새 런타임·상태 경로도 잡는다.
+  - 개수: skills-src 138 → 146, 5플러그인 183 → 191(core 64 · stack 64 · design 24), Codex판 178 → 186.
+
+### Removed
+- `gstack-upgrade` — 런타임 갱신은 `runtime/RUNTIME.json` 고정 버전을 올린 뒤 `install-runtime.ps1 -Apply -Force` 로 한다.
+
+### Added (earlier)
 - **`simon-motion-reference` 1.0.0 (SimonKDesign)** — 모션그래픽·코드 렌더 영상을 만들기 전에 prompt-motion.com 태그·항목·가이드 글에서 레퍼런스 2~3개를 링크와 만든 사람 표기로 보여 주고, 도구(HTML+Playwright·Remotion·HyperFrames·Three.js·Manim)와 비트맵을 정한 뒤 AI 티 줄이기 규칙으로 만든다. 사이트 신호(`use=reference`)에 맞춰 원문 통째 복사와 외부 스킬 자동 설치는 하지 않는다. Simon 요청(2026-10-19).
 - **Codex 마켓플레이스 공개(허브 D-88 2단계 확정)** — `.agents/plugins/marketplace.json`이 dist의 `codex/plugins/<Owner>`(Codex판 177스킬, 안전 스킬 5개 제외)를 가리킨다. 확정 근거(격리 CODEX_HOME, 모델 턴 0): dist 1.793.0을 GitHub에서 설치하면 app-server `skills/list` 177(59/57/7/22/32)·안전 0·오류 0, `.claude-plugin`·`.simonk-runtime` 없음, Codex판 고지 확인. 1.777.0 Claude 빌드 설치본은 카탈로그 갱신 뒤 `codex plugin add` 재실행으로 Codex판으로 교체된다. 롤백 리허설: 고지 문구 변경 게시(1.796.0, Codex 7c036566) 뒤 main revert(#150)로 더 높은 버전에 이전 내용(2879e3ab)을 재출하. README 한·영에 Codex 설치·갱신·이전 안내.
 - **Codex 안전 부분집합을 dist에 함께 게시하는 코드 (D-88 2단계)** — `codex_safe_subset.py` 영수증 schema 2: 다섯 플러그인의 `.claude-plugin/`을 빼고, SimonKCore·SimonKStack Codex 매니페스트의 Claude 전용 안내(Windows 전용 훅·레거시 `claude plugin install`)를 "Codex판에는 Claude Code 전용인 … 안전 스킬이 없다" 한 문장으로 바꾸며(원본은 `replaced_members`에 남아 verify가 다시 유도), version 무관 `content_digest`를 싣는다. `dist_release.py`는 RELEASE.json schema 2(`codex_content_digest`), 두 digest가 모두 같을 때만 skip, 승인 schema 2가 Codex digest까지 맞아야 게시(`codex-content-not-approved`, schema 1 승인은 schema 1 기록만), `stage`가 `codex/plugins/<Owner>/…`·`codex/subset.json`을 쓴다. 워크플로는 부분집합 트리를 두 번째 artifact로 올려 게시 job에서 다시 검증한다. 커밋된 승인 기록과 Codex 카탈로그(`.agents/plugins/marketplace.json`, 0개)는 바꾸지 않았다 — 승인은 머지 뒤 별도 PR, 카탈로그 전환은 호스트 확인 뒤.

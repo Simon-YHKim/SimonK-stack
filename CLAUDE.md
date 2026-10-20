@@ -1,6 +1,6 @@
-# CLAUDE.md — Gstack-Ultraplan-Superpowers (simon-stack)
+# CLAUDE.md — SimonK-stack
 
-Claude Code reads this file at session start. This is a **skill development repo** — this branch has 138 `skills-src/` skills plus 4 development skills (142 source/development skills). The separately assembled five-plugin build has 183 skills; neither count proves what is installed in a user profile. You are not building an app; you are curating a skill library.
+Claude Code reads this file at session start. This is a **skill development repo** — this branch has 146 `skills-src/` skills plus 4 development skills (150 source/development skills). The separately assembled five-plugin build has 191 skills; neither count proves what is installed in a user profile. You are not building an app; you are curating a skill library.
 
 ## 🎯 작업 맥락
 
@@ -10,7 +10,7 @@ Claude Code reads this file at session start. This is a **skill development repo
 - **README·docs 유지보수**
 - **Instincts seed 갱신** (`.claude/instincts/`)
 
-앱 코드는 한 군데뿐입니다 — `apps/ai-usage-widget/`(2026-09-20 통합, 아래 "apps/" 절). 그 밖에는 142개 소스·개발 스킬과 별도 5플러그인 후보를 관리하며, 다른 프로젝트에는 검증된 배포 절차로 스킬을 공급하는 것이 목표입니다.
+앱 코드는 한 군데뿐입니다 — `apps/ai-usage-widget/`(2026-09-20 통합, 아래 "apps/" 절). 그 밖에는 150개 소스·개발 스킬과 별도 5플러그인 후보를 관리하며, 다른 프로젝트에는 검증된 배포 절차로 스킬을 공급하는 것이 목표입니다.
 
 ## 📦 apps/ — 이 레포에 같이 사는 앱
 
@@ -94,8 +94,8 @@ LICENSE                        ← MIT + upstream credits
 
 ## 🚫 금기 (건드리면 안 되는 곳)
 
-- **`~/.claude/skills/gstack/` (홈 설치본)** — upstream (garrytan/gstack) 에서 clone. 약 12 MB / 450 파일. **절대 직접 수정하거나 Read 로 스캔 금지.** (레포 내 `.claude/skills/gstack/` 은 존재하지 않음 — 홈 설치본 기준)
-- **`~/.claude/skills/gstack/node_modules/`** — bun 이 관리
+- **`~/.simonk/runtime/` (런타임 설치본)** — `scripts/windows/install-runtime.ps1` 이 `runtime/RUNTIME.json` 고정본(garrytan/gstack 1.91.9.0 출신, MIT)으로 만든다. 약 1 GB. **직접 수정 금지** — 고칠 일이 있으면 설치 스크립트를 고쳐 다시 설치한다. gstack 출신 스킬은 2026-10-21(허브 D-117)부터 `skills-src/` 가 정본이다.
+- **`~/.simonk/runtime/node_modules/`** — bun 이 관리
 - **`.claude.bak-*/`** — 설치 전 백업. 읽기 금지.
 - **기존 base commit 6 파일** (`commit`, `debug`, `explain`, `refactor`, `review`, `test-gen` SKILL.md): description 과 version 은 개선됐지만 본문은 원저자 존중. 본문 재작성 전 사용자 승인 필수. (4개는 `.claude/skills/`, 나머지는 `skills-src/` 에 위치)
 
@@ -126,7 +126,7 @@ SessionStart hook 은 D-87(2026-10-05)부터 이 블록을 확인하거나 재�
 - 작업 완료 즉시 `git commit` 후 세션 종료 권고
 
 ### 파일 읽기 제한
-- **`~/.claude/skills/gstack/` (홈 설치본) 읽기 금지** (12 MB, 450 files)
+- **`~/.simonk/runtime/` (런타임 설치본) 목적 없는 스캔 금지** (약 1 GB)
 - `.claude.bak-*/`, `/tmp/simon-stack-*.log` 읽기 금지
 - 1000 줄+ 파일은 Read offset+limit 으로 부분 읽기
 - `node_modules/`, `.next/`, `dist/`, `.git/` 목적 없는 스캔 금지
@@ -155,7 +155,7 @@ SessionStart hook 은 D-87(2026-10-05)부터 이 블록을 확인하거나 재�
 - **`commit`** — Conventional Commits 준수
 - **`review`** — PR 사전 리뷰
 - **`simon-tdd`** — 새 script/feature 추가 시 RED-GREEN-REFACTOR
-- **`/ship`** (Gstack) — VERSION + CHANGELOG + push + PR
+- **`/ship`** — VERSION + CHANGELOG + push + PR
 - **`simon-handoff`** — 세션 끝 핸드오프 (docs/HANDOFF.md prepend + PR auto-merge to main). 다음 세션이 `git pull` 한 번에 복원
 - **`perspectives`** — 세션 blind-spot 감사 (Core 5 stakeholder + 세션 특화). perspectives.md 누적, SessionStart hook 이 다음 세션에 자동 알림
 
@@ -246,13 +246,10 @@ UserPromptSubmit·Stop hook 이 사용자 명시 없이 wiki 누적·반영을 _
 
 LLM 이 직접 처리할 것:
 - **사용자가 "최신화" / "stack update" 같은 holistic 요청** → `/stack-update` 호출
-  - SimonK-stack 본체 + Wiki + gstack + 5 vendored stacks + skill 재설치를 한 번에 처리
-  - 각 단계는 단일 entry point 의 sibling skill (예: `/gstack-upgrade`, `/omc-upgrade`) 위임
-- **gstack 만** 업데이트 명시 요청 → `/gstack-upgrade` (gstack 단독)
-  - install type 자동 감지 (global-git / local-git / vendored)
-  - gstack 본체 + 로컬 vendored gstack 카피 sync
-  - ⚠️ **이 스킬은 SimonK-stack 자체는 pull 안 함** (gstack 의 책임 도메인이 아님). D-87 이후 SessionStart auto-pull 도 없다.
-  - `GSTACK_AUTO_UPGRADE=1` 또는 `gstack-config set auto_upgrade true` 면 사용자 확인 없이 진행
+  - SimonK-stack 본체 + Wiki + 5 vendored stacks + skill 재설치를 한 번에 처리
+  - 각 단계는 단일 entry point 의 sibling skill (예: `/omc-upgrade`) 위임
+- **런타임(`~/.simonk/runtime`)** 갱신 → `runtime/RUNTIME.json` 의 고정 버전을 올리는 PR 을 거친 뒤 `pwsh -File scripts/windows/install-runtime.ps1 -Apply -Force`
+  - 런타임의 자체 업데이트 확인·자동 업그레이드는 꺼져 있다(`update_check false`, `auto_upgrade false`).
 - **특정 외부 stack** 만 업데이트 요청 → 해당 sibling skill 호출
   - `/omc-upgrade` (oh-my-claudecode), `/omo-upgrade` (oh-my-openagent)
   - `/openharness-upgrade`, `/opencowork-upgrade`, `/designmd-upgrade`

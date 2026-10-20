@@ -71,13 +71,13 @@ Integrated in full on 2026-10-21 (hub D-117):
 - `setup-browser-cookies`
 - `setup-deploy`
 - `ship`
-- `spec`
 - `test-audit`
 - `unfreeze` — adapted: clears the boundary through the vendored
   `freeze/bin/freeze-state.sh` (D-62).
 
 Not carried over from upstream: `ios-*` (5, SwiftUI devices), `setup-gbrain`,
 `sync-gbrain`, `plan-tune`, `skillify`, `benchmark-models`, `landing-report`,
-the upstream router skill and its upgrade skill.
+the upstream router skill and its upgrade skill, and `spec` (the SimonK plugins
+already ship their own `spec`).
 
-**Total**: 44 vendored
+**Total**: 43 vendored
