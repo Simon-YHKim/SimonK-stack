@@ -1,6 +1,22 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-19 10:45 / 모션그래픽 레퍼런스 스킬 · 리뷰 후속(v8.1.8 · ZIP 변환기) · catch-up 8건
+## Latest — 2026-10-21 00:50 / claude.ai 설정 반영(카드 v7 1~4, Claude in Chrome) · 안 쓴 스킬·플러그인 조사
+
+갱신 시각: 2026-10-21 00:50 KST · 갱신자: Claude Code(Opus 5.5). Simon: "진행해줘" → "이거는 보안때문에 로그인이 안된다. 내가 내 chrome에 띄워놨으니 chrome use를 써서 진행하자" → "내 이력을 확인해서 안쓴지 3개월이 넘는 플러그인/ 스킬들을 리스트업 해줘."
+
+- 임시 프로필 Playwright 창(포트 없음)은 claude.ai 로그인이 보안 차단돼 접었다. Simon 의 Chrome + Claude in Chrome 으로 진행했다. `/chrome` 을 세션 중간에 켜면 도구가 붙지 않아 `claude --chrome --resume <세션>` 으로 다시 열었다.
+- 카드 1: 앱 ZIP 4개 업로드(내가 만듦 35→39, 보안 검사 통과). 카드 3: gstack 스킬 25개 끔(새로고침 뒤 꺼짐 25 · 켜짐 14 = 남길 10 + 새 4).
+- 카드 2: 프로필 지침 칸 v8.1.4(+표현 5줄) → v8.1.8. 칸 sha256 앞 12자 `a58d16a579d1` = `instructions/out/claude-ai_§0-6+§8-9.md`, 새로고침 뒤 재확인. 이전 내용은 로컬에 백업(해시 일치).
+- 카드 4: claude.ai 플러그인 화면에는 Disable 이 없고, 상세 화면 스위치가 곧 '내 목록에서 제거'다. Simon 승인 뒤 6개(Sales·Human Resources·Finance·Marketing·Brand Voice·Operations) 제거. 복구는 플러그인 탐색에서 '추가'. 계정 커넥터 연결은 영향 없음.
+- 실측: 새 대화 "사내 공지 초안" → Skills: humanize-korean, "앱 런칭 모션그래픽" → Skills: simon-motion-reference. 프로필(📌 채팅 제목 · 레인 말투) 적용 확인. 허브 D-116.
+- 업로드한 계정 스킬은 Claude Code 에도 `anthropic-skills:<이름>` 으로 보인다.
+
+### 다음 작업 큐
+- Simon: 카드 5 — 승인 폴더를 연결한 대화에서 '📌 채팅 제목' 규칙이 몇 번 나오는지(1 이면 성공).
+- 안 쓴 지 3개월 넘은 스킬·플러그인 목록(claude.ai 대화 209개 + 이 PC 기록) → Simon 이 고르면 정리.
+- 그 밖에는 아래 10-19 10:45 블록 그대로(ai-debate amend 경로, Codex D-5 타이브레이크, Grok catch-up, 변환기 P2 3건, 레지스트리 재확인 10-25 09:19 전).
+
+## 2026-10-19 10:45 / 모션그래픽 레퍼런스 스킬 · 리뷰 후속(v8.1.8 · ZIP 변환기) · catch-up 8건
 
 갱신 시각: 2026-10-19 10:45 KST · 갱신자: Claude Code(Opus 5.5). Simon: "진행" → "모션그래픽 작업시 아래의 주소를 참고하게 할수 있을까? 스킬화 하던지 해서. 자동 사용 이라든가. https://prompt-motion.com/"
 
