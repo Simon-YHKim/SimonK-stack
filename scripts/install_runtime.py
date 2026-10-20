@@ -104,6 +104,8 @@ def load_pin(path: Path) -> dict:
     for key in ("upstream_commit", "upstream_version", "state_env", "config"):
         if key not in pin:
             raise InstallError(f"pin file lacks {key}")
+    if not re.fullmatch(r"[0-9a-f]{40}", str(pin["upstream_commit"])):
+        raise InstallError("upstream_commit must be the full 40-character commit id")
     return pin
 
 
@@ -125,7 +127,7 @@ def resolve_source(source: Path, pin: dict) -> str:
     if not (source / ".git").exists():
         raise InstallError(f"source is not a git checkout: {source}")
     head = run(["git", "-C", source, "rev-parse", "HEAD"]).stdout.decode().strip()
-    if not head.startswith(pin["upstream_commit"]):
+    if head != pin["upstream_commit"]:
         raise InstallError(f"source HEAD {head[:12]} is not the pinned commit {pin['upstream_commit']}")
     dirty = run(["git", "-C", source, "status", "--porcelain", "--untracked-files=no"]).stdout.decode().strip()
     if dirty:
@@ -264,8 +266,6 @@ def main(argv=None) -> int:
     ap.add_argument("--source", type=Path, default=home / ".claude" / "skills" / "gstack",
                     help="clean checkout at the pinned commit (default: ~/.claude/skills/gstack)")
     ap.add_argument("--clone", action="store_true", help="clone the pinned upstream commit instead of --source")
-    ap.add_argument("--target", type=Path, default=home / ".simonk" / "runtime")
-    ap.add_argument("--state", type=Path, default=home / ".simonk" / "state")
     ap.add_argument("--pin", type=Path, default=REPO / "runtime" / "RUNTIME.json")
     ap.add_argument("--skills-src", type=Path, default=REPO / "skills-src",
                     help="SimonK-stack skills to lay over the upstream skill folders")
@@ -275,6 +275,9 @@ def main(argv=None) -> int:
     ap.add_argument("--skip-config", action="store_true")
     ap.add_argument("--skip-env", action="store_true")
     a = ap.parse_args(argv)
+    # Fixed locations: the rewritten tools and the skill documents name
+    # ~/.simonk/runtime and ~/.simonk/state, so other folders would not be found.
+    a.target, a.state = home / ".simonk" / "runtime", home / ".simonk" / "state"
     try:
         pin = load_pin(a.pin)
         work = Path(tempfile.mkdtemp(prefix="simonk-runtime-"))

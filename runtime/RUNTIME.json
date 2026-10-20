@@ -2,7 +2,7 @@
   "name": "simonk-runtime",
   "description": "Shared runtime (bin scripts, browse/design/pdf binaries, chrome extension, skill support files) used by the SimonK-stack skills derived from garrytan/gstack.",
   "upstream": "https://github.com/garrytan/gstack",
-  "upstream_commit": "96764e80",
+  "upstream_commit": "96764e80a641e28141ec8297223768029f5bf483",
   "upstream_version": "1.91.9.0",
   "license": "MIT (see LICENSE: garrytan/gstack provenance)",
   "install_root": "~/.simonk/runtime",

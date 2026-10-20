@@ -18,8 +18,6 @@
 [CmdletBinding()]
 param(
   [string]$Source,
-  [string]$Target,
-  [string]$StateRoot,
   [switch]$Clone,
   [switch]$Apply,
   [switch]$Force,
@@ -33,8 +31,6 @@ $python = (Get-Command python -ErrorAction SilentlyContinue).Source
 if (-not $python) { throw 'python is required (scripts/install_runtime.py).' }
 $argv = @('-B', $script)
 if ($Source) { $argv += @('--source', $Source) }
-if ($Target) { $argv += @('--target', $Target) }
-if ($StateRoot) { $argv += @('--state', $StateRoot) }
 if ($Clone) { $argv += '--clone' }
 if ($Apply) { $argv += '--apply' }
 if ($Force) { $argv += '--force' }

@@ -1,5 +1,6 @@
 """Offline tests for scripts/install_runtime.py (no bun build, no config writes, no environment writes)."""
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -57,7 +58,7 @@ class InstallRuntimeTests(unittest.TestCase):
         git(self.src, "commit", "-q", "-m", "init")
         self.commit = git(self.src, "rev-parse", "HEAD")
         self.pin = self.tmp / "RUNTIME.json"
-        self.write_pin(self.commit[:8], "9.9.9.0")
+        self.write_pin(self.commit, "9.9.9.0")
         self.target = self.tmp / "home" / ".simonk" / "runtime"
         self.state = self.tmp / "home" / ".simonk" / "state"
         self.skills = self.tmp / "skills-src"
@@ -82,9 +83,10 @@ class InstallRuntimeTests(unittest.TestCase):
         self.pin.write_text(json.dumps(pin), encoding="utf-8")
 
     def run_installer(self, *extra):
-        return subprocess.run([sys.executable, "-B", str(SCRIPT), "--source", str(self.src), "--target", str(self.target),
-                               "--state", str(self.state), "--pin", str(self.pin),
-                               "--skills-src", str(self.skills), *extra],
+        home = self.tmp / "home"  # the runtime and state always live under the user's home
+        env = dict(os.environ, HOME=str(home), USERPROFILE=str(home))
+        return subprocess.run([sys.executable, "-B", str(SCRIPT), "--source", str(self.src), "--pin", str(self.pin),
+                               "--skills-src", str(self.skills), *extra], env=env,
                               capture_output=True, text=True, encoding="utf-8", errors="replace")
 
     def apply(self, *extra):
@@ -98,13 +100,24 @@ class InstallRuntimeTests(unittest.TestCase):
         self.assertFalse(self.state.exists())
 
     def test_rejects_a_source_that_is_not_the_pinned_commit(self):
-        self.write_pin("deadbeef", "9.9.9.0")
+        self.write_pin("deadbeef" * 5, "9.9.9.0")
         r = self.apply()
         self.assertEqual(r.returncode, 2)
         self.assertIn("not the pinned commit", r.stderr)
 
+    def test_rejects_an_abbreviated_pin(self):
+        self.write_pin(self.commit[:8], "9.9.9.0")
+        r = self.apply()
+        self.assertEqual(r.returncode, 2)
+        self.assertIn("full 40-character commit id", r.stderr)
+
+    def test_has_no_custom_target_option(self):
+        r = self.run_installer("--target", str(self.tmp / "elsewhere"))
+        self.assertEqual(r.returncode, 2)
+        self.assertIn("unrecognized arguments", r.stderr)
+
     def test_rejects_a_pinned_version_mismatch(self):
-        self.write_pin(self.commit[:8], "1.0.0.0")
+        self.write_pin(self.commit, "1.0.0.0")
         r = self.apply()
         self.assertEqual(r.returncode, 2)
         self.assertIn("does not match", r.stderr)
@@ -159,7 +172,7 @@ class InstallRuntimeTests(unittest.TestCase):
         self.assertFalse((self.target / "qa" / "SKILL.md").exists(), "listed but no SimonK copy here")
 
     def test_pin_without_overlay_keeps_upstream_text(self):
-        self.write_pin(self.commit[:8], "9.9.9.0", overlay=False)
+        self.write_pin(self.commit, "9.9.9.0", overlay=False)
         self.assertEqual(self.apply().returncode, 0)
         self.assertEqual((self.target / "review" / "checklist.md").read_text(encoding="utf-8"), "upstream checklist\n")
 
