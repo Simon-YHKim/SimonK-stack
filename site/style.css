@@ -192,7 +192,7 @@ a{color:inherit;text-decoration:none}
 .footer-copy{font-size:.65rem;color:var(--ink-faint)}
 
 /* === Gstack grid (skills.html) === */
-.gstack-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border:1px solid var(--border)}
+.pipeline-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border:1px solid var(--border)}
 .gs-group{background:var(--bg);padding:1.5rem}
 .gs-group h3{font-family:Galmuri11,monospace;font-size:.78rem;color:var(--ink);font-weight:400;margin-bottom:.4rem}
 .gs-group p{font-size:.72rem;color:var(--ink-dim);line-height:1.8}

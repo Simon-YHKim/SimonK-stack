@@ -1,8 +1,8 @@
 # SimonK-Stack
 
-> A toolbox of 183 Claude Code skills in five plugins. It covers idea validation, planning, building, testing, security, shipping, design, AI features and marketing. Describe what you want done, and it hands the work to the right skill and model.
+> A toolbox of 191 Claude Code skills in five plugins. It covers idea validation, planning, building, testing, security, shipping, design, AI features and marketing. Describe what you want done, and it hands the work to the right skill and model.
 
-![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) ![plugins](https://img.shields.io/badge/plugins-5-5b8cff) ![skills](https://img.shields.io/badge/skills-183-brightgreen)
+![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) ![plugins](https://img.shields.io/badge/plugins-5-5b8cff) ![skills](https://img.shields.io/badge/skills-191-brightgreen)
 
 **Site**: [simonk-stack.pages.dev](https://simonk-stack.pages.dev) · **한국어**: [README.md](README.md) · **Changes**: [CHANGELOG.md](CHANGELOG.md)
 
@@ -43,10 +43,10 @@ Principles:
 
 | Plugin | What it does | Skills | Entry point |
 | --- | --- | ---: | --- |
-| `simonk-core` | Shared base: work coordination (`vibe`), sprints (`simonk`), model assignment, AI debate, memory and wiki, reports, session handoff, safety (`careful`, `unfreeze`) | 61 | `/simonk-core:vibe` |
-| `simonk-stack` | Building the product: planning and specs, development and refactoring, debugging, QA, security, deployment and release, safety (`freeze`, `guard`) | 60 | `/simonk-stack:skstack` |
+| `simonk-core` | Shared base: work coordination (`vibe`), sprints (`simonk`), model assignment, AI debate, memory and wiki, reports, session handoff, safety (`careful`, `unfreeze`) | 64 | `/simonk-core:vibe` |
+| `simonk-stack` | Building the product: planning and specs, development and refactoring, debugging, QA, security, deployment and release, safety (`freeze`, `guard`) | 64 | `/simonk-stack:skstack` |
 | `simonk-aihub` | Building AI features: model choice, prompts, agents, RAG, LLM and safety evaluation | 7 | `/simonk-aihub:skaihub` |
-| `simonk-design` | Design: UI direction, design systems, logos and social graphics, slides, accessibility checks | 23 | `/simonk-design:skdesign` |
+| `simonk-design` | Design: UI direction, design systems, logos and social graphics, slides, accessibility checks | 24 | `/simonk-design:skdesign` |
 | `simonk-market` | Market and revenue: idea validation, PMF, growth and retention, ads, payments and subscriptions, launch | 32 | `/simonk-market:skmarket` |
 
 To call a plugin skill by slash command, the `/<plugin>:<skill>` form always works (for example `/simonk-core:careful`). The full skill list per plugin is at the [end of section 5](#full-skill-list).
@@ -76,6 +76,24 @@ From a terminal, use `claude plugin marketplace add Simon-YHKim/SimonK-stack` an
 
 You can install only some plugins, but entry skills often hand work to skills in other plugins, so installing all five is recommended.
 
+### Install the runtime (needed by tool-using skills)
+
+The plugins install skill documents only. Skills that call tools, such as browse, design-*, make-pdf, diagram, pr-review, autoplan and ship, need the runtime in `~/.simonk/runtime`. Install it once. You need Git (with Git Bash on Windows), Python 3 and [Bun](https://bun.sh).
+
+```
+git clone https://github.com/Simon-YHKim/SimonK-stack
+python SimonK-stack/scripts/install_runtime.py --clone --apply
+```
+
+On macOS or Linux, use `python3` if `python` is not available. Without `--apply` it only previews. The installer fetches a pinned garrytan/gstack commit (MIT), builds the tools and lays the SimonK skill documents over it. State lives in `~/.simonk/state`; update checks, auto-upgrade and telemetry are off.
+
+To update after a new release, bring your SimonK-stack checkout up to date first, then reinstall with `--force`; the pin and the skill documents are read from that checkout.
+
+```
+git -C SimonK-stack pull --ff-only
+python SimonK-stack/scripts/install_runtime.py --clone --apply --force
+```
+
 ### Check the install
 
 Five lines means it worked.
@@ -90,7 +108,7 @@ In a POSIX shell: `claude plugin list --json | grep -o 'simonk-[a-z]*@simonk-sta
 
 ### Using it from Codex CLI
 
-Codex gets the **Codex edition** (178 skills) from the same repository. The five Claude Code-only safety skills (`careful`, `freeze`, `guard`, `investigate`, `unfreeze`) are left out because Codex cannot guarantee their blocking (hub D-29, D-88).
+Codex gets the **Codex edition** (186 skills) from the same repository. The five Claude Code-only safety skills (`careful`, `freeze`, `guard`, `investigate`, `unfreeze`) are left out because Codex cannot guarantee their blocking (hub D-29, D-88).
 
 ```
 codex plugin marketplace add Simon-YHKim/SimonK-stack
@@ -156,15 +174,15 @@ Not sure a skill exists? Search with `/simonk-core:find-skill receipt OCR`.
 ### Full skill list
 
 <details>
-<summary><code>simonk-core</code>: 61</summary>
+<summary><code>simonk-core</code>: 64</summary>
 
-agent-delegate, ai-debate, ai-usage-widget-install, careful, caveman, checkpoint, completion-report, defuddle, designmd-upgrade, domain-glossary, find-skill, founder-context, gcloud-helper, grill-me, gstack-upgrade, html-default-output, human-voice-guard, json-canvas, keepass-helper, learn, llm-wiki-builder, model-router, multi-terminal-dispatcher, notebooklm-import, obsidian-bases, obsidian-cli, obsidian-markdown, office-docs, office-hours, omc-upgrade, omo-upgrade, open-gstack-browser, opencowork-upgrade, openharness-upgrade, pair-agent, persona-validate, perspectives, plan-ceo-review, project-context-md, semantic-recall, session-context-export, session-context-tracker, session-start-hook, setup-browser-cookies, simon-handoff, simon-instincts, simon-ohmo, simon-research, simon-worktree, simonk, simonk-report, sprint-optimizer, stack-update, tech-preference-tracker, unfreeze, vibe, vibe-bot, web-publisher, wiki-ingest, wiki-lint, wiki-query
+agent-delegate, ai-debate, ai-usage-widget-install, careful, caveman, checkpoint, completion-report, context-restore, context-save, defuddle, designmd-upgrade, domain-glossary, find-skill, founder-context, gcloud-helper, grill-me, html-default-output, human-voice-guard, json-canvas, keepass-helper, learn, llm-wiki-builder, make-pdf, model-router, multi-terminal-dispatcher, notebooklm-import, obsidian-bases, obsidian-cli, obsidian-markdown, office-docs, office-hours, omc-upgrade, omo-upgrade, open-browser, opencowork-upgrade, openharness-upgrade, pair-agent, persona-validate, perspectives, plan-ceo-review, project-context-md, scrape, semantic-recall, session-context-export, session-context-tracker, session-start-hook, setup-browser-cookies, simon-handoff, simon-instincts, simon-ohmo, simon-research, simon-worktree, simonk, simonk-report, sprint-optimizer, stack-update, tech-preference-tracker, unfreeze, vibe, vibe-bot, web-publisher, wiki-ingest, wiki-lint, wiki-query
 </details>
 
 <details>
-<summary><code>simonk-stack</code>: 60</summary>
+<summary><code>simonk-stack</code>: 64</summary>
 
-analytics-ad-wiring, app-dev-orchestrator, app-platform-selector, auth-builder, authz-designer, autoplan, benchmark, browse, building-native-ui, canary, code-health-guard, codex, consent-manager, cso, data-flow-mapper, data-retention-planner, db-selector, debug, deeplink-integrator, deploy-configurator, dev-orchestrator, devex-review, document-release, explain, freeze, guard, health, i18n-localizer, iap-product-configurator, incident-runbook, investigate, karpathy-guidelines, land-and-deploy, minor-consent-compliance, nextjs-optimizer, offline-first, paid-api-guard, phase4-game-orchestrator, plan-devex-review, plan-eng-review, qa, qa-only, refactor, release-health-guard, release-notes, retro, security-checklist, security-orchestrator, setup-deploy, ship, simon-tdd, simple-static-site, skstack, spec, stack-architect, store-privacy-disclosure, test-gen, vercel-react, vue-best-practices, zoom-out
+analytics-ad-wiring, app-dev-orchestrator, app-platform-selector, auth-builder, authz-designer, autoplan, benchmark, browse, building-native-ui, canary, code-health-guard, codex, consent-manager, cso, data-flow-mapper, data-retention-planner, db-selector, debug, deeplink-integrator, deploy-configurator, deslop-shared-libs, dev-orchestrator, devex-review, document-generate, document-release, explain, freeze, guard, health, i18n-localizer, iap-product-configurator, incident-runbook, investigate, karpathy-guidelines, land-and-deploy, minor-consent-compliance, nextjs-optimizer, offline-first, paid-api-guard, phase4-game-orchestrator, plan-devex-review, plan-eng-review, pr-review, qa, qa-only, refactor, release-health-guard, release-notes, retro, security-checklist, security-orchestrator, setup-deploy, ship, simon-tdd, simple-static-site, skstack, spec, stack-architect, store-privacy-disclosure, test-audit, test-gen, vercel-react, vue-best-practices, zoom-out
 </details>
 
 <details>
@@ -174,9 +192,9 @@ agent-builder, ai-model-selector, ai-safety-eval, llm-eval, prompt-engineering, 
 </details>
 
 <details>
-<summary><code>simonk-design</code>: 23</summary>
+<summary><code>simonk-design</code>: 24</summary>
 
-accessibility-audit, coloring-art, consistency-guard, dashboard-review, design-consultation, design-html, design-review, design-shotgun, design-system-keeper, design-system-page, inclusive-ux, logo-generator, persona-simulation, photo-album, plan-design-review, remotion-best-practices, scientific-paper, simon-design-first, simon-motion-reference, skdesign, slides, social-graphic, stitch-design-flow
+accessibility-audit, coloring-art, consistency-guard, dashboard-review, design-consultation, design-html, design-review, design-shotgun, design-system-keeper, design-system-page, diagram, inclusive-ux, logo-generator, persona-simulation, photo-album, plan-design-review, remotion-best-practices, scientific-paper, simon-design-first, simon-motion-reference, skdesign, slides, social-graphic, stitch-design-flow
 </details>
 
 <details>
@@ -268,7 +286,7 @@ In Claude Code, run `/simonk-core:ai-usage-widget-install` or say "install the A
 ### Repository layout
 
 ```
-skills-src/        138 shipped skill sources (SKILL.md, evals/, scripts/, references/)
+skills-src/        146 shipped skill sources (SKILL.md, evals/, scripts/, references/)
 .claude/skills/    4 development skills used in this repo
 scripts/           build and verification tools (skill_release, plugin_bundle, codex_overlay, codex_safe_subset, dist_release)
 scripts/windows/   Windows user-home installer (update-local.ps1)

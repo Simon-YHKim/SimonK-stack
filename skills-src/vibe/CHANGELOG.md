@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.20.1 - 2026-10-21
+
+- **D-117: gstack 런타임이 `~/.simonk/runtime` 으로 옮겨 갔다.** Gstack 출신 스킬 감지(`GSTACK_BIN`·`GSTACK_REFERENCE`)가
+  `.simonk/runtime/bin/` 과 `~/.simonk/state` 도 같은 것으로 본다. 옛 위치(`skills/gstack/bin/`·`~/.gstack`)는 이전 설치를 위해 그대로 잡는다.
+  실행별 격리(`run_state.py gstack-env`)는 런타임이 여전히 읽는 `GSTACK_*` 변수를 쓰므로 바뀌지 않았다. 테스트 1개 추가.
+
 ## 2.20.0 - 2026-10-18
 
 - **D-106: 단순 코딩은 Sonnet 5.5, 복잡한 코딩은 Opus 5.5 xhigh**(Simon 지시 "sonnet5.5는 간단한 코딩에 써야 하는거 아니야?

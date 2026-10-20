@@ -150,7 +150,7 @@ class WindowsUpdateLocalTests(unittest.TestCase):
         self.assertEqual(result.stdout.strip(), "0", result.stderr)
         names = sorted(p.name for p in SCRIPTS.iterdir())
         self.assertEqual(names, ["SimonKLocalInstall.psm1", "build-candidate.ps1", "install-junctions.ps1",
-                                 "install-physical.ps1", "update-local.ps1"])
+                                 "install-physical.ps1", "install-runtime.ps1", "update-local.ps1"])
 
     def test_junction_preview_changes_nothing(self):
         before, config = self.targets(), self.config.read_bytes()

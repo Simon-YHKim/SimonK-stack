@@ -200,6 +200,13 @@ class CandidatePathAuditTests(unittest.TestCase):
         self.assertEqual(rows, [{"skill": skill, "reason": "gstack_bin_reference"}])
         self.assertNotIn("SENSITIVE", repr(rows))
 
+    def test_simonk_runtime_reference_counts_as_external_runtime(self):
+        # D-117: the runtime is installed into ~/.simonk/runtime.
+        skill = "plugins/SimonKStack/skills/ship/SKILL.md"
+        rows = audit.inspect_external_runtime_hints(skill, "~/.simonk/runtime/bin/gstack-slug 2>/dev/null\n")
+        self.assertEqual(rows, [{"skill": skill, "reason": "gstack_bin_reference"}])
+        self.assertEqual(audit.inspect_external_runtime_hints(skill, "~/.simonk/runtimes/bin/x\n"), [])
+
     def test_verified_candidate_separates_static_paths_from_external_runtime(self):
         skill = "plugins/SimonKStack/skills/qa/SKILL.md"
         body = b"~/.claude/skills/gstack/bin/gstack-skill-start --skill qa\n"

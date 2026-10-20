@@ -1,9 +1,9 @@
 # Skill Index
 
 **curated simon-stack** skill 세트의 카테고리별 맵. 세션 시작 시 참고용.
-이 표는 simon-stack 큐레이션 셋(skills-src + 개발용 dev skill)을 매핑한다. gstack 홈 설치본(`~/.claude/skills/gstack/` 및 약 21개 gstack 홈 skill — `skillify`, `spec`, `scrape`, `diagram`, `make-pdf`, `ios-*` 등)은 여기에 카탈로그하지 않으며, 전체 목록은 `/gstack` 진입점으로 조회한다. 일부 자주 쓰는 gstack 홈 skill 은 아래 카테고리 표에 `(Gstack)` 표기로 교차 등재돼 있고, 나머지는 부록(맨 아래 "Gstack 홈 설치본" 표) 참고.
+이 표는 SimonK-stack 큐레이션 셋(skills-src + 개발용 dev skill)을 매핑한다. garrytan/gstack 출신 스킬은 2026-10-21(허브 D-117)부터 SimonK-stack이 소유한다 — 본문은 upstream 1.91.9.0, 설명·버전은 SimonK, 이들이 부르는 런타임은 `~/.simonk/runtime`(`scripts/install_runtime.py`), 상태는 `~/.simonk/state`. 출처는 `skills-src/VENDORED.md`.
 
-**`skills-src/` 배포 소스 138개** + `.claude/skills/` 개발용 4개 = **총 142개** (2026-10-19 main 의 `SKILL.md` 실측). 이 인덱스는 레거시 소스·개발 스킬의 맵이며, 별도로 조립한 5플러그인 빌드의 183개 스킬이나 Gstack 홈 설치본은 이 카운트에 포함하지 않는다. 아래 카테고리 표는 2026-06-13 cycle-2 분류를 기반으로 하므로 최신 파일 목록 확인은 실제 두 소스 디렉터리 또는 후보 영수증을 기준으로 한다.
+**`skills-src/` 배포 소스 146개** + `.claude/skills/` 개발용 4개 = **총 150개** (2026-10-21 브랜치의 `SKILL.md` 실측). 이 인덱스는 소스·개발 스킬의 맵이며, 별도로 조립한 5플러그인 빌드의 191개 스킬은 이 카운트에 포함하지 않는다. 아래 카테고리 표는 2026-06-13 cycle-2 분류를 기반으로 하므로 최신 파일 목록 확인은 실제 두 소스 디렉터리 또는 후보 영수증을 기준으로 한다.
 
 > **검증**: `python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py <path>` (Windows는 `PYTHONIOENCODING=utf-8` 또는 검증기 UTF-8 패치 필요). **2026-06-13 재검증**: simon-stack 스킬 전부 통과(`wiki-query` E013 수정). 검증기 cp949 크래시·E008 "Todo-list" 오탐 수정(SimonK-stack `4aacecd`). Gstack 스킬은 긴 커맨드-doc 포맷이라 E007/E008 평가 제외.
 > **신규 (PR #8)**: `session-context-tracker` · `html-default-output` (+ `context-guardian` 1.1.0 / `agent-delegate` 1.1.0 보강)
@@ -14,7 +14,7 @@
 |---|---|
 | `app-dev-orchestrator` | 신규 앱 21단계 마스터 파이프라인 |
 | `security-orchestrator` | 보안 감사 5단계 순차 실행 |
-| `autoplan` (Gstack) | CEO/Design/Eng/DX 리뷰 자동 파이프라인 |
+| `autoplan` | CEO/Design/Eng/DX 리뷰 자동 파이프라인 |
 | `model-router` | task type → best LLM 모델 자동 매핑 (2026-05 매트릭스, sprint v23 Phase A) |
 | `multi-terminal-dispatcher` | model-router + Windows Terminal/psmux/VS Code tasks 병렬 launcher (sprint v23 Phase B) |
 | `agent-delegate` | sub-agent 위임 플랜 — task 분해 + context envelope(파일 경로만) + output contract + 패턴(Fan-out/Pipeline/Supervisor). app-dev-orchestrator·simon-worktree 가 사용 |
@@ -38,7 +38,7 @@
 | Skill | 역할 |
 |---|---|
 | `context-guardian` | 컨텍스트 고갈 예방 + 실측 한도 관리 + 세션 복구 (3 mode: prevention / monitoring / recovery) |
-| `/checkpoint` (Gstack) | 일반 작업 스냅샷 저장·재개 (in-session, ephemeral OK) |
+| `/checkpoint` | 일반 작업 스냅샷 저장·재개 (in-session, ephemeral OK) |
 | `simon-handoff` | **세션 간 git-persistent 핸드오프** — docs/HANDOFF.md prepend + PR auto-merge to main. 다른 세션이 `git pull` 한 번으로 복원 |
 | `perspectives` | **세션 blind-spot 감사** — Core 5 (User/Business/Technical/Security/Future-self) + 세션 특화 N stakeholder. perspectives.md 누적 append + SessionStart hook 자동 알림 |
 | `session-context-export` | 세션 종료 핸드오프 — sprint state snapshot (`.simonk/session-<TS>`) export |
@@ -48,11 +48,11 @@
 | Skill | 역할 |
 |---|---|
 | `simon-research` | 리서치 우선 — 공식 문서·경쟁 제품 수집 |
-| `office-hours` (Gstack) | YC 6문 forcing question |
-| `plan-ceo-review` (Gstack) | 10-star 스코프 재정의 |
-| `plan-eng-review` (Gstack) | 엔지니어링 플랜 락다운 |
-| `plan-design-review` (Gstack) | 디자인 플랜 리뷰 |
-| `plan-devex-review` (Gstack) | 개발자 경험 플랜 리뷰 |
+| `office-hours` | YC 6문 forcing question |
+| `plan-ceo-review` | 10-star 스코프 재정의 |
+| `plan-eng-review` | 엔지니어링 플랜 락다운 |
+| `plan-design-review` | 디자인 플랜 리뷰 |
+| `plan-devex-review` | 개발자 경험 플랜 리뷰 |
 | `grill-me` | 1-Q-at-a-time 인터뷰 — 사용자 계획의 결정 트리 청소 (simon-tdd RED 전) |
 | `domain-glossary` | 프로젝트 `CONTEXT.md` 도메인 용어집 — instincts·CLAUDE.md·ADR 와 분리된 layer |
 | `founder-context` | **4-file 패턴**: me.md / vision.md / design.md / workingstyle.md 를 프로젝트 루트에 한 번에 생성. wiki·instincts·simon-design-first 와 import 동기화 |
@@ -66,11 +66,11 @@
 
 | Skill | 역할 |
 |---|---|
-| `design-consultation` (Gstack) | DESIGN.md 생성, 브랜드 시스템 |
+| `design-consultation` | DESIGN.md 생성, 브랜드 시스템 |
 | `stitch-design-flow` | Google Stitch 프롬프트 생성기 (수동) |
-| `design-shotgun` (Gstack) | 디자인 변형 탐색 |
-| `design-review` (Gstack) | 시각 QA, AI slop 탐지 |
-| `design-html` (Gstack) | production HTML/CSS 변환 |
+| `design-shotgun` | 디자인 변형 탐색 |
+| `design-review` | 시각 QA, AI slop 탐지 |
+| `design-html` | production HTML/CSS 변환 |
 | `design-system-page` | design.md → design-system.html + A4 brand-book PDF 자동 생성 |
 | `design-system-keeper` | 디자인 시스템 영속·강제: 6 방향 선택 → `.design-system/system.md` 토큰 캡처/자동로드 → 코드서 extract → drift audit. frontend-design(distinctiveness) + interface-design(persistence) 종합, anti-slop 조화 |
 | `slides` | zero-dep HTML 슬라이드 (16:9, 3 preview → 선택) — frontend-slides 패턴 |
@@ -101,15 +101,16 @@
 
 | Skill | 역할 |
 |---|---|
-| `review` (Gstack) | PR 사전 리뷰 (SQL·LLM boundary·side effects) |
+| `pr-review` | PR 사전 리뷰 (SQL·LLM boundary·side effects) |
+| `test-audit` | 가치 낮은·중복 테스트와 그 테스트만 살리는 코드 찾기 |
 | `review` (local) | 일반 코드 리뷰 |
-| `qa` (Gstack) | QA 테스트 + 자동 수정 |
-| `qa-only` (Gstack) | QA 리포트 only (수정 없음) |
-| `codex` (Gstack) | Codex CLI 통합 (review/challenge/consult) |
-| `health` (Gstack) | 코드 품질 대시보드 |
-| `benchmark` (Gstack) | Core Web Vitals 성능 측정 |
-| `devex-review` (Gstack) | 개발자 경험 실측 |
-| `browse` (Gstack) | 헤드리스 브라우저 검증 |
+| `qa` | QA 테스트 + 자동 수정 |
+| `qa-only` | QA 리포트 only (수정 없음) |
+| `codex` | Codex CLI 통합 (review/challenge/consult) |
+| `health` | 코드 품질 대시보드 |
+| `benchmark` | Core Web Vitals 성능 측정 |
+| `devex-review` | 개발자 경험 실측 |
+| `browse` | 헤드리스 브라우저 검증 |
 | `code-health-guard` | 스파게티 방지 — 파일 배치·레이어 방향·순환의존(madge)·dead export 스캔 |
 | `consistency-guard` | JSON-schema 기반 데이터·UI 일관성 검증 (API contract · design token · config) |
 | `human-voice-guard` | LLM 어투 탐지·교정 — 사람 목소리로 재작성 |
@@ -123,21 +124,22 @@
 | `security-checklist` | RLS/구독/RateLimit/예산 4대 감사 |
 | `authz-designer` | RBAC/ABAC/ReBAC 모델 + IDOR 감사 |
 | `paid-api-guard` | 유료 API 6층 방어 + API 설계 |
-| `cso` (Gstack) | CSO 모드 — 인프라·시크릿·공급망·STRIDE |
-| `careful` (Gstack) | 파괴적 명령 가드 |
-| `guard` (Gstack) | 디렉토리 freeze + careful 통합 |
-| `freeze` / `unfreeze` (Gstack) | 편집 범위 제한 |
+| `cso` | CSO 모드 — 인프라·시크릿·공급망·STRIDE |
+| `careful` | 파괴적 명령 가드 |
+| `guard` | 디렉토리 freeze + careful 통합 |
+| `freeze` / `unfreeze` | 편집 범위 제한 |
 | `keepass-helper` | KeePassXC vault/CLI 존재 여부 진단; 금고 열기·시크릿 주입 미지원 |
 
 ## 🚀 Ship & Deploy
 
 | Skill | 역할 |
 |---|---|
-| `ship` (Gstack) | 테스트·VERSION·CHANGELOG·PR 생성 |
-| `land-and-deploy` (Gstack) | 머지·CI·배포·health 검증 |
-| `canary` (Gstack) | 배포 후 라이브 모니터링 |
-| `setup-deploy` (Gstack) | 배포 플랫폼 설정 |
-| `document-release` (Gstack) | 배포 후 문서 갱신 |
+| `ship` | 테스트·VERSION·CHANGELOG·PR 생성 |
+| `land-and-deploy` | 머지·CI·배포·health 검증 |
+| `canary` | 배포 후 라이브 모니터링 |
+| `setup-deploy` | 배포 플랫폼 설정 |
+| `document-release` | 배포 후 문서 갱신 |
+| `document-generate` | 문서가 없는 기능·모듈·프로젝트의 문서 신규 생성 |
 | `deploy-configurator` | 배포 플랫폼 선택 (Cloudflare/Vercel/Fly.io/Railway) + CI/CD + 도메인 + env |
 | `release-notes` | 릴리즈 노트·패치 노트·스토어 업데이트 공지 작성 |
 
@@ -166,7 +168,7 @@
 
 | Skill | 역할 |
 |---|---|
-| `investigate` (Gstack) | root cause 체계적 조사 (4단계) |
+| `investigate` | root cause 체계적 조사 (4단계) |
 | `debug` (local) | 일반 디버깅 |
 | `zoom-out` | 한 layer 위에서 모듈 맵 — `/explain` 의 escalation (manual-only) |
 
@@ -175,9 +177,11 @@
 | Skill | 역할 |
 |---|---|
 | `simon-instincts` | 실수·패턴 누적 (~/.claude/instincts/) |
-| `learn` (Gstack) | 프로젝트 학습 관리 |
-| `retro` (Gstack) | 주간 엔지니어링 회고 |
-| `checkpoint` (Gstack) | 상태 스냅샷·재개 |
+| `learn` | 프로젝트 학습 관리 |
+| `retro` | 주간 엔지니어링 회고 |
+| `checkpoint` | 상태 스냅샷·재개 |
+| `context-save` | 작업 컨텍스트 저장 (`~/.simonk/state`) |
+| `context-restore` | `/context-save` 로 저장한 컨텍스트 복원 |
 | `notebooklm-import` | YouTube 자막 + PDF + 웹 → SimonKWiki 페이지로 변환·통합 |
 | `llm-wiki-builder` | SimonKWiki 페이지 작성·인제스트·유지 (T-xxx / M-xxx / entities) |
 | `wiki-query` | 위키 인덱스 검색 + [[wikilink]] 인용 답변 |
@@ -194,6 +198,10 @@
 |---|---|
 | `commit` (local) | Conventional Commits 생성 |
 | `refactor` (local) | 구조 개선 |
+| `deslop-shared-libs` | 최근 작업에서 공통 라이브러리로 뺄 코드 찾기 |
+| `make-pdf` | 마크다운 → 출판 품질 PDF |
+| `diagram` | 설명·mermaid → 소스 + `.excalidraw` + SVG/PNG |
+| `scrape` | 웹 페이지 데이터 → JSON/CSV (로그인·결제 화면은 넘지 않음) |
 | `explain` (local) | 코드 설명 |
 | `test-gen` (local) | 테스트 생성 |
 | `simplify` (built-in/runtime) | 코드 단순화 |
@@ -207,10 +215,9 @@
 | `keybindings-help` (built-in/runtime) | 키바인딩 커스터마이징 |
 | `session-start-hook` | 세션 시작 hook 관리 |
 | `caveman` | 응답 75% 토큰 압축 모드 — 긴 세션 시 토글 |
-| `pair-agent` (Gstack) | 원격 에이전트 페어링 |
-| `setup-browser-cookies` (Gstack) | 브라우저 쿠키 가져오기 |
-| `open-gstack-browser` (Gstack) | GStack Browser 실행 |
-| `gstack-upgrade` (Gstack) | Gstack 버전 업데이트 (gstack-only) |
+| `pair-agent` | 원격 에이전트 페어링 |
+| `setup-browser-cookies` | 브라우저 쿠키 가져오기 |
+| `open-browser` | AI 브라우저(사이드바 확장) 실행 |
 | `ai-usage-widget-install` | `apps/ai-usage-widget`(Claude·Codex·Grok·Antigravity 사용량 작업 표시줄 위젯)를 소스에서 빌드·검증해 사용자 전용 설치, 상태 점검, 브리지 안전장치가 있는 제거 |
 | `stack-update` | **저장소별 안전 갱신** — 읽기 전용 inventory 후 승인 범위의 clean fast-forward만 수행 |
 | `omc-upgrade` | vendored oh-my-claudecode 단독 최신화 |
@@ -218,35 +225,12 @@
 | `openharness-upgrade` | vendored OpenHarness 단독 최신화 |
 | `opencowork-upgrade` | vendored open-cowork 단독 최신화 |
 | `designmd-upgrade` | vendored design.md 단독 최신화 |
-| `gstack` (Gstack 메타, built-in/runtime) | Gstack 전체 진입점 |
 
 ---
 
-## 부록 — Gstack 홈 설치본 (위 142개 소스 카운트 제외)
+## 부록 — gstack에서 들여오지 않은 것
 
-> 아래는 **gstack 홈 설치본**(`~/.claude/skills/`)에 함께 깔리는 gstack skill 로, simon-stack 큐레이션 셋이 아니다 (위 142개 소스 카운트에 미포함). 전체 목록·진입점은 `/gstack` 로 조회. 여기 등재는 가시성 용도이며, **gstack skill 자체는 SimonK-stack 에서 수정하지 않는다** (upstream garrytan/gstack 책임 도메인).
-
-| Skill | 역할 |
-|---|---|
-| `_gstack-command` (Gstack) | gstack 내부 커맨드 디스패처 |
-| `benchmark-models` (Gstack) | gstack skill 크로스-모델 벤치마크 |
-| `context-save` (Gstack) | 작업 컨텍스트 저장 |
-| `context-restore` (Gstack) | `/context-save` 로 저장한 컨텍스트 복원 |
-| `diagram` (Gstack) | 영문 설명 → diagram triplet (source + `.excalidraw` + 렌더) |
-| `document-generate` (Gstack) | 기능·모듈·프로젝트 문서 신규 생성 |
-| `landing-report` (Gstack) | workspace-aware ship 큐 대시보드 (read-only) |
-| `make-pdf` (Gstack) | PDF 생성 |
-| `plan-tune` (Gstack) | 플랜 튜닝 |
-| `scrape` (Gstack) | 웹 스크레이핑 |
-| `setup-gbrain` (Gstack) | gbrain 셋업 |
-| `sync-gbrain` (Gstack) | gbrain 동기화 |
-| `skillify` (Gstack) | skill 화 (OMC 계열) |
-| `spec` (Gstack) | 스펙 생성 |
-| `ios-clean` (Gstack) | iOS DebugBridge SPM + `#if DEBUG` 배선 제거 |
-| `ios-fix` (Gstack) | 자율 iOS 버그 수정 |
-| `ios-qa` (Gstack) | SwiftUI 앱 실기기 QA |
-| `ios-sync` (Gstack) | iOS 디버그 브리지 upstream 템플릿 동기화 |
-| `ios-design-review` (Gstack) | iOS 앱 실기기 시각 디자인 감사 |
+`ios-*` 5개(SwiftUI 실기기용), `setup-gbrain`, `sync-gbrain`, `plan-tune`, `skillify`, `benchmark-models`, `landing-report`, upstream 라우터·업그레이드 스킬, `spec`(SimonK 플러그인에 같은 이름의 고유 스킬이 있음). D-117 이후 이 PC의 gstack 홈 설치본은 보관 폴더로 옮겼다.
 
 ---
 
@@ -262,20 +246,20 @@
 
 | 상황 | 선택 |
 |---|---|
-| PR 전 코드 리뷰 | Gstack `/review` (SQL·LLM·side effects 특화) |
-| 일반 코드 리뷰 | local `review` |
-| 근본 원인 디버깅 | Gstack `/investigate` (4단계 체계) |
+| PR 전 코드 리뷰 | `/pr-review` (SQL·LLM·side effects 특화) |
+| 일반 코드 리뷰 | local `review` (이 레포 개발용) |
+| 근본 원인 디버깅 | `/investigate` (4단계 체계) |
 | 단순 버그 고치기 | local `debug` |
-| 프로젝트 학습 저장 | Gstack `/learn` (프로젝트 scope) |
+| 프로젝트 학습 저장 | `/learn` (프로젝트 scope) |
 | Claude 실수 누적 | `simon-instincts` (글로벌 scope) |
 | TDD 사이클 | `simon-tdd` (구현 단계) |
 | 배포용 테스트 | `/ship` 내부 테스트 단계 |
 
-### 4. Gstack vs simon-stack
+### 4. 실행형 vs 방법론형
 
-- **Gstack**: 실행 파이프라인 (명령어·스크립트 있음, bin/ 활용)
-- **simon-stack**: 방법론·보안·학습 (markdown 가이드 중심)
-- 충돌 시 Gstack 이 구체 실행, simon-stack 이 상위 원칙 제공
+- **실행형**(qa·ship·browse 등): `~/.simonk/runtime` 의 스크립트·도구를 부르는 실행 파이프라인
+- **방법론형**: 보안·학습·설계 원칙 (markdown 가이드 중심)
+- 충돌 시 실행형이 구체 실행, 방법론형이 상위 원칙 제공
 
 ---
 

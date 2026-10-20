@@ -1,7 +1,7 @@
 ---
 name: opencowork-upgrade
 description: >
-  Use when the user wants to update the vendored open-cowork stack — triggers "OpenCowork 최신화", "오픈코워크 업데이트", "upgrade open-cowork", "update opencowork", or /opencowork-upgrade. open-cowork is OpenCoworkAI coworking-mode agent stack, vendored at ~/.simon-stack/vendor/open-cowork/ with .git preserved so it can be pulled in place. Wraps scripts/upgrade-vendor.sh which handles fresh clone if missing, safe ff-only pull if behind, and skips when tree is dirty or on a non-default branch. Different from /stack-update (holistic — this is single-stack only). Different from /gstack-upgrade (targets a different upstream — Garry Tan's gstack).
+  Use when the user wants to update the vendored open-cowork stack — triggers "OpenCowork 최신화", "오픈코워크 업데이트", "upgrade open-cowork", "update opencowork", or /opencowork-upgrade. open-cowork is OpenCoworkAI coworking-mode agent stack, vendored at ~/.simon-stack/vendor/open-cowork/ with .git preserved so it can be pulled in place. Wraps scripts/upgrade-vendor.sh which handles fresh clone if missing, safe ff-only pull if behind, and skips when tree is dirty or on a non-default branch. Different from /stack-update (holistic — this is single-stack only).
 version: 1.0.0
 allowed-tools:
   - Bash
@@ -59,7 +59,6 @@ without explicit user confirmation.
 ## Related skills
 
 - `/stack-update` — separate repository inventory and safe fast-forward plan; it does not auto-call this skill or force-reinstall profiles.
-- `/gstack-upgrade` — gstack-only upgrade
 - Sibling vendor upgrades: `/omc-upgrade`, `/omo-upgrade`, `/openharness-upgrade`, `/opencowork-upgrade`, `/designmd-upgrade`
 
 ## Independence note

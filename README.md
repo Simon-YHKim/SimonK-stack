@@ -1,8 +1,8 @@
 # SimonK-Stack
 
-> Claude Code용 스킬 183개를 다섯 플러그인으로 묶은 작업 도구 상자입니다. 아이디어 검증부터 기획·개발·테스트·보안·배포, 디자인, AI 기능, 마케팅까지 "무엇을 하고 싶은지"만 말하면 알맞은 스킬과 모델로 이어 줍니다.
+> Claude Code용 스킬 191개를 다섯 플러그인으로 묶은 작업 도구 상자입니다. 아이디어 검증부터 기획·개발·테스트·보안·배포, 디자인, AI 기능, 마케팅까지 "무엇을 하고 싶은지"만 말하면 알맞은 스킬과 모델로 이어 줍니다.
 
-![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) ![plugins](https://img.shields.io/badge/plugins-5-5b8cff) ![skills](https://img.shields.io/badge/skills-183-brightgreen)
+![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) ![plugins](https://img.shields.io/badge/plugins-5-5b8cff) ![skills](https://img.shields.io/badge/skills-191-brightgreen)
 
 **사이트**: [simonk-stack.pages.dev](https://simonk-stack.pages.dev) · **English**: [README.en.md](README.en.md) · **변경 기록**: [CHANGELOG.md](CHANGELOG.md)
 
@@ -43,10 +43,10 @@
 
 | 플러그인 | 하는 일 | 스킬 | 진입점 |
 | --- | --- | ---: | --- |
-| `simonk-core` | 공용 기반. 작업 조정(`vibe`), 스프린트(`simonk`), 모델 배정, AI 토론, 메모리·위키, 보고서, 세션 인수인계, 안전(`careful`·`unfreeze`) | 61 | `/simonk-core:vibe` |
-| `simonk-stack` | 제품 만들기. 기획·스펙, 개발·리팩터링, 디버깅, QA, 보안, 배포·릴리스, 안전(`freeze`·`guard`) | 60 | `/simonk-stack:skstack` |
+| `simonk-core` | 공용 기반. 작업 조정(`vibe`), 스프린트(`simonk`), 모델 배정, AI 토론, 메모리·위키, 보고서, 세션 인수인계, 안전(`careful`·`unfreeze`) | 64 | `/simonk-core:vibe` |
+| `simonk-stack` | 제품 만들기. 기획·스펙, 개발·리팩터링, 디버깅, QA, 보안, 배포·릴리스, 안전(`freeze`·`guard`) | 64 | `/simonk-stack:skstack` |
 | `simonk-aihub` | AI 기능 만들기. 모델 선택, 프롬프트, 에이전트, RAG, LLM 평가·안전 평가 | 7 | `/simonk-aihub:skaihub` |
-| `simonk-design` | 디자인. UI 방향 잡기, 디자인 시스템, 로고·소셜 그래픽, 슬라이드, 접근성 점검 | 23 | `/simonk-design:skdesign` |
+| `simonk-design` | 디자인. UI 방향 잡기, 디자인 시스템, 로고·소셜 그래픽, 슬라이드, 접근성 점검 | 24 | `/simonk-design:skdesign` |
 | `simonk-market` | 시장과 매출. 아이디어 검증, PMF, 그로스·리텐션, 광고·결제·구독, 출시 | 32 | `/simonk-market:skmarket` |
 
 플러그인 스킬을 슬래시로 부를 때는 `/<플러그인>:<스킬>` 형식이 확실합니다(예: `/simonk-core:careful`). 각 플러그인에 들어 있는 스킬 전체 목록은 [5절 끝](#전체-스킬-목록)에 있습니다.
@@ -76,6 +76,24 @@ Claude Code 세션 안에서:
 
 필요한 플러그인만 골라 설치해도 되지만, 진입 스킬이 다른 플러그인의 스킬로 넘기는 경우가 많아 다섯 개를 모두 설치하는 것을 권장합니다.
 
+### 런타임 설치 (도구를 쓰는 스킬에 필요)
+
+플러그인은 스킬 문서만 설치합니다. browse·design-*·make-pdf·diagram·pr-review·autoplan·ship처럼 도구를 부르는 스킬은 `~/.simonk/runtime` 런타임이 있어야 동작합니다. 한 번 설치합니다. Git(Windows는 Git Bash 포함), Python 3, [Bun](https://bun.sh)이 필요합니다.
+
+```
+git clone https://github.com/Simon-YHKim/SimonK-stack
+python SimonK-stack/scripts/install_runtime.py --clone --apply
+```
+
+macOS·Linux에서 `python`이 없으면 `python3`로 실행합니다. `--apply` 없이 실행하면 미리보기만 합니다. 설치기는 고정된 garrytan/gstack 커밋(MIT)을 받아 도구를 빌드하고 SimonK 스킬 문서를 덧씌웁니다. 상태는 `~/.simonk/state`에 두고, 업데이트 확인·자동 업그레이드·텔레메트리는 끕니다.
+
+새 릴리스로 갱신할 때는 받아 둔 SimonK-stack을 먼저 최신으로 맞춘 뒤 `--force`로 다시 설치합니다. 고정 버전과 스킬 문서는 이 체크아웃에서 읽습니다.
+
+```
+git -C SimonK-stack pull --ff-only
+python SimonK-stack/scripts/install_runtime.py --clone --apply --force
+```
+
 ### 설치 확인
 
 다섯 줄이 나오면 정상입니다.
@@ -90,7 +108,7 @@ POSIX 셸에서는 `claude plugin list --json | grep -o 'simonk-[a-z]*@simonk-st
 
 ### Codex CLI에서 쓰기
 
-Codex는 같은 저장소에서 **Codex판**(178개)을 받습니다. Claude Code 전용 안전 스킬 5개(`careful`·`freeze`·`guard`·`investigate`·`unfreeze`)는 Codex에서 차단을 보장할 수 없어 빠져 있습니다(허브 D-29·D-88).
+Codex는 같은 저장소에서 **Codex판**(186개)을 받습니다. Claude Code 전용 안전 스킬 5개(`careful`·`freeze`·`guard`·`investigate`·`unfreeze`)는 Codex에서 차단을 보장할 수 없어 빠져 있습니다(허브 D-29·D-88).
 
 ```
 codex plugin marketplace add Simon-YHKim/SimonK-stack
@@ -156,15 +174,15 @@ codex plugin add simonk-market@simonk-stack
 ### 전체 스킬 목록
 
 <details>
-<summary><code>simonk-core</code> — 61개</summary>
+<summary><code>simonk-core</code> — 64개</summary>
 
-agent-delegate, ai-debate, ai-usage-widget-install, careful, caveman, checkpoint, completion-report, defuddle, designmd-upgrade, domain-glossary, find-skill, founder-context, gcloud-helper, grill-me, gstack-upgrade, html-default-output, human-voice-guard, json-canvas, keepass-helper, learn, llm-wiki-builder, model-router, multi-terminal-dispatcher, notebooklm-import, obsidian-bases, obsidian-cli, obsidian-markdown, office-docs, office-hours, omc-upgrade, omo-upgrade, open-gstack-browser, opencowork-upgrade, openharness-upgrade, pair-agent, persona-validate, perspectives, plan-ceo-review, project-context-md, semantic-recall, session-context-export, session-context-tracker, session-start-hook, setup-browser-cookies, simon-handoff, simon-instincts, simon-ohmo, simon-research, simon-worktree, simonk, simonk-report, sprint-optimizer, stack-update, tech-preference-tracker, unfreeze, vibe, vibe-bot, web-publisher, wiki-ingest, wiki-lint, wiki-query
+agent-delegate, ai-debate, ai-usage-widget-install, careful, caveman, checkpoint, completion-report, context-restore, context-save, defuddle, designmd-upgrade, domain-glossary, find-skill, founder-context, gcloud-helper, grill-me, html-default-output, human-voice-guard, json-canvas, keepass-helper, learn, llm-wiki-builder, make-pdf, model-router, multi-terminal-dispatcher, notebooklm-import, obsidian-bases, obsidian-cli, obsidian-markdown, office-docs, office-hours, omc-upgrade, omo-upgrade, open-browser, opencowork-upgrade, openharness-upgrade, pair-agent, persona-validate, perspectives, plan-ceo-review, project-context-md, scrape, semantic-recall, session-context-export, session-context-tracker, session-start-hook, setup-browser-cookies, simon-handoff, simon-instincts, simon-ohmo, simon-research, simon-worktree, simonk, simonk-report, sprint-optimizer, stack-update, tech-preference-tracker, unfreeze, vibe, vibe-bot, web-publisher, wiki-ingest, wiki-lint, wiki-query
 </details>
 
 <details>
-<summary><code>simonk-stack</code> — 60개</summary>
+<summary><code>simonk-stack</code> — 64개</summary>
 
-analytics-ad-wiring, app-dev-orchestrator, app-platform-selector, auth-builder, authz-designer, autoplan, benchmark, browse, building-native-ui, canary, code-health-guard, codex, consent-manager, cso, data-flow-mapper, data-retention-planner, db-selector, debug, deeplink-integrator, deploy-configurator, dev-orchestrator, devex-review, document-release, explain, freeze, guard, health, i18n-localizer, iap-product-configurator, incident-runbook, investigate, karpathy-guidelines, land-and-deploy, minor-consent-compliance, nextjs-optimizer, offline-first, paid-api-guard, phase4-game-orchestrator, plan-devex-review, plan-eng-review, qa, qa-only, refactor, release-health-guard, release-notes, retro, security-checklist, security-orchestrator, setup-deploy, ship, simon-tdd, simple-static-site, skstack, spec, stack-architect, store-privacy-disclosure, test-gen, vercel-react, vue-best-practices, zoom-out
+analytics-ad-wiring, app-dev-orchestrator, app-platform-selector, auth-builder, authz-designer, autoplan, benchmark, browse, building-native-ui, canary, code-health-guard, codex, consent-manager, cso, data-flow-mapper, data-retention-planner, db-selector, debug, deeplink-integrator, deploy-configurator, deslop-shared-libs, dev-orchestrator, devex-review, document-generate, document-release, explain, freeze, guard, health, i18n-localizer, iap-product-configurator, incident-runbook, investigate, karpathy-guidelines, land-and-deploy, minor-consent-compliance, nextjs-optimizer, offline-first, paid-api-guard, phase4-game-orchestrator, plan-devex-review, plan-eng-review, pr-review, qa, qa-only, refactor, release-health-guard, release-notes, retro, security-checklist, security-orchestrator, setup-deploy, ship, simon-tdd, simple-static-site, skstack, spec, stack-architect, store-privacy-disclosure, test-audit, test-gen, vercel-react, vue-best-practices, zoom-out
 </details>
 
 <details>
@@ -174,9 +192,9 @@ agent-builder, ai-model-selector, ai-safety-eval, llm-eval, prompt-engineering, 
 </details>
 
 <details>
-<summary><code>simonk-design</code> — 23개</summary>
+<summary><code>simonk-design</code> — 24개</summary>
 
-accessibility-audit, coloring-art, consistency-guard, dashboard-review, design-consultation, design-html, design-review, design-shotgun, design-system-keeper, design-system-page, inclusive-ux, logo-generator, persona-simulation, photo-album, plan-design-review, remotion-best-practices, scientific-paper, simon-design-first, simon-motion-reference, skdesign, slides, social-graphic, stitch-design-flow
+accessibility-audit, coloring-art, consistency-guard, dashboard-review, design-consultation, design-html, design-review, design-shotgun, design-system-keeper, design-system-page, diagram, inclusive-ux, logo-generator, persona-simulation, photo-album, plan-design-review, remotion-best-practices, scientific-paper, simon-design-first, simon-motion-reference, skdesign, slides, social-graphic, stitch-design-flow
 </details>
 
 <details>
@@ -268,7 +286,7 @@ Claude Code에서 `/simonk-core:ai-usage-widget-install` 또는 "AI 사용량 �
 ### 저장소 구조
 
 ```
-skills-src/        배포할 스킬 소스 138개 (SKILL.md, evals/, scripts/, references/)
+skills-src/        배포할 스킬 소스 146개 (SKILL.md, evals/, scripts/, references/)
 .claude/skills/    이 저장소에서 쓰는 개발용 스킬 4개
 scripts/           빌드·검증 도구 (skill_release, plugin_bundle, codex_overlay, codex_safe_subset, dist_release)
 scripts/windows/   Windows 사용자 홈 설치 도구 (update-local.ps1)

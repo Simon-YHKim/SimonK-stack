@@ -1,65 +1,91 @@
 # Vendored Skills
 
-Upstream skills included as-is. Original format preserved.
-Validation: relaxed (line count, description format exempt).
+Skills derived from an upstream project. SimonK-stack owns these copies and the
+runtime they call; nothing here depends on the upstream install any more.
+Validation: relaxed for body length (E007) and TODO markers (E008) only — the
+bodies are long procedural documents by design. Every other check, the
+description quality gate and `evals/cases.json` still apply
+(`.github/skill-ci/run_ci.py`).
 
-## Source: [garrytan/gstack](https://github.com/garrytan/gstack)
+## Source: [garrytan/gstack](https://github.com/garrytan/gstack) v1.91.9.0 (MIT)
+
+Integrated in full on 2026-10-21 (hub D-117):
+
+- Bodies follow upstream 1.91.9.0. Descriptions and versions are SimonK's.
+- The runtime they call (bin scripts, browse/design/pdf tools, Chrome
+  extension) lives in `~/.simonk/runtime`, installed by
+  `scripts/install_runtime.py` (Windows wrapper: `scripts/windows/install-runtime.ps1`)
+  from the pin in `runtime/RUNTIME.json`. Support files the skills read by
+  absolute path (sections, templates, hooks, another skill's SKILL.md) live
+  there too: the installer lays each skill listed here over the upstream folder
+  of the same name, so those reads get the SimonK text.
+  State lives in `~/.simonk/state`.
+- Install and state paths are rewritten from the upstream home install to
+  those folders. Update checks and auto-upgrade are off; SimonK-stack manages
+  updates. The upstream upgrade skill is retired.
+- Safety skills (`careful`, `freeze`, `guard`, `unfreeze`, `investigate`) keep
+  their reviewed bytes for now: the five-plugin safety projection pins their
+  hook text and the freeze state default (`$HOME/.simonk/state`). Moving them to
+  `~/.simonk/state` is a separate safety change with its own review.
+- Renamed: upstream `review` is `pr-review` (the repository already has a
+  development-only `review`); upstream `open-gstack-browser` is `open-browser`.
+- File-level provenance and the upstream copyright notice: repository LICENSE.
 
 - `autoplan`
 - `benchmark`
 - `browse`
 - `canary`
-- `careful` — adapted, not as-is: gstack v1.91.9.0 + SimonK fail-closed deltas
-  (HIGH deny, MEDIUM ask, internal hook failure deny; D-56, 2026-10-03). Its
-  bin/ also vendors gstack `bin/gstack-slug` as `gstack-slug.sh`. File-level
-  provenance and SHA-256: repository LICENSE.
-- `checkpoint`
+- `careful` — adapted: v1.91.9.0 + SimonK fail-closed deltas (HIGH deny,
+  MEDIUM ask, internal hook failure deny; D-56). Its bin/ also vendors
+  `gstack-slug` as `gstack-slug.sh`.
+- `checkpoint` — earlier upstream name of `context-save`; kept for existing users.
 - `codex`
-- `connect-chrome`
+- `context-restore`
+- `context-save`
 - `cso`
 - `design-consultation`
 - `design-html`
 - `design-review`
 - `design-shotgun`
+- `deslop-shared-libs`
 - `devex-review`
+- `diagram`
+- `document-generate`
 - `document-release`
-- `freeze` — adapted, not as-is: gstack v1.91.9 + SimonK Windows-path and
-  fail-closed deltas ($HOME-anchored hooks, C:\ / C:/ / /c/ normalization,
-  relative and unjudgeable paths deny; D-62, 2026-10-03). Its bin/ also vendors
-  gstack `freeze/bin/freeze-state.sh` unchanged. Provenance and SHA-256:
-  repository LICENSE.
-- `gstack-upgrade`
-- `guard` — adapted, not as-is: gstack v1.91.9 wiring to the SimonK `careful`
-  and `freeze` hook scripts through $HOME-anchored commands (D-62).
+- `freeze` — adapted: v1.91.9 + SimonK Windows-path and fail-closed deltas
+  ($HOME-anchored hooks, C:\ / C:/ / /c/ normalization, relative and
+  unjudgeable paths deny; D-62). Its bin/ also vendors `freeze-state.sh`.
+- `guard` — adapted: wiring to the SimonK `careful` and `freeze` hook scripts
+  through $HOME-anchored commands (D-62).
 - `health`
-- `investigate` — 설치 대상 아님(D-68, 2026-10-04). 단일 원본은 gstack 1.91.9
-  설치본 `~/.claude/skills/investigate`이며 손으로 고치지 않는다. 이 폴더는 gstack
-  구판 본문(생성 배너 있음, 훅 `${CLAUDE_SKILL_DIR}`, 잠금이 상대경로 기록)이라
-  설치되어 실행되면 모든 편집을 막는다. 폴더의 `.simonk-no-install` 표식 때문에
-  `scripts/install.sh`, `scripts/setup-repo.sh`, `.claude/hooks/session-start.sh`는
-  이 이름을 복사하지 않는다. 5플러그인 후보는 별도 릴리스 결정 전까지 안전 투영
-  입력으로 그대로 포장한다. Windows 경고는 `freeze`·`guard` 본문에 있다.
-  재개 조건 — 하나라도 충족되면 "E: 경로 4곳 변경 + 배너 제거만 한 고정본"으로 옮긴다.
-  (1) 이 PC에서 30일 안에 실제 호출 3회. (2) investigate와 freeze·guard가 겹쳐
-  모든 편집 deny 또는 경계 밖 편집 허용이 1건. (3) 설치만으로, 또는 한 번 로드된
-  뒤 훅이 Edit/Write에 상주한다는 실측. 그 전에는 경로 패치, 버전 고정, 본문
-  재베이스를 하지 않는다.
+- `investigate` — unchanged here: still not installed from this folder (D-68).
+  See the safety note below.
 - `land-and-deploy`
 - `learn`
+- `make-pdf`
 - `office-hours`
-- `open-gstack-browser`
+- `open-browser`
 - `pair-agent`
 - `plan-ceo-review`
 - `plan-design-review`
 - `plan-devex-review`
 - `plan-eng-review`
-- `qa`
+- `pr-review`
+- `qa` — adapted: SimonK QA 2.1 acceptance contract used by `/vibe`; `sections/`
+  and `templates/` follow upstream (read by `pr-review`, `qa-only` and `ship`).
 - `qa-only`
 - `retro`
+- `scrape`
 - `setup-browser-cookies`
 - `setup-deploy`
 - `ship`
-- `unfreeze` — adapted, not as-is: gstack v1.91.9, clears the boundary through
-  the vendored `freeze/bin/freeze-state.sh` (D-62).
+- `test-audit`
+- `unfreeze` — adapted: clears the boundary through the vendored
+  `freeze/bin/freeze-state.sh` (D-62).
 
-**Total**: 36 vendored / 49 native / 85 total
+Not carried over from upstream: `ios-*` (5, SwiftUI devices), `setup-gbrain`,
+`sync-gbrain`, `plan-tune`, `skillify`, `benchmark-models`, `landing-report`,
+the upstream router skill and its upgrade skill, and `spec` (the SimonK plugins
+already ship their own `spec`).
+
+**Total**: 43 vendored

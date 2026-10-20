@@ -268,7 +268,7 @@ folder. No variable disables the bash update check or telemetry; only the
 config keys do. `GSTACK_TELEMETRY_OFF=1` reaches only the browse daemon.
 
 A selected skill counts as Gstack when its SKILL.md bytes, or those of a
-shadowed alternative, reference `skills/gstack/bin/`, `~/.gstack`,
+shadowed alternative, reference `skills/gstack/bin/`, `.simonk/runtime/bin/`, `~/.gstack`, `~/.simonk/state`,
 `$HOME/.gstack` or `${HOME}/.gstack` (inventory field `gstack: true`), when its
 location has a `gstack` path part, or when its description contains
 `(gstack)`. Gstack skills packaged into SimonK plugins keep the Gstack preamble
