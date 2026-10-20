@@ -62,7 +62,6 @@ P=""
 if [ -x "$P" ]; then
   echo "MAKE_PDF_READY: $P"
   alias _p_="$P"   # shellcheck alias helper (not exported)
-  export P   # available as $P in subsequent blocks within the same skill invocation
 else
   echo "MAKE_PDF_NOT_AVAILABLE (re-run SimonK-stack's install-runtime script)"
 fi
@@ -71,15 +70,17 @@ fi
 If `MAKE_PDF_NOT_AVAILABLE` is printed: tell the user the binary is not
 built. Have them re-run SimonK-stack's install-runtime script, then retry.
 
-If `MAKE_PDF_READY` is printed: `$P` is the binary path for the rest of
-the skill. Use `$P` (not an explicit path) so the skill body stays portable.
+If `MAKE_PDF_READY` is printed: each Bash call starts a new shell, so `P`
+does not carry over. Begin every later block that uses `$P` with
+`P="<path printed after MAKE_PDF_READY>"` (normally
+`$HOME/.simonk/runtime/make-pdf/dist/pdf`).
 
 Core commands:
 - `$P generate <input.md> [output.pdf]` — render markdown to PDF (80% use case)
 - `$P generate --cover --toc essay.md out.pdf` — full publication layout
 - `$P generate --watermark DRAFT memo.md draft.pdf` — diagonal DRAFT watermark
 - `$P preview <input.md>` — render HTML and open in browser (fast iteration)
-- `$P setup` — verify the browser (Aside, or gstack's own headless fallback) + pdftotext and run a smoke test
+- `$P setup` — verify the browser (Aside, or the SimonK runtime's headless fallback) + pdftotext and run a smoke test
 - `$P --help` — full flag reference
 
 Output contract:
@@ -87,7 +88,7 @@ Output contract:
 - `stderr`: progress (`Rendering HTML... Generating PDF...`) unless `--quiet`.
 - Exit 0 success / 1 bad args / 2 render error / 3 Paged.js timeout / 4 no browser available (open the Aside app, or re-run SimonK-stack's install-runtime script).
 
-PDFs print through Aside when it is running and through gstack's own headless browser otherwise; the stderr progress line says which (`Rendering PDF through Aside` / `through the SimonK runtime browser`).
+PDFs print through Aside when it is running and through the SimonK runtime's headless browser otherwise; the stderr progress line says which (`Rendering PDF through Aside` / `through the SimonK runtime browser`).
 
 ## Plan Mode Safe Operations
 

@@ -85,7 +85,14 @@ git clone https://github.com/Simon-YHKim/SimonK-stack
 python SimonK-stack/scripts/install_runtime.py --clone --apply
 ```
 
-`--apply` 없이 실행하면 미리보기만 합니다. 설치기는 고정된 garrytan/gstack 커밋(MIT)을 받아 도구를 빌드하고 SimonK 스킬 문서를 덧씌웁니다. 상태는 `~/.simonk/state`에 두고, 업데이트 확인·자동 업그레이드·텔레메트리는 끕니다. 갱신할 때는 같은 명령에 `--force`를 붙입니다.
+macOS·Linux에서 `python`이 없으면 `python3`로 실행합니다. `--apply` 없이 실행하면 미리보기만 합니다. 설치기는 고정된 garrytan/gstack 커밋(MIT)을 받아 도구를 빌드하고 SimonK 스킬 문서를 덧씌웁니다. 상태는 `~/.simonk/state`에 두고, 업데이트 확인·자동 업그레이드·텔레메트리는 끕니다.
+
+새 릴리스로 갱신할 때는 받아 둔 SimonK-stack을 먼저 최신으로 맞춘 뒤 `--force`로 다시 설치합니다. 고정 버전과 스킬 문서는 이 체크아웃에서 읽습니다.
+
+```
+git -C SimonK-stack pull --ff-only
+python SimonK-stack/scripts/install_runtime.py --clone --apply --force
+```
 
 ### 설치 확인
 
