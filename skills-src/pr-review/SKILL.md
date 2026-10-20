@@ -32,7 +32,7 @@ Proactively suggest when the user is about to merge or land code changes.
 
 ```bash
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
-"$_SS" --skill "review" --model "claude" --parent-pid "$PPID" \
+"$_SS" --skill "pr-review" --model "claude" --parent-pid "$PPID" \
   || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
 
@@ -308,7 +308,7 @@ Before each decision brief (AskUserQuestion or Conductor/fallback prose), choose
 
 After answer, log best-effort (PostToolUse hook also captures deterministically when installed; dedup on (source, tool_use_id) handles double-writes). Substitute `SESSION_ID` with the value the preamble's skill-start output echoed — shell variables do not survive between Bash calls:
 ```bash
-~/.simonk/runtime/bin/gstack-question-log '{"skill":"review","question_id":"<id>","question_summary":"<short>","category":"<approval|clarification|routing|cherry-pick|feedback-loop>","door_type":"<one-way|two-way>","options_count":N,"user_choice":"<key>","recommended":"<key>","session_id":"SESSION_ID"}' 2>/dev/null || true
+~/.simonk/runtime/bin/gstack-question-log '{"skill":"pr-review","question_id":"<id>","question_summary":"<short>","category":"<approval|clarification|routing|cherry-pick|feedback-loop>","door_type":"<one-way|two-way>","options_count":N,"user_choice":"<key>","recommended":"<key>","session_id":"SESSION_ID"}' 2>/dev/null || true
 ```
 
 For two-way questions, offer: "Tune this question? Reply `tune: never-ask`, `tune: always-ask`, or free-form."
@@ -387,7 +387,7 @@ preamble's skill-start output echoed. It also drains the artifacts-sync queue
 `~/.simonk/state/analytics/`, matching preamble analytics writes.
 
 ```bash
-~/.simonk/runtime/bin/gstack-skill-end --skill "review" --outcome OUTCOME \
+~/.simonk/runtime/bin/gstack-skill-end --skill "pr-review" --outcome OUTCOME \
   --session-id "SESSION_ID" --tel-start "TEL_START" --used-browse USED_BROWSE \
   --error-message "ERROR_MESSAGE" --failed-step "FAILED_STEP" 2>/dev/null || true
 ```
@@ -526,7 +526,7 @@ Compute the merge base, then diff the working tree against that point:
 
 ```bash
 DIFF_BASE=$(git merge-base origin/<base> HEAD)
-~/.simonk/runtime/bin/gstack-review-log --start review
+~/.simonk/runtime/bin/gstack-review-log --start review   # "review" is the review-log record type the readiness dashboard reads, not the skill name
 git diff "$DIFF_BASE"
 ```
 
@@ -1100,7 +1100,7 @@ If you discovered a non-obvious pattern, pitfall, or architectural insight durin
 this session, log it for future sessions:
 
 ```bash
-~/.simonk/runtime/bin/gstack-learnings-log '{"skill":"review","type":"TYPE","key":"SHORT_KEY","insight":"DESCRIPTION","confidence":N,"source":"SOURCE","files":["path/to/relevant/file"]}'
+~/.simonk/runtime/bin/gstack-learnings-log '{"skill":"pr-review","type":"TYPE","key":"SHORT_KEY","insight":"DESCRIPTION","confidence":N,"source":"SOURCE","files":["path/to/relevant/file"]}'
 ```
 
 **Types:** `pattern` (reusable approach), `pitfall` (what NOT to do), `preference`

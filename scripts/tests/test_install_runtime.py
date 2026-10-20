@@ -47,6 +47,10 @@ class InstallRuntimeTests(unittest.TestCase):
             "review/greptile.md": "upstream only\n",
             "review/SKILL.md": "---\nname: review\n---\n",
             "bin/gstack-config": "#!/usr/bin/env bash\necho 'config store unavailable' >&2\nexit 1\n",
+            "investigate/notes.md": "upstream investigate\n",
+            # stand-ins for the built tools, so --skip-build has something to publish
+            "browse/dist/browse": "bin\n", "browse/dist/find-browse": "bin\n", "design/dist/design": "bin\n",
+            "make-pdf/dist/pdf": "bin\n", "bin/gstack-global-discover": "bin\n", "browse/dist/server-node.mjs": "js\n",
             "test/x.ts": "x\n",
             ".github/workflows/ci.yml": "x\n",
         }
@@ -62,7 +66,9 @@ class InstallRuntimeTests(unittest.TestCase):
         self.target = self.tmp / "home" / ".simonk" / "runtime"
         self.state = self.tmp / "home" / ".simonk" / "state"
         self.skills = self.tmp / "skills-src"
-        for rel, text in {"VENDORED.md": "# list\n\n- `pr-review`\n- `ios-only` - no upstream folder\n- `qa`\n",
+        for rel, text in {"VENDORED.md": "# list\n\n- `pr-review`\n- `ios-only` - no upstream folder\n- `qa`\n- `investigate`\n",
+                          "investigate/SKILL.md": "---\nname: investigate\n---\n",
+                          "investigate/.simonk-no-install": "not installed from here\n",
                           "pr-review/SKILL.md": "---\nname: pr-review\n---\nRead ~/.simonk/runtime/review/checklist.md\n",
                           "pr-review/checklist.md": "SimonK checklist\n",
                           "pr-review/evals/cases.json": "{}\n",
@@ -170,6 +176,21 @@ class InstallRuntimeTests(unittest.TestCase):
         self.assertFalse((self.target / "ios-only").exists(), "no upstream folder, nothing to replace")
         self.assertFalse((self.target / "not-listed").exists())
         self.assertFalse((self.target / "qa" / "SKILL.md").exists(), "listed but no SimonK copy here")
+
+    def test_skills_marked_no_install_are_not_laid_over(self):
+        self.assertEqual(self.apply().returncode, 0)
+        self.assertFalse((self.target / "investigate" / "SKILL.md").exists())
+        self.assertEqual((self.target / "investigate" / "notes.md").read_text(encoding="utf-8"),
+                         "upstream investigate\n")
+
+    def test_missing_tools_block_the_install(self):
+        (self.src / "design" / "dist" / "design").unlink()
+        git(self.src, "commit", "-qam", "drop a tool")
+        self.write_pin(git(self.src, "rev-parse", "HEAD"), "9.9.9.0")
+        r = self.apply()
+        self.assertEqual(r.returncode, 2)
+        self.assertIn("required tools are missing: design/dist/design", r.stderr)
+        self.assertFalse(self.target.exists())
 
     def test_pin_without_overlay_keeps_upstream_text(self):
         self.write_pin(self.commit, "9.9.9.0", overlay=False)

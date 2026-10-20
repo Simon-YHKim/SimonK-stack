@@ -198,6 +198,8 @@ def overlay_skills(staging: Path, skills_src: Path, pin: dict) -> int:
         src, dst = skills_src / name, staging / upstream_names.get(name, name)
         if not (src / "SKILL.md").is_file() or not dst.is_dir():
             continue  # no upstream folder to replace (a SimonK-only skill)
+        if (src / ".simonk-no-install").exists():
+            continue  # deliberately not installed from skills-src (e.g. investigate)
         for f in sorted(src.rglob("*")):
             rel = f.relative_to(src)
             if not f.is_file() or rel.parts[0] == "evals" or "__pycache__" in rel.parts:
@@ -209,11 +211,20 @@ def overlay_skills(staging: Path, skills_src: Path, pin: dict) -> int:
     return copied
 
 
+REQUIRED_TOOLS = [out for _, out in COMPILE] + ["browse/dist/server-node.mjs"]
+
+
+def missing_tools(root: Path) -> list[str]:
+    """Required built files that are absent (bun adds .exe to compiled tools on Windows)."""
+    return [rel for rel in REQUIRED_TOOLS
+            if not (root / rel).is_file() and not (root / (rel + ".exe")).is_file()]
+
+
 def build(staging: Path, bash: str) -> str:
     """Build the tools in staging. Returns how the optional CSO launcher went."""
     bun = shutil.which("bun")
     if not bun:
-        raise InstallError("bun is required to rebuild the runtime tools (or pass --skip-build)")
+        raise InstallError("bun is required to build the runtime tools (https://bun.sh)")
     # Always resolve dependencies from the pinned lockfile in staging; an existing
     # node_modules in the source checkout is untracked and unverified.
     env = dict(os.environ, PATH=str(Path(bun).parent) + os.pathsep + os.environ.get("PATH", ""))
@@ -271,7 +282,8 @@ def main(argv=None) -> int:
                     help="SimonK-stack skills to lay over the upstream skill folders")
     ap.add_argument("--apply", action="store_true")
     ap.add_argument("--force", action="store_true", help="replace an existing runtime")
-    ap.add_argument("--skip-build", action="store_true")
+    ap.add_argument("--skip-build", action="store_true",
+                    help="use tools already built in the source (the pinned upstream has none)")
     ap.add_argument("--skip-config", action="store_true")
     ap.add_argument("--skip-env", action="store_true")
     a = ap.parse_args(argv)
@@ -307,6 +319,10 @@ def main(argv=None) -> int:
                     cso = build(staging, bash)
                     print("rebuilt the compiled tools")
                     print(f"cso launcher: {cso}")
+                missing = missing_tools(staging)
+                if missing:  # never publish a runtime without its tools
+                    raise InstallError("required tools are missing: " + ", ".join(missing)
+                                       + (" (the source has no prebuilt tools; run without --skip-build)" if a.skip_build else ""))
                 if a.target.exists():
                     old = a.target.parent / f".{a.target.name}.old-{uuid.uuid4().hex[:8]}"
                     a.target.rename(old)
