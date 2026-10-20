@@ -61,7 +61,12 @@ TEXT_EXT = {"", ".sh", ".ts", ".js", ".mjs", ".cjs", ".json", ".md", ".py", ".ya
 # Only home-anchored forms move. A project-relative ".claude/skills/gstack" is a
 # legacy vendored copy inside a repository and must still be recognized as one.
 SHELL_HOME = rb"((?:~|\$HOME|\$\{HOME\}|\$\{homeDir\})/)"
-JS_HOME = rb"((?:homedir\(\)|process\.env\.HOME \|\| \"~\"),\s*['\"])"
+# First argument of a path.join that is the user's home: homedir(), HOME,
+# process.env.HOME || '...', env.HOME || homedir(), home, userHome(), ...
+# Project roots (cwd, projectDir, root, base) are not matched.
+JS_HOME = (rb"((?:[\w.]*homedir\(\)|\b(?:ENV\.|env\.|process\.env\.)?HOME"
+           rb"(?:\s*\|\|\s*(?:['\"][^'\"\n]*['\"]|[\w.]*homedir\(\)))?"
+           rb"|\bhome|\buserHome\(\)|\buserHome\s*\|\|\s*['\"][^'\"\n]*['\"])\s*,\s*['\"])")
 REWRITES = [
     (re.compile(SHELL_HOME + rb"\.claude/skills/gstack(?![\w-])"), rb"\1.simonk/runtime"),
     (re.compile(JS_HOME + rb"\.claude/skills/gstack(?![\w-])"), rb"\1.simonk/runtime"),

@@ -39,7 +39,9 @@ class InstallRuntimeTests(unittest.TestCase):
             "bin/state": "#!/usr/bin/env bash\nD=\"${GSTACK_HOME:-$HOME/.gstack}\"\nE=~/.gstack-dev/evals\n"
                          "[ -d \".claude/skills/gstack\" ] && echo vendored\n",
             "browse/src/config.ts": "const h = process.env.GSTACK_HOME || path.join(os.homedir(), '.gstack');\n"
-                                    "const b = path.join(os.homedir(), '.claude/skills/gstack/bin/x');\n",
+                                    "const b = path.join(os.homedir(), '.claude/skills/gstack/bin/x');\n"
+                                    "const n = path.join(process.env.HOME || '/tmp', '.gstack', 'ngrok.env');\n"
+                                    "const p = path.join(projectDir, '.gstack');\n",
             "review/checklist.md": "upstream checklist\n",
             "review/greptile.md": "upstream only\n",
             "review/SKILL.md": "---\nname: review\n---\n",
@@ -140,6 +142,8 @@ class InstallRuntimeTests(unittest.TestCase):
         ts = (self.target / "browse" / "src" / "config.ts").read_text(encoding="utf-8")
         self.assertIn("path.join(os.homedir(), '.simonk/state')", ts)
         self.assertIn("path.join(os.homedir(), '.simonk/runtime/bin/x')", ts)
+        self.assertIn("path.join(process.env.HOME || '/tmp', '.simonk/state', 'ngrok.env')", ts)
+        self.assertIn("path.join(projectDir, '.gstack')", ts, "per-project state stays in the project")
 
     def test_simonk_skills_are_laid_over_the_upstream_folders(self):
         r = self.apply()
