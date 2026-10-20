@@ -59,7 +59,7 @@ or when the plan feels like it could be thinking bigger.
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
 [ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "plan-ceo-review" --model "claude" --parent-pid "$PPID" \
-  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime.ps1 (preamble degraded, continue the user's task)"
+  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
 
 Read the echoed `KEY: value` STATUS lines — they drive every preamble rule
@@ -68,7 +68,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run SimonK-stack's install-runtime.ps1, and proceed with their task.
+the user to run SimonK-stack's install-runtime script, and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -603,7 +603,7 @@ If they choose A:
 Say: "Running /office-hours inline. Once the design doc is ready, I'll pick up
 the review right where we left off."
 
-Read the `/office-hours` skill file at `~/.claude/skills/office-hours/SKILL.md` using the Read tool.
+Read the `/office-hours` skill file at `~/.simonk/runtime/office-hours/SKILL.md` using the Read tool.
 
 **If unreadable:** Skip with "Could not load /office-hours — skipping." and continue.
 
@@ -661,7 +661,7 @@ If they keep going, proceed normally — no guilt, no re-asking.
 
 If they choose A:
 
-Read the `/office-hours` skill file at `~/.claude/skills/office-hours/SKILL.md` using the Read tool.
+Read the `/office-hours` skill file at `~/.simonk/runtime/office-hours/SKILL.md` using the Read tool.
 
 **If unreadable:** Skip with "Could not load /office-hours — skipping." and continue.
 
@@ -1245,7 +1245,7 @@ Carry the ledger and each answer's exact scope into the review sections.
 
 ## Continue after Step 0 (all modes)
 
-> **STOP.** Before running the 11-section deep review, required outputs, and review report (only after Step 0 scope and mode are agreed), Read `~/.claude/skills/plan-ceo-review/sections/review-sections.md` and execute it
+> **STOP.** Before running the 11-section deep review, required outputs, and review report (only after Step 0 scope and mode are agreed), Read `~/.simonk/runtime/plan-ceo-review/sections/review-sections.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 ## Section self-check (before you finish)

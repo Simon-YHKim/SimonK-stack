@@ -4,7 +4,6 @@ preamble-tier: 1
 version: 0.3.0
 description: "Use when asked to: \"open AI browser\", \"launch browser\", \"connect chrome\", \"open chrome\", \"real browser\", \"launch chrome\", \"side panel\", or \"control my browser\". Voice triggers (speech-to-text aliases): \"show me the browser\". Launch the visible AI-controlled browser — AI-controlled Chromium with the sidebar extension baked in. Opens a visible browser window where you can watch every action in real time. The sidebar shows a live activity feed and chat. Anti-bot stealth built in. Produces a controlled Chromium window with live sidebar feed."
 triggers:
-  - open browser
   - launch chromium
   - show me the browser
 allowed-tools:
@@ -30,7 +29,7 @@ Voice triggers (speech-to-text aliases): "show me the browser".
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
 [ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "open-gstack-browser" --model "claude" --parent-pid "$PPID" \
-  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime.ps1 (preamble degraded, continue the user's task)"
+  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
 
 Read the echoed `KEY: value` STATUS lines — they drive every preamble rule
@@ -39,7 +38,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run SimonK-stack's install-runtime.ps1, and proceed with their task.
+the user to run SimonK-stack's install-runtime script, and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -173,7 +172,7 @@ fi
 
 If `NEEDS_SETUP`:
 1. Tell the user: "gstack browse needs a one-time build (~10 seconds). OK to proceed?" Then STOP and wait.
-2. Run: `cd <SKILL_DIR> && ./setup`
+2. Run: SimonK-stack's install-runtime script (it needs bun)
 3. If `bun` is not installed:
    ```bash
    if ! command -v bun >/dev/null 2>&1; then

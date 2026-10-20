@@ -193,7 +193,7 @@ fi
 
 If `NEEDS_SETUP`:
 1. Tell the user: "gstack browse needs a one-time build (~10 seconds). OK to proceed?" Then STOP and wait.
-2. Run: `cd <SKILL_DIR> && ./setup`
+2. Run: SimonK-stack's install-runtime script (it needs bun)
 3. If `bun` is not installed:
    ```bash
    if ! command -v bun >/dev/null 2>&1; then

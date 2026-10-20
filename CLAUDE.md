@@ -94,7 +94,7 @@ LICENSE                        ← MIT + upstream credits
 
 ## 🚫 금기 (건드리면 안 되는 곳)
 
-- **`~/.simonk/runtime/` (런타임 설치본)** — `scripts/windows/install-runtime.ps1` 이 `runtime/RUNTIME.json` 고정본(garrytan/gstack 1.91.9.0 출신, MIT)으로 만든다. 약 1 GB. **직접 수정 금지** — 고칠 일이 있으면 설치 스크립트를 고쳐 다시 설치한다. gstack 출신 스킬은 2026-10-21(허브 D-117)부터 `skills-src/` 가 정본이다.
+- **`~/.simonk/runtime/` (런타임 설치본)** — `scripts/install_runtime.py`(Windows 래퍼 `scripts/windows/install-runtime.ps1`) 가 `runtime/RUNTIME.json` 고정본(garrytan/gstack 1.91.9.0 출신, MIT)으로 만든다. 약 1 GB. **직접 수정 금지** — 고칠 일이 있으면 설치 스크립트를 고쳐 다시 설치한다. gstack 출신 스킬은 2026-10-21(허브 D-117)부터 `skills-src/` 가 정본이다.
 - **`~/.simonk/runtime/node_modules/`** — bun 이 관리
 - **`.claude.bak-*/`** — 설치 전 백업. 읽기 금지.
 - **기존 base commit 6 파일** (`commit`, `debug`, `explain`, `refactor`, `review`, `test-gen` SKILL.md): description 과 version 은 개선됐지만 본문은 원저자 존중. 본문 재작성 전 사용자 승인 필수. (4개는 `.claude/skills/`, 나머지는 `skills-src/` 에 위치)
@@ -248,7 +248,7 @@ LLM 이 직접 처리할 것:
 - **사용자가 "최신화" / "stack update" 같은 holistic 요청** → `/stack-update` 호출
   - SimonK-stack 본체 + Wiki + 5 vendored stacks + skill 재설치를 한 번에 처리
   - 각 단계는 단일 entry point 의 sibling skill (예: `/omc-upgrade`) 위임
-- **런타임(`~/.simonk/runtime`)** 갱신 → `runtime/RUNTIME.json` 의 고정 버전을 올리는 PR 을 거친 뒤 `pwsh -File scripts/windows/install-runtime.ps1 -Apply -Force`
+- **런타임(`~/.simonk/runtime`)** 갱신 → `runtime/RUNTIME.json` 의 고정 버전을 올리는 PR 을 거친 뒤 `python scripts/install_runtime.py --apply --force` (gstack 설치본이 없으면 `--clone`)
   - 런타임의 자체 업데이트 확인·자동 업그레이드는 꺼져 있다(`update_check false`, `auto_upgrade false`).
 - **특정 외부 stack** 만 업데이트 요청 → 해당 sibling skill 호출
   - `/omc-upgrade` (oh-my-claudecode), `/omo-upgrade` (oh-my-openagent)

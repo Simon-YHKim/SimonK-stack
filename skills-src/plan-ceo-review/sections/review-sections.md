@@ -644,7 +644,7 @@ already deferred, skipped or kept; carry its actual answer and destination forwa
 Resolve each remaining proposal through all four steps of 0D, using the menu
 below. Keep its full comparison, saved question/options, Read-back and actual
 answer. Never batch TODOs — one per question. If none remain, record that and continue.
-Follow the format in `~/.claude/skills/pr-review/TODOS-format.md`.
+Follow the format in `~/.simonk/runtime/review/TODOS-format.md`.
 
 For each TODO, describe:
 * **What:** One-line description of the work.

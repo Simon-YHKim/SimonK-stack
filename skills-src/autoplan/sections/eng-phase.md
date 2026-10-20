@@ -153,5 +153,5 @@ The review work above ends here. Now load the shared close steps afresh, even if
 read earlier. Use phase `eng`, checkpoint `<ENG_INPUT>`, and this phase's
 `methodologyPath`. Keep this checkpoint for this invocation; review exports do not replace it.
 
-> **STOP.** Before closing a review phase, after its reviews finish and before announcing completion or loading the next phase (read afresh at each exit), Read `~/.claude/skills/autoplan/sections/phase-close.md` and execute it
+> **STOP.** Before closing a review phase, after its reviews finish and before announcing completion or loading the next phase (read afresh at each exit), Read `~/.simonk/runtime/autoplan/sections/phase-close.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.

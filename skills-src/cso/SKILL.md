@@ -121,7 +121,7 @@ In comprehensive mode, review snapshot transformations before reproduction. If s
 
 Record scoped endpoints and boundaries: public/authenticated/admin, cross-tenant access, uploads, webhooks, jobs, WebSockets, integrations, secrets, CI/CD, containers, infrastructure, agent tools, and stores. Record planned assessment and schema state. Counts and scanner success do not establish coverage.
 
-> **STOP.** Before running the scope-dependent audit phases (Phases 2-11) selected by the resolved mode, after the Phase 0 stack detection and Phase 1 attack-surface census, Read `~/.claude/skills/cso/sections/audit-phases.md` and execute it
+> **STOP.** Before running the scope-dependent audit phases (Phases 2-11) selected by the resolved mode, after the Phase 0 stack detection and Phase 1 attack-surface census, Read `~/.simonk/runtime/cso/sections/audit-phases.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 ### Phase 12: Evidence rubric and independent challenge

@@ -7,7 +7,7 @@
 
 ### Added
 - **gstack 완전 통합 (허브 D-117)**: garrytan/gstack 출신 스킬과 그 런타임을 SimonK-stack 이 소유한다.
-  - 런타임: `runtime/RUNTIME.json`(gstack 1.91.9.0 고정, MIT) + `scripts/windows/install-runtime.ps1`. 실행 파일·도구를 `~/.simonk/runtime` 으로 복사하고 설치 경로를 바꿔 bun 으로 다시 빌드한다. 상태는 `~/.simonk/state`, 업데이트 확인·자동 업그레이드는 끔. 미리보기 기본, 원본은 고치지 않는다. 테스트 4개.
+  - 런타임: `runtime/RUNTIME.json`(gstack 1.91.9.0 고정, MIT) + `scripts/install_runtime.py`(Windows 래퍼 `scripts/windows/install-runtime.ps1`, Windows·macOS·Linux). 고정 커밋의 git 객체에서 실행 파일·도구·스킬 보조 파일을 꺼내 설치 경로를 바꾸고 LF 로 저장한 뒤 bun 으로 다시 빌드하고, 임시 폴더에서 만든 다음 `~/.simonk/runtime` 과 바꿔 끼운다. 원본이 고정 커밋이 아니거나 수정돼 있으면 멈춘다. 상태는 `~/.simonk/state`, 업데이트 확인·자동 업그레이드·텔레메트리는 끄고 다시 읽어 확인한다. 미리보기 기본. 테스트 7개(CI 포함).
   - 스킬: 28개를 이 PC 가 실제로 쓰던 1.91.9.0 본문으로 다시 들여오고(설명·버전·평가 케이스는 SimonK 것 유지), 9개를 새로 이식: `pr-review`(upstream `review` — 레포 개발용 `review` 와 이름이 겹쳐 바꿈), `make-pdf`, `diagram`, `document-generate`, `scrape`, `context-save`, `context-restore`, `test-audit`, `deslop-shared-libs`. upstream `spec` 은 SimonK 플러그인에 같은 이름이 있어 들이지 않았다.
   - 설치·상태 경로를 `~/.simonk/runtime`·`~/.simonk/state` 로 바꾸고, 설명의 "(gstack)" 표시·upstream 생성 배너·업그레이드 안내를 정리했다. `open-gstack-browser` → `open-browser`.
   - 안전 스킬 5개(`careful`·`freeze`·`guard`·`unfreeze`·`investigate`)는 5플러그인 안전 투영이 훅 문구와 freeze 상태 기본값(`$HOME/.gstack`)을 고정하고 있어 이번에는 바꾸지 않았다. `~/.simonk/state` 로 옮기는 일은 따로 검토한다.
@@ -27,7 +27,7 @@
 - **`/vibe` 2.12.42 실행별 Gstack 상태 격리** — `/vibe`가 Gstack 스킬을 실행할 때 실행마다 별도 Gstack 상태 폴더(`<DB 폴더>/gstack-runs/<run ID sha256 앞 32자>`)를 쓰고 텔레메트리·업데이트 확인을 끈다. 새 `run_state.py gstack-env --run <id>`는 DB를 만들지 않고 개인 `~/.gstack`(텔레메트리 community·update_check 기본 true)을 읽거나 바꾸지 않으며, `GSTACK_HOME`·`GSTACK_STATE_DIR`·`GSTACK_STATE_ROOT`를 같은 값으로 묶은 `export`/PowerShell 줄을 출력한다. 첫 사용 때 설정과 온보딩 표시 파일을 만들고, 재진입 때 설정을 `gstack-config get`과 같이(마지막 `key:` 줄, LF로만 줄 분리, 따옴표 유지, `off`/`false` 정확 일치) 읽어 다르면 `GSTACK_ISOLATION_CHANGED`로 멈춘다. 인벤토리는 SKILL.md 바이트(가려진 대안 포함)가 `skills/gstack/bin/`·`~/.gstack`·`$HOME/.gstack`을 참조하면 `gstack: true`로 표시해 SimonK 플러그인에 묶인 Gstack 스킬도 잡는다. 이 필드는 `inventory_digest`에서 빠지므로 Gstack 스킬을 고르지 않은 계획의 digest는 그대로다. 계획은 argv 어느 요소든 Gstack bin을 가리키는 로컬 도구 handoff에 `gstack_isolation`을, Gstack 스킬을 고른 호스트·Orca 노드에 설치 경로와 무관한 export 접두 지침을 붙인다(Orca는 환경변수를 넘길 수 없어 최선 노력). 바인딩된 미완료 Orca 노드의 Task spec이 바뀌면 `refresh`가 `TASK_SPEC_CHANGED`로 거부한다. 업그레이드 전에 초안 preparation은 finalize해야 하고, Task spec이 바뀐 등록 실행은 취소 후 새로 계획해야 한다. 토론 문단은 §35 결정 기록을 4개 벤더 좌석을 앉히고 빈 좌석은 시뮬레이션 대신 기록하는 `/ai-debate` 0.2.0 이상에서만 만들도록 맞췄다. 격리는 지시 수준이다: 실행 중 `gstack_isolation`을 읽는 코드가 없고, 이 저장소의 Gstack 파생 SKILL.md 35개에는 쓰기 명령·리다이렉트 뒤에 `~/.gstack` 경로가 오는 줄이 274개(정규식 집계) 있으며, 일부 Gstack bin(`gstack-detach`·`gstack-skill-start`·`gstack-repo-mode`)도 `$HOME`을 직접 참조한다. `repo_mode: unknown`은 저장소 분류기를 꺼서 solo 저장소도 collaborative처럼 동작한다. 오프라인 테스트만 통과했다. 실제 Gstack 실행, Orca 작업자 준수, Claude Code Stop 훅 상속은 검증하지 않았고 `gstack-runs` 자동 정리는 없다.
 
 ### Removed
-- `gstack-upgrade` — 런타임 갱신은 `runtime/RUNTIME.json` 고정 버전을 올린 뒤 `install-runtime.ps1 -Apply -Force` 로 한다.
+- `gstack-upgrade` — 런타임 갱신은 `runtime/RUNTIME.json` 고정 버전을 올린 뒤 `python scripts/install_runtime.py --apply --force` 로 한다.
 
 ### Changed
 - **`/vibe` 2.20.0 — 단순 코딩은 Sonnet 5.5, 복잡한 코딩은 Opus 5.5 xhigh(D-106, Simon 지시)** — 코딩 레인 `claude-opus-5-5` → `claude-fable-5-1` → `claude-sonnet-5-5`, 코딩 공정의 Opus 기본 effort xhigh(`PROCESS_EFFORTS`), 중앙 계획기는 CODE_COMPLEX 의 Opus 를 xhigh 로만 받는다. task-fit CODE_SIMPLE 은 Sonnet 0순위.

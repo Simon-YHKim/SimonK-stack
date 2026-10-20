@@ -1040,7 +1040,7 @@ Finish the Outside Voice branch. Only completed reviews enter Cross-model tensio
 After Sections 1–4 and Outside Voice, resolve the TODO choices, then check Approval readiness before Required outputs.
 
 ### TODOS.md updates
-Review every potential TODO. Reuse an exact prior disposition under Decision procedure; ask about each unanswered proposal in its own AskUserQuestion. Never batch TODOs or silently skip them. Use `~/.claude/skills/pr-review/TODOS-format.md`.
+Review every potential TODO. Reuse an exact prior disposition under Decision procedure; ask about each unanswered proposal in its own AskUserQuestion. Never batch TODOs or silently skip them. Use `~/.simonk/runtime/review/TODOS-format.md`.
 
 For each TODO, record **What**, **Why**, **Pros**, **Cons** (cost/complexity/risk),
 **Context** (motivation, current state, where to start in 3 months), and

@@ -34,7 +34,7 @@ Proactively suggest when the user is about to merge or land code changes.
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
 [ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "review" --model "claude" --parent-pid "$PPID" \
-  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime.ps1 (preamble degraded, continue the user's task)"
+  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
 
 Read the echoed `KEY: value` STATUS lines — they drive every preamble rule
@@ -43,7 +43,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run SimonK-stack's install-runtime.ps1, and proceed with their task.
+the user to run SimonK-stack's install-runtime script, and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -487,12 +487,12 @@ Compare the stated intent with the actual changes before reviewing code quality.
    it resolves the HIGH-impact decision and emits the single final Scope Check
    before Step 2. The Scope Check itself is informational, not another gate.
 
-> **STOP.** Before finishing Step 1.5's Scope Check, Read `~/.claude/skills/pr-review/sections/plan-completion.md` and execute it
+> **STOP.** Before finishing Step 1.5's Scope Check, Read `~/.simonk/runtime/review/sections/plan-completion.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 ## Step 2: Read the checklist
 
-Read `~/.claude/skills/pr-review/checklist.md`.
+Read `~/.simonk/runtime/review/checklist.md`.
 
 **If the file cannot be read, STOP and report the error.** Do not proceed without the checklist.
 
@@ -500,7 +500,7 @@ Read `~/.claude/skills/pr-review/checklist.md`.
 
 ## Step 2.5: Check for Greptile review comments
 
-Read `~/.claude/skills/pr-review/greptile-triage.md` and follow the fetch, filter, classify, and **escalation detection** steps.
+Read `~/.simonk/runtime/review/greptile-triage.md` and follow the fetch, filter, classify, and **escalation detection** steps.
 
 **If no PR exists, `gh` fails, API returns an error, or there are zero Greptile comments:** Skip this step silently. Greptile integration is additive — the review works without it.
 
@@ -668,8 +668,7 @@ Sanitize every query before it leaves the machine: strip hostnames, IPs, file pa
 Step 4 is read-only: defer charters, setup and probes to Step 4.7.
 
 From the installed /pr-review SKILL.md's directory, choose one path:
-- If the caller directory is `review`, Read `../qa/sections/exploratory.md` in full.
-- If the caller directory is prefixed `gstack-review`, use `../gstack-qa/sections/exploratory.md` instead and read it in full.
+- Read `~/.simonk/runtime/qa/sections/exploratory.md` in full.
 - If neither layout applies, report an unresolved QA installation as a setup blocker; do not guess another path.
 Use this host's installation, never the product tree. If missing or unreadable, report a QA setup blocker and its affected probes as blocked; continue other safe probes (independent functional/static checks). Missing/unreadable assets block required QA.
 
@@ -798,7 +797,7 @@ critical finding or another writer during collection. Skip silently if no docs e
 
 ---
 
-> **STOP.** Before dispatching the Review Army specialists and merging their findings after the critical pass (Step 4.5), Read `~/.claude/skills/pr-review/sections/review-army.md` and execute it
+> **STOP.** Before dispatching the Review Army specialists and merging their findings after the critical pass (Step 4.5), Read `~/.simonk/runtime/review/sections/review-army.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 ---
@@ -813,7 +812,7 @@ Reuse Step 4's surfaces and completed Reads. Finish missing methods before chart
 Write the Charter and complete the shared isolation/permission preflight before setup.
 
 **2. Check readiness and list required checks.**
-For browsers, Read QA's `sections/browser-setup.md` and follow its report-only rules.
+For browsers, Read `~/.simonk/runtime/qa/sections/browser-setup.md` and follow its report-only rules.
 Reuse setup only with verified tools/session/target/ownership; otherwise recheck.
 Never install, import cookies or bootstrap tests. Functional-only skips browser setup.
 - Smoke: 5 minutes/12 probes, one success and the riskiest changed failure/edge.
@@ -844,10 +843,10 @@ Setup/permission blockers are not defects. Test creation needs user approval.
 Ask for setup/permission, never secrets. Unresolved coverage makes Step 5.8 incomplete; a ship waiver cannot complete it.
 
 **5. Prepare one provisional QA section.**
-Read QA's `templates/functional-report-template.md`. Title it
+Read `~/.simonk/runtime/qa/templates/functional-report-template.md`. Title it
 `## Exploratory QA and Verification Results`; keep metadata/outcome tables and demote
 other headings one level. Link every checkpoint. Browser-only: functional contracts N/A.
-For browser evidence, Read QA's `templates/qa-report-template.md` as Phase 6 directs;
+For browser evidence, Read `~/.simonk/runtime/qa/templates/qa-report-template.md` as Phase 6 directs;
 include it here under `### Browser results`, other headings demoted two levels.
 Keep browser/functional scores and outcomes separate; save browser baseline/evidence normally.
 No second report. Update affected outcomes/checkpoint links through repairs/revalidation.
@@ -856,7 +855,7 @@ findings and decides completion.
 
 ---
 
-> **STOP.** Before running the always-on native adversarial review before fixes (Step 4.8), Read `~/.claude/skills/pr-review/sections/adversarial.md` and execute it
+> **STOP.** Before running the always-on native adversarial review before fixes (Step 4.8), Read `~/.simonk/runtime/review/sections/adversarial.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 ## Step 5: Fix-First Review
@@ -913,7 +912,7 @@ Suppress only when all conditions hold: the user skipped the same unchanged find
 Matching explicitly skipped shared-code advice requires the complete procedure below.
 Failed/unknown eligibility requires fresh source review, never ordinary suppression.
 
-> **STOP.** Before reusing explicitly skipped shared-code advice (Step 5.0), Read `~/.claude/skills/pr-review/sections/shared-code-reuse.md` and execute it
+> **STOP.** Before reusing explicitly skipped shared-code advice (Step 5.0), Read `~/.simonk/runtime/review/sections/shared-code-reuse.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 If N > 0, print once: "Suppressed N findings from prior reviews (previously skipped by user)"; do not repeat the items. Otherwise skip the summary.

@@ -65,7 +65,7 @@ Recommendation: A when a branch diff exists, otherwise B. Reply with A, B, or C.
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
 [ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "plan-design-review" --model "claude" --parent-pid "$PPID" \
-  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime.ps1 (preamble degraded, continue the user's task)"
+  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
 
 Read the echoed `KEY: value` STATUS lines — they drive every preamble rule
@@ -74,7 +74,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run SimonK-stack's install-runtime.ps1, and proceed with their task.
+the user to run SimonK-stack's install-runtime script, and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -1138,7 +1138,7 @@ Show the mockup to the user via the Read tool. This makes the gap between
 If the design binary is not available, skip this and continue with text-based
 descriptions of what 10/10 looks like.
 
-> **STOP.** Before running the 7 design passes, required outputs, and review report (only after Step 0 scope is agreed), Read `~/.claude/skills/plan-design-review/sections/review-sections.md` and execute it
+> **STOP.** Before running the 7 design passes, required outputs, and review report (only after Step 0 scope is agreed), Read `~/.simonk/runtime/plan-design-review/sections/review-sections.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 ## Section self-check (before you finish)

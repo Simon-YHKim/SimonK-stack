@@ -212,7 +212,7 @@ fi
 
 If `NEEDS_SETUP`:
 1. Tell the user: "gstack browse needs a one-time build (~10 seconds). OK to proceed?" Then STOP and wait.
-2. Run: `cd <SKILL_DIR> && ./setup`
+2. Run: SimonK-stack's install-runtime script (it needs bun)
 3. If `bun` is not installed:
    ```bash
    if ! command -v bun >/dev/null 2>&1; then
@@ -305,7 +305,7 @@ Internalize these; don't enumerate them.
 ## Hall of Fame Reference
 
 During each review pass, load the relevant section from:
-\`~/.claude/skills/plan-devex-review/dx-hall-of-fame.md\`
+\`~/.simonk/runtime/plan-devex-review/dx-hall-of-fame.md\`
 
 Read ONLY the section for the current pass (e.g., "## Pass 1" for Getting Started).
 Do NOT read the entire file at once. This keeps context focused.

@@ -31,7 +31,7 @@ Voice triggers (speech-to-text aliases): "make this a pdf", "make it a pdf", "ex
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
 [ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "make-pdf" --model "claude" --parent-pid "$PPID" \
-  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime.ps1 (preamble degraded, continue the user's task)"
+  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
 
 Read the echoed `KEY: value` STATUS lines — they drive every preamble rule
@@ -40,7 +40,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run SimonK-stack's install-runtime.ps1, and proceed with their task.
+the user to run SimonK-stack's install-runtime script, and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -66,12 +66,12 @@ if [ -x "$P" ]; then
   alias _p_="$P"   # shellcheck alias helper (not exported)
   export P   # available as $P in subsequent blocks within the same skill invocation
 else
-  echo "MAKE_PDF_NOT_AVAILABLE (run './setup' in the gstack repo to build it)"
+  echo "MAKE_PDF_NOT_AVAILABLE (re-run SimonK-stack's install-runtime script)"
 fi
 ```
 
 If `MAKE_PDF_NOT_AVAILABLE` is printed: tell the user the binary is not
-built. Have them run `./setup` from the gstack repo, then retry.
+built. Have them re-run SimonK-stack's install-runtime script, then retry.
 
 If `MAKE_PDF_READY` is printed: `$P` is the binary path for the rest of
 the skill. Use `$P` (not an explicit path) so the skill body stays portable.
@@ -87,9 +87,9 @@ Core commands:
 Output contract:
 - `stdout`: ONLY the output path on success. One line.
 - `stderr`: progress (`Rendering HTML... Generating PDF...`) unless `--quiet`.
-- Exit 0 success / 1 bad args / 2 render error / 3 Paged.js timeout / 4 no browser available (open the Aside app, or run `./setup` to build gstack's own browser).
+- Exit 0 success / 1 bad args / 2 render error / 3 Paged.js timeout / 4 no browser available (open the Aside app, or re-run SimonK-stack's install-runtime script).
 
-PDFs print through Aside when it is running and through gstack's own headless browser otherwise; the stderr progress line says which (`Rendering PDF through Aside` / `through gstack's browser`).
+PDFs print through Aside when it is running and through gstack's own headless browser otherwise; the stderr progress line says which (`Rendering PDF through Aside` / `through the SimonK runtime browser`).
 
 ## Plan Mode Safe Operations
 
@@ -204,14 +204,14 @@ fallback. CI and Docker builds install it automatically via Dockerfile.ci.
 
 Emoji need a color-emoji font. macOS (Apple Color Emoji) and Windows (Segoe UI
 Emoji) ship one; most Linux distros and containers ship none, so emoji render as
-empty boxes (▯). `./setup` auto-installs `fonts-noto-color-emoji` on Linux
+empty boxes (▯). Install `fonts-noto-color-emoji` on Linux
 (apt/dnf/pacman/apk, best-effort) and the print CSS falls back through Apple /
 Segoe / Noto emoji families. Set `GSTACK_SKIP_FONTS=1` to skip the install (CI
 without sudo, managed or offline machines). These matter on the gstack-browser
 fallback; Aside renders with the fonts already on the Mac.
 
 PDF output prints through the Aside browser (macOS 15+, aside.com) when it is
-running, and falls back to gstack's own headless browser (built by `./setup`;
+running, and falls back to the SimonK runtime's headless browser (built by SimonK-stack's install-runtime script;
 `GSTACK_BROWSE_BIN` / `BROWSE_BIN` point at a different build) everywhere
 else — Linux, Windows, or a closed Aside app. Exit 4 means neither browser is
 available. `--to html` and `--to docx` need no browser at all (diagrams in
@@ -392,8 +392,8 @@ If the user has a `.md` file open and says "make it look nice", propose
 ## Debugging
 
 - Exit 4 / "no browser available" → neither the Aside browser (macOS 15+,
-  aside.com) nor gstack's own headless browser is usable. Open Aside, or run
-  `./setup` in the gstack repo to build the fallback, re-run. `$P setup` checks
+  aside.com) nor the SimonK runtime's headless browser is usable. Open Aside, or re-run
+  SimonK-stack's install-runtime script to build the fallback, then re-run. `$P setup` checks
   the whole chain and says which browser it found.
 - Diagram shows a red "failed to render" block → the parse error is printed in
   the block. If EVERY diagram fails with "diagram renderer:", the browser went
@@ -412,7 +412,7 @@ If the user has a `.md` file open and says "make it look nice", propose
 ```
 stdout: /tmp/letter.pdf          ← just the path, one line
 stderr: Rendering HTML...        ← progress spinner (unless --quiet)
-        Rendering PDF through Aside...   ← or "through gstack's browser"
+        Rendering PDF through Aside...   ← or "through the SimonK runtime browser"
         Done in 11.2s. 43 words · 22KB · /tmp/letter.pdf
 
 exit code: 0 success / 1 bad args / 2 render error / 3 Paged.js timeout

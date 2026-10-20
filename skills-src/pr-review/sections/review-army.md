@@ -40,18 +40,18 @@ echo "TEST_FW: ${TEST_FW:-unknown}"
 Based on the scope signals above, select which specialists to dispatch.
 
 **Always-on (dispatch on every review with 50+ changed lines):**
-1. **Testing** — read `~/.claude/skills/pr-review/specialists/testing.md`
-2. **Maintainability** — read `~/.claude/skills/pr-review/specialists/maintainability.md`
+1. **Testing** — read `~/.simonk/runtime/review/specialists/testing.md`
+2. **Maintainability** — read `~/.simonk/runtime/review/specialists/maintainability.md`
 
 **If DIFF_LINES < 50:** Skip all specialists. Print: "Small diff ($DIFF_LINES lines) — specialists skipped." Continue to Step 4.6 with the core findings and an empty specialist list, then the parent's Exploratory QA step and Step 4.8 (adversarial review), then Step 5. Small diffs skip fan-out, never the parent-owned smoke probes. Core shared-code checks also remain required.
 
 **Conditional (dispatch if the matching scope signal is true):**
-3. **Security** — if SCOPE_AUTH=true, OR if SCOPE_BACKEND=true AND DIFF_LINES > 100. Read `~/.claude/skills/pr-review/specialists/security.md`
-4. **Performance** — if SCOPE_BACKEND=true OR SCOPE_FRONTEND=true. Read `~/.claude/skills/pr-review/specialists/performance.md`
-5. **Data Migration** — if SCOPE_MIGRATIONS=true. Read `~/.claude/skills/pr-review/specialists/data-migration.md`
-6. **API Contract** — if SCOPE_API=true. Read `~/.claude/skills/pr-review/specialists/api-contract.md`
-7. **Design** — if SCOPE_FRONTEND=true. Use the existing design review checklist at `~/.claude/skills/pr-review/design-checklist.md` and run the mechanical pass at the top of that checklist (the user-installed design detector, when present) before the LLM items
-8. **Simplification** — if DIFF_LINES > 100. Read `~/.claude/skills/pr-review/specialists/simplification.md`. Advisory-only lens: hunts unrequested structure (hand-rolled stdlib, one-implementation abstractions, dependencies duplicating platform features), never coverage.
+3. **Security** — if SCOPE_AUTH=true, OR if SCOPE_BACKEND=true AND DIFF_LINES > 100. Read `~/.simonk/runtime/review/specialists/security.md`
+4. **Performance** — if SCOPE_BACKEND=true OR SCOPE_FRONTEND=true. Read `~/.simonk/runtime/review/specialists/performance.md`
+5. **Data Migration** — if SCOPE_MIGRATIONS=true. Read `~/.simonk/runtime/review/specialists/data-migration.md`
+6. **API Contract** — if SCOPE_API=true. Read `~/.simonk/runtime/review/specialists/api-contract.md`
+7. **Design** — if SCOPE_FRONTEND=true. Use the existing design review checklist at `~/.simonk/runtime/review/design-checklist.md` and run the mechanical pass at the top of that checklist (the user-installed design detector, when present) before the LLM items
+8. **Simplification** — if DIFF_LINES > 100. Read `~/.simonk/runtime/review/specialists/simplification.md`. Advisory-only lens: hunts unrequested structure (hand-rolled stdlib, one-implementation abstractions, dependencies duplicating platform features), never coverage.
 
 ### Adaptive gating
 
@@ -239,7 +239,7 @@ completion. Advice never permits edits while readers are active or replaces a re
 If activated, dispatch one more subagent via the Agent tool (pass `run_in_background: false` — foreground; subagents default to background since Claude Code v2.1.198).
 
 The Red Team subagent receives:
-1. The red-team checklist from `~/.claude/skills/pr-review/specialists/red-team.md`
+1. The red-team checklist from `~/.simonk/runtime/review/specialists/red-team.md`
 2. The merged specialist findings from Step 4.6 (so it knows what was already caught)
 3. The git diff command
 

@@ -36,7 +36,9 @@ SOURCE_ROOT_ARG = re.compile(r"(?<![A-Za-z0-9_./-])(?:\./)?skills-src/[A-Za-z0-9
 PROJECT_SKILL_ARG = re.compile(
     r"(?<![A-Za-z0-9_./-])(?:\./)?skills/[A-Za-z0-9_-]+/"
     r"(?:scripts|templates|references)/[A-Za-z0-9_./-]+")
-GSTACK_BIN_REF = re.compile(r"(?:~/)?\.claude/skills/gstack/bin/[A-Za-z0-9._-]+")
+# The separately installed runtime: the upstream home install, or ~/.simonk/runtime
+# since D-117 (scripts/install_runtime.py).
+GSTACK_BIN_REF = re.compile(r"(?:~/)?\.(?:claude/skills/gstack|simonk/runtime)/bin/[A-Za-z0-9._-]+")
 
 
 def inspect_unportable_commands(skill_path: str, text: str) -> list[dict[str, object]]:

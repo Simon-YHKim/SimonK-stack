@@ -99,7 +99,7 @@ Rate 0-10: Can a developer go from zero to hello world in under 5 minutes?
 magical moment from 0D (delivery vehicle), and any Install/Hello World friction
 points from 0F.
 
-Load reference: Read the "## Pass 1" section from `~/.claude/skills/plan-devex-review/dx-hall-of-fame.md`.
+Load reference: Read the "## Pass 1" section from `~/.simonk/runtime/plan-devex-review/dx-hall-of-fame.md`.
 
 Evaluate:
 - **Installation**: One command? One click? No prerequisites?
@@ -128,7 +128,7 @@ Rate 0-10: Is the interface intuitive, consistent, and complete?
 A YC founder expects `tool.do(thing)`. A platform engineer expects
 `tool.configure(options).execute(thing)`.
 
-Load reference: Read the "## Pass 2" section from `~/.claude/skills/plan-devex-review/dx-hall-of-fame.md`.
+Load reference: Read the "## Pass 2" section from `~/.simonk/runtime/plan-devex-review/dx-hall-of-fame.md`.
 
 Evaluate:
 - **Naming**: Guessable without docs? Consistent grammar?
@@ -152,7 +152,7 @@ and how to fix it?
 **Evidence recall:** Reference any error-related friction points from 0F and confusion
 points from 0G.
 
-Load reference: Read the "## Pass 3" section from `~/.claude/skills/plan-devex-review/dx-hall-of-fame.md`.
+Load reference: Read the "## Pass 3" section from `~/.simonk/runtime/plan-devex-review/dx-hall-of-fame.md`.
 
 **Trace 3 specific error paths** from the plan or codebase. For each, evaluate against
 the three-tier system from the Hall of Fame:
@@ -177,7 +177,7 @@ Rate 0-10: Can a developer find what they need and learn by doing?
 style? A YC founder needs copy-paste examples front and center. A platform engineer
 needs architecture docs and API reference.
 
-Load reference: Read the "## Pass 4" section from `~/.claude/skills/plan-devex-review/dx-hall-of-fame.md`.
+Load reference: Read the "## Pass 4" section from `~/.simonk/runtime/plan-devex-review/dx-hall-of-fame.md`.
 
 Evaluate:
 - **Information architecture**: Find what they need in under 2 minutes?
@@ -193,7 +193,7 @@ Evaluate:
 
 Rate 0-10: Can developers upgrade without fear?
 
-Load reference: Read the "## Pass 5" section from `~/.claude/skills/plan-devex-review/dx-hall-of-fame.md`.
+Load reference: Read the "## Pass 5" section from `~/.simonk/runtime/plan-devex-review/dx-hall-of-fame.md`.
 
 Evaluate:
 - **Backward compatibility**: What breaks? Blast radius limited?
@@ -211,7 +211,7 @@ Rate 0-10: Does this integrate into developers' existing workflows?
 **Evidence recall:** Does local dev setup work for [persona from 0A]'s typical
 environment?
 
-Load reference: Read the "## Pass 6" section from `~/.claude/skills/plan-devex-review/dx-hall-of-fame.md`.
+Load reference: Read the "## Pass 6" section from `~/.simonk/runtime/plan-devex-review/dx-hall-of-fame.md`.
 
 Evaluate:
 - **Editor integration**: Language server? Autocomplete? Inline docs?
@@ -229,7 +229,7 @@ Evaluate:
 
 Rate 0-10: Is there a community, and does the plan invest in ecosystem health?
 
-Load reference: Read the "## Pass 7" section from `~/.claude/skills/plan-devex-review/dx-hall-of-fame.md`.
+Load reference: Read the "## Pass 7" section from `~/.simonk/runtime/plan-devex-review/dx-hall-of-fame.md`.
 
 Evaluate:
 - **Open source**: Code open? Permissive license?
@@ -245,7 +245,7 @@ Evaluate:
 
 Rate 0-10: Does the plan include ways to measure and improve DX over time?
 
-Load reference: Read the "## Pass 8" section from `~/.claude/skills/plan-devex-review/dx-hall-of-fame.md`.
+Load reference: Read the "## Pass 8" section from `~/.simonk/runtime/plan-devex-review/dx-hall-of-fame.md`.
 
 Evaluate:
 - **TTHW tracking**: Can you measure getting started time? Is it instrumented?
@@ -269,7 +269,7 @@ only when proposing them, with ownership and frequency explicit.
 This is NOT a scored pass. It's a checklist of proven patterns from gstack's own DX.
 
 Load reference: Read the "## Claude Code Skill DX Checklist" section from
-`~/.claude/skills/plan-devex-review/dx-hall-of-fame.md`.
+`~/.simonk/runtime/plan-devex-review/dx-hall-of-fame.md`.
 
 Check each item. For any unchecked item, explain what's missing and suggest the fix.
 

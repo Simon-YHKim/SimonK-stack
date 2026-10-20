@@ -220,7 +220,7 @@ If they choose A:
 Say: "Running /office-hours inline. Once the design doc is ready, I'll pick up
 the review right where we left off."
 
-Read the `/office-hours` skill file at `~/.claude/skills/office-hours/SKILL.md` using the Read tool.
+Read the `/office-hours` skill file at `~/.simonk/runtime/office-hours/SKILL.md` using the Read tool.
 
 **If unreadable:** Skip with "Could not load /office-hours — skipping." and continue.
 
@@ -424,10 +424,10 @@ Then prepend a one-line HTML comment to the plan file:
 ### Step 3: Load skill files from disk
 
 Read each file using the Read tool:
-- `~/.claude/skills/plan-ceo-review/SKILL.md`
-- `~/.claude/skills/plan-design-review/SKILL.md` (only if UI scope detected)
-- `~/.claude/skills/plan-eng-review/SKILL.md`
-- `~/.claude/skills/plan-devex-review/SKILL.md` (only if DX scope detected)
+- `~/.simonk/runtime/plan-ceo-review/SKILL.md`
+- `~/.simonk/runtime/plan-design-review/SKILL.md` (only if UI scope detected)
+- `~/.simonk/runtime/plan-eng-review/SKILL.md`
+- `~/.simonk/runtime/plan-devex-review/SKILL.md` (only if DX scope detected)
 
 **Section skip list — when following a loaded skill file, SKIP these sections
 (they are already handled by /autoplan):**

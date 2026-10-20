@@ -788,7 +788,7 @@ DISCOVER_BIN=""
 echo "DISCOVER_BIN: $DISCOVER_BIN"
 ```
 
-If no binary is found, tell the user: "Discovery script not found. Run `bun run build` in the gstack directory to compile it." and stop.
+If no binary is found, tell the user: "Discovery script not found. Re-run SimonK-stack's install-runtime script to rebuild it." and stop.
 
 Run the discovery:
 ```bash

@@ -27,7 +27,7 @@ Read-only; returns one JSON document. Use when asked to
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
 [ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "scrape" --model "claude" --parent-pid "$PPID" \
-  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime.ps1 (preamble degraded, continue the user's task)"
+  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
 
 Read the echoed `KEY: value` STATUS lines — they drive every preamble rule
@@ -36,7 +36,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run SimonK-stack's install-runtime.ps1, and proceed with their task.
+the user to run SimonK-stack's install-runtime script, and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -192,7 +192,7 @@ fi
 
 ## Browser fallback: gstack's own headless browser
 
-Applies to any non-READY BROWSER SETUP result, including absent, stopped, timed-out, unavailable or failed Aside probes, or when the user chose gstack's own browser in a Third-Party Web Actions question. Otherwise skip this section. Drive gstack's own headless Chromium through `$B`: same skill, same evidence, same report — different driver. Say once which driver you use.
+Applies to any non-READY BROWSER SETUP result, including absent, stopped, timed-out, unavailable or failed Aside probes, or when the user chose the SimonK runtime browser in a Third-Party Web Actions question. Otherwise skip this section. Drive gstack's own headless Chromium through `$B`: same skill, same evidence, same report — different driver. Say once which driver you use.
 
 ### Find the `$B` binary
 
@@ -204,7 +204,7 @@ B=""
 [ -x "$B" ] && echo "READY: $B" || echo "NEEDS_SETUP"
 ```
 
-If `NEEDS_SETUP`: tell the user "gstack's own browser needs a one-time build (~10 seconds). OK to proceed?", STOP for the answer, then run `cd <SKILL_DIR> && ./setup` (it installs bun when missing). If neither Aside nor `$B` is available after that, stop and say so — never substitute unit tests or curl for the browser step.
+If `NEEDS_SETUP`: tell the user "the SimonK runtime browser needs a one-time build (~10 seconds). OK to proceed?", STOP for the answer, then run SimonK-stack's install-runtime script (it needs bun). If neither Aside nor `$B` is available after that, stop and say so — never substitute unit tests or curl for the browser step.
 
 ### Translate the Aside scripts step by step
 

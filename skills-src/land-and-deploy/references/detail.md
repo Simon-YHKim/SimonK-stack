@@ -173,7 +173,7 @@ fi
 
 If `NEEDS_SETUP`:
 1. Tell the user: "gstack browse needs a one-time build (~10 seconds). OK to proceed?" Then STOP and wait.
-2. Run: `cd <SKILL_DIR> && ./setup`
+2. Run: SimonK-stack's install-runtime script (it needs bun)
 3. If `bun` is not installed:
    ```bash
    if ! command -v bun >/dev/null 2>&1; then
@@ -626,7 +626,7 @@ Use AskUserQuestion:
 
 Read the review checklist:
 ```bash
-cat ~/.claude/skills/pr-review/checklist.md 2>/dev/null || echo "Checklist not found"
+cat ~/.simonk/runtime/review/checklist.md 2>/dev/null || echo "Checklist not found"
 ```
 Apply each checklist item to the current diff. This is the same quick review that `/ship`
 runs in its Step 3.5. Auto-fix trivial issues (whitespace, imports). For critical findings

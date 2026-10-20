@@ -79,7 +79,7 @@ Use AskUserQuestion:
 
 Read the review checklist:
 ```bash
-cat ~/.claude/skills/pr-review/checklist.md 2>/dev/null || echo "Checklist not found"
+cat ~/.simonk/runtime/review/checklist.md 2>/dev/null || echo "Checklist not found"
 ```
 Apply each checklist item to the current diff. This is the same quick review that `/ship`
 runs in its Step 3.5. Auto-fix trivial issues (whitespace, imports). For critical findings

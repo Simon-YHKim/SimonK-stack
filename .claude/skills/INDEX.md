@@ -1,7 +1,7 @@
 # Skill Index
 
 **curated simon-stack** skill 세트의 카테고리별 맵. 세션 시작 시 참고용.
-이 표는 SimonK-stack 큐레이션 셋(skills-src + 개발용 dev skill)을 매핑한다. garrytan/gstack 출신 스킬은 2026-10-21(허브 D-117)부터 SimonK-stack이 소유한다 — 본문은 upstream 1.91.9.0, 설명·버전은 SimonK, 이들이 부르는 런타임은 `~/.simonk/runtime`(`scripts/windows/install-runtime.ps1`), 상태는 `~/.simonk/state`. 출처는 `skills-src/VENDORED.md`.
+이 표는 SimonK-stack 큐레이션 셋(skills-src + 개발용 dev skill)을 매핑한다. garrytan/gstack 출신 스킬은 2026-10-21(허브 D-117)부터 SimonK-stack이 소유한다 — 본문은 upstream 1.91.9.0, 설명·버전은 SimonK, 이들이 부르는 런타임은 `~/.simonk/runtime`(`scripts/install_runtime.py`), 상태는 `~/.simonk/state`. 출처는 `skills-src/VENDORED.md`.
 
 **`skills-src/` 배포 소스 146개** + `.claude/skills/` 개발용 4개 = **총 150개** (2026-10-21 브랜치의 `SKILL.md` 실측). 이 인덱스는 소스·개발 스킬의 맵이며, 별도로 조립한 5플러그인 빌드의 191개 스킬은 이 카운트에 포함하지 않는다. 아래 카테고리 표는 2026-06-13 cycle-2 분류를 기반으로 하므로 최신 파일 목록 확인은 실제 두 소스 디렉터리 또는 후보 영수증을 기준으로 한다.
 

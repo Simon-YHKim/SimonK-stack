@@ -14,7 +14,9 @@ Integrated in full on 2026-10-21 (hub D-117):
 - Bodies follow upstream 1.91.9.0. Descriptions and versions are SimonK's.
 - The runtime they call (bin scripts, browse/design/pdf tools, Chrome
   extension) lives in `~/.simonk/runtime`, installed by
-  `scripts/windows/install-runtime.ps1` from the pin in `runtime/RUNTIME.json`.
+  `scripts/install_runtime.py` (Windows wrapper: `scripts/windows/install-runtime.ps1`)
+  from the pin in `runtime/RUNTIME.json`. Support files the skills read by
+  absolute path (sections, templates, hooks) live there too.
   State lives in `~/.simonk/state`.
 - Install and state paths are rewritten from the upstream home install to
   those folders. Update checks and auto-upgrade are off; SimonK-stack manages

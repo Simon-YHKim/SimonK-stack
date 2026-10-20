@@ -232,7 +232,7 @@ If A:
 2. Run `echo '.simonk/runtime/' >> .gitignore`
 3. Run `~/.simonk/runtime/bin/gstack-team-init required` (or `optional`)
 4. Run `git add .claude/ .gitignore CLAUDE.md && git commit -m "chore: migrate gstack from vendored to team mode"`
-5. Tell the user: "Done. Each developer now runs: `cd ~/.simonk/runtime && ./setup --team`"
+5. Tell the user: "Done. Each developer now runs: SimonK-stack's install-runtime script"
 
 If B: say "OK, you're on your own to keep the vendored copy up to date."
 

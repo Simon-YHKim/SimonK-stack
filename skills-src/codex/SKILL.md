@@ -33,7 +33,7 @@ Voice triggers (speech-to-text aliases): "code x", "code ex", "get another opini
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
 [ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "codex" --model "claude" --parent-pid "$PPID" \
-  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime.ps1 (preamble degraded, continue the user's task)"
+  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
 
 Read the echoed `KEY: value` STATUS lines — they drive every preamble rule
@@ -42,7 +42,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run SimonK-stack's install-runtime.ps1, and proceed with their task.
+the user to run SimonK-stack's install-runtime script, and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -515,7 +515,7 @@ fi
 _gstack_codex_version_check   # warns if known-bad, non-blocking
 ```
 
-If the runtime guard reports a harness mismatch, stop. Outside coverage is unavailable. Repair with `./setup --host codex`; do not silently substitute another provider or force a same-harness invocation.
+If the runtime guard reports a harness mismatch, stop. Outside coverage is unavailable. Repair with SimonK-stack's install-runtime script; do not silently substitute another provider or force a same-harness invocation.
 
 If the output contains `AUTH_FAILED`, stop and tell the user:
 "No Codex authentication found. Run `codex login` or set `$CODEX_API_KEY` / `$OPENAI_API_KEY`, then re-run this skill."
@@ -635,13 +635,13 @@ examples.
 
 ---
 
-> **STOP.** Before running Review mode (Step 2A) — the Step 1 dispatch chose review (`/codex review`, or the user picked "Review the diff"), Read `~/.claude/skills/codex/sections/review-mode.md` and execute it
+> **STOP.** Before running Review mode (Step 2A) — the Step 1 dispatch chose review (`/codex review`, or the user picked "Review the diff"), Read `~/.simonk/runtime/codex/sections/review-mode.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
-> **STOP.** Before running Challenge mode (Step 2B) — the Step 1 dispatch chose adversarial challenge (`/codex challenge`, or the user picked "Challenge the diff"), Read `~/.claude/skills/codex/sections/challenge-mode.md` and execute it
+> **STOP.** Before running Challenge mode (Step 2B) — the Step 1 dispatch chose adversarial challenge (`/codex challenge`, or the user picked "Challenge the diff"), Read `~/.simonk/runtime/codex/sections/challenge-mode.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
-> **STOP.** Before running Consult mode (Step 2C) — the Step 1 dispatch chose consult (a free-form question, a plan review, or a session follow-up), Read `~/.claude/skills/codex/sections/consult-mode.md` and execute it
+> **STOP.** Before running Consult mode (Step 2C) — the Step 1 dispatch chose consult (a free-form question, a plan review, or a session follow-up), Read `~/.simonk/runtime/codex/sections/consult-mode.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 ## Plan File Review Report

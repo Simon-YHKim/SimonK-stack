@@ -21,12 +21,12 @@ hooks:
     - matcher: "Read"
       hooks:
         - type: command
-          command: "bash -c 'S=\"$HOME/.claude/skills/autoplan/bin/phase-publication-hook\"\nif [ -f \"$S\" ]; then exec bash \"$S\"; fi\nprintf '\\''%s\\n'\\'' '\\''{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Autoplan publication guard is unavailable. Restore the installed autoplan/bin/phase-publication-hook before continuing this skill.\"}}'\\'''"
+          command: "bash -c 'S=\"$HOME/.simonk/runtime/autoplan/bin/phase-publication-hook\"\nif [ -f \"$S\" ]; then exec bash \"$S\"; fi\nprintf '\\''%s\\n'\\'' '\\''{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Autoplan publication guard is unavailable. Restore the installed autoplan/bin/phase-publication-hook before continuing this skill.\"}}'\\'''"
           statusMessage: "Checking Autoplan phase publication..."
     - matcher: "Agent"
       hooks:
         - type: command
-          command: "bash -c 'S=\"$HOME/.claude/skills/autoplan/bin/phase-publication-hook\"\nif [ -f \"$S\" ]; then exec bash \"$S\"; fi\nprintf '\\''%s\\n'\\'' '\\''{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Autoplan publication guard is unavailable. Restore the installed autoplan/bin/phase-publication-hook before continuing this skill.\"}}'\\'''"
+          command: "bash -c 'S=\"$HOME/.simonk/runtime/autoplan/bin/phase-publication-hook\"\nif [ -f \"$S\" ]; then exec bash \"$S\"; fi\nprintf '\\''%s\\n'\\'' '\\''{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Autoplan publication guard is unavailable. Restore the installed autoplan/bin/phase-publication-hook before continuing this skill.\"}}'\\'''"
           statusMessage: "Checking Autoplan phase publication..."
 ---
 
@@ -49,7 +49,7 @@ Voice triggers (speech-to-text aliases): "auto plan", "automatic review".
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
 [ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "autoplan" --model "claude" --parent-pid "$PPID" \
-  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime.ps1 (preamble degraded, continue the user's task)"
+  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
 
 Read the echoed `KEY: value` STATUS lines — they drive every preamble rule
@@ -58,7 +58,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run SimonK-stack's install-runtime.ps1, and proceed with their task.
+the user to run SimonK-stack's install-runtime script, and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -506,7 +506,7 @@ If they choose A:
 Say: "Running /office-hours inline. Once the design doc is ready, I'll pick up
 the review right where we left off."
 
-Read the `/office-hours` skill file at `~/.claude/skills/office-hours/SKILL.md` using the Read tool.
+Read the `/office-hours` skill file at `~/.simonk/runtime/office-hours/SKILL.md` using the Read tool.
 
 **If unreadable:** Skip with "Could not load /office-hours — skipping." and continue.
 
@@ -762,10 +762,10 @@ bun "<SNAPSHOT_TOOL>" scope "<ACTIVE_PLAN>"
 ### Step 3: Locate review skills; load each at phase entry
 
 Resolve this phase's source to absolute `<REVIEW_SKILL>`; load via its checkpoint:
-- Phase 1: `~/.claude/skills/plan-ceo-review/SKILL.md`
-- Phase 2: `~/.claude/skills/plan-design-review/SKILL.md` (only if UI scope detected)
-- Phase 2.5: `~/.claude/skills/plan-devex-review/SKILL.md` (only if DX scope detected)
-- Phase 3: `~/.claude/skills/plan-eng-review/SKILL.md`
+- Phase 1: `~/.simonk/runtime/plan-ceo-review/SKILL.md`
+- Phase 2: `~/.simonk/runtime/plan-design-review/SKILL.md` (only if UI scope detected)
+- Phase 2.5: `~/.simonk/runtime/plan-devex-review/SKILL.md` (only if DX scope detected)
+- Phase 3: `~/.simonk/runtime/plan-eng-review/SKILL.md`
 
 Use /autoplan's installed registry; resolve siblings from its discovered SKILL.md
 directory, never cwd/runtime assets. Missing skill: report phase and setup repair,
@@ -844,7 +844,7 @@ only CEO. Missing voices: N/A, never CONFIRMED. Skipped scope stays skipped.
 
 ## Phase 1: CEO Review (Strategy & Scope)
 
-> **STOP.** Before starting Phase 1 (CEO review — always runs, after the Phase 0.5 preflight), Read `~/.claude/skills/autoplan/sections/ceo-phase.md` and execute it
+> **STOP.** Before starting Phase 1 (CEO review — always runs, after the Phase 0.5 preflight), Read `~/.simonk/runtime/autoplan/sections/ceo-phase.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 ---
@@ -855,7 +855,7 @@ only CEO. Missing voices: N/A, never CONFIRMED. Skipped scope stays skipped.
 entirely — do NOT read its section. Send: "Phase 2 skipped — no UI scope detected."
 Record the skip in ACTIVE_PLAN; it is not a completed review.
 
-> **STOP.** Before starting Phase 2 (design review — ONLY if UI scope was detected in Phase 0; skip the read entirely otherwise), Read `~/.claude/skills/autoplan/sections/design-phase.md` and execute it
+> **STOP.** Before starting Phase 2 (design review — ONLY if UI scope was detected in Phase 0; skip the read entirely otherwise), Read `~/.simonk/runtime/autoplan/sections/design-phase.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 ---
@@ -866,14 +866,14 @@ Record the skip in ACTIVE_PLAN; it is not a completed review.
 entirely — do NOT read its section. Send: "Phase 2.5 skipped — no developer-facing scope detected."
 Record the skip in ACTIVE_PLAN; it is not a completed review.
 
-> **STOP.** Before starting Phase 2.5 (DX review — ONLY if developer-facing scope was detected in Phase 0; skip the read entirely otherwise), Read `~/.claude/skills/autoplan/sections/dx-phase.md` and execute it
+> **STOP.** Before starting Phase 2.5 (DX review — ONLY if developer-facing scope was detected in Phase 0; skip the read entirely otherwise), Read `~/.simonk/runtime/autoplan/sections/dx-phase.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 ---
 
 ## Phase 3: Eng Review + Dual Voices (always runs, always LAST — the required gate reviews the final amended plan)
 
-> **STOP.** Before starting Phase 3 (eng review — always runs, after all earlier applicable phases have closed), Read `~/.claude/skills/autoplan/sections/eng-phase.md` and execute it
+> **STOP.** Before starting Phase 3 (eng review — always runs, after all earlier applicable phases have closed), Read `~/.simonk/runtime/autoplan/sections/eng-phase.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 ---
@@ -912,7 +912,7 @@ at most 2 repair attempts, warn at the gate with each still-incomplete item.
 
 ## Phase 4: Final Approval Gate
 
-> **STOP.** Before presenting the Final Approval Gate (Phase 4) — the aggregator computes $AGGREGATED_TASKS that the gate message substitutes, Read `~/.claude/skills/autoplan/sections/tasks-aggregator.md` and execute it
+> **STOP.** Before presenting the Final Approval Gate (Phase 4) — the aggregator computes $AGGREGATED_TASKS that the gate message substitutes, Read `~/.simonk/runtime/autoplan/sections/tasks-aggregator.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 **STOP here and present the final state to the user.**

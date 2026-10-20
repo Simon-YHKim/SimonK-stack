@@ -308,7 +308,7 @@ fi
 
 If `NEEDS_SETUP`:
 1. Tell the user: "gstack browse needs a one-time build (~10 seconds). OK to proceed?" Then STOP and wait.
-2. Run: `cd <SKILL_DIR> && ./setup`
+2. Run: SimonK-stack's install-runtime script (it needs bun)
 3. If `bun` is not installed:
    ```bash
    if ! command -v bun >/dev/null 2>&1; then
@@ -510,7 +510,7 @@ For **vanilla HTML output**, check for the vendored Pretext bundle:
 _PRETEXT_VENDOR=""
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 [ -n "$_ROOT" ] && [ -f "$_ROOT/.simonk/runtime/design-html/vendor/pretext.js" ] && _PRETEXT_VENDOR="$_ROOT/.simonk/runtime/design-html/vendor/pretext.js"
-[ -z "$_PRETEXT_VENDOR" ] && [ -f ~/.claude/skills/design-html/vendor/pretext.js ] && _PRETEXT_VENDOR=~/.claude/skills/design-html/vendor/pretext.js
+[ -z "$_PRETEXT_VENDOR" ] && [ -f ~/.simonk/runtime/design-html/vendor/pretext.js ] && _PRETEXT_VENDOR=~/.simonk/runtime/design-html/vendor/pretext.js
 [ -n "$_PRETEXT_VENDOR" ] && echo "VENDOR: $_PRETEXT_VENDOR" || echo "VENDOR_MISSING"
 ```
 

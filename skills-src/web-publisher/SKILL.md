@@ -96,7 +96,7 @@ Field reference:
 
 ### 1. Resolve the browse binary (Windows + POSIX)
 
-The gstack `browse` daemon binary lives in the gstack home install. Resolve it before any command:
+The `browse` daemon binary lives in the SimonK runtime (`~/.simonk/runtime`). Resolve it before any command:
 
 ```bash
 B=""

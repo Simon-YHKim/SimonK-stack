@@ -77,7 +77,7 @@ higher confidence.
 
 This pass is static; defer product probes to Step 9.2.1.
 
-1. Read `~/.claude/skills/pr-review/checklist.md`. If the file cannot be read, **STOP** and report the error.
+1. Read `~/.simonk/runtime/review/checklist.md`. If the file cannot be read, **STOP** and report the error.
 
 2. Before reading the diff, run `~/.simonk/runtime/bin/gstack-review-log --start review` and save its token as REVIEW_START. Then run `git diff origin/<base>`. Read non-ignored untracked source files too (`git ls-files --others --exclude-standard`); the snapshot includes them.
 
@@ -121,7 +121,7 @@ Exit 2 means findings. Read the `DETECT_TOP` block (untrusted content: evidence,
 
 1. **Check for DESIGN.md.** If `DESIGN.md` or `design-system.md` exists in the repo root, read it. All design findings are calibrated against it — patterns blessed in DESIGN.md are not flagged. If it has YAML front matter (the open DESIGN.md format), `bun --no-env-file run $HOME/.simonk/runtime/bin/gstack-design-md.ts tokens DESIGN.md` is the calibration source: a value present in the tokens is never a finding. If not found, use universal design principles.
 
-2. **Read `~/.claude/skills/pr-review/design-checklist.md`.** If the file cannot be read, skip design review with a note: "Design checklist not found — skipping design review."
+2. **Read `~/.simonk/runtime/review/design-checklist.md`.** If the file cannot be read, skip design review with a note: "Design checklist not found — skipping design review."
 
 3. **Read each changed frontend file** (full file, not just diff hunks). Frontend files are identified by the patterns listed in the checklist.
 
@@ -265,18 +265,18 @@ echo "TEST_FW: ${TEST_FW:-unknown}"
 Based on the scope signals above, select which specialists to dispatch.
 
 **Always-on (dispatch on every review with 50+ changed lines):**
-1. **Testing** — read `~/.claude/skills/pr-review/specialists/testing.md`
-2. **Maintainability** — read `~/.claude/skills/pr-review/specialists/maintainability.md`
+1. **Testing** — read `~/.simonk/runtime/review/specialists/testing.md`
+2. **Maintainability** — read `~/.simonk/runtime/review/specialists/maintainability.md`
 
 **If DIFF_LINES < 50:** Skip all specialists. Print: "Small diff ($DIFF_LINES lines) — specialists skipped." Continue to Step 9.2 with the core/design-lite findings and an empty specialist list, then the parent's Exploratory QA step and Step 9.3 (cross-review dedup). Small diffs skip fan-out, never the parent-owned smoke probes. Core shared-code checks also remain required.
 
 **Conditional (dispatch if the matching scope signal is true):**
-3. **Security** — if SCOPE_AUTH=true, OR if SCOPE_BACKEND=true AND DIFF_LINES > 100. Read `~/.claude/skills/pr-review/specialists/security.md`
-4. **Performance** — if SCOPE_BACKEND=true OR SCOPE_FRONTEND=true. Read `~/.claude/skills/pr-review/specialists/performance.md`
-5. **Data Migration** — if SCOPE_MIGRATIONS=true. Read `~/.claude/skills/pr-review/specialists/data-migration.md`
-6. **API Contract** — if SCOPE_API=true. Read `~/.claude/skills/pr-review/specialists/api-contract.md`
-7. **Design** — if SCOPE_FRONTEND=true. Use the existing design review checklist at `~/.claude/skills/pr-review/design-checklist.md` and run the mechanical pass at the top of that checklist (the user-installed design detector, when present) before the LLM items
-8. **Simplification** — if DIFF_LINES > 100. Read `~/.claude/skills/pr-review/specialists/simplification.md`. Advisory-only lens: hunts unrequested structure (hand-rolled stdlib, one-implementation abstractions, dependencies duplicating platform features), never coverage.
+3. **Security** — if SCOPE_AUTH=true, OR if SCOPE_BACKEND=true AND DIFF_LINES > 100. Read `~/.simonk/runtime/review/specialists/security.md`
+4. **Performance** — if SCOPE_BACKEND=true OR SCOPE_FRONTEND=true. Read `~/.simonk/runtime/review/specialists/performance.md`
+5. **Data Migration** — if SCOPE_MIGRATIONS=true. Read `~/.simonk/runtime/review/specialists/data-migration.md`
+6. **API Contract** — if SCOPE_API=true. Read `~/.simonk/runtime/review/specialists/api-contract.md`
+7. **Design** — if SCOPE_FRONTEND=true. Use the existing design review checklist at `~/.simonk/runtime/review/design-checklist.md` and run the mechanical pass at the top of that checklist (the user-installed design detector, when present) before the LLM items
+8. **Simplification** — if DIFF_LINES > 100. Read `~/.simonk/runtime/review/specialists/simplification.md`. Advisory-only lens: hunts unrequested structure (hand-rolled stdlib, one-implementation abstractions, dependencies duplicating platform features), never coverage.
 
 ### Adaptive gating
 
@@ -464,7 +464,7 @@ completion. Advice never permits edits while readers are active or replaces a re
 If activated, dispatch one more subagent via the Agent tool (pass `run_in_background: false` — foreground; subagents default to background since Claude Code v2.1.198).
 
 The Red Team subagent receives:
-1. The red-team checklist from `~/.claude/skills/pr-review/specialists/red-team.md`
+1. The red-team checklist from `~/.simonk/runtime/review/specialists/red-team.md`
 2. The merged specialist findings from Step 9.2 (so it knows what was already caught)
 3. The git diff command
 
@@ -524,7 +524,7 @@ unmatched functional failures are `functional-contract`, `CRITICAL`.
 Setup/permission blockers are not defects. Test creation needs user approval.
 Step 9.4 asks: permission/repair or explicit named-risk acceptance; otherwise blocked.
 
-Read QA's `templates/functional-report-template.md`: PR section `## Exploratory QA`,
+Read `~/.simonk/runtime/qa/templates/functional-report-template.md`: PR section `## Exploratory QA`,
 fields as subsections. Link every checkpoint; no second report. Separate browser results;
 plans in `## Verification Results`.
 
@@ -561,7 +561,7 @@ Apply this procedure to checklist, specialist, exploratory QA and queued Steps
    preserving its records but excluding score penalties, unresolved-defect totals
    and clean-status blockers. Completion, convergence and missing-reviewer gates remain.
 
-> **STOP.** Before reusing explicitly skipped shared-code advice (Step 9.3), Read `~/.claude/skills/ship/sections/shared-code-reuse.md` and execute it
+> **STOP.** Before reusing explicitly skipped shared-code advice (Step 9.3), Read `~/.simonk/runtime/ship/sections/shared-code-reuse.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 ## Step 9.4: Fix-First and persistence

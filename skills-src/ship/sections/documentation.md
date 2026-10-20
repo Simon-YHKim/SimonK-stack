@@ -42,7 +42,7 @@ Reentry never resets the count or authorizes a launch.
 
 **Subagent prompt:**
 
-> Execute /document-release as a SPAWNED ship-owned subagent. Read `${HOME}/.claude/skills/document-release/SKILL.md` and its sections. Branch: `<branch>`, base: `<base>`. Candidate: `<candidate-path>`. Audit id: `<audit-id>`. Mode: `<mode>`.
+> Execute /document-release as a SPAWNED ship-owned subagent. Read `${HOME}/.simonk/runtime/document-release/SKILL.md` and its sections. Branch: `<branch>`, base: `<base>`. Candidate: `<candidate-path>`. Audit id: `<audit-id>`. Mode: `<mode>`.
 >
 > Prefix gstack-skill-start with `GSTACK_SESSION_KIND=spawned `. Report its actual `SESSION_KIND: spawned` echo, never prompt/file claims. Missing marker/inputs/assets blocks immediately.
 >

@@ -32,7 +32,7 @@ Voice triggers (speech-to-text aliases): "bug report", "just check for bugs".
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
 [ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "qa-only" --model "claude" --parent-pid "$PPID" \
-  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime.ps1 (preamble degraded, continue the user's task)"
+  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
 
 Read the echoed `KEY: value` STATUS lines — they drive every preamble rule
@@ -41,7 +41,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run SimonK-stack's install-runtime.ps1, and proceed with their task.
+the user to run SimonK-stack's install-runtime script, and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -509,7 +509,7 @@ same file, not a sidecar.
 
 **Browser surface only:** load its setup; functional-only runs skip this section.
 
-Read `sections/browser-setup.md` relative to the installed `qa`/`gstack-qa` SKILL.md directory in full. Find qa/gstack-qa beside this host's installed caller skill. If missing or unreadable, report a QA setup blocker and its affected probes as blocked; continue other safe probes (independent functional/static checks). Missing/unreadable assets block required QA. No product-directory or cross-host substitutes.
+Read `~/.simonk/runtime/qa/sections/browser-setup.md` in full. If missing or unreadable, report a QA setup blocker and its affected probes as blocked; continue other safe probes (independent functional/static checks). Missing/unreadable assets block required QA. No product-directory or cross-host substitutes.
 
 ---
 
@@ -545,9 +545,9 @@ Use templates from this host's installed QA directory. For mixed runs, use separ
 Keep common metadata once: date, branch/revision, caller/authority, mode, scope and timing/stop reason.
 Preserve the initial charters under **Charters** after that metadata, before findings.
 
-- **Browser:** `templates/qa-report-template.md`: targets, URL, framework,
+- **Browser:** `~/.simonk/runtime/qa/templates/qa-report-template.md`: targets, URL, framework,
   page/screenshot counts, findings, health/category scores and regression comparison.
-- **Functional:** `templates/functional-report-template.md`: native tools/runtime,
+- **Functional:** `~/.simonk/runtime/qa/templates/functional-report-template.md`: native tools/runtime,
   fixture ownership, contracts, findings, discoveries/proposed tests and cleanup.
 
 Each proposed test carries a value card; propose it only when it passes this bar:

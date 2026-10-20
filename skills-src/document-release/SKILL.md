@@ -34,7 +34,7 @@ or "post-ship docs". Proactively suggest a documentation audit before merge.
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
 [ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "document-release" --model "claude" --parent-pid "$PPID" \
-  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime.ps1 (preamble degraded, continue the user's task)"
+  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
 
 Read the echoed `KEY: value` STATUS lines — they drive every preamble rule
@@ -43,7 +43,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run SimonK-stack's install-runtime.ps1, and proceed with their task.
+the user to run SimonK-stack's install-runtime script, and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -427,7 +427,7 @@ With a ship candidate, require the actual spawned marker and audit-scope rules b
 Missing marking/inputs/assets returns `blocked`, never standalone execution. Ship
 authority overrides generic spawned recommendations and standalone steps.
 
-> **STOP.** Before selecting release inputs and discovering relevant documentation, in standalone and ship-owned modes, before Step 1, Read `~/.claude/skills/document-release/sections/audit-scope.md` and execute it
+> **STOP.** Before selecting release inputs and discovering relevant documentation, in standalone and ship-owned modes, before Step 1, Read `~/.simonk/runtime/document-release/sections/audit-scope.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 **When dispatched as a subagent (spawned session):** only the preamble's actual
@@ -558,7 +558,7 @@ When significant gaps are found, suggest running `/document-generate` to fill th
 
 ---
 
-> **STOP.** Before auditing each doc file and applying updates, polishing CHANGELOG voice, checking cross-doc consistency, cleaning up TODOS, the VERSION bump, and committing (Steps 2-9, after the coverage map in Step 1.5), Read `~/.claude/skills/document-release/sections/release-body.md` and execute it
+> **STOP.** Before auditing each doc file and applying updates, polishing CHANGELOG voice, checking cross-doc consistency, cleaning up TODOS, the VERSION bump, and committing (Steps 2-9, after the coverage map in Step 1.5), Read `~/.simonk/runtime/document-release/sections/release-body.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 ---

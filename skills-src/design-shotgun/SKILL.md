@@ -51,7 +51,7 @@ what it could look like.
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
 [ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "design-shotgun" --model "claude" --parent-pid "$PPID" \
-  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime.ps1 (preamble degraded, continue the user's task)"
+  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
 
 Read the echoed `KEY: value` STATUS lines — they drive every preamble rule
@@ -60,7 +60,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run SimonK-stack's install-runtime.ps1, and proceed with their task.
+the user to run SimonK-stack's install-runtime script, and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -445,7 +445,7 @@ Use `bin/gstack-paths`: GSTACK_HOME → plugin storage → ~/.gstack. Keep it ev
 .context/, docs/designs/ or another directory.
 These are user files, not application source.
 
-> **STOP.** Before writing variant concepts or design briefs (Step 3 onward) — the UX-principles doctrine governs every design direction, Read `~/.claude/skills/design-shotgun/sections/doctrine.md` and execute it
+> **STOP.** Before writing variant concepts or design briefs (Step 3 onward) — the UX-principles doctrine governs every design direction, Read `~/.simonk/runtime/design-shotgun/sections/doctrine.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 ## Step 0: Session Detection

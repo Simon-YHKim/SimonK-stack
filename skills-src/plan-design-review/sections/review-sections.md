@@ -5,7 +5,7 @@
 **Anti-skip rule:** Never condense, abbreviate, or skip any review pass (1-7) regardless of plan type (strategy, spec, code, infra). Every pass in this skill exists for a reason. "This is a strategy doc so design passes don't apply" is always wrong — design gaps are where implementation breaks down. If a pass genuinely has zero findings, say "No issues found" and move on — but you must evaluate it.
 
 **Context:** This section continues `plan-design-review/SKILL.md`. If its setup
-is no longer in context, Read `~/.claude/skills/plan-design-review/SKILL.md`
+is no longer in context, Read `~/.simonk/runtime/plan-design-review/SKILL.md`
 for the System Audit, Design Philosophy, Step 0, Step 0.5 mockup setup (`$D`),
 and Section self-check. Use their existing results; do not restart the review.
 
@@ -295,7 +295,7 @@ For design debt: missing a11y, unresolved responsive behavior, deferred empty st
 Then present options: **A)** Add to TODOS.md **B)** Skip — not valuable enough **C)** Build it now in this PR instead of deferring.
 
 Before synthesizing tasks or the completion summary, perform the approval
-reconciliation from the Section self-check in `~/.claude/skills/plan-design-review/SKILL.md` (Read it if no longer in context). Export only agreed implementation work; retain unapproved remedies as pending findings.
+reconciliation from the Section self-check in `~/.simonk/runtime/plan-design-review/SKILL.md` (Read it if no longer in context). Export only agreed implementation work; retain unapproved remedies as pending findings.
 Count only individually approved new decisions in "Decisions made" and the
 review log; a proposed remedy or next-step answer contributes zero.
 

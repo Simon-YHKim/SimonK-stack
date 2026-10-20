@@ -37,7 +37,7 @@ Voice triggers (speech-to-text aliases): "dx review", "developer experience revi
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
 [ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "plan-devex-review" --model "claude" --parent-pid "$PPID" \
-  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime.ps1 (preamble degraded, continue the user's task)"
+  || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
 
 Read the echoed `KEY: value` STATUS lines — they drive every preamble rule
@@ -46,7 +46,7 @@ below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output
 defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor,
 skip onboarding/telemetry steps (their gates are marker-based, so consent and
 onboarding prompts are DEFERRED to the next healthy run — never lost), tell
-the user to run SimonK-stack's install-runtime.ps1, and proceed with their task.
+the user to run SimonK-stack's install-runtime script, and proceed with their task.
 Note `SESSION_ID` and `TEL_START` from the output — the Telemetry step needs
 them at skill end.
 
@@ -514,7 +514,7 @@ Internalize these; don't enumerate them.
 ## Hall of Fame Reference
 
 During each review pass, load the relevant section from:
-\`~/.claude/skills/plan-devex-review/dx-hall-of-fame.md\`
+\`~/.simonk/runtime/plan-devex-review/dx-hall-of-fame.md\`
 
 Read ONLY the section for the current pass (e.g., "## Pass 1" for Getting Started).
 Do NOT read the entire file at once. This keeps context focused.
@@ -794,7 +794,7 @@ If they choose A:
 Say: "Running /office-hours inline. Once the design doc is ready, I'll pick up
 the review right where we left off."
 
-Read the `/office-hours` skill file at `~/.claude/skills/office-hours/SKILL.md` using the Read tool.
+Read the `/office-hours` skill file at `~/.simonk/runtime/office-hours/SKILL.md` using the Read tool.
 
 **If unreadable:** Skip with "Could not load /office-hours — skipping." and continue.
 
@@ -923,7 +923,7 @@ New targets or journey extensions require their own decisions.
 Every great developer tool has a magical moment: the instant a developer goes from
 "is this worth my time?" to "oh wow, this is real."
 
-Load the "## Pass 1" section from `~/.claude/skills/plan-devex-review/dx-hall-of-fame.md`
+Load the "## Pass 1" section from `~/.simonk/runtime/plan-devex-review/dx-hall-of-fame.md`
 for gold standard examples.
 
 Identify the most likely magical moment for this product type, then present delivery
@@ -1074,7 +1074,7 @@ For each DX section:
   Trace each issue to evidence. Do not redesign established APIs to improve a score.
 - **DX TRIAGE:** Flag adoption blockers (below 5); skip nice-to-haves (5-7).
 
-> **STOP.** Before running the 8 DX passes, required outputs, and review report (only after Step 0 investigation is complete), Read `~/.claude/skills/plan-devex-review/sections/review-sections.md` and execute it
+> **STOP.** Before running the 8 DX passes, required outputs, and review report (only after Step 0 investigation is complete), Read `~/.simonk/runtime/plan-devex-review/sections/review-sections.md` and execute it
 > in full. Do not work from memory — that section is the source of truth for this step.
 
 ## Section self-check (before you finish)
