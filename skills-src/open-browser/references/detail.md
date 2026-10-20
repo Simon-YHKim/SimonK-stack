@@ -167,7 +167,6 @@ anti-bot stealth, and custom branding. You see every action in real time.
 ```bash
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 B=""
-[ -n "$_ROOT" ] && [ -x "$_ROOT/.simonk/runtime/browse/dist/browse" ] && B="$_ROOT/.simonk/runtime/browse/dist/browse"
 [ -z "$B" ] && B=~/.simonk/runtime/browse/dist/browse
 if [ -x "$B" ]; then
   echo "READY: $B"
@@ -263,7 +262,6 @@ Also find the extension path so you can help the user if they need to load it ma
 ```bash
 _EXT_PATH=""
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
-[ -n "$_ROOT" ] && [ -f "$_ROOT/.simonk/runtime/extension/manifest.json" ] && _EXT_PATH="$_ROOT/.simonk/runtime/extension"
 [ -z "$_EXT_PATH" ] && [ -f "$HOME/.simonk/runtime/extension/manifest.json" ] && _EXT_PATH="$HOME/.simonk/runtime/extension"
 echo "EXTENSION_PATH: ${_EXT_PATH:-NOT FOUND}"
 ```

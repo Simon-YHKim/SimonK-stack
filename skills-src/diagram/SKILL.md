@@ -29,7 +29,6 @@ flowchart", "diagram this", or "visualize this flow".
 
 ```bash
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
-[ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "diagram" --model "claude" --parent-pid "$PPID" \
   || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```

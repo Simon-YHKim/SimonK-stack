@@ -32,7 +32,6 @@ is ready, asks about deploying, wants to push code up, or asks to create a PR.
 
 ```bash
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
-[ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "ship" --model "claude" --parent-pid "$PPID" \
   || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
@@ -238,7 +237,7 @@ At session start or after compaction, recover recent project context.
 ```bash
 eval "$(~/.simonk/runtime/bin/gstack-slug 2>/dev/null)"
 _BRANCH=$(git branch --show-current 2>/dev/null | tr -cd 'a-zA-Z0-9._/-') || :; _BRANCH=${_BRANCH:-unknown}
-_PROJ="${GSTACK_HOME:-$HOME/.gstack}/projects/${SLUG:-unknown}"
+_PROJ="${GSTACK_HOME:-$HOME/.simonk/state}/projects/${SLUG:-unknown}"
 if [ -d "$_PROJ" ]; then
   echo "--- RECENT ARTIFACTS ---"
   find "$_PROJ/ceo-plans" "$_PROJ/checkpoints" -type f -name "*.md" 2>/dev/null | xargs -r ls -t 2>/dev/null | head -3
@@ -1049,7 +1048,7 @@ git config --get core.hooksPath >/dev/null 2>&1 || _HOOKS_CONFIG_STATUS=$?
 if [ -n "$_HOOK_PATH" ] && [ -n "$_HOOKS_DIR" ] && [ "$_HOOKS_CONFIG_STATUS" = "1" ] && [ ! -L "$_HOOKS_DIR" ]; then
   _HOOKS_IN_GIT_DIR="yes"
 fi
-_PREPUSH_PROMPTED=$([ -f "${GSTACK_HOME:-$HOME/.gstack}/.redact-prepush-prompted" ] && echo "yes" || echo "no")
+_PREPUSH_PROMPTED=$([ -f "${GSTACK_HOME:-$HOME/.simonk/state}/.redact-prepush-prompted" ] && echo "yes" || echo "no")
 if [ "$_REDACT_PREPUSH" = "true" ] && [ "$_HOOKS_IN_GIT_DIR" = "yes" ] && [ "$_HOOK_STATE" != "unmanaged" ]; then
   ~/.simonk/runtime/bin/gstack-redact install-prepush-hook || exit $?
 fi
@@ -1086,7 +1085,7 @@ Branch on the echoed values:
    ALWAYS (after either answer, but NOT if the question itself failed to
    render — a failed AskUserQuestion must re-offer next time):
    ```bash
-   touch "${GSTACK_HOME:-$HOME/.gstack}/.redact-prepush-prompted"
+   touch "${GSTACK_HOME:-$HOME/.simonk/state}/.redact-prepush-prompted"
    ```
 3. **Declined earlier** — continue
    without comment.

@@ -169,7 +169,6 @@ around obstacles.
 ```bash
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 D=""
-[ -n "$_ROOT" ] && [ -x "$_ROOT/.simonk/runtime/design/dist/design" ] && D="$_ROOT/.simonk/runtime/design/dist/design"
 [ -z "$D" ] && D=~/.simonk/runtime/design/dist/design
 if [ -x "$D" ]; then
   echo "DESIGN_READY: $D"
@@ -177,7 +176,6 @@ else
   echo "DESIGN_NOT_AVAILABLE"
 fi
 B=""
-[ -n "$_ROOT" ] && [ -x "$_ROOT/.simonk/runtime/browse/dist/browse" ] && B="$_ROOT/.simonk/runtime/browse/dist/browse"
 [ -z "$B" ] && B=~/.simonk/runtime/browse/dist/browse
 if [ -x "$B" ]; then
   echo "BROWSE_READY: $B"
@@ -297,7 +295,6 @@ else a few taps away with an obvious path to get there.
 ```bash
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 B=""
-[ -n "$_ROOT" ] && [ -x "$_ROOT/.simonk/runtime/browse/dist/browse" ] && B="$_ROOT/.simonk/runtime/browse/dist/browse"
 [ -z "$B" ] && B=~/.simonk/runtime/browse/dist/browse
 if [ -x "$B" ]; then
   echo "READY: $B"
@@ -509,7 +506,6 @@ For **vanilla HTML output**, check for the vendored Pretext bundle:
 ```bash
 _PRETEXT_VENDOR=""
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
-[ -n "$_ROOT" ] && [ -f "$_ROOT/.simonk/runtime/design-html/vendor/pretext.js" ] && _PRETEXT_VENDOR="$_ROOT/.simonk/runtime/design-html/vendor/pretext.js"
 [ -z "$_PRETEXT_VENDOR" ] && [ -f ~/.simonk/runtime/design-html/vendor/pretext.js ] && _PRETEXT_VENDOR=~/.simonk/runtime/design-html/vendor/pretext.js
 [ -n "$_PRETEXT_VENDOR" ] && echo "VENDOR: $_PRETEXT_VENDOR" || echo "VENDOR_MISSING"
 ```

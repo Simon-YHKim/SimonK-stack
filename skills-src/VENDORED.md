@@ -16,14 +16,16 @@ Integrated in full on 2026-10-21 (hub D-117):
   extension) lives in `~/.simonk/runtime`, installed by
   `scripts/install_runtime.py` (Windows wrapper: `scripts/windows/install-runtime.ps1`)
   from the pin in `runtime/RUNTIME.json`. Support files the skills read by
-  absolute path (sections, templates, hooks) live there too.
+  absolute path (sections, templates, hooks, another skill's SKILL.md) live
+  there too: the installer lays each skill listed here over the upstream folder
+  of the same name, so those reads get the SimonK text.
   State lives in `~/.simonk/state`.
 - Install and state paths are rewritten from the upstream home install to
   those folders. Update checks and auto-upgrade are off; SimonK-stack manages
   updates. The upstream upgrade skill is retired.
 - Safety skills (`careful`, `freeze`, `guard`, `unfreeze`, `investigate`) keep
   their reviewed bytes for now: the five-plugin safety projection pins their
-  hook text and the freeze state default (`$HOME/.gstack`). Moving them to
+  hook text and the freeze state default (`$HOME/.simonk/state`). Moving them to
   `~/.simonk/state` is a separate safety change with its own review.
 - Renamed: upstream `review` is `pr-review` (the repository already has a
   development-only `review`); upstream `open-gstack-browser` is `open-browser`.
@@ -69,7 +71,8 @@ Integrated in full on 2026-10-21 (hub D-117):
 - `plan-devex-review`
 - `plan-eng-review`
 - `pr-review`
-- `qa` — adapted: SimonK QA 2.1 acceptance contract used by `/vibe`.
+- `qa` — adapted: SimonK QA 2.1 acceptance contract used by `/vibe`; `sections/`
+  and `templates/` follow upstream (read by `pr-review`, `qa-only` and `ship`).
 - `qa-only`
 - `retro`
 - `scrape`

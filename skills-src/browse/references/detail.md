@@ -47,7 +47,6 @@ State persists between calls (cookies, tabs, login sessions).
 ```bash
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 B=""
-[ -n "$_ROOT" ] && [ -x "$_ROOT/.simonk/runtime/browse/dist/browse" ] && B="$_ROOT/.simonk/runtime/browse/dist/browse"
 [ -z "$B" ] && B=~/.simonk/runtime/browse/dist/browse
 if [ -x "$B" ]; then
   echo "READY: $B"
@@ -189,7 +188,7 @@ After `resume`, you get a fresh snapshot of wherever the user left off.
 ## Snapshot Flags
 
 The snapshot is your primary tool for understanding and interacting with pages.
-`$B` is the browse binary (resolved from `$_ROOT/.simonk/runtime/browse/dist/browse` or `~/.simonk/runtime/browse/dist/browse`).
+`$B` is the browse binary (resolved from `~/.simonk/runtime/browse/dist/browse`).
 
 **Syntax:** `$B snapshot [flags]`
 

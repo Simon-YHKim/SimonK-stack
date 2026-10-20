@@ -274,7 +274,7 @@ Show summary statistics about the project's learnings.
 
 ```bash
 eval "$(~/.simonk/runtime/bin/gstack-slug 2>/dev/null)"
-GSTACK_HOME="${GSTACK_HOME:-$HOME/.gstack}"
+GSTACK_HOME="${GSTACK_HOME:-$HOME/.simonk/state}"
 LEARN_FILE="$GSTACK_HOME/projects/$SLUG/learnings.jsonl"
 if [ -f "$LEARN_FILE" ]; then
   TOTAL=$(wc -l < "$LEARN_FILE" | tr -d ' ')

@@ -1,14 +1,22 @@
 {
   "name": "simonk-runtime",
-  "description": "Shared runtime (bin scripts, browse/design/pdf binaries, chrome extension) used by the SimonK-stack skills derived from garrytan/gstack.",
+  "description": "Shared runtime (bin scripts, browse/design/pdf binaries, chrome extension, skill support files) used by the SimonK-stack skills derived from garrytan/gstack.",
   "upstream": "https://github.com/garrytan/gstack",
   "upstream_commit": "96764e80",
   "upstream_version": "1.91.9.0",
   "license": "MIT (see LICENSE: garrytan/gstack provenance)",
   "install_root": "~/.simonk/runtime",
   "state_root": "~/.simonk/state",
-  "state_env": ["GSTACK_HOME", "GSTACK_STATE_DIR", "GSTACK_STATE_ROOT"],
-  "config": {"update_check": "false", "telemetry": "off", "auto_upgrade": "false"},
+  "state_env": [
+    "GSTACK_HOME",
+    "GSTACK_STATE_DIR",
+    "GSTACK_STATE_ROOT"
+  ],
+  "config": {
+    "update_check": "false",
+    "telemetry": "off",
+    "auto_upgrade": "false"
+  },
   "compiled": [
     "browse/src/cli.ts -> browse/dist/browse",
     "browse/src/find-browse.ts -> browse/dist/find-browse",
@@ -17,5 +25,15 @@
     "bin/gstack-global-discover.ts -> bin/gstack-global-discover",
     "browse/scripts/build-node-server.sh -> browse/dist/server-node.mjs"
   ],
-  "path_patch": {".claude/skills/gstack": ".simonk/runtime"}
+  "path_patch": {
+    ".claude/skills/gstack": ".simonk/runtime",
+    "~/.gstack (.md only)": "~/.simonk/state"
+  },
+  "skill_overlay": {
+    "source": "skills-src (skills listed in skills-src/VENDORED.md)",
+    "upstream_names": {
+      "pr-review": "review",
+      "open-browser": "open-gstack-browser"
+    }
+  }
 }

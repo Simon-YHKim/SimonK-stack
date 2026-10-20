@@ -47,7 +47,6 @@ Voice triggers (speech-to-text aliases): "auto plan", "automatic review".
 
 ```bash
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
-[ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "autoplan" --model "claude" --parent-pid "$PPID" \
   || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
@@ -253,7 +252,7 @@ At session start or after compaction, recover recent project context.
 ```bash
 eval "$(~/.simonk/runtime/bin/gstack-slug 2>/dev/null)"
 _BRANCH=$(git branch --show-current 2>/dev/null | tr -cd 'a-zA-Z0-9._/-') || :; _BRANCH=${_BRANCH:-unknown}
-_PROJ="${GSTACK_HOME:-$HOME/.gstack}/projects/${SLUG:-unknown}"
+_PROJ="${GSTACK_HOME:-$HOME/.simonk/state}/projects/${SLUG:-unknown}"
 if [ -d "$_PROJ" ]; then
   echo "--- RECENT ARTIFACTS ---"
   find "$_PROJ/ceo-plans" "$_PROJ/checkpoints" -type f -name "*.md" 2>/dev/null | xargs -r ls -t 2>/dev/null | head -3
@@ -465,7 +464,7 @@ BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null | tr '/' '-' || echo 'no-br
 _LOCALDOC=$(ls -t ~/.simonk/state/projects/$SLUG/*-$BRANCH-design-*.md 2>/dev/null | head -1)
 [ -z "$_LOCALDOC" ] && _LOCALDOC=$(ls -t ~/.simonk/state/projects/$SLUG/*-design-*.md 2>/dev/null | head -1)
 # Repo-local docs win when at least as fresh (#703): office-hours dual-writes
-# docs/designs/ alongside ~/.gstack, and the committed copy is what teammates
+# docs/designs/ alongside ~/.simonk/state, and the committed copy is what teammates
 # see. A stale old repo doc never shadows a newer private session.
 _REPOTOP=$(git rev-parse --show-toplevel 2>/dev/null || echo "")
 _REPODOC=""
@@ -534,7 +533,7 @@ BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null | tr '/' '-' || echo 'no-br
 _LOCALDOC=$(ls -t ~/.simonk/state/projects/$SLUG/*-$BRANCH-design-*.md 2>/dev/null | head -1)
 [ -z "$_LOCALDOC" ] && _LOCALDOC=$(ls -t ~/.simonk/state/projects/$SLUG/*-design-*.md 2>/dev/null | head -1)
 # Repo-local docs win when at least as fresh (#703): office-hours dual-writes
-# docs/designs/ alongside ~/.gstack, and the committed copy is what teammates
+# docs/designs/ alongside ~/.simonk/state, and the committed copy is what teammates
 # see. A stale old repo doc never shadows a newer private session.
 _REPOTOP=$(git rev-parse --show-toplevel 2>/dev/null || echo "")
 _REPODOC=""

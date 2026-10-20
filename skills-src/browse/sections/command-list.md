@@ -3,7 +3,7 @@
 ## Snapshot Flags
 
 The snapshot is your primary tool for understanding and interacting with pages.
-`$B` is the browse binary (resolved from `$_ROOT/.simonk/runtime/browse/dist/browse` or `~/.simonk/runtime/browse/dist/browse`).
+`$B` is the browse binary (resolved from `~/.simonk/runtime/browse/dist/browse`).
 
 **Syntax:** `$B snapshot [flags]`
 

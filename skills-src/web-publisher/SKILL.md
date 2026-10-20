@@ -102,7 +102,6 @@ The `browse` daemon binary lives in the SimonK runtime (`~/.simonk/runtime`). Re
 B=""
 [ -x "$HOME/.simonk/runtime/browse/dist/browse" ] && B="$HOME/.simonk/runtime/browse/dist/browse"
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
-[ -n "$_ROOT" ] && [ -x "$_ROOT/.simonk/runtime/browse/dist/browse" ] && B="$_ROOT/.simonk/runtime/browse/dist/browse"
 [ -z "$B" ] && { echo "NEEDS_SETUP: run the browse skill once to build it"; exit 1; }
 echo "READY: $B"
 ```

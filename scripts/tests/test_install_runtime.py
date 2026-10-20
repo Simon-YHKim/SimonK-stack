@@ -31,11 +31,18 @@ class InstallRuntimeTests(unittest.TestCase):
             "LICENSE": "MIT\n",
             "SKILL.md": "---\nname: router\n---\n",
             "bin/tool": "#!/usr/bin/env bash\r\nset -euo pipefail\r\necho \"$HOME/.claude/skills/gstack/bin\"\r\n",
-            "browse/src/cli.ts": "const p = '.claude/skills/gstack';\n",
+            "browse/src/cli.ts": "const p = join(homedir(), '.claude/skills/gstack');\n",
             "browse/SKILL.md": "---\nname: browse\n---\n",
             "browse/test/a.test.ts": "x\n",
-            "qa/sections/browser-setup.md": "Run ~/.claude/skills/gstack/bin/tool\n",
+            "qa/sections/browser-setup.md": "Run ~/.claude/skills/gstack/bin/tool\nLog to ~/.gstack/projects/x\n",
             "qa/SKILL.md": "---\nname: qa\n---\n",
+            "bin/state": "#!/usr/bin/env bash\nD=\"${GSTACK_HOME:-$HOME/.gstack}\"\nE=~/.gstack-dev/evals\n"
+                         "[ -d \".claude/skills/gstack\" ] && echo vendored\n",
+            "browse/src/config.ts": "const h = process.env.GSTACK_HOME || path.join(os.homedir(), '.gstack');\n"
+                                    "const b = path.join(os.homedir(), '.claude/skills/gstack/bin/x');\n",
+            "review/checklist.md": "upstream checklist\n",
+            "review/greptile.md": "upstream only\n",
+            "review/SKILL.md": "---\nname: review\n---\n",
             "test/x.ts": "x\n",
             ".github/workflows/ci.yml": "x\n",
         }
@@ -50,18 +57,31 @@ class InstallRuntimeTests(unittest.TestCase):
         self.write_pin(self.commit[:8], "9.9.9.0")
         self.target = self.tmp / "home" / ".simonk" / "runtime"
         self.state = self.tmp / "home" / ".simonk" / "state"
+        self.skills = self.tmp / "skills-src"
+        for rel, text in {"VENDORED.md": "# list\n\n- `pr-review`\n- `ios-only` - no upstream folder\n- `qa`\n",
+                          "pr-review/SKILL.md": "---\nname: pr-review\n---\nRead ~/.simonk/runtime/review/checklist.md\n",
+                          "pr-review/checklist.md": "SimonK checklist\n",
+                          "pr-review/evals/cases.json": "{}\n",
+                          "ios-only/SKILL.md": "---\nname: ios-only\n---\n",
+                          "not-listed/SKILL.md": "---\nname: not-listed\n---\n"}.items():
+            p = self.skills / rel
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(text, encoding="utf-8")
 
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)
 
-    def write_pin(self, commit, version):
-        self.pin.write_text(json.dumps({"upstream_commit": commit, "upstream_version": version,
-                                        "state_env": ["GSTACK_HOME"], "config": {"update_check": "false"}}),
-                            encoding="utf-8")
+    def write_pin(self, commit, version, overlay=True):
+        pin = {"upstream_commit": commit, "upstream_version": version,
+               "state_env": ["GSTACK_HOME"], "config": {"update_check": "false"}}
+        if overlay:
+            pin["skill_overlay"] = {"upstream_names": {"pr-review": "review"}}
+        self.pin.write_text(json.dumps(pin), encoding="utf-8")
 
     def run_installer(self, *extra):
         return subprocess.run([sys.executable, "-B", str(SCRIPT), "--source", str(self.src), "--target", str(self.target),
-                               "--state", str(self.state), "--pin", str(self.pin), *extra],
+                               "--state", str(self.state), "--pin", str(self.pin),
+                               "--skills-src", str(self.skills), *extra],
                               capture_output=True, text=True, encoding="utf-8", errors="replace")
 
     def apply(self, *extra):
@@ -99,13 +119,51 @@ class InstallRuntimeTests(unittest.TestCase):
         tool = (self.target / "bin" / "tool").read_bytes()
         self.assertIn(b".simonk/runtime/bin", tool)
         self.assertNotIn(b"\r\n", tool, "text files are stored with LF")
-        self.assertIn(".simonk/runtime", (self.target / "browse" / "src" / "cli.ts").read_text(encoding="utf-8"))
+        self.assertIn("join(homedir(), '.simonk/runtime')",
+                      (self.target / "browse" / "src" / "cli.ts").read_text(encoding="utf-8"))
         self.assertIn(".simonk/runtime/bin", (self.target / "qa" / "sections" / "browser-setup.md").read_text(encoding="utf-8"))
         for gone in ("SKILL.md", "browse/SKILL.md", "qa/SKILL.md", "test/x.ts", ".github", "browse/test/a.test.ts"):
             self.assertFalse((self.target / gone).exists(), gone)
         self.assertTrue((self.target / "LICENSE").exists())
         self.assertTrue(self.state.is_dir())
         self.assertIn(b".claude/skills/gstack", (self.src / "bin" / "tool").read_bytes(), "the source is never edited")
+
+    def test_home_paths_move_and_project_paths_stay(self):
+        self.assertEqual(self.apply().returncode, 0)
+        doc = (self.target / "qa" / "sections" / "browser-setup.md").read_text(encoding="utf-8")
+        self.assertIn("~/.simonk/state/projects/x", doc)
+        self.assertNotIn("~/.gstack", doc)
+        script = (self.target / "bin" / "state").read_text(encoding="utf-8")
+        self.assertIn("${GSTACK_HOME:-$HOME/.simonk/state}", script, "the default works without the env vars")
+        self.assertIn("~/.gstack-dev/evals", script, "a different folder name is not the state folder")
+        self.assertIn('[ -d ".claude/skills/gstack" ]', script, "legacy vendored copies are still recognized")
+        ts = (self.target / "browse" / "src" / "config.ts").read_text(encoding="utf-8")
+        self.assertIn("path.join(os.homedir(), '.simonk/state')", ts)
+        self.assertIn("path.join(os.homedir(), '.simonk/runtime/bin/x')", ts)
+
+    def test_simonk_skills_are_laid_over_the_upstream_folders(self):
+        r = self.apply()
+        self.assertEqual(r.returncode, 0, r.stderr)
+        review = self.target / "review"
+        self.assertEqual((review / "checklist.md").read_text(encoding="utf-8"), "SimonK checklist\n")
+        self.assertIn("name: pr-review", (review / "SKILL.md").read_text(encoding="utf-8"))
+        self.assertEqual((review / "greptile.md").read_text(encoding="utf-8"), "upstream only\n")
+        self.assertFalse((review / "evals").exists())
+        self.assertFalse((self.target / "ios-only").exists(), "no upstream folder, nothing to replace")
+        self.assertFalse((self.target / "not-listed").exists())
+        self.assertFalse((self.target / "qa" / "SKILL.md").exists(), "listed but no SimonK copy here")
+
+    def test_pin_without_overlay_keeps_upstream_text(self):
+        self.write_pin(self.commit[:8], "9.9.9.0", overlay=False)
+        self.assertEqual(self.apply().returncode, 0)
+        self.assertEqual((self.target / "review" / "checklist.md").read_text(encoding="utf-8"), "upstream checklist\n")
+
+    def test_missing_skill_list_stops_the_install(self):
+        (self.skills / "VENDORED.md").unlink()
+        r = self.apply()
+        self.assertEqual(r.returncode, 2)
+        self.assertIn("skill list not found", r.stderr)
+        self.assertFalse(self.target.exists())
 
     def test_existing_target_needs_force(self):
         self.target.mkdir(parents=True)

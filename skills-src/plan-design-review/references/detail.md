@@ -392,7 +392,6 @@ Report findings before proceeding to Step 0.
 ```bash
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 D=""
-[ -n "$_ROOT" ] && [ -x "$_ROOT/.simonk/runtime/design/dist/design" ] && D="$_ROOT/.simonk/runtime/design/dist/design"
 [ -z "$D" ] && D=~/.simonk/runtime/design/dist/design
 if [ -x "$D" ]; then
   echo "DESIGN_READY: $D"
@@ -400,7 +399,6 @@ else
   echo "DESIGN_NOT_AVAILABLE"
 fi
 B=""
-[ -n "$_ROOT" ] && [ -x "$_ROOT/.simonk/runtime/browse/dist/browse" ] && B="$_ROOT/.simonk/runtime/browse/dist/browse"
 [ -z "$B" ] && B=~/.simonk/runtime/browse/dist/browse
 if [ -x "$B" ]; then
   echo "BROWSE_READY: $B"

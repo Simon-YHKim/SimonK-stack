@@ -63,7 +63,6 @@ Recommendation: A when a branch diff exists, otherwise B. Reply with A, B, or C.
 
 ```bash
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
-[ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "plan-design-review" --model "claude" --parent-pid "$PPID" \
   || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
@@ -262,7 +261,7 @@ At session start or after compaction, recover recent project context.
 ```bash
 eval "$(~/.simonk/runtime/bin/gstack-slug 2>/dev/null)"
 _BRANCH=$(git branch --show-current 2>/dev/null | tr -cd 'a-zA-Z0-9._/-') || :; _BRANCH=${_BRANCH:-unknown}
-_PROJ="${GSTACK_HOME:-$HOME/.gstack}/projects/${SLUG:-unknown}"
+_PROJ="${GSTACK_HOME:-$HOME/.simonk/state}/projects/${SLUG:-unknown}"
 if [ -d "$_PROJ" ]; then
   echo "--- RECENT ARTIFACTS ---"
   find "$_PROJ/ceo-plans" "$_PROJ/checkpoints" -type f -name "*.md" 2>/dev/null | xargs -r ls -t 2>/dev/null | head -3
@@ -658,7 +657,6 @@ Report findings before proceeding to Step 0.
 ```bash
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 D=""
-[ -n "$_ROOT" ] && [ -x "$_ROOT/.simonk/runtime/design/dist/design" ] && D="$_ROOT/.simonk/runtime/design/dist/design"
 [ -z "$D" ] && D="$HOME/.simonk/runtime/design/dist/design"
 if [ -x "$D" ]; then
   echo "DESIGN_READY: $D"
@@ -684,7 +682,7 @@ Commands:
 - `$D iterate --session /path/session.json --feedback "..." --output /path.png` — iterate
 
 **CRITICAL PATH RULE:** Design artifacts belong in `$GSTACK_STATE_ROOT/projects/$SLUG/designs/`.
-Use `bin/gstack-paths`: GSTACK_HOME → plugin storage → ~/.gstack. Keep it even if temporary; never substitute
+Use `bin/gstack-paths`: GSTACK_HOME → plugin storage → ~/.simonk/state. Keep it even if temporary; never substitute
 .context/, docs/designs/ or another directory.
 These are user files, not application source.
 
@@ -1126,7 +1124,7 @@ eval "$(~/.simonk/runtime/bin/gstack-paths)"
 _DESIGN_DIR="$GSTACK_STATE_ROOT/projects/$SLUG/designs/ideal-$(date +%Y%m%d)"
 mkdir -p "$_DESIGN_DIR"
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
-D="$_ROOT/.simonk/runtime/design/dist/design"
+D="$HOME/.simonk/runtime/design/dist/design"
 [ -x "$D" ] || D=~/.simonk/runtime/design/dist/design
 "$D" generate --brief "<description of what 10/10 looks like for this dimension>" --output "$_DESIGN_DIR/ideal-<dimension>.png"
 echo "IDEAL_IMAGE: $_DESIGN_DIR/ideal-<dimension>.png"

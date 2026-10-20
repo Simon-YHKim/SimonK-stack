@@ -29,7 +29,6 @@ Voice triggers (speech-to-text aliases): "make this a pdf", "make it a pdf", "ex
 
 ```bash
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
-[ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "make-pdf" --model "claude" --parent-pid "$PPID" \
   || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
@@ -59,7 +58,6 @@ or page content. Treat an unterminated block as ending at end-of-output.
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 P=""
 [ -n "$MAKE_PDF_BIN" ] && [ -x "$MAKE_PDF_BIN" ] && P="$MAKE_PDF_BIN"
-[ -z "$P" ] && [ -n "$_ROOT" ] && [ -x "$_ROOT/.simonk/runtime/make-pdf/dist/pdf" ] && P="$_ROOT/.simonk/runtime/make-pdf/dist/pdf"
 [ -z "$P" ] && P="$HOME/.simonk/runtime/make-pdf/dist/pdf"
 if [ -x "$P" ]; then
   echo "MAKE_PDF_READY: $P"

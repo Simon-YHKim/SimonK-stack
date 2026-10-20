@@ -10,9 +10,18 @@ Preview by default. With --apply it:
      working tree), from --source (a clean checkout at the pinned commit) or
      from a fresh clone (--clone);
   2. leaves out tests, git metadata, other hosts' folders and every SKILL.md;
-  3. rewrites the install path ".claude/skills/gstack" to ".simonk/runtime" and
-     stores text files with LF line endings;
-  4. rebuilds the compiled tools with bun so they carry the new path;
+  3. rewrites home-anchored paths (~/, $HOME/, homedir()) from the upstream
+     install ".claude/skills/gstack" to ".simonk/runtime" and from the state
+     folder ".gstack" to ".simonk/state", so scripts and compiled tools default
+     to the new folders even without the environment variables; a
+     project-relative ".claude/skills/gstack" (a legacy vendored copy in a
+     repository) is left as is. Text files are stored with LF line endings;
+  3b. copies SimonK-stack's own version of each skill listed in
+     skills-src/VENDORED.md over the upstream skill folder, so every
+     "~/.simonk/runtime/<skill>/..." reference (sections, templates, another
+     skill's SKILL.md) reads the SimonK text, not the upstream one;
+  4. installs dependencies from the pinned bun.lock (--frozen-lockfile) and
+     rebuilds the compiled tools so they carry the new paths;
   5. builds everything in a staging folder and swaps it in, so --force leaves
      no files from an earlier runtime behind;
   6. turns off update checks, telemetry and auto-upgrade and reads them back;
@@ -28,6 +37,7 @@ import argparse
 import io
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -48,7 +58,24 @@ EXCLUDE_TOP_FILES = {"CHANGELOG.md", "CONTRIBUTING.md", "TODOS.md", "README.md",
 EXCLUDE_NAMES = {"SKILL.md", "SKILL.md.tmpl"}
 TEXT_EXT = {"", ".sh", ".ts", ".js", ".mjs", ".cjs", ".json", ".md", ".py", ".yaml", ".yml", ".txt", ".html",
             ".css", ".tmpl", ".toml"}
-OLD_PATH, NEW_PATH = ".claude/skills/gstack", ".simonk/runtime"
+# Only home-anchored forms move. A project-relative ".claude/skills/gstack" is a
+# legacy vendored copy inside a repository and must still be recognized as one.
+SHELL_HOME = rb"((?:~|\$HOME|\$\{HOME\}|\$\{homeDir\})/)"
+JS_HOME = rb"((?:homedir\(\)|process\.env\.HOME \|\| \"~\"),\s*['\"])"
+REWRITES = [
+    (re.compile(SHELL_HOME + rb"\.claude/skills/gstack(?![\w-])"), rb"\1.simonk/runtime"),
+    (re.compile(JS_HOME + rb"\.claude/skills/gstack(?![\w-])"), rb"\1.simonk/runtime"),
+    (re.compile(SHELL_HOME + rb"\.gstack(?![\w-])"), rb"\1.simonk/state"),
+    (re.compile(JS_HOME + rb"\.gstack(?=['\"/])"), rb"\1.simonk/state"),
+]
+VENDORED_LINE = re.compile(r"^- `([a-z0-9-]+)`")
+
+
+def rewrite_text(text: bytes) -> bytes:
+    """Point home-anchored install and state paths at ~/.simonk/runtime and ~/.simonk/state."""
+    for rx, rep in REWRITES:
+        text = rx.sub(rep, text)
+    return text
 COMPILE = [("browse/src/cli.ts", "browse/dist/browse"), ("browse/src/find-browse.ts", "browse/dist/find-browse"),
            ("design/src/cli.ts", "design/dist/design"), ("make-pdf/src/cli.ts", "make-pdf/dist/pdf"),
            ("bin/gstack-global-discover.ts", "bin/gstack-global-discover")]
@@ -136,12 +163,10 @@ def export_tree(source: Path, commit: str, staging: Path) -> tuple[int, int]:
             raw = tar.extractfile(m).read()
             out = staging.joinpath(*rel.parts)
             out.parent.mkdir(parents=True, exist_ok=True)
-            if PurePosixPath(m.name).suffix.lower() in TEXT_EXT and b"\0" not in raw[:4096]:
-                text = raw.replace(b"\r\n", b"\n")
-                if OLD_PATH.encode() in text:
-                    text = text.replace(OLD_PATH.encode(), NEW_PATH.encode())
-                    patched += 1
-                raw = text
+            if rel.suffix.lower() in TEXT_EXT and b"\0" not in raw[:4096]:
+                lf = raw.replace(b"\r\n", b"\n")
+                raw = rewrite_text(lf)
+                patched += raw != lf
             out.write_bytes(raw)
             if m.mode & 0o111:
                 out.chmod(0o755)
@@ -149,16 +174,40 @@ def export_tree(source: Path, commit: str, staging: Path) -> tuple[int, int]:
     return files, patched
 
 
-def build(staging: Path, source: Path, bash: str) -> None:
+def overlay_skills(staging: Path, skills_src: Path, pin: dict) -> int:
+    """Copy SimonK's vendored skills over the upstream skill folders of the same name."""
+    listing = skills_src / "VENDORED.md"
+    if not listing.is_file():
+        raise InstallError(f"skill list not found: {listing}")
+    upstream_names = pin.get("skill_overlay", {}).get("upstream_names", {})
+    copied = 0
+    for line in listing.read_text(encoding="utf-8").splitlines():
+        m = VENDORED_LINE.match(line)
+        if not m:
+            continue
+        name = m.group(1)
+        src, dst = skills_src / name, staging / upstream_names.get(name, name)
+        if not (src / "SKILL.md").is_file() or not dst.is_dir():
+            continue  # no upstream folder to replace (a SimonK-only skill)
+        for f in sorted(src.rglob("*")):
+            rel = f.relative_to(src)
+            if not f.is_file() or rel.parts[0] == "evals" or "__pycache__" in rel.parts:
+                continue
+            out = dst / rel
+            out.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(f, out)
+            copied += 1
+    return copied
+
+
+def build(staging: Path, bash: str) -> None:
     bun = shutil.which("bun")
     if not bun:
         raise InstallError("bun is required to rebuild the runtime tools (or pass --skip-build)")
-    modules = source / "node_modules"
-    if modules.is_dir():
-        shutil.copytree(modules, staging / "node_modules", symlinks=True)
-    else:
-        run([bun, "install", "--frozen-lockfile"], cwd=staging)
+    # Always resolve dependencies from the pinned lockfile in staging; an existing
+    # node_modules in the source checkout is untracked and unverified.
     env = dict(os.environ, PATH=str(Path(bun).parent) + os.pathsep + os.environ.get("PATH", ""))
+    run([bun, "install", "--frozen-lockfile"], cwd=staging, env=env)
     for src, out in COMPILE:
         run([bun, "build", "--compile", src, "--outfile", out], cwd=staging, env=env)
     run([bash, "browse/scripts/build-node-server.sh"], cwd=staging, env=env)
@@ -200,6 +249,8 @@ def main(argv=None) -> int:
     ap.add_argument("--target", type=Path, default=home / ".simonk" / "runtime")
     ap.add_argument("--state", type=Path, default=home / ".simonk" / "state")
     ap.add_argument("--pin", type=Path, default=REPO / "runtime" / "RUNTIME.json")
+    ap.add_argument("--skills-src", type=Path, default=REPO / "skills-src",
+                    help="SimonK-stack skills to lay over the upstream skill folders")
     ap.add_argument("--apply", action="store_true")
     ap.add_argument("--force", action="store_true", help="replace an existing runtime")
     ap.add_argument("--skip-build", action="store_true")
@@ -228,8 +279,10 @@ def main(argv=None) -> int:
             try:
                 files, patched = export_tree(source, commit, staging)
                 print(f"exported {files} files, rewrote the install path in {patched}")
+                if "skill_overlay" in pin:
+                    print(f"laid {overlay_skills(staging, a.skills_src, pin)} SimonK skill files over upstream")
                 if not a.skip_build:
-                    build(staging, source, bash)
+                    build(staging, bash)
                     print("rebuilt the compiled tools")
                 old = None
                 if a.target.exists():

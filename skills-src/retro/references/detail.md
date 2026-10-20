@@ -782,9 +782,7 @@ Locate and run the discovery script using this fallback chain:
 ```bash
 DISCOVER_BIN=""
 [ -x ~/.simonk/runtime/bin/gstack-global-discover ] && DISCOVER_BIN=~/.simonk/runtime/bin/gstack-global-discover
-[ -z "$DISCOVER_BIN" ] && [ -x .simonk/runtime/bin/gstack-global-discover ] && DISCOVER_BIN=.simonk/runtime/bin/gstack-global-discover
 [ -z "$DISCOVER_BIN" ] && which gstack-global-discover >/dev/null 2>&1 && DISCOVER_BIN=$(which gstack-global-discover)
-[ -z "$DISCOVER_BIN" ] && [ -f bin/gstack-global-discover.ts ] && DISCOVER_BIN="bun run bin/gstack-global-discover.ts"
 echo "DISCOVER_BIN: $DISCOVER_BIN"
 ```
 

@@ -33,7 +33,7 @@ execution authenticity or deployment authority. Report CI execution and enforcem
 ## Preamble (run first)
 
 ```bash
-_UPD=$(~/.simonk/runtime/bin/gstack-update-check 2>/dev/null || .simonk/runtime/bin/gstack-update-check 2>/dev/null || true)
+_UPD=$(~/.simonk/runtime/bin/gstack-update-check 2>/dev/null || true)
 [ -n "$_UPD" ] && echo "$_UPD" || true
 mkdir -p ~/.simonk/state/sessions
 touch ~/.simonk/state/sessions/"$PPID"
@@ -74,7 +74,7 @@ for _PF in $(find ~/.simonk/state/analytics -maxdepth 1 -name '.pending-*' 2>/de
 done
 # Learnings count
 eval "$(~/.simonk/runtime/bin/gstack-slug 2>/dev/null)" 2>/dev/null || true
-_LEARN_FILE="${GSTACK_HOME:-$HOME/.gstack}/projects/${SLUG:-unknown}/learnings.jsonl"
+_LEARN_FILE="${GSTACK_HOME:-$HOME/.simonk/state}/projects/${SLUG:-unknown}/learnings.jsonl"
 if [ -f "$_LEARN_FILE" ]; then
   _LEARN_COUNT=$(wc -l < "$_LEARN_FILE" 2>/dev/null | tr -d ' ')
   echo "LEARNINGS: $_LEARN_COUNT entries loaded"
@@ -96,8 +96,8 @@ echo "HAS_ROUTING: $_HAS_ROUTING"
 echo "ROUTING_DECLINED: $_ROUTING_DECLINED"
 # Vendoring deprecation: detect if CWD has a vendored gstack copy
 _VENDORED="no"
-if [ -d ".simonk/runtime" ] && [ ! -L ".simonk/runtime" ]; then
-  if [ -f ".simonk/runtime/VERSION" ] || [ -d ".simonk/runtime/.git" ]; then
+if [ -d ".claude/skills/gstack" ] && [ ! -L ".claude/skills/gstack" ]; then
+  if [ -f ".claude/skills/gstack/VERSION" ] || [ -d ".claude/skills/gstack/.git" ]; then
     _VENDORED="yes"
   fi
 fi
@@ -231,12 +231,12 @@ Say "No problem. You can add routing rules later by running `gstack-config set r
 This only happens once per project. If `HAS_ROUTING` is `yes` or `ROUTING_DECLINED` is `true`, skip this entirely.
 
 If `VENDORED_GSTACK` is `yes`: This project has a vendored copy of gstack at
-`.simonk/runtime/`. Vendoring is deprecated. We will not keep vendored copies
+`.claude/skills/gstack/`. Vendoring is deprecated. We will not keep vendored copies
 up to date, so this project's gstack will fall behind.
 
 Use AskUserQuestion (one-time per project, check for `~/.simonk/state/.vendoring-warned-$SLUG` marker):
 
-> This project has gstack vendored in `.simonk/runtime/`. Vendoring is deprecated.
+> This project has gstack vendored in `.claude/skills/gstack/`. Vendoring is deprecated.
 > We won't keep this copy up to date, so you'll fall behind on new features and fixes.
 >
 > Want to migrate to team mode? It takes about 30 seconds.
@@ -246,8 +246,8 @@ Options:
 - B) No, I'll handle it myself
 
 If A:
-1. Run `git rm -r .simonk/runtime/`
-2. Run `echo '.simonk/runtime/' >> .gitignore`
+1. Run `git rm -r .claude/skills/gstack/`
+2. Run `echo '.claude/skills/gstack/' >> .gitignore`
 3. Run `~/.simonk/runtime/bin/gstack-team-init required` (or `optional`)
 4. Run `git add .claude/ .gitignore CLAUDE.md && git commit -m "chore: migrate gstack from vendored to team mode"`
 5. Tell the user: "Done. Each developer now runs: SimonK-stack's install-runtime script"
@@ -322,7 +322,7 @@ This ensures decisions, plans, and progress survive context window compaction.
 
 ```bash
 eval "$(~/.simonk/runtime/bin/gstack-slug 2>/dev/null)"
-_PROJ="${GSTACK_HOME:-$HOME/.gstack}/projects/${SLUG:-unknown}"
+_PROJ="${GSTACK_HOME:-$HOME/.simonk/state}/projects/${SLUG:-unknown}"
 if [ -d "$_PROJ" ]; then
   echo "--- RECENT ARTIFACTS ---"
   # Last 3 artifacts across ceo-plans/ and checkpoints/

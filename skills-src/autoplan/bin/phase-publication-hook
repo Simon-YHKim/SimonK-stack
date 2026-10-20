@@ -4,7 +4,8 @@ set -euo pipefail
 _AUTOPLAN_DECIDED=''
 _autoplan_backstop() {
   if [ -z "$_AUTOPLAN_DECIDED" ]; then
-    printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"[autoplan] Publication hook unavailable. Restore the gstack installation and retry."}}'
+    printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"[autoplan] Publication hook unavailable. Re-run the SimonK-stack runtime installer and retry."}}'
+    exit 0  # Claude Code reads hook JSON only on exit 0; any other status lets the call through.
   fi
 }
 trap _autoplan_backstop EXIT

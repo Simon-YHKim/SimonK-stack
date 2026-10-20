@@ -30,7 +30,6 @@ Voice triggers (speech-to-text aliases): "speed test", "check performance".
 
 ```bash
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
-[ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "benchmark" --model "claude" --parent-pid "$PPID" \
   || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
@@ -204,7 +203,6 @@ Applies to any non-READY BROWSER SETUP result, including absent, stopped, timed-
 ```bash
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 B=""
-[ -n "$_ROOT" ] && [ -x "$_ROOT/.simonk/runtime/browse/dist/browse" ] && B="$_ROOT/.simonk/runtime/browse/dist/browse"
 [ -z "$B" ] && B="$HOME/.simonk/runtime/browse/dist/browse"
 [ -x "$B" ] && echo "READY: $B" || echo "NEEDS_SETUP"
 ```

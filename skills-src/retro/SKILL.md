@@ -50,7 +50,6 @@ Proactively suggest at the end of a work week or sprint.
 
 ```bash
 _SS="$HOME/.simonk/runtime/bin/gstack-skill-start"
-[ -x "$_SS" ] || _SS=".simonk/runtime/bin/gstack-skill-start"
 "$_SS" --skill "retro" --model "claude" --parent-pid "$PPID" \
   || echo "SKILL_START: unavailable — stale install; re-run SimonK-stack's install-runtime script (preamble degraded, continue the user's task)"
 ```
@@ -256,7 +255,7 @@ At session start or after compaction, recover recent project context.
 ```bash
 eval "$(~/.simonk/runtime/bin/gstack-slug 2>/dev/null)"
 _BRANCH=$(git branch --show-current 2>/dev/null | tr -cd 'a-zA-Z0-9._/-') || :; _BRANCH=${_BRANCH:-unknown}
-_PROJ="${GSTACK_HOME:-$HOME/.gstack}/projects/${SLUG:-unknown}"
+_PROJ="${GSTACK_HOME:-$HOME/.simonk/state}/projects/${SLUG:-unknown}"
 if [ -d "$_PROJ" ]; then
   echo "--- RECENT ARTIFACTS ---"
   find "$_PROJ/ceo-plans" "$_PROJ/checkpoints" -type f -name "*.md" 2>/dev/null | xargs -r ls -t 2>/dev/null | head -3
@@ -537,7 +536,6 @@ Run `gstack-retro-metrics` with the detected base branch and computed start:
 
 ```bash
 _RM="$HOME/.simonk/runtime/bin/gstack-retro-metrics"
-[ -x "$_RM" ] || _RM=".simonk/runtime/bin/gstack-retro-metrics"
 "$_RM" --base "<default>" --since "<since>" \
   || echo "RETRO_METRICS: unavailable — stale install (read the helper source for manual computation)"
 ```
@@ -917,9 +915,7 @@ Locate and run the discovery script using this fallback chain:
 ```bash
 DISCOVER_BIN=""
 [ -x ~/.simonk/runtime/bin/gstack-global-discover ] && DISCOVER_BIN=~/.simonk/runtime/bin/gstack-global-discover
-[ -z "$DISCOVER_BIN" ] && [ -x .simonk/runtime/bin/gstack-global-discover ] && DISCOVER_BIN=.simonk/runtime/bin/gstack-global-discover
 [ -z "$DISCOVER_BIN" ] && which gstack-global-discover >/dev/null 2>&1 && DISCOVER_BIN=$(which gstack-global-discover)
-[ -z "$DISCOVER_BIN" ] && [ -f bin/gstack-global-discover.ts ] && DISCOVER_BIN="bun run bin/gstack-global-discover.ts"
 echo "DISCOVER_BIN: $DISCOVER_BIN"
 ```
 
