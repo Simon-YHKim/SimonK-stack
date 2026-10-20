@@ -13,7 +13,7 @@
 - Simon: claude.ai '내가 만듦'의 꺼진 gstack 업로드 35개 삭제는 직접(사용자 지정 → Skills → 각 항목 메뉴 → 삭제). 보관 폴더 `~/.claude/_archive/gstack-261021` 은 필요 없다고 판단되면 직접 지움.
 - Phase 2: 런타임 내부 `gstack-*` 스크립트·`GSTACK_*` env 이름 정리(설치기 치환 + 스킬 문서).
 - 안전 스킬 5종(careful·freeze·guard·unfreeze·investigate)의 `$HOME/.gstack` → `~/.simonk/state` 이전(안전 투영 `plugin_bundle.py` 갱신 PR 필요).
-- /cso 를 쓰려면 VS2022 Build Tools(C++ 워크로드) 설치 후 `install_runtime.py --clone --apply --force`.
+- /cso 를 쓰려면 VS2022 Build Tools(C++ 워크로드) 설치 후 SimonK-stack 폴더에서 `python scripts/install_runtime.py --clone --apply --force`.
 - 그 밖에는 아래 00:50 블록 그대로(카드 5, 안 쓴 스킬 정리).
 
 ## 2026-10-21 00:50 / claude.ai 설정 반영(카드 v7 1~4, Claude in Chrome) · 안 쓴 스킬·플러그인 조사
