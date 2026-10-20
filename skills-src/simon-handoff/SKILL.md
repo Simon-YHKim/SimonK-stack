@@ -7,9 +7,9 @@ description: >
   Produces a git-persistent, main-merged docs/HANDOFF.md plus the exact
   shell command the next session should paste to wake up at full context.
   Different from /checkpoint and /context-save (those are ephemeral in
-  ~/.gstack/...) and from /document-release (README/CHANGELOG, not handoff).
+  ~/.simonk/state/...) and from /document-release (README/CHANGELOG, not handoff).
   Two invariants the skill MUST satisfy: (1) file lives in the repo on
-  disk (no /root, /tmp, ~/.gstack paths), (2) it gets merged to main
+  disk (no /root, /tmp, ~/.simonk/state paths), (2) it gets merged to main
   (commit+push alone is not enough — the next session's `git pull origin
   main` won't see it until merge). Includes fallback URLs (PR URL, raw
   URL, branch checkout) for the case where merge can't complete.
@@ -29,7 +29,7 @@ can resume with full context from `docs/HANDOFF.md`.
 ## Why this skill exists
 
 Most session-save tools (`/checkpoint`, `/context-save`) write to
-`~/.gstack/projects/.../checkpoints/<file>.md` — that path is ephemeral
+`~/.simonk/state/projects/.../checkpoints/<file>.md` — that path is ephemeral
 in containerized Claude Code environments and the next session never
 sees it. Commit-and-push alone also fails: the next session's
 `git pull origin main` won't pick up an unmerged branch.

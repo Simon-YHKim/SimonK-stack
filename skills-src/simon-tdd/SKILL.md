@@ -165,7 +165,7 @@ bash "<simon-tdd-dir>/scripts/tdd-guard-check.sh" || {
 
 - `simon-worktree` — 병렬 기능 개발
 - `/qa` — E2E QA 자동화
-- `/review` — PR 사전 리뷰
+- `/pr-review` — PR 사전 리뷰
 - `/browse` — 브라우저 자동 검증 (검증 루프)
 - `/health` — 코드 품질 대시보드
 - `investigate` — 버그 root cause (재현 테스트 먼저)

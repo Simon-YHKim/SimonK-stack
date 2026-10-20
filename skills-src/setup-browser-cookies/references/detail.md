@@ -9,7 +9,7 @@ When you are in plan mode and about to call ExitPlanMode:
 3. If it does NOT — run this command:
 
 \`\`\`bash
-~/.claude/skills/gstack/bin/gstack-review-read
+~/.simonk/runtime/bin/gstack-review-read
 \`\`\`
 
 Then write a `## GSTACK REVIEW REPORT` section to the end of the plan file:
@@ -65,8 +65,8 @@ If `CDP_MODE=true`: tell the user "Not needed — you're connected to your real 
 ```bash
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 B=""
-[ -n "$_ROOT" ] && [ -x "$_ROOT/.claude/skills/gstack/browse/dist/browse" ] && B="$_ROOT/.claude/skills/gstack/browse/dist/browse"
-[ -z "$B" ] && B=~/.claude/skills/gstack/browse/dist/browse
+[ -n "$_ROOT" ] && [ -x "$_ROOT/.simonk/runtime/browse/dist/browse" ] && B="$_ROOT/.simonk/runtime/browse/dist/browse"
+[ -z "$B" ] && B=~/.simonk/runtime/browse/dist/browse
 if [ -x "$B" ]; then
   echo "READY: $B"
 else

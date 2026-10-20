@@ -444,8 +444,9 @@ def validate(skill_path: Path) -> Report:
                        f"placeholder/TODO marker: {line.strip()}",
                        file="SKILL.md", line=i)
 
-    # Linked files exist
-    for m in MD_LINK_RE.finditer(text):
+    # Linked files exist (links inside fenced code blocks are examples, not links)
+    link_text = re.sub(r"^(```|~~~)[^\n]*\n.*?^\1[ \t]*$", "", text, flags=re.M | re.S)
+    for m in MD_LINK_RE.finditer(link_text):
         target = m.group(1).split("#", 1)[0].strip()
         if not target or target.startswith(("http://", "https://", "mailto:")):
             continue

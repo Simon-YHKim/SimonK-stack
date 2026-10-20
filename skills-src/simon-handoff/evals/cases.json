@@ -8,7 +8,7 @@
       "assertions": [
         {
           "id": "docs-handoff-md",
-          "text": "Writes docs/HANDOFF.md inside the repo on disk (not /root, /tmp, or ~/.gstack paths)"
+          "text": "Writes docs/HANDOFF.md inside the repo on disk (not /root, /tmp, or ~/.simonk/state paths)"
         },
         {
           "id": "merge-to-main",

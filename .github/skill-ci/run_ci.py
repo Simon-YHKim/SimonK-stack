@@ -24,6 +24,7 @@ skill fails any check, printing a per-skill PASS/FAIL table.
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -45,23 +46,48 @@ def run(cmd: list[str]) -> tuple[int, str]:
     return p.returncode, output
 
 
+# Upstream-derived long-form skills (skills-src/VENDORED.md) keep their full
+# procedural bodies. The validator's own docstring puts the body-length (E007)
+# and TODO-marker (E008) checks out of scope for them; every other check stays.
+VENDORED_EXEMPT_CODES = {"E007", "E008"}
+
+
+def vendored_skills() -> set[str]:
+    path = ROOT / "skills-src" / "VENDORED.md"
+    if not path.exists():
+        return set()
+    names = set()
+    for line in path.read_text(encoding="utf-8").splitlines():
+        m = re.match(r"^- `([a-z0-9-]+)`", line)
+        if m:
+            names.add(m.group(1))
+    return names
+
+
+VENDORED = vendored_skills()
+
+
 def check_skill(d: Path) -> tuple[bool, list[str]]:
     fails: list[str] = []
+    exempt = VENDORED_EXEMPT_CODES if (d.parent.name == "skills-src" and d.name in VENDORED) else set()
 
     # 1. validate_skill.py — 0 errors (rc==0 means report.ok)
     rc, out = run([sys.executable, "-X", "utf8", str(VALIDATE), str(d), "--format", "json"])
     if rc != 0:
         # surface the error codes for the log
         codes = ""
+        blocking = True
         try:
             data = json.loads(out)
             findings = data.get("findings") or data.get("issues") or []
-            codes = " ".join(
-                f.get("code", "?") for f in findings if f.get("level") == "error"
-            )
+            errors = [f.get("code", "?") for f in findings if f.get("level") == "error"]
+            remaining = [c for c in errors if c not in exempt]
+            blocking = bool(remaining) or not errors
+            codes = " ".join(remaining or errors)
         except Exception:
             codes = "(see log)"
-        fails.append(f"validator errors [{codes}]")
+        if blocking:
+            fails.append(f"validator errors [{codes}]")
 
     # 4. description quality gate — W006 = description score < 0.6
     if "W006" in out:

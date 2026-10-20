@@ -242,9 +242,11 @@ MAX_SKILL_BYTES = 2 * 1024 * 1024
 MAX_SKILL_ENTRIES = 10000
 SKILL_NAME = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.:-]{0,127}\Z")
 # Gstack-derived preambles run its bin scripts or write its state folder directly.
-GSTACK_BIN = re.compile(r"(?<![A-Za-z0-9_.-])skills[/\\]+gstack[/\\]+bin[/\\]", re.I)
-GSTACK_REFERENCE = re.compile(rb"(?<![A-Za-z0-9_.-])skills[/\\]+gstack[/\\]+bin[/\\]"
-                              rb"|(?:~|\$HOME|\$\{HOME\})[/\\]+\.gstack", re.I)
+# Since D-117 the runtime lives in ~/.simonk/runtime and its state in
+# ~/.simonk/state; the upstream locations stay matched for older installs.
+GSTACK_BIN = re.compile(r"(?<![A-Za-z0-9_.-])(?:skills[/\\]+gstack|\.simonk[/\\]+runtime)[/\\]+bin[/\\]", re.I)
+GSTACK_REFERENCE = re.compile(rb"(?<![A-Za-z0-9_.-])(?:skills[/\\]+gstack|\.simonk[/\\]+runtime)[/\\]+bin[/\\]"
+                              rb"|(?:~|\$HOME|\$\{HOME\})[/\\]+(?:\.gstack|\.simonk[/\\]+state)", re.I)
 
 
 class _SkillCatalog(dict):

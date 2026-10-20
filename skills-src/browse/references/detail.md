@@ -9,7 +9,7 @@ When you are in plan mode and about to call ExitPlanMode:
 3. If it does NOT — run this command:
 
 \`\`\`bash
-~/.claude/skills/gstack/bin/gstack-review-read
+~/.simonk/runtime/bin/gstack-review-read
 \`\`\`
 
 Then write a `## GSTACK REVIEW REPORT` section to the end of the plan file:
@@ -47,8 +47,8 @@ State persists between calls (cookies, tabs, login sessions).
 ```bash
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 B=""
-[ -n "$_ROOT" ] && [ -x "$_ROOT/.claude/skills/gstack/browse/dist/browse" ] && B="$_ROOT/.claude/skills/gstack/browse/dist/browse"
-[ -z "$B" ] && B=~/.claude/skills/gstack/browse/dist/browse
+[ -n "$_ROOT" ] && [ -x "$_ROOT/.simonk/runtime/browse/dist/browse" ] && B="$_ROOT/.simonk/runtime/browse/dist/browse"
+[ -z "$B" ] && B=~/.simonk/runtime/browse/dist/browse
 if [ -x "$B" ]; then
   echo "READY: $B"
 else
@@ -189,7 +189,7 @@ After `resume`, you get a fresh snapshot of wherever the user left off.
 ## Snapshot Flags
 
 The snapshot is your primary tool for understanding and interacting with pages.
-`$B` is the browse binary (resolved from `$_ROOT/.claude/skills/gstack/browse/dist/browse` or `~/.claude/skills/gstack/browse/dist/browse`).
+`$B` is the browse binary (resolved from `$_ROOT/.simonk/runtime/browse/dist/browse` or `~/.simonk/runtime/browse/dist/browse`).
 
 **Syntax:** `$B snapshot [flags]`
 

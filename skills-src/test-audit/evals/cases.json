@@ -1,0 +1,30 @@
+{
+  "skill": "test-audit",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-dup-tests",
+      "prompt": "중복되는 테스트가 많은 것 같아. 정리 대상 찾아줘",
+      "assertions": [
+        {
+          "id": "a1",
+          "text": "Lists duplicate or low-value tests with evidence."
+        },
+        {
+          "id": "a2",
+          "text": "Waits for approval before removing anything."
+        }
+      ]
+    },
+    {
+      "id": "en-slow-suite",
+      "prompt": "Our test suite is slow; find tests we can drop.",
+      "assertions": [
+        {
+          "id": "a1",
+          "text": "Identifies test-only code kept alive by the tests it flags."
+        }
+      ]
+    }
+  ]
+}

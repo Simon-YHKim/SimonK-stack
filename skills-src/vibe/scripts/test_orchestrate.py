@@ -1131,6 +1131,20 @@ class OrchestrationTests(unittest.TestCase):
         for argv in (["bash", "-c", "echo myskills/gstack/bin/x"], ["node", "/fixture/skills/gstack/binary/x.ts"]):
             self.assertFalse(self.m.gstack_command(argv))
 
+    def test_simonk_runtime_paths_count_as_gstack(self):
+        # D-117: the runtime moved to ~/.simonk/runtime and its state to ~/.simonk/state.
+        for argv in (["bash", "-c", "~/.simonk/runtime/bin/gstack-config get telemetry"],
+                     ["bash", "C:\\Users\\me\\.simonk\\runtime\\bin\\gstack-slug"]):
+            with self.subTest(argv=argv):
+                self.assertTrue(self.m.gstack_command(argv))
+        for body in (b"mkdir -p ~/.simonk/state/sessions", b'cat "$HOME/.simonk/state/projects/x"',
+                     b"_UPD=$(~/.simonk/runtime/bin/gstack-update-check || true)"):
+            with self.subTest(body=body):
+                self.assertTrue(self.m.GSTACK_REFERENCE.search(body))
+        for argv in (["bash", "-c", "echo my.simonk/runtime/bin/x"], ["node", "/x/.simonk/runtimes/bin/y.ts"]):
+            with self.subTest(argv=argv):
+                self.assertFalse(self.m.gstack_command(argv))
+
     def gstack_root(self, folder):
         # Gstack-derived preambles as packaged in a plugin: no "(gstack)" suffix, no gstack path part.
         root = Path(folder) / "simonk-stack" / "skills"

@@ -1,0 +1,30 @@
+{
+  "skill": "deslop-shared-libs",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-shared",
+      "prompt": "최근 작업에서 공통으로 뺄 코드 찾아줘",
+      "assertions": [
+        {
+          "id": "a1",
+          "text": "Looks at recent changes rather than the whole repository."
+        },
+        {
+          "id": "a2",
+          "text": "Produces a ranked list of extraction proposals."
+        }
+      ]
+    },
+    {
+      "id": "en-refactor",
+      "prompt": "Refactor this module for readability.",
+      "assertions": [
+        {
+          "id": "a1",
+          "text": "Points to refactor for general restructuring."
+        }
+      ]
+    }
+  ]
+}

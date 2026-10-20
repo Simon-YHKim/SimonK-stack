@@ -1,0 +1,30 @@
+{
+  "skill": "context-save",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-save",
+      "prompt": "오늘 작업 상태 저장해줘",
+      "assertions": [
+        {
+          "id": "a1",
+          "text": "Records git state, decisions made and remaining work."
+        },
+        {
+          "id": "a2",
+          "text": "Tells the user how to resume with /context-restore."
+        }
+      ]
+    },
+    {
+      "id": "en-handoff",
+      "prompt": "Write a handoff and merge it to main.",
+      "assertions": [
+        {
+          "id": "a1",
+          "text": "Points to simon-handoff for a committed, merged handoff."
+        }
+      ]
+    }
+  ]
+}

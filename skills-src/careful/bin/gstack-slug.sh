@@ -39,8 +39,8 @@
 # MIGRATION NOTE (2026-08-17): sessions run BEFORE the remote-first fix above,
 # in repos below a stray marker-bearing ancestor, filed their session state
 # (decisions / timeline / ceo-plans / learnings) under the DEGRADED slug —
-# ~/.gstack/projects/<ancestor-basename>/ (e.g. `garrytan`) instead of the
-# canonical ~/.gstack/projects/<owner-repo>/. The slug cache self-heals on the
+# ~/.simonk/state/projects/<ancestor-basename>/ (e.g. `garrytan`) instead of the
+# canonical ~/.simonk/state/projects/<owner-repo>/. The slug cache self-heals on the
 # next invocation (see 1b), but already-written store data does NOT move.
 # Whether/how to merge those stores is tracked in TODOS.md — do not add data
 # migration code here.
@@ -48,7 +48,7 @@
 # Caching is self-healing: a cache entry for the literal pwd that differs from
 # the freshly-computed slug gets opportunistically rewritten (single-shot, key-
 # local — never sweeps other entries). This lets pre-existing poisoned caches
-# clean themselves up without a manual `rm -rf ~/.gstack/slug-cache/`.
+# clean themselves up without a manual `rm -rf ~/.simonk/state/slug-cache/`.
 #
 # Security: output is sanitized to [a-zA-Z0-9._-] only, preventing shell
 # injection when consumed via source or eval.
@@ -57,7 +57,7 @@ set -euo pipefail
 # GSTACK_HOME-aware, matching lib/bin-context.ts's native port (#2561): the
 # bash writer and the TS reader must key the SAME cache, and a test running
 # with GSTACK_HOME=<temp> must write its cache junk there, not into the real
-# home (observed: 2,528 stale temp-cwd entries accumulated in ~/.gstack).
+# home (observed: 2,528 stale temp-cwd entries accumulated in ~/.simonk/state).
 CACHE_DIR="${GSTACK_HOME:-$HOME/.gstack}/slug-cache"
 PROJECT_DIR="$(pwd)"
 # Encode absolute path as cache key: /Users/j/foo → _Users_j_foo
@@ -191,7 +191,7 @@ _resolve_remote() {
 # 1b. Cached identity is STICKY (#2212): a project that used gstack before it
 #     adopted a git remote keeps its pre-origin slug — recomputing from the
 #     remote here would rename the project mid-life and orphan everything
-#     under ~/.gstack/projects/<slug>/. TWO provable bug shapes are exempt
+#     under ~/.simonk/state/projects/<slug>/. TWO provable bug shapes are exempt
 #     and fall through to recompute (self-heal):
 #     - Old-bug shape (#1125): the pre-walk-up resolver cached basename(pwd)
 #       for a SUBDIRECTORY of the real project — cached == pwd basename while
@@ -239,7 +239,7 @@ if [[ -z "$SLUG" ]]; then
     SLUG=$(printf '%s' "$RAW_SLUG" | tr -cd 'a-zA-Z0-9._-')
     # Dot-only / degenerate guard: a hostile origin like `url = ..` (git
     # accepts it) passes sed unchanged and would become SLUG=".." — filing
-    # state one level ABOVE ~/.gstack/projects/. Reject empty/"."/".."/
+    # state one level ABOVE ~/.simonk/state/projects/. Reject empty/"."/".."/
     # slash-bearing slugs and fall through to the basename fallback below.
     # (tr -cd already deletes "/", so */* is belt-and-braces.)
     case "$SLUG" in ""|.|..|*/*) SLUG="" ;; esac

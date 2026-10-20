@@ -1,6 +1,6 @@
 ---
 name: app-dev-orchestrator
-description: Use when the user asks to build a new app from scratch—"새 앱 만들자", "MVP 기획", "scaffold a new project", "처음부터 만들어줘", "let's build X"—and delegate the 21-stage pipeline (office-hours → research → plan → design → TDD → security → ship → deploy → retro → instincts) to Gstack and simon-stack skills. Produces a populated repo with CLAUDE.md, tests, security audit, and an authorization-gated deployment plan. Do NOT use for bug fixes, refactors, or improving existing code—delegate to simon-tdd, investigate, or refactor instead.
+description: Use when the user asks to build a new app from scratch—"새 앱 만들자", "MVP 기획", "scaffold a new project", "처음부터 만들어줘", "let's build X"—and delegate the 21-stage pipeline (office-hours → research → plan → design → TDD → security → ship → deploy → retro → instincts) to SimonK-stack skills. Produces a populated repo with CLAUDE.md, tests, security audit, and an authorization-gated deployment plan. Do NOT use for bug fixes, refactors, or improving existing code—delegate to simon-tdd, investigate, or refactor instead.
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 version: 1.1.1
 author: simon
@@ -139,9 +139,9 @@ author: simon
 
 > Gstack `/benchmark`. Core Web Vitals · 페이지 로드 · 리소스 사이즈 baseline. 트렌드 추적.
 
-### 단계 18. `/review` → `/ship`
+### 단계 18. `/pr-review` → `/ship`
 
-> Gstack `/review` 로 PR 사전 리뷰 → `/ship` 으로 VERSION·CHANGELOG·커밋·푸시·PR 생성.
+> Gstack `/pr-review` 로 PR 사전 리뷰 → `/ship` 으로 VERSION·CHANGELOG·커밋·푸시·PR 생성.
 
 ### 단계 19. `/land-and-deploy` → `/canary`
 
@@ -202,7 +202,7 @@ author: simon
 
 ## Related skills
 
-- **Gstack 파이프라인**: `/office-hours`, `/plan-ceo-review`, `/plan-eng-review`, `/autoplan`, `/design-consultation`, `/design-shotgun`, `/design-review`, `/design-html`, `/qa`, `/cso`, `/benchmark`, `/review`, `/ship`, `/land-and-deploy`, `/canary`, `/document-release`, `/retro`, `/checkpoint`, `/codex`
+- **Gstack 파이프라인**: `/office-hours`, `/plan-ceo-review`, `/plan-eng-review`, `/autoplan`, `/design-consultation`, `/design-shotgun`, `/design-review`, `/design-html`, `/qa`, `/cso`, `/benchmark`, `/pr-review`, `/ship`, `/land-and-deploy`, `/canary`, `/document-release`, `/retro`, `/checkpoint`, `/codex`
 - **simon-stack**: `simon-research`, `simon-tdd`, `simon-worktree`, `simon-instincts`, `simon-design-first`, `security-checklist`, `authz-designer`, `paid-api-guard`, `stitch-design-flow`, `code-health-guard`, `agent-delegate`, `ai-debate`
 - **diversity-gate (단계 15.5)**: `i18n-localizer`, `accessibility-audit`, `persona-simulation`, `inclusive-ux`, `offline-first`
 - **호스트별 안전 유틸리티**: `/careful`, `/guard`, `/freeze`, `/unfreeze` — 위 Host parity 절의 가용성·hook 신뢰 게이트를 통과한 경우에만 사용한다.

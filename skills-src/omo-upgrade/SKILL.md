@@ -1,7 +1,7 @@
 ---
 name: omo-upgrade
 description: >
-  Use when the user wants to update the vendored oh-my-openagent stack — triggers "OMO 최신화", "오마이오픈에이전트 업데이트", "upgrade omo", "update oh-my-openagent", or /omo-upgrade. oh-my-openagent is model-agnostic agent orchestrator (Claude/GPT/Kimi/GLM/Gemini), vendored at ~/.simon-stack/vendor/oh-my-openagent/ with .git preserved so it can be pulled in place. Wraps scripts/upgrade-vendor.sh which handles fresh clone if missing, safe ff-only pull if behind, and skips when tree is dirty or on a non-default branch. Different from /stack-update (holistic — this is single-stack only). Different from /gstack-upgrade (targets a different upstream — Garry Tan's gstack).
+  Use when the user wants to update the vendored oh-my-openagent stack — triggers "OMO 최신화", "오마이오픈에이전트 업데이트", "upgrade omo", "update oh-my-openagent", or /omo-upgrade. oh-my-openagent is model-agnostic agent orchestrator (Claude/GPT/Kimi/GLM/Gemini), vendored at ~/.simon-stack/vendor/oh-my-openagent/ with .git preserved so it can be pulled in place. Wraps scripts/upgrade-vendor.sh which handles fresh clone if missing, safe ff-only pull if behind, and skips when tree is dirty or on a non-default branch. Different from /stack-update (holistic — this is single-stack only).
 version: 1.0.0
 allowed-tools:
   - Bash
@@ -59,7 +59,6 @@ without explicit user confirmation.
 ## Related skills
 
 - `/stack-update` — separate repository inventory and safe fast-forward plan; it does not auto-call this skill or force-reinstall profiles.
-- `/gstack-upgrade` — gstack-only upgrade
 - Sibling vendor upgrades: `/omc-upgrade`, `/omo-upgrade`, `/openharness-upgrade`, `/opencowork-upgrade`, `/designmd-upgrade`
 
 ## Independence note

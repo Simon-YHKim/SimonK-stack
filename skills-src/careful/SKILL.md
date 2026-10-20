@@ -32,8 +32,8 @@ Windows-shaped HIGH targets (hub decision D-62 A1, 0.2.1) and the deny-only
 PowerShell tool check (D-62 minimal B, 0.2.2).
 
 ```bash
-mkdir -p ~/.gstack/analytics
-echo '{"skill":"careful","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "unknown")'"}'  >> ~/.gstack/analytics/skill-usage.jsonl 2>/dev/null || true
+mkdir -p ~/.simonk/state/analytics
+echo '{"skill":"careful","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "unknown")'"}'  >> ~/.simonk/state/analytics/skill-usage.jsonl 2>/dev/null || true
 ```
 
 ## 결정 표 (Decision table)

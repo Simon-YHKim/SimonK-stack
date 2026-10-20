@@ -2,7 +2,7 @@
 name: stack-update
 description: >
   Use when asked "SimonK stack 최신화", "update the stack", or
-  /stack-update (not gstack alone). Produces a per-repository fast-forward
+  /stack-update. Produces a per-repository fast-forward
   update report and separate installation gate; never force-installs or
   changes credentials.
 version: 2.0.0
