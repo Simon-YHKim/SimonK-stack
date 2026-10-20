@@ -45,6 +45,7 @@ class InstallRuntimeTests(unittest.TestCase):
             "review/checklist.md": "upstream checklist\n",
             "review/greptile.md": "upstream only\n",
             "review/SKILL.md": "---\nname: review\n---\n",
+            "bin/gstack-config": "#!/usr/bin/env bash\necho 'config store unavailable' >&2\nexit 1\n",
             "test/x.ts": "x\n",
             ".github/workflows/ci.yml": "x\n",
         }
@@ -168,6 +169,23 @@ class InstallRuntimeTests(unittest.TestCase):
         self.assertEqual(r.returncode, 2)
         self.assertIn("skill list not found", r.stderr)
         self.assertFalse(self.target.exists())
+
+    @unittest.skipUnless(shutil.which("bash"), "bash not installed")
+    def test_failed_setup_restores_the_previous_runtime(self):
+        self.assertEqual(self.apply().returncode, 0)
+        (self.target / "previous.marker").write_text("old\n", encoding="utf-8")
+        r = self.run_installer("--apply", "--force", "--skip-build", "--skip-env")  # config runs and fails
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("restored the previous runtime", r.stderr)
+        self.assertTrue((self.target / "previous.marker").exists())
+        self.assertEqual([p.name for p in self.target.parent.iterdir() if p.name.startswith(".runtime.")], [])
+
+    @unittest.skipUnless(shutil.which("bash"), "bash not installed")
+    def test_failed_setup_on_a_first_install_leaves_no_runtime(self):
+        r = self.run_installer("--apply", "--skip-build", "--skip-env")
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertFalse(self.target.exists())
+        self.assertEqual([p.name for p in self.target.parent.iterdir() if p.name.startswith(".runtime.")], [])
 
     def test_existing_target_needs_force(self):
         self.target.mkdir(parents=True)

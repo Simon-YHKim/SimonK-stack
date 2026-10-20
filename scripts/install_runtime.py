@@ -281,6 +281,7 @@ def main(argv=None) -> int:
                 raise InstallError("bash (Git Bash on Windows) is required")
             staging = a.target.parent / f".{a.target.name}.staging-{uuid.uuid4().hex[:8]}"
             staging.mkdir(parents=True)
+            old = None  # the previous runtime, kept until setup succeeds
             try:
                 files, patched = export_tree(source, commit, staging)
                 print(f"exported {files} files, rewrote the install path in {patched}")
@@ -289,22 +290,34 @@ def main(argv=None) -> int:
                 if not a.skip_build:
                     build(staging, bash)
                     print("rebuilt the compiled tools")
-                old = None
                 if a.target.exists():
                     old = a.target.parent / f".{a.target.name}.old-{uuid.uuid4().hex[:8]}"
                     a.target.rename(old)
                 staging.rename(a.target)
-                if old is not None:
-                    shutil.rmtree(old, ignore_errors=True)
             except BaseException:
                 shutil.rmtree(staging, ignore_errors=True)
+                if old is not None and not a.target.exists():
+                    old.rename(a.target)
                 raise
-            a.state.mkdir(parents=True, exist_ok=True)
-            if not a.skip_config:
-                got = configure(a.target, a.state, pin, bash)
-                print("config: " + ", ".join(f"{k}={v}" for k, v in got.items()))
-            if not a.skip_env:
-                print("state folder set in " + persist_env(a.state, pin))
+            try:
+                a.state.mkdir(parents=True, exist_ok=True)
+                if not a.skip_config:
+                    got = configure(a.target, a.state, pin, bash)
+                    print("config: " + ", ".join(f"{k}={v}" for k, v in got.items()))
+                if not a.skip_env:
+                    print("state folder set in " + persist_env(a.state, pin))
+            except BaseException:
+                # A runtime whose isolation settings were not verified is not kept:
+                # put the previous one back (or remove a first install).
+                failed = a.target.parent / f".{a.target.name}.failed-{uuid.uuid4().hex[:8]}"
+                a.target.rename(failed)
+                if old is not None:
+                    old.rename(a.target)
+                    print("install-runtime: setup failed; restored the previous runtime", file=sys.stderr)
+                shutil.rmtree(failed, ignore_errors=True)
+                raise
+            if old is not None:
+                shutil.rmtree(old, ignore_errors=True)
             print("Done.")
             return 0
         finally:

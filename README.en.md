@@ -76,6 +76,17 @@ From a terminal, use `claude plugin marketplace add Simon-YHKim/SimonK-stack` an
 
 You can install only some plugins, but entry skills often hand work to skills in other plugins, so installing all five is recommended.
 
+### Install the runtime (needed by tool-using skills)
+
+The plugins install skill documents only. Skills that call tools, such as browse, design-*, make-pdf, diagram, pr-review, autoplan and ship, need the runtime in `~/.simonk/runtime`. Install it once. You need Git (with Git Bash on Windows), Python 3 and [Bun](https://bun.sh).
+
+```
+git clone https://github.com/Simon-YHKim/SimonK-stack
+python SimonK-stack/scripts/install_runtime.py --clone --apply
+```
+
+Without `--apply` it only previews. The installer fetches a pinned garrytan/gstack commit (MIT), builds the tools and lays the SimonK skill documents over it. State lives in `~/.simonk/state`; update checks, auto-upgrade and telemetry are off. To update, run the same command with `--force`.
+
 ### Check the install
 
 Five lines means it worked.

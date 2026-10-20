@@ -76,6 +76,17 @@ Claude Code 세션 안에서:
 
 필요한 플러그인만 골라 설치해도 되지만, 진입 스킬이 다른 플러그인의 스킬로 넘기는 경우가 많아 다섯 개를 모두 설치하는 것을 권장합니다.
 
+### 런타임 설치 (도구를 쓰는 스킬에 필요)
+
+플러그인은 스킬 문서만 설치합니다. browse·design-*·make-pdf·diagram·pr-review·autoplan·ship처럼 도구를 부르는 스킬은 `~/.simonk/runtime` 런타임이 있어야 동작합니다. 한 번 설치합니다. Git(Windows는 Git Bash 포함), Python 3, [Bun](https://bun.sh)이 필요합니다.
+
+```
+git clone https://github.com/Simon-YHKim/SimonK-stack
+python SimonK-stack/scripts/install_runtime.py --clone --apply
+```
+
+`--apply` 없이 실행하면 미리보기만 합니다. 설치기는 고정된 garrytan/gstack 커밋(MIT)을 받아 도구를 빌드하고 SimonK 스킬 문서를 덧씌웁니다. 상태는 `~/.simonk/state`에 두고, 업데이트 확인·자동 업그레이드·텔레메트리는 끕니다. 갱신할 때는 같은 명령에 `--force`를 붙입니다.
+
 ### 설치 확인
 
 다섯 줄이 나오면 정상입니다.
