@@ -957,3 +957,10 @@ last-sync: 2026-07-05
   - **catch-up**: Claude 좌석 UNKNOWN 이던 Codex 진행 토론 8건을 이 세션(--host-session, 새 보조 에이전트 답)으로 채움 — ACCEPT 7 · OBJECT 1(D-5 dbt-261006-094518, 오케스트레이터 Codex 가 타이브레이크). 모두 Grok 결석으로 PROVISIONAL 2/4 유지. record --amend 가 agents/codex/* 원 기록 파일에 붙어 Single-Writer §1 과 충돌 — 줄은 유지(record.json 과 일치), Codex 에 outbox 로 알림(4133684b). 스킬 수정 후보: 다른 벤더 amend 는 자기 outbox 로.
   - **GUI 위임 안 함**: claude.ai 설정(ZIP 업로드·프로필·끄기)은 Grok Bot 에 넘기지 않음 — 공용 클라우드 머신에 claude.ai 계정 로그인 시 Gmail·Drive 커넥터와 대화 기록(회사 자료 가능)이 노출. Simon 이 카드 v7 https://claude.ai/artifact/YKXcXAEnu1rXTet14cpLB2 1~4 실행.
   - **뒤집는 조건**: 봇 머신에 claude.ai 전용 격리 계정이 생기거나 claude.ai 스킬 관리 API 가 열리면 위임 재검토.
+- 2026-10-21 00:34:00 KST | DECIDE | **D-116 claude.ai 설정 반영(카드 v7 1~4) — 플러그인은 '목록에서 제거'로 끔** (Simon "진행해줘" · "5개도 목록에서 빼기" · 35.8 1단) | claude
+  - **반영**: 스킬 ZIP 4개 업로드(내가 만듦 35→39) · gstack 스킬 25개 끔(새로고침 뒤 꺼짐 25 · 켜짐 14 = 남길 10 + 새 4) · 프로필 지침 v8.1.4(+표현 5줄) → v8.1.8(칸 sha256 앞12 a58d16a579d1 = instructions/out 파일, 머리글 원본 sha 7354408a1329 · 새로고침 뒤 재확인) · 플러그인 6개 제거(Sales·Human Resources·Finance·Marketing·Brand Voice·Operations, 남은 6 = Engineering·Data·Productivity·Product Management·Design·PDF Viewer).
+  - **경로**: 임시 프로필 Playwright 창은 로그인이 보안 차단(Simon 10-21 00:10) → Simon 의 Chrome + Claude in Chrome(세션을 `claude --chrome --resume` 으로 재시작). 이전 프로필 내용은 로컬 백업(해시 일치 b5245f7e3104).
+  - **발견**: claude.ai 플러그인 화면에는 '끄기'가 없다 — 상세 화면 스위치 = 내 목록에서 제거, 탐색에서 '추가'로 복구. 커넥터 연결은 영향 없음(Slack·Gmail·Notion·Drive 연결됨 유지 확인). 스킬은 행마다 '<이름> 끄기/켜기' 버튼.
+  - **실측**: 새 대화 "사내 공지 초안" → 사용됨 Skills: humanize-korean(답 끝 '점검 6/6') · "앱 런칭 모션그래픽" → Skills: simon-motion-reference. 프로필 적용(📌 채팅 제목·레인 말투) 확인.
+  - **남음**: 카드 5(파일 작업 대화에서 '📌 채팅 제목' 규칙 개수 확인)는 승인 폴더 대화가 필요해 Simon 몫.
+  - **뒤집는 조건**: 빠진 플러그인의 스킬이 필요해지면 플러그인 탐색에서 다시 추가.
