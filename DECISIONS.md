@@ -964,3 +964,15 @@ last-sync: 2026-07-05
   - **실측**: 새 대화 "사내 공지 초안" → 사용됨 Skills: humanize-korean(답 끝 '점검 6/6') · "앱 런칭 모션그래픽" → Skills: simon-motion-reference. 프로필 적용(📌 채팅 제목·레인 말투) 확인.
   - **남음**: 카드 5(파일 작업 대화에서 '📌 채팅 제목' 규칙 개수 확인)는 승인 폴더 대화가 필요해 Simon 몫.
   - **뒤집는 조건**: 빠진 플러그인의 스킬이 필요해지면 플러그인 탐색에서 다시 추가.
+- 2026-10-21 01:40:00 KST | DECIDE | **D-117 gstack을 SimonK-stack에 완전 통합하고 gstack 흔적을 지운다** (Simon 결정 · 이행 세부는 35.8 1단) | claude
+  - **지시**: Simon "simonk stack에 통합 마저 해주고, gstack의 흔적을 지워줘." + 선택 4개(10-21 01:3x).
+  - **방식**: 런타임 이식 후 원본 보관 — SimonK-stack이 gstack 실행 파일(bin)·browse/design 바이너리를 자기 경로로 가져가고 텔레메트리·자동 업데이트는 끊는다. 이식된 스킬 36개의 `~/.claude/skills/gstack/...`·`~/.gstack` 경로와 "(gstack)" 표시를 SimonK 쪽으로 바꾼다. 원본 설치(1.5GB)는 지우지 않고 보관 폴더로 옮겼다가 1~2주 문제가 없으면 삭제.
+  - **원본 읽기**: 이 작업 동안만 `~/.claude/skills/gstack` 읽기 허용(인증 파일·브라우저 프로필은 열지 않음). 작업이 끝나면 폴더가 없어지므로 '읽지 않기' 규칙도 없앤다.
+  - **~/.gstack(172MB)**: 통째로 보관 폴더로 옮긴다(인증 정보 포함 — 내용은 읽지 않음).
+  - **통합 뒤 새로 생긴 23개**: 11개 이식(review, spec, make-pdf, diagram, document-generate, scrape, context-save, context-restore, connect-chrome, test-audit, deslop-shared-libs), 12개 버림(ios-* 5, setup-gbrain, sync-gbrain, plan-tune, skillify, benchmark-models, landing-report, gstack 라우터).
+  - **남기는 흔적**: MIT 라이선스의 출처·저작권 표기(LICENSE)는 법적 의무라 유지.
+  - **함께 처리**: claude.ai '내가 만듦'의 gstack 원본 업로드 35개 정리(필요한 것은 SimonK 판으로 다시 업로드), Codex `~/.agents/skills`의 gstack 폴더 4개, INFRA-MAP·CLAUDE.md 3종·지침 단일본의 gstack 문구.
+  - **뒤집는 조건**: 이식한 런타임으로 핵심 스킬(qa·browse·ship·plan-*)이 selftest를 통과하지 못하면 원본을 보관 폴더에서 되돌린다.
+- 2026-10-21 01:40:00 KST | DECIDE | **D-118 claude.ai 플러그인 전부 제거·google-workspace·import-memory 끄기·flow 명령 보관** (Simon 정리표 선택 · 35.8 1단) | claude
+  - **반영**: Engineering·Product Management·Productivity·Design·Data·PDF Viewer 제거(플러그인 목록 0) · import-memory·google-workspace 끔 · `~/.claude/commands/flow*.md` 6개를 `~/.claude/_archive/flow-commands-261021/`로 이동(MOVED.md에 되돌리기 명령).
+  - **상충 처리**: Data·PDF Viewer·google-workspace는 남김 판정이었으나 Simon이 체크해 정리 쪽을 따름. 복구는 claude.ai 탐색에서 추가.
