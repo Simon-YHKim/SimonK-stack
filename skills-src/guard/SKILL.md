@@ -40,8 +40,8 @@ installed there; gstack setup does not manage these SimonK folders. If a script
 is missing its hook cannot start, and a hook that cannot start blocks nothing.
 
 ```bash
-mkdir -p ~/.simonk/state/analytics
-echo '{"skill":"guard","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "unknown")'"}'  >> ~/.simonk/state/analytics/skill-usage.jsonl 2>/dev/null || true
+mkdir -p ~/.gstack/analytics
+echo '{"skill":"guard","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "unknown")'"}'  >> ~/.gstack/analytics/skill-usage.jsonl 2>/dev/null || true
 ```
 
 ## Setup
@@ -80,7 +80,7 @@ bash "$HOME/.claude/skills/freeze/bin/freeze-state.sh" set "$FREEZE_INPUT"
    - `FREEZE_BUSY: ...` (exit 1): another writer holds the state lock and
      nothing changed. Say the boundary is NOT set and retry once. If it
      repeats, show the user the `.freeze-mutation.lock` directory next to
-     `freeze-dir.txt` (default `~/.simonk/state/`) and let them decide before anyone
+     `freeze-dir.txt` (default `~/.gstack/`) and let them decide before anyone
      removes it.
    - Any other failure (`No such file or directory`, exit 2): NOT set. Ask for
      an existing directory.

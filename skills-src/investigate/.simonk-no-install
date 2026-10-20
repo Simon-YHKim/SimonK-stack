@@ -1,0 +1,7 @@
+D-68 (2026-10-04): 이 폴더는 설치 대상이 아니다.
+investigate의 단일 원본은 gstack 1.91.9 설치본 ~/.claude/skills/investigate 이다.
+scripts/install.sh, scripts/setup-repo.sh, .claude/hooks/session-start.sh 는
+이 표식이 있는 이름을 ~/.claude/skills 나 다른 레포의 .claude/skills 로 복사하지 않는다.
+5플러그인 후보(scripts/plugin_bundle.py)는 별도 릴리스 결정 전까지 이 폴더를
+안전 투영 입력으로 그대로 포장한다.
+상태와 재개 조건: skills-src/VENDORED.md 의 investigate 항목.

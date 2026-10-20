@@ -10,7 +10,7 @@
   - 런타임: `runtime/RUNTIME.json`(gstack 1.91.9.0 고정, MIT) + `scripts/windows/install-runtime.ps1`. 실행 파일·도구를 `~/.simonk/runtime` 으로 복사하고 설치 경로를 바꿔 bun 으로 다시 빌드한다. 상태는 `~/.simonk/state`, 업데이트 확인·자동 업그레이드는 끔. 미리보기 기본, 원본은 고치지 않는다. 테스트 4개.
   - 스킬: 28개를 이 PC 가 실제로 쓰던 1.91.9.0 본문으로 다시 들여오고(설명·버전·평가 케이스는 SimonK 것 유지), 9개를 새로 이식: `pr-review`(upstream `review` — 레포 개발용 `review` 와 이름이 겹쳐 바꿈), `make-pdf`, `diagram`, `document-generate`, `scrape`, `context-save`, `context-restore`, `test-audit`, `deslop-shared-libs`. upstream `spec` 은 SimonK 플러그인에 같은 이름이 있어 들이지 않았다.
   - 설치·상태 경로를 `~/.simonk/runtime`·`~/.simonk/state` 로 바꾸고, 설명의 "(gstack)" 표시·upstream 생성 배너·업그레이드 안내를 정리했다. `open-gstack-browser` → `open-browser`.
-  - `investigate` 는 훅이 SimonK `freeze` 검사기를 부르게 되어 D-68 의 Windows 결함이 닫혔으므로 다시 설치 대상이다.
+  - 안전 스킬 5개(`careful`·`freeze`·`guard`·`unfreeze`·`investigate`)는 5플러그인 안전 투영이 훅 문구와 freeze 상태 기본값(`$HOME/.gstack`)을 고정하고 있어 이번에는 바꾸지 않았다. `~/.simonk/state` 로 옮기는 일은 따로 검토한다.
   - CI: `skills-src/VENDORED.md` 목록의 스킬만 E007(본문 길이)·E008(TODO 표기)을 면제한다(검증기 docstring 의 의도). 검증기는 코드 블록 안의 링크를 링크로 보지 않는다.
   - `vibe` 2.20.1: gstack 출신 스킬 감지가 새 런타임·상태 경로도 잡는다.
   - 개수: skills-src 138 → 146, 5플러그인 183 → 191(core 64 · stack 64 · design 24), Codex판 178 → 186.
