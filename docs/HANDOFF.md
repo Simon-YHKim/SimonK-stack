@@ -1,6 +1,22 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-21 00:50 / claude.ai 설정 반영(카드 v7 1~4, Claude in Chrome) · 안 쓴 스킬·플러그인 조사
+## Latest — 2026-10-21 05:20 / gstack 완전 통합(#188) · 런타임 `~/.simonk/runtime` · 옛 설치 보관
+
+갱신 시각: 2026-10-21 05:20 KST · 갱신자: Claude Code(Opus 5.5). Simon: "simonk stack에 통합 마저 해주고, gstack의 흔적을 지워줘." + 선택 4개(런타임 이식 후 원본 보관 · 원본 읽기는 이 작업 동안만 · `~/.gstack` 통째 보관 · 쓸모 있는 새 스킬만 이식). 허브 D-117(+AMEND 9ec20903).
+
+- **#188 머지 525f42b**: CI 7/7, Codex 리뷰 9라운드 38스레드 전부 수정·해결. gstack 출신 스킬 정본 = `skills-src/`(목록 `skills-src/VENDORED.md`, 43개). 신규 9(pr-review·make-pdf·diagram·document-generate·scrape·context-save·context-restore·test-audit·deslop-shared-libs) + open-browser. gstack-upgrade 제거, spec 제외(플러그인 전용 spec과 충돌).
+- **런타임** `~/.simonk/runtime` = `python scripts/install_runtime.py --apply [--force]`(Windows 래퍼 `scripts/windows/install-runtime.ps1`). 고정 커밋 40자 정확 일치 → `git archive` → 홈 기준 경로만 치환 → VENDORED 스킬 덧씌우기 → `bun install --frozen-lockfile` + 빌드 → 필수 도구 확인 → 교체 → 설정 확인(실패 시 이전 런타임 복구). 상태 `~/.simonk/state`. 옛 원본은 보관됐으니 재설치는 `--clone`. CI 검사: `test_install_runtime.py`(17) · `test_runtime_refs.py`(2).
+- **이 PC**: update-local 49개 교체·신규(`-PluginPins` 필수, 이번엔 `%TEMP%/sk-plugin-pins-188`), vibe 후보 `20261021-vibe-2201-525f42b` verify ok · Stop 훅 → 런타임 경로 · 37경로 → `~/.claude/_archive/gstack-261021`(1.61GB, 삭제 아님) · 루트 CLAUDE/AGENTS/GEMINI·INFRA-MAP gstack 문구 0 · claude.ai gstack 업로드 35개 끔. 보관 뒤 browse·설정·Stop 훅·slug 단독 동작 확인.
+- CSO 실행기: 이 PC는 Visual Studio 2022 C++ 워크로드가 없어 빌드 안 됨 → /cso 는 '평가 안 됨'(설치기가 이유를 출력). 업스트림도 같은 조건부 빌드.
+
+### 다음 작업 큐
+- Simon: claude.ai '내가 만듦'의 꺼진 gstack 업로드 35개 삭제는 직접(사용자 지정 → Skills → 각 항목 메뉴 → 삭제). 보관 폴더 `~/.claude/_archive/gstack-261021` 은 필요 없다고 판단되면 직접 지움.
+- Phase 2: 런타임 내부 `gstack-*` 스크립트·`GSTACK_*` env 이름 정리(설치기 치환 + 스킬 문서).
+- 안전 스킬 5종(careful·freeze·guard·unfreeze·investigate)의 `$HOME/.gstack` → `~/.simonk/state` 이전(안전 투영 `plugin_bundle.py` 갱신 PR 필요).
+- /cso 를 쓰려면 VS2022 Build Tools(C++ 워크로드) 설치 후 SimonK-stack 폴더에서 `python scripts/install_runtime.py --clone --apply --force`.
+- 그 밖에는 아래 00:50 블록 그대로(카드 5, 안 쓴 스킬 정리).
+
+## 2026-10-21 00:50 / claude.ai 설정 반영(카드 v7 1~4, Claude in Chrome) · 안 쓴 스킬·플러그인 조사
 
 갱신 시각: 2026-10-21 00:50 KST · 갱신자: Claude Code(Opus 5.5). Simon: "진행해줘" → "이거는 보안때문에 로그인이 안된다. 내가 내 chrome에 띄워놨으니 chrome use를 써서 진행하자" → "내 이력을 확인해서 안쓴지 3개월이 넘는 플러그인/ 스킬들을 리스트업 해줘."
 
