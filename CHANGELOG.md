@@ -5,6 +5,9 @@
 
 ## [Unreleased]
 
+### Removed
+- **외부 vendored stack 은퇴 (허브 D-119, Simon 결정)**: `external/oh-my-claudecode`·`external/oh-my-openagent`·`external/OpenHarness`(4,667파일), `~/.simon-stack/vendor` 사본을 갱신하던 `omc-upgrade`·`omo-upgrade`·`openharness-upgrade`·`opencowork-upgrade`·`designmd-upgrade`, `scripts/upgrade-vendor.sh` 를 뺐다. SimonKCore 플러그인 기반에서도 같은 5개를 빼고(SimonKCore#8) 그 커밋으로 다시 고정했다. 참조(CLAUDE.md·INDEX·README·templates·.claudeignore·.graphifyignore·INSTALL·릴리스 설정)를 정리하고 `stack-update` 2.0.1 은 '요청한 vendored stack' 대신 '사용자가 지정한 저장소'를 본다. OpenHarness 는 pip `openharness-ai` 로만 남는다(`simon-ohmo`). 개수: skills-src 146 → 141, 5플러그인 191 → 186(core 64 → 59), Codex판 186 → 181.
+
 ### Added
 - **gstack 완전 통합 (허브 D-117)**: garrytan/gstack 출신 스킬과 그 런타임을 SimonK-stack 이 소유한다.
   - 런타임: `runtime/RUNTIME.json`(gstack 1.91.9.0 고정, MIT) + `scripts/install_runtime.py`(Windows 래퍼 `scripts/windows/install-runtime.ps1`, Windows·macOS·Linux). 고정 커밋의 git 객체에서 실행 파일·도구·스킬 보조 파일을 꺼내 설치 경로를 바꾸고 LF 로 저장한 뒤 bun 으로 다시 빌드하고, 임시 폴더에서 만든 다음 `~/.simonk/runtime` 과 바꿔 끼운다. 원본이 고정 커밋이 아니거나 수정돼 있으면 멈춘다. 이 폴더의 `VENDORED.md` 스킬을 업스트림 같은 이름 폴더 위에 덧씌워 스킬이 런타임 경로로 읽는 문서(sections·templates·다른 스킬의 SKILL.md)가 SimonK 판이 되게 하고, 홈 기준 경로만 바꿔 스크립트·도구의 상태 폴더 기본값도 `~/.simonk/state` 가 되고, 프로젝트 안의 옛 `.claude/skills/gstack` 은 그대로 알아본다. 의존성은 고정된 `bun.lock` 으로만 설치한다. 상태는 `~/.simonk/state`, 업데이트 확인·자동 업그레이드·텔레메트리는 끄고 다시 읽어 확인한다. 미리보기 기본. 테스트 11개 + 런타임 참조 검사 2개(CI 포함). 스킬은 작업 중인 저장소 안의 도구(browse·design·pdf·skill-start 대체 경로)를 더는 실행하지 않는다.
