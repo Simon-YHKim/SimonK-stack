@@ -10,7 +10,9 @@
     (명시 루트는 후보 영수증 검사를 건너뛰므로 번들 검증기는 따로).
   - 꺼진 플러그인·설치 기록 없음·경로 없음·애매한 기록은 이유와 함께 `skipped` 로 남고 추측하지 않는다. 캐시 버전과 claude.ai 동기화
     플러그인은 풀지 않는다. 호스트 JSON 이 깨졌으면 종료 코드 2. 읽기만 하고 아무것도 저장하지 않는다(루트 목록 영속화 금지 유지).
-  - 이 PC 실측(2026-10-21): 루트 3개(사용자 스킬 + insane-search + HyperFrames), 인벤토리 complete·이슈 0, SimonK 밖 스킬 31개가 보인다.
+  - 이 PC 실측(2026-10-21, #190 뒤 HyperFrames 0.8.183): 루트 3개(사용자 스킬 + insane-search + HyperFrames), 인벤토리 complete·이슈 0,
+    카탈로그 176개 중 SimonK 밖 스킬 32개, 같은 이름 대안 0개.
+  - 매니페스트가 설치 루트 자체를 스킬로 밝히면(`"skills": "."`) 부모 폴더 스캔이 되므로 거부한다(`manifest_skill_root_outside_plugin`).
   - 매니페스트가 스킬 폴더 하나를 가리키면 그 부모를 스캔하므로, 부모에 선언 안 된 스킬이 있으면 그 플러그인을 건너뛴다(`manifest_partial_skill_dir`).
   - 테스트 `test_host_roots.py` 16개(임시 홈만 사용), CI 단계 추가.
 
