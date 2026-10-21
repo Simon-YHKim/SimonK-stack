@@ -1,6 +1,23 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-21 05:20 / gstack 완전 통합(#188) · 런타임 `~/.simonk/runtime` · 옛 설치 보관
+## Latest — 2026-10-21 21:05 / vendored 외부 stack 5종 은퇴(#190) · /vibe 밖 스킬 연결(#191) · 이 PC 정리
+
+갱신 시각: 2026-10-21 21:05 KST · 갱신자: Claude Code(Opus 5.5). Simon: "omo, omc 플러그인 인가 스킬인가 … 전부 지우고 싶어" + 정리표 v5 선택 + "남은 스킬들을 vibe 스킬이 오케스트레이션 또는 자동사용이 잘 되게 셋팅해줘". 허브 D-119.
+
+- **SimonKCore#8 → 6f86006**: 플러그인 기반에서 `omc-upgrade`·`omo-upgrade`·`openharness-upgrade`·`opencowork-upgrade`·`designmd-upgrade` 제거(55 → 50). 고정된 플러그인 기반에 남아 있으면 `plugin_only_out_of_scope` 정확성 검사로 빌드가 멈추므로, 소스에서 뺄 때는 플러그인 레포 PR → `distribution/plugin-inputs.v1.json` 재고정이 한 묶음이다.
+- **#190 머지 b4c7518**: `external/` 3개(4,667파일)·upgrade 스킬 5·`scripts/upgrade-vendor.sh` 제거, SimonKCore 재고정, 참조·개수 정리(skills-src 141, 5플러그인 186, core 59, Codex판 181), `stack-update` 2.0.1. CI 7/7, Codex 지적 0.
+- **#191 머지 49a5fbf**: vibe 2.21.0 `scripts/host_roots.py`(읽기 전용) — Claude Code는 `~/.claude/skills` + `settings.json` 에서 켜진 플러그인의 `installed_plugins.json` `installPath/skills`, Codex는 `.agents/skills`·`.codex/skills`·`.codex/skills/.system`. 경로 목록은 저장하지 않는다. 설치 후보 안에서 도는 기본 catalog 는 5플러그인(186)만 보므로, 밖 스킬이 필요하면 이 출력을 `--root` 로 넘긴다. Codex 지적 4건(P2) 전부 수정·테스트.
+- **이 PC**: update-local `-PluginPins %TEMP%/sk-plugin-pins-261021` → 후보 `20261021-vibe-2210-49a5fbf`, selftest vibe 283/0 · vibe-bot 104/0, stack-update 교체. 실측: host_roots 3경로 → inventory complete · 이상 0 · 밖 스킬 32 · 같은 이름 중복 0.
+- **정리(삭제 아님, `~/.claude/_archive/skill-cleanup-261021/MOVED.md`)**: npm `oh-my-claude-sisyphus` 4.14.1 제거 · `~/.simon-stack`(vendor 5) · 설치된 upgrade 스킬 5 + `~/.agents/skills` 심링크 5 + `~/.claude/scripts/upgrade-vendor.sh` · HyperFrames 개인 사본 11·Codex 중복 11(플러그인 core-skills 0.7.109 → 0.8.183) · flow-debugger Stop 훅 해제 + 훅 파일·Codex·agents 사본. claude.ai `morning` 끔.
+- 루트 CLAUDE/AGENTS/GEMINI §21 에 'SimonK-stack 밖 스킬 자동 사용' 한 줄, INFRA-MAP §1.3, 위키 omc·omo `status: deprecated`.
+
+### 다음 작업 큐
+- Simon: `E:\Coding Infra\Harrness Eng\external\` 의 oh-my-claudecode·oh-my-openagent·OpenHarness·open-cowork(약 430MB)는 `Legacy-` 이름 바꾸기가 '접근 거부'로 실패했다(원인 미확인, 6월 TradingAgents 도 같은 증상). 재부팅 뒤 탐색기에서 이름을 바꾸거나 직접 지운다.
+- 옛 SimonK-stack 작업 폴더 63개에 `external/` 사본이 남아 있다(git 체크아웃). 작업 폴더 정리 때 함께 사라진다.
+- `npx skills` 의 `lastSelectedAgents` 에 codex 가 있어 HyperFrames 를 다시 받으면 `~/.codex/skills` 중복이 돌아올 수 있다.
+- 그 밖에는 아래 05:20 블록 그대로(gstack Phase 2, 안전 스킬 상태 이전, /cso 빌드 도구, claude.ai gstack 업로드 35개 삭제).
+
+## 2026-10-21 05:20 / gstack 완전 통합(#188) · 런타임 `~/.simonk/runtime` · 옛 설치 보관
 
 갱신 시각: 2026-10-21 05:20 KST · 갱신자: Claude Code(Opus 5.5). Simon: "simonk stack에 통합 마저 해주고, gstack의 흔적을 지워줘." + 선택 4개(런타임 이식 후 원본 보관 · 원본 읽기는 이 작업 동안만 · `~/.gstack` 통째 보관 · 쓸모 있는 새 스킬만 이식). 허브 D-117(+AMEND 9ec20903).
 
