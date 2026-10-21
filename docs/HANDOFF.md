@@ -1,6 +1,22 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-21 21:05 / vendored 외부 stack 5종 은퇴(#190) · /vibe 밖 스킬 연결(#191) · 이 PC 정리
+## Latest — 2026-10-21 22:34 / 레지스트리 주간 재확인(#193) · 안전 스킬 상태 `~/.simonk/state`(#194) · gstack 2단계 보류(D-120)
+
+갱신 시각: 2026-10-21 22:34 KST · 갱신자: Claude Code(Opus 5.5). Simon: "지금 너가 하면 되는거 아니야?"(남은 일 처리). 허브 D-120.
+
+- **#193 머지 6a40a66**: 레지스트리 `2026-10-21.1`, checked_at 2026-10-21 21:32:46(Codex 모델 캐시, 가장 이른 근거) → **만료 2026-10-28 21:32:46 KST**. 공개 49페이지 HTTP 200, 사실 267필드 전부 일치(전엔 미확인 2), 바뀐 사실 0, 레인·순위 변경 0. 새로 관찰만: Claude Mythos 5.1, xAI `grok-build-0.1`, Grok Voice 3.0. vibe 2.21.1.
+- **#194 머지 16abde4**: careful 0.2.7·freeze 0.2.8·guard 0.2.4·unfreeze 0.2.2·investigate 1.0.2 의 상태 기본값 `${CLAUDE_PLUGIN_DATA:-$HOME/.simonk/state}`. 옛 `~/.gstack/freeze-dir.txt` 경계는 새 경계가 없을 때 계속 지키고(닫힌 쪽), unfreeze 가 둘 다 지운다. careful 은 옛 규칙도 더해서 읽는다. `~/.gstack` 은 만들지 않는다. 플러그인 투영 출력은 그대로. Codex 지적 1건(옛 slug 캐시) 수정.
+- **이 PC**: update-local → 후보 `20261021-vibe-2211-16abde4`(276초), selftest 283/0·104/0, careful·freeze·guard·unfreeze 교체. `investigate` 는 D-68 대로 설치 대상이 아니라 설치본(1.0.0, 옛 gstack 판)이 그대로이고 쓰면 `~/.gstack` 을 다시 만들 수 있다 — 바꾸려면 D-68 재토론.
+- **D-120**: gstack 2단계(`gstack-*` 약 1,700곳·`GSTACK_*` 429곳 개명)는 보류 — 동작 변화 없고 업스트림 갱신마다 충돌. Simon 이 원하면 연다.
+- Simon 이 직접: `Harrness Eng/external` 4폴더와 보관 폴더 `skill-cleanup-261021` 삭제(되돌리기 불가).
+
+### 다음 작업 큐
+- Simon: Claude Code 재시작(HyperFrames 0.8.183 적용 + claude.ai 에서 뺀 플러그인 사본 122항목이 사라지는지 확인) · claude.ai gstack 업로드 35개 삭제 · 카드 5.
+- 레지스트리 다음 재확인: 2026-10-28 21:32 KST 전.
+- 남은 흔적(선택): `Harrness Eng/external/Legacy-open-cowork`(6월 사본), 옛 SimonK-stack 작업 폴더 63개의 `external/`.
+- /cso: VS2022 C++ 빌드 도구가 있어야 함(쓸 때만).
+
+## 2026-10-21 21:05 / vendored 외부 stack 5종 은퇴(#190) · /vibe 밖 스킬 연결(#191) · 이 PC 정리
 
 갱신 시각: 2026-10-21 21:05 KST · 갱신자: Claude Code(Opus 5.5). Simon: "omo, omc 플러그인 인가 스킬인가 … 전부 지우고 싶어" + 정리표 v5 선택 + "남은 스킬들을 vibe 스킬이 오케스트레이션 또는 자동사용이 잘 되게 셋팅해줘". 허브 D-119.
 
