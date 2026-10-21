@@ -1,6 +1,6 @@
 # SimonK-Stack
 
-> A toolbox of 191 Claude Code skills in five plugins. It covers idea validation, planning, building, testing, security, shipping, design, AI features and marketing. Describe what you want done, and it hands the work to the right skill and model.
+> A toolbox of 186 Claude Code skills in five plugins. It covers idea validation, planning, building, testing, security, shipping, design, AI features and marketing. Describe what you want done, and it hands the work to the right skill and model.
 
 ![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) ![plugins](https://img.shields.io/badge/plugins-5-5b8cff) ![skills](https://img.shields.io/badge/skills-191-brightgreen)
 
@@ -43,7 +43,7 @@ Principles:
 
 | Plugin | What it does | Skills | Entry point |
 | --- | --- | ---: | --- |
-| `simonk-core` | Shared base: work coordination (`vibe`), sprints (`simonk`), model assignment, AI debate, memory and wiki, reports, session handoff, safety (`careful`, `unfreeze`) | 64 | `/simonk-core:vibe` |
+| `simonk-core` | Shared base: work coordination (`vibe`), sprints (`simonk`), model assignment, AI debate, memory and wiki, reports, session handoff, safety (`careful`, `unfreeze`) | 59 | `/simonk-core:vibe` |
 | `simonk-stack` | Building the product: planning and specs, development and refactoring, debugging, QA, security, deployment and release, safety (`freeze`, `guard`) | 64 | `/simonk-stack:skstack` |
 | `simonk-aihub` | Building AI features: model choice, prompts, agents, RAG, LLM and safety evaluation | 7 | `/simonk-aihub:skaihub` |
 | `simonk-design` | Design: UI direction, design systems, logos and social graphics, slides, accessibility checks | 24 | `/simonk-design:skdesign` |
@@ -108,7 +108,7 @@ In a POSIX shell: `claude plugin list --json | grep -o 'simonk-[a-z]*@simonk-sta
 
 ### Using it from Codex CLI
 
-Codex gets the **Codex edition** (186 skills) from the same repository. The five Claude Code-only safety skills (`careful`, `freeze`, `guard`, `investigate`, `unfreeze`) are left out because Codex cannot guarantee their blocking (hub D-29, D-88).
+Codex gets the **Codex edition** (181 skills) from the same repository. The five Claude Code-only safety skills (`careful`, `freeze`, `guard`, `investigate`, `unfreeze`) are left out because Codex cannot guarantee their blocking (hub D-29, D-88).
 
 ```
 codex plugin marketplace add Simon-YHKim/SimonK-stack
@@ -174,9 +174,9 @@ Not sure a skill exists? Search with `/simonk-core:find-skill receipt OCR`.
 ### Full skill list
 
 <details>
-<summary><code>simonk-core</code>: 64</summary>
+<summary><code>simonk-core</code>: 59</summary>
 
-agent-delegate, ai-debate, ai-usage-widget-install, careful, caveman, checkpoint, completion-report, context-restore, context-save, defuddle, designmd-upgrade, domain-glossary, find-skill, founder-context, gcloud-helper, grill-me, html-default-output, human-voice-guard, json-canvas, keepass-helper, learn, llm-wiki-builder, make-pdf, model-router, multi-terminal-dispatcher, notebooklm-import, obsidian-bases, obsidian-cli, obsidian-markdown, office-docs, office-hours, omc-upgrade, omo-upgrade, open-browser, opencowork-upgrade, openharness-upgrade, pair-agent, persona-validate, perspectives, plan-ceo-review, project-context-md, scrape, semantic-recall, session-context-export, session-context-tracker, session-start-hook, setup-browser-cookies, simon-handoff, simon-instincts, simon-ohmo, simon-research, simon-worktree, simonk, simonk-report, sprint-optimizer, stack-update, tech-preference-tracker, unfreeze, vibe, vibe-bot, web-publisher, wiki-ingest, wiki-lint, wiki-query
+agent-delegate, ai-debate, ai-usage-widget-install, careful, caveman, checkpoint, completion-report, context-restore, context-save, defuddle, domain-glossary, find-skill, founder-context, gcloud-helper, grill-me, html-default-output, human-voice-guard, json-canvas, keepass-helper, learn, llm-wiki-builder, make-pdf, model-router, multi-terminal-dispatcher, notebooklm-import, obsidian-bases, obsidian-cli, obsidian-markdown, office-docs, office-hours, open-browser, pair-agent, persona-validate, perspectives, plan-ceo-review, project-context-md, scrape, semantic-recall, session-context-export, session-context-tracker, session-start-hook, setup-browser-cookies, simon-handoff, simon-instincts, simon-ohmo, simon-research, simon-worktree, simonk, simonk-report, sprint-optimizer, stack-update, tech-preference-tracker, unfreeze, vibe, vibe-bot, web-publisher, wiki-ingest, wiki-lint, wiki-query
 </details>
 
 <details>
@@ -286,7 +286,7 @@ In Claude Code, run `/simonk-core:ai-usage-widget-install` or say "install the A
 ### Repository layout
 
 ```
-skills-src/        146 shipped skill sources (SKILL.md, evals/, scripts/, references/)
+skills-src/        141 shipped skill sources (SKILL.md, evals/, scripts/, references/)
 .claude/skills/    4 development skills used in this repo
 scripts/           build and verification tools (skill_release, plugin_bundle, codex_overlay, codex_safe_subset, dist_release)
 scripts/windows/   Windows user-home installer (update-local.ps1)

@@ -38,7 +38,6 @@
     "design-shotgun": "SimonKDesign",
     "design-system-keeper": "SimonKDesign",
     "design-system-page": "SimonKDesign",
-    "designmd-upgrade": "SimonKCore",
     "deslop-shared-libs": "SimonKStack",
     "dev-orchestrator": "SimonKStack",
     "devex-review": "SimonKStack",
@@ -80,11 +79,7 @@
     "office-docs": "SimonKCore",
     "office-hours": "SimonKCore",
     "offline-first": "SimonKStack",
-    "omc-upgrade": "SimonKCore",
-    "omo-upgrade": "SimonKCore",
     "open-browser": "SimonKCore",
-    "opencowork-upgrade": "SimonKCore",
-    "openharness-upgrade": "SimonKCore",
     "paid-api-guard": "SimonKStack",
     "pair-agent": "SimonKCore",
     "payment-integrator": "SimonKMarket",
@@ -207,10 +202,6 @@
     {
       "name": "repo-root PowerShell wrappers (scripts/simonk.ps1 and multi-terminal-launch.ps1)",
       "status": "not_packaged; use reviewed persistent repository separately"
-    },
-    {
-      "name": "shared ~/.claude/scripts/upgrade-vendor.sh and external vendor repositories",
-      "status": "not_packaged; installation and runtime unverified"
     },
     {
       "name": "Python, PowerShell, Git, Orca and provider CLI/API/MCP/Bot credentials and quota",
