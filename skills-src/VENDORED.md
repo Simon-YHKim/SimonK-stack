@@ -23,10 +23,11 @@ Integrated in full on 2026-10-21 (hub D-117):
 - Install and state paths are rewritten from the upstream home install to
   those folders. Update checks and auto-upgrade are off; SimonK-stack manages
   updates. The upstream upgrade skill is retired.
-- Safety skills (`careful`, `freeze`, `guard`, `unfreeze`, `investigate`) keep
-  their reviewed bytes for now: the five-plugin safety projection pins their
-  hook text and the freeze state default (`$HOME/.simonk/state`). Moving them to
-  `~/.simonk/state` is a separate safety change with its own review.
+- Safety skills (`careful`, `freeze`, `guard`, `unfreeze`, `investigate`) also
+  keep state in `~/.simonk/state` since hub D-119 (2026-10-21); the five-plugin
+  safety projection moved with them. Without `CLAUDE_PLUGIN_DATA`, a boundary or
+  careful rules left under the old `~/.gstack` default are still read, the next
+  `/freeze` or `/unfreeze` retires that boundary, and nothing recreates the folder.
 - Renamed: upstream `review` is `pr-review` (the repository already has a
   development-only `review`); upstream `open-gstack-browser` is `open-browser`.
 - File-level provenance and the upstream copyright notice: repository LICENSE.

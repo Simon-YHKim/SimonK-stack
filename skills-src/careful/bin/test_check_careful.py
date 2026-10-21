@@ -178,7 +178,7 @@ class CarefulHookTests(unittest.TestCase):
         shutil.copytree(SKILL / "bin", self.install / "bin",
                         ignore=shutil.ignore_patterns("*.py", "__pycache__"))
         shutil.copyfile(SKILL / "SKILL.md", self.install / "SKILL.md")
-        self.state = self.home / ".gstack"
+        self.state = self.home / ".simonk/state"
         self.work = self.base / "work dir"
         self.work.mkdir()
         # python3 shim: a deterministic parser regardless of the host PATH.
@@ -272,7 +272,7 @@ class CarefulHookTests(unittest.TestCase):
         text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
         self.assertNotIn("CLAUDE_SKILL_DIR}/bin", text.split("---", 2)[1])
         self.assertNotIn("/gstack/careful", self.hook_command)
-        self.assertRegex(text.split("---", 2)[1], r"(?m)^version: 0\.2\.6$")
+        self.assertRegex(text.split("---", 2)[1], r"(?m)^version: 0\.2\.7$")
         head = text.encode("utf-8")[:8192].decode("utf-8", "ignore")
         self.assertFalse(BANNER_A in head and BANNER_B in head,
                          "gstack banner would make setup treat this folder as gstack-owned")
@@ -566,6 +566,27 @@ class CarefulHookTests(unittest.TestCase):
         self.write_patterns("projects/other/careful-patterns.txt", ["^never"])
         self.assert_failure_deny(self.bash_cmd("make test"), "gstack-slug.sh is missing")
 
+    def test_legacy_home_patterns_still_apply(self):
+        legacy = self.home / ".gstack"
+        (legacy / "projects/demo-proj").mkdir(parents=True)
+        (legacy / "careful-patterns.txt").write_text("^terraform[[:space:]]+destroy\n",
+                                                     encoding="utf-8", newline="\n")
+        (legacy / "projects/demo-proj/careful-patterns.txt").write_text("^make[[:space:]]+deploy\n",
+                                                                       encoding="utf-8", newline="\n")
+        self.assertEqual(self.bash_cmd("terraform destroy")[0], "ask")
+        env = self.make_env([str(self.shims)] + self.git_paths, GSTACK_PROJECT_SLUG="demo-proj")
+        self.assertEqual(self.bash_cmd("make deploy", env=env)[0], "ask")
+        data = self.base / "plugin data"
+        data.mkdir()
+        env = self.make_env([str(self.shims)] + self.git_paths, CLAUDE_PLUGIN_DATA=posix(data))
+        self.assertEqual(self.bash_cmd("terraform destroy", env=env)[0], "allow")  # plugin root only
+
+    def test_project_patterns_do_not_recreate_legacy_home(self):
+        repo = self.make_repo("cache repo")
+        self.write_patterns("projects/other/careful-patterns.txt", ["^never"])
+        self.assertEqual(self.bash_cmd("make test", cwd=repo)[0], "allow")
+        self.assertFalse((self.home / ".gstack").exists(), "slug cache must not recreate ~/.gstack")
+
     # --- parser parity / shared-helper contract ---------------------------
     def test_node_only_parser_parity(self):
         node = shutil.which("node")
@@ -589,7 +610,7 @@ class CarefulHookTests(unittest.TestCase):
                                          capture_output=True, text=True, env=env, timeout=30).stdout
         out = run(self.env)
         self.assertEqual(out.count("rc=1"), 2, out)
-        self.assertIn("root=" + posix(self.home) + "/.gstack", out)
+        self.assertIn("root=" + posix(self.home) + "/.simonk/state", out)
         out = run(self.make_env([str(self.shims)] + self.git_paths, CLAUDE_PLUGIN_DATA="/plugin/state",
                                 GSTACK_HOME="/analytics/only"))
         self.assertIn("root=/plugin/state", out)

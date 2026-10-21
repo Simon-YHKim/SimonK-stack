@@ -427,6 +427,7 @@ class PluginBundleTests(unittest.TestCase):
             self.assertIn("${CLAUDE_PROJECT_DIR}", text)
             self.assertIn("${CLAUDE_SESSION_ID}", text)
             self.assertNotIn('STATE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}"', text)
+            self.assertNotIn('STATE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.simonk/state}"', text)
         detail = (self.output / "plugins/SimonKStack/skills/investigate/references/detail.md").read_text(
             encoding="utf-8")
         self.assertIn("Candidate session scope commands", detail)
