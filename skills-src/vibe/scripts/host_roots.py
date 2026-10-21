@@ -143,6 +143,10 @@ def _plugin_skill_roots(install, collector):
         # A declared skill directory is scanned through its flat parent, which
         # is only safe when that parent holds no undeclared skill.
         for parent, declared_keys in skill_dirs.items():
+            # The flat scan root itself must stay inside the plugin: a skill
+            # declared at the install root would otherwise scan sibling installs.
+            if not _key(parent).startswith(base + os.sep) and _key(parent) != base:
+                return None, "manifest_skill_root_outside_plugin"
             present = {_key(child) for child in parent.iterdir() if (child / "SKILL.md").is_file()}
             if _key(parent) != _key(install / "skills") and present - declared_keys:
                 return None, "manifest_partial_skill_dir"

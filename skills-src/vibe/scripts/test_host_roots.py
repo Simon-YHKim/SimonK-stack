@@ -177,11 +177,21 @@ class HostRootsTest(unittest.TestCase):
         full = self.plugin("full", skills=False, manifest={"name": "full", "skills": "./more/a/"})
         skill(full / "more", "a")
         listed = self.plugin("listed", manifest={"name": "listed", "skills": ["./skills/listed-skill/"]})
-        self.settings({"part@mk": True, "full@mk": True, "listed@mk": True})
+        root_skill = self.plugin("rooted", skills=False, manifest={"name": "rooted", "skills": "."})
+        write(root_skill / "SKILL.md", "---\nname: rooted\ndescription: Use when rooted\n---\n")
+        # A disabled install that shares the rooted plugin's parent directory.
+        sibling = root_skill.parent / "0.9.0"
+        skill(sibling.parent, sibling.name)
+        self.settings({"part@mk": True, "full@mk": True, "listed@mk": True, "rooted@mk": True,
+                       "sibling@mk": False})
         self.installed({"part@mk": [{"scope": "user", "installPath": str(part)}],
                         "full@mk": [{"scope": "user", "installPath": str(full)}],
-                        "listed@mk": [{"scope": "user", "installPath": str(listed)}]})
+                        "listed@mk": [{"scope": "user", "installPath": str(listed)}],
+                        "rooted@mk": [{"scope": "user", "installPath": str(root_skill)}],
+                        "sibling@mk": [{"scope": "user", "installPath": str(sibling)}]})
         out = self.observe()
+        self.assertIn({"plugin": "rooted@mk", "reason": "manifest_skill_root_outside_plugin"}, out["skipped"])
+        self.assertNotIn(str(root_skill.parent), out["roots"])
         self.assertIn({"plugin": "part@mk", "reason": "manifest_partial_skill_dir"}, out["skipped"])
         self.assertEqual(out["roots"], [str(self.claude / "skills"), str(full / "more"),
                                         str(listed / "skills")])
