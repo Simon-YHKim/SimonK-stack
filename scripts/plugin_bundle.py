@@ -251,7 +251,7 @@ bash "$HOME/.claude/skills/freeze/bin/freeze-state.sh" set "$FREEZE_INPUT"
    - `FREEZE_BUSY: ...` (exit 1): another writer holds the state lock and
      nothing changed. Say the boundary is NOT set and retry once. If it
      repeats, show the user the `.freeze-mutation.lock` directory next to
-     `freeze-dir.txt` (default `~/.gstack/`) and let them decide before anyone
+     `freeze-dir.txt` (default `~/.simonk/state/`) and let them decide before anyone
      removes it.
    - Any other failure (`No such file or directory`, exit 2): NOT set. Ask for
      an existing directory.
@@ -276,7 +276,7 @@ Read the result before telling the user anything:
 - `FREEZE_BUSY: ...` (exit 1): another writer holds the state lock, so the
   boundary is still active. Say so and retry once; if it repeats, show the
   user the `.freeze-mutation.lock` directory next to `freeze-dir.txt`
-  (default `~/.gstack/`) and let them decide before anyone removes it.
+  (default `~/.simonk/state/`) and let them decide before anyone removes it.
 - `FREEZE_PRESERVED: unexpected state type ...` (exit 1): `freeze-dir.txt` is
   a symlink or a directory and was left in place. Show it to the user; do not
   delete it on your own.
@@ -380,7 +380,7 @@ def safety_document(name, data):
 **If FREEZE_AVAILABLE:** Identify the narrowest directory containing the affected files. Write it to the freeze state file:
 
 ```bash
-STATE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}"
+STATE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.simonk/state}"
 mkdir -p "$STATE_DIR"
 echo "<detected-directory>/" > "$STATE_DIR/freeze-dir.txt"
 echo "Debug scope locked to: <detected-directory>/"

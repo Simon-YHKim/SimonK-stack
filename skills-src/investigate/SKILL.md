@@ -1,7 +1,7 @@
 ---
 name: investigate
 preamble-tier: 2
-version: 1.0.1
+version: 1.0.2
 description: "Use when asked to \"debug this\", \"fix this bug\", \"why is this broken\", \"investigate this error\", or \"root cause analysis\". Proactively invoke this skill (do NOT debug directly) when the user reports errors, 500 errors, stack traces, unexpected behavior, \"it was working yesterday\", or is troubleshooting why something stopped working. (gstack). Systematic debugging with root cause investigation. Four phases: investigate, analyze, hypothesize, implement. Iron Law: no fixes without root cause"
 allowed-tools:
   - Bash
@@ -33,12 +33,12 @@ hooks:
 ```bash
 _UPD=$(~/.claude/skills/gstack/bin/gstack-update-check 2>/dev/null || .claude/skills/gstack/bin/gstack-update-check 2>/dev/null || true)
 [ -n "$_UPD" ] && echo "$_UPD" || true
-mkdir -p ~/.gstack/sessions
-touch ~/.gstack/sessions/"$PPID"
-_SESSIONS=$(find ~/.gstack/sessions -mmin -120 -type f 2>/dev/null | wc -l | tr -d ' ')
-find ~/.gstack/sessions -mmin +120 -type f -exec rm {} + 2>/dev/null || true
+mkdir -p ~/.simonk/state/sessions
+touch ~/.simonk/state/sessions/"$PPID"
+_SESSIONS=$(find ~/.simonk/state/sessions -mmin -120 -type f 2>/dev/null | wc -l | tr -d ' ')
+find ~/.simonk/state/sessions -mmin +120 -type f -exec rm {} + 2>/dev/null || true
 _PROACTIVE=$(~/.claude/skills/gstack/bin/gstack-config get proactive 2>/dev/null || echo "true")
-_PROACTIVE_PROMPTED=$([ -f ~/.gstack/.proactive-prompted ] && echo "yes" || echo "no")
+_PROACTIVE_PROMPTED=$([ -f ~/.simonk/state/.proactive-prompted ] && echo "yes" || echo "no")
 _BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
 echo "BRANCH: $_BRANCH"
 _SKILL_PREFIX=$(~/.claude/skills/gstack/bin/gstack-config get skill_prefix 2>/dev/null || echo "false")
@@ -48,20 +48,20 @@ echo "SKILL_PREFIX: $_SKILL_PREFIX"
 source <(~/.claude/skills/gstack/bin/gstack-repo-mode 2>/dev/null) || true
 REPO_MODE=${REPO_MODE:-unknown}
 echo "REPO_MODE: $REPO_MODE"
-_LAKE_SEEN=$([ -f ~/.gstack/.completeness-intro-seen ] && echo "yes" || echo "no")
+_LAKE_SEEN=$([ -f ~/.simonk/state/.completeness-intro-seen ] && echo "yes" || echo "no")
 echo "LAKE_INTRO: $_LAKE_SEEN"
 _TEL=$(~/.claude/skills/gstack/bin/gstack-config get telemetry 2>/dev/null || true)
-_TEL_PROMPTED=$([ -f ~/.gstack/.telemetry-prompted ] && echo "yes" || echo "no")
+_TEL_PROMPTED=$([ -f ~/.simonk/state/.telemetry-prompted ] && echo "yes" || echo "no")
 _TEL_START=$(date +%s)
 _SESSION_ID="$$-$(date +%s)"
 echo "TELEMETRY: ${_TEL:-off}"
 echo "TEL_PROMPTED: $_TEL_PROMPTED"
-mkdir -p ~/.gstack/analytics
+mkdir -p ~/.simonk/state/analytics
 if [ "$_TEL" != "off" ]; then
-echo '{"skill":"investigate","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "unknown")'"}'  >> ~/.gstack/analytics/skill-usage.jsonl 2>/dev/null || true
+echo '{"skill":"investigate","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "unknown")'"}'  >> ~/.simonk/state/analytics/skill-usage.jsonl 2>/dev/null || true
 fi
 # zsh-compatible: use find instead of glob to avoid NOMATCH error
-for _PF in $(find ~/.gstack/analytics -maxdepth 1 -name '.pending-*' 2>/dev/null); do
+for _PF in $(find ~/.simonk/state/analytics -maxdepth 1 -name '.pending-*' 2>/dev/null); do
   if [ -f "$_PF" ]; then
     if [ "$_TEL" != "off" ] && [ -x "~/.claude/skills/gstack/bin/gstack-telemetry-log" ]; then
       ~/.claude/skills/gstack/bin/gstack-telemetry-log --event-type skill_run --skill _pending_finalize --outcome unknown --session-id "$_SESSION_ID" 2>/dev/null || true
@@ -72,7 +72,7 @@ for _PF in $(find ~/.gstack/analytics -maxdepth 1 -name '.pending-*' 2>/dev/null
 done
 # Learnings count
 eval "$(~/.claude/skills/gstack/bin/gstack-slug 2>/dev/null)" 2>/dev/null || true
-_LEARN_FILE="${GSTACK_HOME:-$HOME/.gstack}/projects/${SLUG:-unknown}/learnings.jsonl"
+_LEARN_FILE="${GSTACK_HOME:-$HOME/.simonk/state}/projects/${SLUG:-unknown}/learnings.jsonl"
 if [ -f "$_LEARN_FILE" ]; then
   _LEARN_COUNT=$(wc -l < "$_LEARN_FILE" 2>/dev/null | tr -d ' ')
   echo "LEARNINGS: $_LEARN_COUNT entries loaded"
@@ -124,7 +124,7 @@ Then offer to open the essay in their default browser:
 
 ```bash
 open https://garryslist.org/posts/boil-the-ocean
-touch ~/.gstack/.completeness-intro-seen
+touch ~/.simonk/state/.completeness-intro-seen
 ```
 
 Only run `open` if the user says yes. Always run `touch` to mark as seen. This only happens once.
@@ -157,7 +157,7 @@ If B→B: run `~/.claude/skills/gstack/bin/gstack-config set telemetry off`
 
 Always run:
 ```bash
-touch ~/.gstack/.telemetry-prompted
+touch ~/.simonk/state/.telemetry-prompted
 ```
 
 This only happens once. If `TEL_PROMPTED` is `yes`, skip this entirely.
@@ -178,7 +178,7 @@ If B: run `~/.claude/skills/gstack/bin/gstack-config set proactive false`
 
 Always run:
 ```bash
-touch ~/.gstack/.proactive-prompted
+touch ~/.simonk/state/.proactive-prompted
 ```
 
 This only happens once. If `PROACTIVE_PROMPTED` is `yes`, skip this entirely.
@@ -232,7 +232,7 @@ If `VENDORED_GSTACK` is `yes`: This project has a vendored copy of gstack at
 `.claude/skills/gstack/`. Vendoring is deprecated. We will not keep vendored copies
 up to date, so this project's gstack will fall behind.
 
-Use AskUserQuestion (one-time per project, check for `~/.gstack/.vendoring-warned-$SLUG` marker):
+Use AskUserQuestion (one-time per project, check for `~/.simonk/state/.vendoring-warned-$SLUG` marker):
 
 > This project has gstack vendored in `.claude/skills/gstack/`. Vendoring is deprecated.
 > We won't keep this copy up to date, so you'll fall behind on new features and fixes.
@@ -255,7 +255,7 @@ If B: say "OK, you're on your own to keep the vendored copy up to date."
 Always run (regardless of choice):
 ```bash
 eval "$(~/.claude/skills/gstack/bin/gstack-slug 2>/dev/null)" 2>/dev/null || true
-touch ~/.gstack/.vendoring-warned-${SLUG:-unknown}
+touch ~/.simonk/state/.vendoring-warned-${SLUG:-unknown}
 ```
 
 This only happens once per project. If the marker file exists, skip entirely.
@@ -320,7 +320,7 @@ This ensures decisions, plans, and progress survive context window compaction.
 
 ```bash
 eval "$(~/.claude/skills/gstack/bin/gstack-slug 2>/dev/null)"
-_PROJ="${GSTACK_HOME:-$HOME/.gstack}/projects/${SLUG:-unknown}"
+_PROJ="${GSTACK_HOME:-$HOME/.simonk/state}/projects/${SLUG:-unknown}"
 if [ -d "$_PROJ" ]; then
   echo "--- RECENT ARTIFACTS ---"
   # Last 3 artifacts across ceo-plans/ and checkpoints/

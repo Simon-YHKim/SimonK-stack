@@ -255,13 +255,23 @@ class SafetyHookTests(unittest.TestCase):
         self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("outside.py")}}, env=env), "deny")
 
     def test_home_state_fallback_matches_current_writer(self):
+        # Home default is ~/.simonk/state (D-119); a boundary left under the old
+        # ~/.gstack default is still honored while the new root holds none.
         self.freeze()
-        fallback = self.home / ".gstack"
-        fallback.mkdir()
-        shutil.copyfile(self.state / "freeze-dir.txt", fallback / "freeze-dir.txt")
         env = dict(self.env)
         del env["CLAUDE_PLUGIN_DATA"]
-        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("outside.py")}}, env=env), "deny")
+        for home_root in (".simonk/state", ".gstack"):
+            with self.subTest(root=home_root):
+                fallback = self.home / home_root
+                fallback.mkdir(parents=True)
+                shutil.copyfile(self.state / "freeze-dir.txt", fallback / "freeze-dir.txt")
+                self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("outside.py")}},
+                                           env=env), "deny")
+                self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("src/new.py")}},
+                                           env=env), "allow")
+                shutil.rmtree(fallback)
+        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("outside.py")}}, env=env),
+                         "allow")
 
     def test_removing_fixture_state_unfreezes(self):
         self.freeze()

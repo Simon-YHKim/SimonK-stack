@@ -1,6 +1,6 @@
 ---
 name: careful
-version: 0.2.6
+version: 0.2.7
 description: "Use when touching prod, live systems or a shared machine, or asked to \"be careful\", \"safety mode\", \"careful mode\", \"조심해\", \"신중 모드\", \"위험한 명령 경고\". Installs session PreToolUse Bash and PowerShell hooks; the check produces deny for HIGH commands (recursive delete of /, a drive root or ~, force-push to the default branch), ask for MEDIUM Bash ones (rm -r, DROP, git reset --hard), and always deny when the hook itself fails."
 allowed-tools:
   - Bash
@@ -32,8 +32,8 @@ Windows-shaped HIGH targets (hub decision D-62 A1, 0.2.1) and the deny-only
 PowerShell tool check (D-62 minimal B, 0.2.2).
 
 ```bash
-mkdir -p ~/.gstack/analytics
-echo '{"skill":"careful","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "unknown")'"}'  >> ~/.gstack/analytics/skill-usage.jsonl 2>/dev/null || true
+mkdir -p ~/.simonk/state/analytics
+echo '{"skill":"careful","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "unknown")'"}'  >> ~/.simonk/state/analytics/skill-usage.jsonl 2>/dev/null || true
 ```
 
 ## 결정 표 (Decision table)
@@ -208,10 +208,12 @@ reads `tool_name` instead (case-insensitive `bash` or `powershell`).
 Add warn rules — one POSIX ERE per line, `#` comments OK — in
 `<state>/careful-patterns.txt` (global) or
 `<state>/projects/<slug>/careful-patterns.txt` (per project), where `<state>` is
-`${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}` (the root SimonK freeze also uses) and
+`${CLAUDE_PLUGIN_DATA:-$HOME/.simonk/state}` (the root SimonK freeze also uses) and
 `<slug>` comes from the vendored `bin/gstack-slug.sh`. Consulted after the
 built-in families and only when none matched, so config can only ADD an `ask`,
 never suppress a baseline warning or a HIGH deny. Invalid regex lines are skipped.
+Rules saved under the old `$HOME/.gstack` default (before hub D-119, 2026-10-21)
+are still read when no `CLAUDE_PLUGIN_DATA` is set; nothing recreates that folder.
 
 ## Install and gstack setup ownership
 

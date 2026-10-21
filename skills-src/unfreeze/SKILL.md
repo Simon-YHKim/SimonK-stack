@@ -1,6 +1,6 @@
 ---
 name: unfreeze
-version: 0.2.1
+version: 0.2.2
 description: "Use when widening edit scope without ending the session, or asked to \"unfreeze\", \"unlock edits\", \"remove freeze\", \"allow all edits\", \"잠금 해제\", \"편집 제한 풀어\". Clears the boundary set by /freeze or /guard through the shared freeze-state.sh writer, which produces FREEZE_CLEARED, or FREEZE_BUSY with nothing changed while another writer holds the lock."
 allowed-tools:
   - Bash
@@ -18,8 +18,8 @@ the SimonK `/freeze` skill (hub decision D-62, 2026-10-03): in a flat install
 there; in the plugin build, the safety runtime that ships with the plugin.
 
 ```bash
-mkdir -p ~/.gstack/analytics
-echo '{"skill":"unfreeze","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "unknown")'"}'  >> ~/.gstack/analytics/skill-usage.jsonl 2>/dev/null || true
+mkdir -p ~/.simonk/state/analytics
+echo '{"skill":"unfreeze","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "unknown")'"}'  >> ~/.simonk/state/analytics/skill-usage.jsonl 2>/dev/null || true
 ```
 
 ## Clear the boundary
@@ -33,7 +33,7 @@ Read the result before telling the user anything:
 - `FREEZE_BUSY: ...` (exit 1): another writer holds the state lock, so the
   boundary is still active. Say so and retry once; if it repeats, show the
   user the `.freeze-mutation.lock` directory next to `freeze-dir.txt`
-  (default `~/.gstack/`) and let them decide before anyone removes it.
+  (default `~/.simonk/state/`) and let them decide before anyone removes it.
 - `FREEZE_PRESERVED: unexpected state type ...` (exit 1): `freeze-dir.txt` is
   a symlink or a directory and was left in place. Show it to the user; do not
   delete it on your own.
@@ -50,6 +50,7 @@ run `/freeze` again.
 |--------------|--------|----------------|
 | boundary set (any writer) | `FREEZE_CLEARED` | none: hooks allow every edit |
 | no boundary | `FREEZE_CLEARED` | none |
+| boundary left under the old `~/.gstack` default | `FREEZE_CLEARED` | none (that file is removed too) |
 | lock held by another writer | `FREEZE_BUSY` | unchanged |
 | state is a symlink or directory | `FREEZE_PRESERVED` | unchanged; edits stay denied |
 

@@ -12,7 +12,7 @@
         },
         {
           "id": "logs-usage",
-          "text": "Records skill usage to ~/.gstack/analytics/skill-usage.jsonl."
+          "text": "Records skill usage to ~/.simonk/state/analytics/skill-usage.jsonl."
         }
       ]
     },

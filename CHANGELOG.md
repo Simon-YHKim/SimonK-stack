@@ -5,6 +5,9 @@
 
 ## [Unreleased]
 
+### Changed
+- **안전 스킬 상태 폴더 `~/.gstack` → `~/.simonk/state` (허브 D-119 후속, D-117 남은 일)**: `careful` 0.2.7·`freeze` 0.2.8·`guard` 0.2.4·`unfreeze` 0.2.2·`investigate` 1.0.2. 공유 상태 루트 `${CLAUDE_PLUGIN_DATA:-$HOME/.simonk/state}`(플러그인 데이터 우선 그대로), 사용 기록·slug 캐시도 같은 폴더. 옛 `~/.gstack/freeze-dir.txt` 경계는 새 루트에 상태가 없을 때 그대로 지킨다(실패 시 막음). `/freeze` 가 새 경계로 바꾸고 `/unfreeze` 가 둘 다 지우며, 조사용 acquire 는 옛 경계가 있으면 건드리지 않는다. careful 사용자 규칙은 옛 폴더 것도 더해서 읽는다. 어떤 경로도 `~/.gstack` 을 새로 만들지 않는다. `freeze-state.sh` 는 표시된 SimonK delta 두 곳만 바뀌고(테스트가 나머지를 업스트림 해시와 대조), 5플러그인 안전 투영의 검토된 원문도 함께 옮겼다.
+
 ### Removed
 - **외부 vendored stack 은퇴 (허브 D-119, Simon 결정)**: `external/oh-my-claudecode`·`external/oh-my-openagent`·`external/OpenHarness`(4,667파일), `~/.simon-stack/vendor` 사본을 갱신하던 `omc-upgrade`·`omo-upgrade`·`openharness-upgrade`·`opencowork-upgrade`·`designmd-upgrade`, `scripts/upgrade-vendor.sh` 를 뺐다. SimonKCore 플러그인 기반에서도 같은 5개를 빼고(SimonKCore#8) 그 커밋으로 다시 고정했다. 참조(CLAUDE.md·INDEX·README·templates·.claudeignore·.graphifyignore·INSTALL·릴리스 설정)를 정리하고 `stack-update` 2.0.1 은 '요청한 vendored stack' 대신 '사용자가 지정한 저장소'를 본다. OpenHarness 는 pip `openharness-ai` 로만 남는다(`simon-ohmo`). 개수: skills-src 146 → 141, 5플러그인 191 → 186(core 64 → 59), Codex판 186 → 181.
 
