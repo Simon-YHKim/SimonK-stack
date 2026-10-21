@@ -196,6 +196,36 @@ class HostRootsTest(unittest.TestCase):
         self.assertEqual(out["roots"], [str(self.claude / "skills"), str(full / "more"),
                                         str(listed / "skills")])
 
+    def link_dir(self, target, link):
+        try:
+            os.symlink(target, link, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            if os.name != "nt":
+                self.skipTest("directory links unavailable")
+            import subprocess
+            subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(target)],
+                           check=True, capture_output=True)
+
+    def test_linked_skills_root_or_child_outside_plugin_is_rejected(self):
+        disabled = self.plugin("off")
+        linked = self.claude / "plugins" / "cache" / "mk" / "linked" / "1.0.0"
+        linked.mkdir(parents=True)
+        self.link_dir(disabled / "skills", linked / "skills")
+        child = self.claude / "plugins" / "cache" / "mk" / "child" / "1.0.0"
+        skill(child / "skills", "own")
+        self.link_dir(disabled / "skills" / "off-skill", child / "skills" / "borrowed")
+        inner = self.plugin("inner")  # a link that stays inside its own plugin is fine
+        self.link_dir(inner / "skills" / "inner-skill", inner / "skills" / "alias")
+        self.settings({"linked@mk": True, "child@mk": True, "inner@mk": True, "off@mk": False})
+        self.installed({"linked@mk": [{"scope": "user", "installPath": str(linked)}],
+                        "child@mk": [{"scope": "user", "installPath": str(child)}],
+                        "inner@mk": [{"scope": "user", "installPath": str(inner)}],
+                        "off@mk": [{"scope": "user", "installPath": str(disabled)}]})
+        out = self.observe()
+        self.assertEqual(out["roots"], [str(self.claude / "skills"), str(inner / "skills")])
+        self.assertIn({"plugin": "linked@mk", "reason": "skills_root_outside_plugin"}, out["skipped"])
+        self.assertIn({"plugin": "child@mk", "reason": "skill_link_outside_plugin"}, out["skipped"])
+
     def test_synced_claude_ai_plugins_are_never_scanned(self):
         skill(self.claude / "plugins" / "synced" / "org" / "engineering" / "skills", "standup")
         out = self.observe()

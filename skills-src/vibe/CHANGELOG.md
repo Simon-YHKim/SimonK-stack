@@ -14,7 +14,9 @@
     카탈로그 176개 중 SimonK 밖 스킬 32개, 같은 이름 대안 0개.
   - 매니페스트가 설치 루트 자체를 스킬로 밝히면(`"skills": "."`) 부모 폴더 스캔이 되므로 거부한다(`manifest_skill_root_outside_plugin`).
   - 매니페스트가 스킬 폴더 하나를 가리키면 그 부모를 스캔하므로, 부모에 선언 안 된 스킬이 있으면 그 플러그인을 건너뛴다(`manifest_partial_skill_dir`).
-  - 테스트 `test_host_roots.py` 16개(임시 홈만 사용), CI 단계 추가.
+  - 플러그인 루트(기본 `skills/` 포함)와 그 안의 스킬 폴더가 링크로 설치 폴더 밖을 가리키면 그 플러그인을 건너뛴다
+    (`skills_root_outside_plugin`·`skill_link_outside_plugin`). 꺼진 이웃 플러그인이 링크로 섞여 들어오지 않게 한다.
+  - 테스트 `test_host_roots.py` 17개(임시 홈만 사용), CI 단계 추가.
 
 ## 2.20.1 - 2026-10-21
 

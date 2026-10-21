@@ -22,6 +22,7 @@ if __name__ == "__main__":
 
 SCHEMA_VERSION = 1
 MAX_JSON_BYTES = 2 * 1024 * 1024
+MAX_CHILDREN = 10_000  # same bound as the orchestrate.py scanner
 KST = timezone(timedelta(hours=9))
 SCOPE_RANK = {"user": 0, "project": 1, "local": 2}
 
@@ -151,9 +152,23 @@ def _plugin_skill_roots(install, collector):
             if _key(parent) != _key(install / "skills") and present - declared_keys:
                 return None, "manifest_partial_skill_dir"
             roots.append(parent)
+    base = _key(install)
     unique = {}
     for root in roots:
-        unique.setdefault(_key(root), root)
+        key = _key(root)
+        # Every resolved root, including the default skills/ (which may be a
+        # link), must stay inside the plugin's own installation.
+        if not key.startswith(base + os.sep) and key != base:
+            return None, "skills_root_outside_plugin"
+        # The scanner reads direct children, so a linked skill folder inside
+        # the root must not lead outside the installation either.
+        if Path(root).is_dir():
+            for count, child in enumerate(Path(root).iterdir()):
+                if count >= MAX_CHILDREN:
+                    return None, "skills_root_too_large"
+                if not _key(child).startswith(base + os.sep):
+                    return None, "skill_link_outside_plugin"
+        unique.setdefault(key, root)
     return list(unique.values()), None
 
 
