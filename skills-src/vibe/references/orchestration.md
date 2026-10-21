@@ -71,6 +71,13 @@ For split homes, the current host coordinator owns root production and refresh:
    Preserve supplied order and identify the flat parent of each SKILL directory.
    Deduplicate the same physical root without changing priority. Never scan a
    broader home/cache tree to fill a gap or include disabled/out-of-scope skills.
+   `scripts/host_roots.py --host claude|codex` performs this observation. Claude:
+   the user skills root, then each plugin enabled in settings via its
+   `installed_plugins.json` installPath (manifest skill paths must stay inside
+   the plugin); `--project DIR` adds project/local plugin settings. Codex:
+   `.codex/skills`, `.agents/skills`, `.codex/skills/.system`. `--candidate-first` prepends an intact candidate's five
+   plugin roots. Skips carry reasons; cache versions and claude.ai-synced plugins
+   are never resolved; malformed host JSON exits 2; nothing is persisted.
 2. Run `inventory` with those repeated `--root` values and all required
    `--exclude-root` values. Check declared roots, selected names/paths, aliases,
    alternatives and issues against the observed host scope. Exit 0 means a

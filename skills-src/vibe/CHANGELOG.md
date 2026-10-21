@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.21.0 - 2026-10-21
+
+- **번들 밖 스킬도 찾는다.** 설치된 /vibe 는 후보 번들의 다섯 플러그인 루트만 기본으로 보므로, 개인 스킬(`~/.claude/skills`)과 따로 설치한
+  플러그인(HyperFrames·insane-search 등)이 카탈로그에 없었다. 새 `scripts/host_roots.py --host claude|codex` 가 split-home 1단계(관찰)를 맡는다.
+  - Claude: 사용자 스킬 루트, 그다음 settings `enabledPlugins` 에서 켜진 플러그인마다 `installed_plugins.json` 의 installPath `skills/`
+    (매니페스트가 밝힌 경로는 플러그인 안에 있을 때만). `--project DIR` 이면 프로젝트·로컬 설정과 그 프로젝트의 설치 기록도 읽는다.
+    Codex: `.codex/skills` · `.agents/skills` · `.codex/skills/.system`. `--candidate-first` 는 온전한 후보의 다섯 플러그인 루트를 앞에 둔다
+    (명시 루트는 후보 영수증 검사를 건너뛰므로 번들 검증기는 따로).
+  - 꺼진 플러그인·설치 기록 없음·경로 없음·애매한 기록은 이유와 함께 `skipped` 로 남고 추측하지 않는다. 캐시 버전과 claude.ai 동기화
+    플러그인은 풀지 않는다. 호스트 JSON 이 깨졌으면 종료 코드 2. 읽기만 하고 아무것도 저장하지 않는다(루트 목록 영속화 금지 유지).
+  - 이 PC 실측(2026-10-21): 루트 3개(사용자 스킬 + insane-search + HyperFrames), 인벤토리 complete·이슈 0, SimonK 밖 스킬 31개가 보인다.
+  - 테스트 `test_host_roots.py` 15개(임시 홈만 사용), CI 단계 추가.
+
 ## 2.20.1 - 2026-10-21
 
 - **D-117: gstack 런타임이 `~/.simonk/runtime` 으로 옮겨 갔다.** Gstack 출신 스킬 감지(`GSTACK_BIN`·`GSTACK_REFERENCE`)가

@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan and reports blocked coding or image routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.20.1
+version: 2.21.0
 author: simon-stack
 ---
 
@@ -32,7 +32,7 @@ Quality preference is not spending authorization.
 ## 1. Discover the needed skills and software
 
 Run `python -B "<skill>/scripts/orchestrate.py" catalog` to inspect skill metadata.
-For separately installed plugins, compose explicit roots from the current host's observed, authorized paths before invoking the helper.
+For skills outside the bundle (personal skills, separately installed plugins), run `python -B "<skill>/scripts/host_roots.py" --host <claude|codex>` and pass its `root_args` to `inventory`, then the same roots to `plan`; it only reads host settings, writes nothing, and must be re-run before each plan.
 Own this step; do not ask Simon to maintain paths already supplied by the host. Follow the split-home procedure in [discovery](references/orchestration.md).
 Inside an intact five-plugin candidate, default catalog/plan uses that bundle's
 five skill roots only. Its receipt, planner, manifests and SKILL metadata must
