@@ -992,3 +992,4 @@ last-sync: 2026-07-05
   - **근거(실측)**: skills-src 안 `GSTACK_*` 429곳(76파일), `gstack-*` 스크립트 이름 약 1,700곳 — 전부 업스트림 1.91.9.0 본문. 동작 변화 0, 사용자에게 보이는 흔적(경로·스킬명·설명)은 D-117에서 이미 제거. 바꾸면 업스트림 갱신마다 대형 충돌.
   - **진행**: 모델 레지스트리 주간 재확인(2026-10-18.1 만료 10-25 09:19 전) · 안전 스킬 5종 상태 기본값 `~/.gstack` → `~/.simonk/state`(옛 freeze 파일은 닫힌 쪽으로 존중). 각각 PR → CI·Codex 리뷰 → 머지 → update-local.
   - **뒤집는 조건**: Simon이 이름까지 지우길 원하거나, 업스트림 갱신을 더는 하지 않기로 하면 2단계를 연다.
+- 2026-10-21 22:34:47 KST | AMEND | **D-120 gstack 2단계(런타임 내부 gstack-*·GSTACK_* 이름 정리) 보류 · 레지스트리 재확인과 안전 스킬 상태 이전은 지금 진행** — 이행 완료 · SimonK-stack #193 6a40a66(레지스트리 2026-10-21.1, 만료 10-28 21:32, 바뀐 사실 0) · #194 16abde4(careful·freeze·guard·unfreeze·investigate 상태 ~/.simonk/state, 옛 freeze 경계 존중) · 이 PC 후보 20261021-vibe-2211-16abde4(selftest 283/0·104/0). investigate 설치본은 D-68대로 그대로(옛 gstack 판) | claude
