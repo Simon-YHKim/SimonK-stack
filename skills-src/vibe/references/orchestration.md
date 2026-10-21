@@ -75,7 +75,7 @@ For split homes, the current host coordinator owns root production and refresh:
    the user skills root, then each plugin enabled in settings via its
    `installed_plugins.json` installPath (manifest skill paths must stay inside
    the plugin); `--project DIR` adds project/local plugin settings. Codex:
-   `.codex/skills`, `.agents/skills`, `.codex/skills/.system`. `--candidate-first` prepends an intact candidate's five
+   `.agents/skills`, `.codex/skills`, `.codex/skills/.system` (fallback order). `--candidate-first` prepends an intact candidate's five
    plugin roots. Skips carry reasons; cache versions and claude.ai-synced plugins
    are never resolved; malformed host JSON exits 2; nothing is persisted.
 2. Run `inventory` with those repeated `--root` values and all required

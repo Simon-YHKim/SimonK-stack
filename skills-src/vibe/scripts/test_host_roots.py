@@ -226,6 +226,21 @@ class HostRootsTest(unittest.TestCase):
         self.assertIn({"plugin": "linked@mk", "reason": "skills_root_outside_plugin"}, out["skipped"])
         self.assertIn({"plugin": "child@mk", "reason": "skill_link_outside_plugin"}, out["skipped"])
 
+    def test_linked_skill_metadata_file_outside_plugin_is_rejected(self):
+        disabled = self.plugin("off")
+        borrow = self.claude / "plugins" / "cache" / "mk" / "borrow" / "1.0.0"
+        (borrow / "skills" / "borrowed").mkdir(parents=True)
+        try:
+            os.symlink(disabled / "skills" / "off-skill" / "SKILL.md", borrow / "skills" / "borrowed" / "SKILL.md")
+        except (OSError, NotImplementedError):
+            self.skipTest("file symlinks unavailable")
+        self.settings({"borrow@mk": True, "off@mk": False})
+        self.installed({"borrow@mk": [{"scope": "user", "installPath": str(borrow)}],
+                        "off@mk": [{"scope": "user", "installPath": str(disabled)}]})
+        out = self.observe()
+        self.assertEqual(out["roots"], [str(self.claude / "skills")])
+        self.assertIn({"plugin": "borrow@mk", "reason": "skill_link_outside_plugin"}, out["skipped"])
+
     def test_synced_claude_ai_plugins_are_never_scanned(self):
         skill(self.claude / "plugins" / "synced" / "org" / "engineering" / "skills", "standup")
         out = self.observe()
@@ -237,9 +252,14 @@ class HostRootsTest(unittest.TestCase):
         skill(self.home / ".agents" / "skills", "b")
         skill(self.home / ".codex" / "skills" / ".system", "c")
         out = self.observe("codex")
-        self.assertEqual(out["roots"], [str(self.home / ".codex" / "skills"),
-                                        str(self.home / ".agents" / "skills"),
+        self.assertEqual(out["roots"], [str(self.home / ".agents" / "skills"),
+                                        str(self.home / ".codex" / "skills"),
                                         str(self.home / ".codex" / "skills" / ".system")])
+        # Same relative order as orchestrate.py's fallback roots.
+        import orchestrate
+        src = Path(orchestrate.__file__).read_text(encoding="utf-8")
+        self.assertLess(src.index('Path.home() / ".agents" / "skills"'),
+                        src.index('Path.home() / ".codex" / "skills", Path.home() / ".claude"'))
         with self.assertRaises(host_roots.HostRootsError):
             self.observe("codex", project=self.home)
 
@@ -251,7 +271,7 @@ class HostRootsTest(unittest.TestCase):
         altc = Path(self.tmp.name) / "alt-codex"
         skill(altc / "skills", "y")
         out = host_roots.observe("codex", self.home, env={"CODEX_HOME": str(altc)}, now=NOW)
-        self.assertEqual(out["roots"][0], str(altc / "skills"))
+        self.assertEqual(out["roots"], [str(altc / "skills")])
 
     def test_candidate_first_prepends_bundle_roots_or_fails_closed(self):
         bundle = Path(self.tmp.name) / "bundle"

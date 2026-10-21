@@ -166,7 +166,9 @@ def _plugin_skill_roots(install, collector):
             for count, child in enumerate(Path(root).iterdir()):
                 if count >= MAX_CHILDREN:
                     return None, "skills_root_too_large"
-                if not _key(child).startswith(base + os.sep):
+                metadata = child / "SKILL.md"
+                if (not _key(child).startswith(base + os.sep)
+                        or (os.path.lexists(metadata) and not _key(metadata).startswith(base + os.sep))):
                     return None, "skill_link_outside_plugin"
         unique.setdefault(key, root)
     return list(unique.values()), None
@@ -231,8 +233,10 @@ def observe_codex(home, collector, env):
     codex = Path(env["CODEX_HOME"]) if env.get("CODEX_HOME") else home / ".codex"
     if env.get("CODEX_HOME"):
         collector.notes.append("CODEX_HOME is set; it replaces ~/.codex.")
-    collector.add(codex / "skills", "codex-user-skills")
+    # Same relative order as orchestrate.py's non-candidate defaults: the first
+    # declared name wins, so changing it would change the selected skill body.
     collector.add(home / ".agents" / "skills", "agents-skills")
+    collector.add(codex / "skills", "codex-user-skills")
     collector.add(codex / "skills" / ".system", "codex-system-skills")
     collector.notes.append("Codex plugin skills are not resolved from cache versions; "
                            "describe them in a host-native snapshot instead.")

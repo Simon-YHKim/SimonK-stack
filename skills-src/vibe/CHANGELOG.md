@@ -6,7 +6,7 @@
   플러그인(HyperFrames·insane-search 등)이 카탈로그에 없었다. 새 `scripts/host_roots.py --host claude|codex` 가 split-home 1단계(관찰)를 맡는다.
   - Claude: 사용자 스킬 루트, 그다음 settings `enabledPlugins` 에서 켜진 플러그인마다 `installed_plugins.json` 의 installPath `skills/`
     (매니페스트가 밝힌 경로는 플러그인 안에 있을 때만). `--project DIR` 이면 프로젝트·로컬 설정과 그 프로젝트의 설치 기록도 읽는다.
-    Codex: `.codex/skills` · `.agents/skills` · `.codex/skills/.system`. `--candidate-first` 는 온전한 후보의 다섯 플러그인 루트를 앞에 둔다
+    Codex: `.agents/skills` · `.codex/skills` · `.codex/skills/.system`(기존 폴백 순서 그대로). `--candidate-first` 는 온전한 후보의 다섯 플러그인 루트를 앞에 둔다
     (명시 루트는 후보 영수증 검사를 건너뛰므로 번들 검증기는 따로).
   - 꺼진 플러그인·설치 기록 없음·경로 없음·애매한 기록은 이유와 함께 `skipped` 로 남고 추측하지 않는다. 캐시 버전과 claude.ai 동기화
     플러그인은 풀지 않는다. 호스트 JSON 이 깨졌으면 종료 코드 2. 읽기만 하고 아무것도 저장하지 않는다(루트 목록 영속화 금지 유지).
@@ -15,8 +15,8 @@
   - 매니페스트가 설치 루트 자체를 스킬로 밝히면(`"skills": "."`) 부모 폴더 스캔이 되므로 거부한다(`manifest_skill_root_outside_plugin`).
   - 매니페스트가 스킬 폴더 하나를 가리키면 그 부모를 스캔하므로, 부모에 선언 안 된 스킬이 있으면 그 플러그인을 건너뛴다(`manifest_partial_skill_dir`).
   - 플러그인 루트(기본 `skills/` 포함)와 그 안의 스킬 폴더가 링크로 설치 폴더 밖을 가리키면 그 플러그인을 건너뛴다
-    (`skills_root_outside_plugin`·`skill_link_outside_plugin`). 꺼진 이웃 플러그인이 링크로 섞여 들어오지 않게 한다.
-  - 테스트 `test_host_roots.py` 17개(임시 홈만 사용), CI 단계 추가.
+    (`skills_root_outside_plugin`·`skill_link_outside_plugin`). 스킬 폴더 안 `SKILL.md` 파일 링크도 같이 본다. 꺼진 이웃 플러그인이 링크로 섞여 들어오지 않게 한다.
+  - 테스트 `test_host_roots.py` 18개(임시 홈만 사용), CI 단계 추가.
 
 ## 2.20.1 - 2026-10-21
 
