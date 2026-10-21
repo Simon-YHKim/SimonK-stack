@@ -1,10 +1,11 @@
-# Model catalog map — CLI names, registry IDs and the 2026-10-18 refresh
+# Model catalog map — CLI names, registry IDs and the 2026-10-21 refresh
 
 ## Contents
 
 - CLI name map
 - Registered legacy entries
 - Lane migration pending
+- Refresh record (2026-10-21)
 - Refresh record (2026-10-18)
 - Refresh record (2026-10-12)
 - Repeating the refresh
@@ -230,6 +231,36 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
 
 `gemini-4-argon` 은 2026-10-13 Gemini API GA 라 2026-10-18.1 레지스트리에 등록했지만 `routing.py` 레인은 없다. 그래서 계획에 넣으면 지금처럼 `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막힌다. 이유는 둘이다. Orca 의 antigravity 에이전트는 기동 때 모델을 고를 수 없고(D-28 #12), agy CLI 직행 실행기도 없다. 실행기를 만들더라도 다른 실행기처럼 코디네이터 인증서(모델 포함·남은 쿼터·초과 과금 OFF·API 폴백 OFF)가 있어야 돌고, Antigravity 초과 과금 여부는 아직 확인하지 못했다. 허브 토론 D-104 의 B 판정은 이 사실을 빠뜨린 근거로 나와, 사실을 넣어 다시 연 D-105(FINAL 4/4, A, 확신도 92)가 먼저 agy 인증서 경로를 확인하고 토론 좌석 사용을 최대 5건 계측한 뒤 실행기를 다시 보기로 정했다. 지금 Argon 이 실제로 쓰이는 곳은 ai-debate 의 Gemini 좌석(`gemini-4-argon-high`, ai-debate 0.2.8)이다. 2026-10-18 canary 두 건(화면 녹화 검토, 심어 둔 주장 10개 대조)은 통과했지만 둘 다 n=1 합성 표본이다.
 
+## Refresh record (2026-10-21)
+
+시각은 모두 KST 다. 이 재확인은 모델·Bot·유료 API 호출 0회다(출처는 curl 로 읽었고, CLI 는 목록·버전·도움말만 읽었다).
+2026-10-18 표는 커밋 `50f79f4` 의 이 파일에 있다.
+
+| 근거 | 관측 | 결과 |
+| --- | --- | --- |
+| Codex `~/.codex/models_cache.json` | `fetched_at` 2026-10-21T12:32:46Z(21:32:46), 캐시 클라이언트 0.162.1 | 10개 slug 그대로(공개 8 + 숨김 `gpt-reserve`·`codex-auto-review`). 우선순위 1 `gpt-6.1-sol`, Daybreak alias 는 목록에 그대로(우선순위 11). 등록된 slug 의 effort 는 10-18 과 같다 |
+| `~/.grok/models_cache.json`, `grok --no-auto-update models` | 실행 전 사본 `fetched_at` 2026-10-19 09:49:35, 21:33:00 실행 뒤 다시 받음(etag 그대로) | 4개 그대로: `grok-4.7`·`grok-4.7-build-fast`·`grok-4.6` 은 low~xhigh, `grok-4.5` 는 low~high, 기본 high, 256K. 이번 `grok models` 는 "You are not authenticated." 를 먼저 찍고 기본 모델을 `grok-4.6` 으로 보였다(로컬 표시만, 제공사 사실 아님) |
+| `codex --version`, `grok --no-auto-update --version`, `agy --version`, `claude --version` | 21:32:57 | Codex 0.163.0(10-18 0.162.1)·grok 1.0.46 그대로·agy 1.4.4(10-18 1.4.1)·Claude Code 2.1.305(10-18 2.1.302) |
+| `agy models`(`AGY_CLI_DISABLE_AUTO_UPDATE=true`, PowerShell) | 21:33:00 | 13개 이름 그대로(Argon 3·3.8 Flash 3·Claude 6·`gpt-oss-120b-medium`) |
+| `claude --help` | 21:33:06 | `--effort` 는 low, medium, high, xhigh, max 그대로 |
+| `runtime_collect.py --surface codex --surface grok`(메타데이터 전용) | 21:33:24~21:33:29 | Codex app-server 공개 8개·Grok 3개, 둘 다 구독 모드, 턴 0회. effort 는 캐시와 같다 |
+| 레지스트리 출처 34개·task-fit 전용 6개 | 21:34:08~21:34:57, 전부 200 | 등록 모델 20개, 사실 필드 267개(10-06 정의, null·빈 값 38개는 규약대로 일치). 일치 267, 불일치 0, 확인불가 0. 10-12 부터 확인불가였던 `gpt-5.6-terra`·`gpt-5.6-luna` 장문 cached_input 은 가격 페이지 Markdown 판(`pricing.md`)의 장문 표에서 $0.40·$0.04 로 확인했다 |
+| 폐기·모델 목록 5개(OpenAI 폐기·모델, Google 폐기·모델, xAI 모델) | 21:34:58~21:35:02, 전부 200 | OpenAI 10-14 공지: GPT-4o·4o mini·4.1·4.1 mini 등 2027-01-14 종료(미등록). Google 폐기 표는 10-20 갱신이지만 3.8 Flash·3.1 Pro preview 는 종료일 없음 그대로, Argon 은 표에 없다. xAI 공개 목록 8개(`grok-build-0.1` 은 `grok-code-fast-1` 별칭, 미등록) |
+| 후보 확인 4개(Anthropic 뉴스, Google 모델 블로그, x.ai 뉴스, OpenAI 뉴스 RSS) | 21:35:02~21:35:06 | 새 텍스트 모델 발표 없음. x.ai 10-14 Grok Voice 3.0(음성), OpenAI 10-15 GPT-Rosalind 연구실 확대(접근 제한 모델) |
+| `model_watch.py scan --force` | 21:40:42~21:40:48, 상태 파일 사본에 `--state` 로 실행(원본 sha256 앞 16자 `39b0c74be3e6b6de` 실행 전후 같음) | 새 후보 1(OpenAI 고객 사례 글 "Terminal X … GPT-6.1", 출시 아님)·오류 0 |
+
+관측만(레지스트리 값·레인·라우팅은 그대로).
+- OpenAI 가 10-20 에 12시간 프롬프트 캐시를 열었다(12시간 쓰기 = 입력 2.5배). 가격표에 30분·12시간 쓰기 두 칸이 생겼고 장문 구간 쓰기 값도 적힌다.
+  모델 페이지는 여전히 기본 30분 쓰기 하나만 적으므로 기본 `cache_write` 는 그 값을 두고, 장문 구간 `cache_write` 는 두 기간을 한 칸에
+  담을 수 없어 `null` 그대로다(Claude Sonnet·Haiku 5.5 와 같은 규칙).
+- OpenAI 가격 페이지의 장문(Long context) 탭은 HTML 에 렌더링되지 않는다. 같은 페이지 주소에 `.md` 를 붙인 Markdown 판이 장문 표를 함께 싣는다.
+- xAI 모델 페이지 본문은 클라이언트 렌더링이라 태그 제거 텍스트에 사양이 없다. 페이지에 박힌 `globalThis.__XAI_PUBLIC_MODELS__` JSON
+  (가격은 1만분의 1 달러 단위)으로 대조했다.
+- 미등록 그대로: Claude Mythos 5.1(가격표 Additional models, Active), `grok-build-0.1`, Grok Voice 3.0. Claude Haiku 4.5 는 은퇴 하한(10-15)이 지났지만 표에는 아직 Active 다.
+
+레지스트리 `checked_at` 은 실제로 쓴 근거 중 가장 이른 Codex 모델 캐시 수신 2026-10-21 21:32:46(초 미만 버림)이라 사실은
+2026-10-28 21:32:46 KST 에 만료된다. task-fit 정책은 자기 출처를 처음 읽은 21:34:08 부터 2026-10-28 21:34:08 KST 까지 유효하다.
+
 ## Refresh record (2026-10-18)
 
 시각은 모두 KST 다. 이 재확인 자체는 모델·Bot·유료 API 호출 0회다(출처 읽기는 하위 에이전트가 curl 로 했고,
@@ -332,7 +363,7 @@ CLI 는 목록·버전·도움말만 읽었다). 같은 날 따로 돈 Argon can
    `runtime_collect.py --surface codex --surface grok` 로 app-server `model/list` 와 Grok ACP
    과금을 메타데이터만 읽는다. 프롬프트는 보내지 않는다.
 2. 레지스트리·task-fit 출처를 모두 HTTPS 로 다시 읽고 ID·effort·가격·구간·은퇴 일자를 JSON 과
-   대조한다. 폐기 페이지와 `model_watch.py status` 의 대기 후보도 본다.
+   대조한다. OpenAI 장문 가격은 `pricing.md`, xAI 사양은 페이지의 `__XAI_PUBLIC_MODELS__` JSON 에 있다. 폐기 페이지와 `model_watch.py status` 의 대기 후보도 본다.
 3. `checked_at` 은 실제로 쓴 관측 중 가장 이른 시각으로 둔다(캐시라면 그 `fetched_at`). 더 늦은
    시각은 쓰지 않는다. 그다음 `test_model_registry.py`, `test_runtime_collect.py`,
    `test_orchestrate.py` 를 돌린다.

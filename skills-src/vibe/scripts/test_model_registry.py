@@ -345,11 +345,11 @@ class ModelRegistryTests(unittest.TestCase):
             wrong["access_proof"].update(change)
             self.assertFalse(self.bind(wrong, data)["candidates"][0]["available"])
 
-    def test_registry_and_task_fit_windows_cover_the_2026_10_18_recheck(self):
-        # The 2026-10-12 facts (11:43 KST) would expire REGISTRY_STALE on 2026-10-19 11:43 KST.
+    def test_registry_and_task_fit_windows_cover_the_2026_10_21_recheck(self):
+        # The 2026-10-18 facts (09:19 KST) would expire REGISTRY_STALE on 2026-10-25 09:19 KST.
         data = self.m.load_registry()
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
-        floor = datetime.fromisoformat("2026-10-18T09:00:00+09:00")
+        floor = datetime.fromisoformat("2026-10-21T21:00:00+09:00")
         checked = datetime.fromisoformat(data["checked_at"])
         self.assertGreaterEqual(checked, floor)
         self.assertGreaterEqual(datetime.fromisoformat(policy["checked_at"]), floor)
@@ -357,7 +357,7 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertLessEqual(checked, datetime.fromisoformat(policy["checked_at"]))
         earliest = min(checked + timedelta(seconds=self.m.MAX_FACT_AGE_SECONDS),
                        datetime.fromisoformat(policy["valid_until"]))
-        self.assertGreaterEqual(earliest, datetime.fromisoformat("2026-10-25T09:00:00+09:00"))
+        self.assertGreaterEqual(earliest, datetime.fromisoformat("2026-10-28T21:00:00+09:00"))
 
     def test_2026_10_12_provider_fact_changes_are_registered_and_fail_closed(self):
         # Three provider facts changed between the 2026-10-06 and 2026-10-12 rechecks.
@@ -580,9 +580,10 @@ class ModelRegistryTests(unittest.TestCase):
         # D-106 (same day, Simon: "sonnet5.5는 간단한 코딩에 써야 하는거 아니야? 복잡한 코딩은 opus5.5 xhigh가
         # 해야지.") corrects D-103: CODE_COMPLEX is Opus xhigh first, CODE_SIMPLE is Sonnet first.
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
-        self.assertEqual(policy["version"], "2026-10-18-shadow.4")
+        # The 2026-10-21 recheck (2026-10-21-shadow.1) renewed the window and kept every rank.
+        self.assertEqual(policy["version"], "2026-10-21-shadow.1")
         self.assertEqual((policy["checked_at"], policy["valid_until"]),
-                         ("2026-10-18T09:19:19+09:00", "2026-10-25T09:19:19+09:00"))
+                         ("2026-10-21T21:34:08+09:00", "2026-10-28T21:34:08+09:00"))
         profiles = policy["profiles"]
 
         def rows(profile):
@@ -821,8 +822,8 @@ class ModelRegistryTests(unittest.TestCase):
                       SCRIPT.with_name("routing.py").read_text(encoding="utf-8"))
 
         data = self.m.load_registry()
-        self.assertEqual(data["version"], "2026-10-18.1")
-        self.assertEqual((data["checked_at"], data["data_as_of"]), ("2026-10-18T09:19:19+09:00", "2026-10-18"))
+        self.assertEqual(data["version"], "2026-10-21.1")
+        self.assertEqual((data["checked_at"], data["data_as_of"]), ("2026-10-21T21:32:46+09:00", "2026-10-21"))
         models = {m["id"]: m for m in data["models"]}
         self.assertEqual(models[gate]["lifecycle"], "deprecated")  # the move does not revive the alias.
         migration = data["legacy_lane_migration"]
