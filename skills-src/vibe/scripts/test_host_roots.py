@@ -170,6 +170,22 @@ class HostRootsTest(unittest.TestCase):
         self.assertEqual(reasons["escape@mk"], "manifest_skills_outside_plugin")
         self.assertTrue(reasons["broken@mk"].startswith("manifest_invalid"))
 
+    def test_declared_skill_dir_never_exposes_undeclared_siblings(self):
+        part = self.plugin("part", skills=False, manifest={"name": "part", "skills": ["./more/a/"]})
+        skill(part / "more", "a")
+        skill(part / "more", "hidden")
+        full = self.plugin("full", skills=False, manifest={"name": "full", "skills": "./more/a/"})
+        skill(full / "more", "a")
+        listed = self.plugin("listed", manifest={"name": "listed", "skills": ["./skills/listed-skill/"]})
+        self.settings({"part@mk": True, "full@mk": True, "listed@mk": True})
+        self.installed({"part@mk": [{"scope": "user", "installPath": str(part)}],
+                        "full@mk": [{"scope": "user", "installPath": str(full)}],
+                        "listed@mk": [{"scope": "user", "installPath": str(listed)}]})
+        out = self.observe()
+        self.assertIn({"plugin": "part@mk", "reason": "manifest_partial_skill_dir"}, out["skipped"])
+        self.assertEqual(out["roots"], [str(self.claude / "skills"), str(full / "more"),
+                                        str(listed / "skills")])
+
     def test_synced_claude_ai_plugins_are_never_scanned(self):
         skill(self.claude / "plugins" / "synced" / "org" / "engineering" / "skills", "standup")
         out = self.observe()

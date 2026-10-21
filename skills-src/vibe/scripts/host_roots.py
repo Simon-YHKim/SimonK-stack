@@ -131,13 +131,26 @@ def _plugin_skill_roots(install, collector):
         if not isinstance(entries, list) or not all(isinstance(e, str) for e in entries):
             return None, "manifest_skills_invalid"
         base = _key(install)
+        skill_dirs = {}
         for entry in entries:
             target = (install / entry)
             if not _key(target).startswith(base + os.sep) and _key(target) != base:
                 return None, "manifest_skills_outside_plugin"
-            # A declared skill directory's flat parent is the scan root.
-            roots.append(target.parent if (target / "SKILL.md").is_file() else target)
-    return roots, None
+            if (target / "SKILL.md").is_file():
+                skill_dirs.setdefault(target.parent, set()).add(_key(target))
+            else:
+                roots.append(target)
+        # A declared skill directory is scanned through its flat parent, which
+        # is only safe when that parent holds no undeclared skill.
+        for parent, declared_keys in skill_dirs.items():
+            present = {_key(child) for child in parent.iterdir() if (child / "SKILL.md").is_file()}
+            if _key(parent) != _key(install / "skills") and present - declared_keys:
+                return None, "manifest_partial_skill_dir"
+            roots.append(parent)
+    unique = {}
+    for root in roots:
+        unique.setdefault(_key(root), root)
+    return list(unique.values()), None
 
 
 def observe_claude(home, project, collector, env):
@@ -153,6 +166,7 @@ def observe_claude(home, project, collector, env):
         settings += [project / ".claude" / "settings.json", project / ".claude" / "settings.local.json"]
     else:
         collector.notes.append("Project and local plugin settings were not read; pass --project DIR to include them.")
+    collector.notes.append("Managed (policy) settings and --settings overrides are not read.")
     plugins = _enabled_plugins(settings, collector)
     if not plugins:
         collector.notes.append("No plugin is enabled in the settings that were read.")
