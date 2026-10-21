@@ -581,6 +581,25 @@ class CarefulHookTests(unittest.TestCase):
         env = self.make_env([str(self.shims)] + self.git_paths, CLAUDE_PLUGIN_DATA=posix(data))
         self.assertEqual(self.bash_cmd("terraform destroy", env=env)[0], "allow")  # plugin root only
 
+    def test_legacy_rules_follow_the_legacy_sticky_slug(self):
+        # A project whose slug is pinned in the old cache (e.g. its directory
+        # slug from before an origin remote) keeps its legacy rules.
+        repo = self.make_repo("sticky repo")
+        legacy = self.home / ".gstack"
+        legacy.mkdir()
+        env = self.make_env([str(self.shims)] + self.git_paths, GSTACK_HOME=posix(legacy))
+        out = subprocess.run([str(BASH), "--noprofile", "--norc", posix(self.install / "bin/gstack-slug.sh")],
+                             capture_output=True, text=True, cwd=str(repo), env=env, timeout=60)
+        self.assertEqual(out.returncode, 0, out.stderr)
+        cached = list((legacy / "slug-cache").iterdir())
+        self.assertEqual(len(cached), 1, cached)
+        cached[0].write_text("old-project", encoding="utf-8", newline="")
+        rules = legacy / "projects/old-project/careful-patterns.txt"
+        rules.parent.mkdir(parents=True)
+        rules.write_text("^make[[:space:]]+deploy\n", encoding="utf-8", newline="\n")
+        self.assertEqual(self.bash_cmd("make deploy", cwd=repo)[0], "ask")
+        self.assertEqual(self.bash_cmd("make test", cwd=repo)[0], "allow")
+
     def test_project_patterns_do_not_recreate_legacy_home(self):
         repo = self.make_repo("cache repo")
         self.write_patterns("projects/other/careful-patterns.txt", ["^never"])

@@ -31,7 +31,9 @@
 #      state root ${CLAUDE_PLUGIN_DATA:-$HOME/.simonk/state} and, without
 #      CLAUDE_PLUGIN_DATA, also from an existing legacy $HOME/.gstack (both
 #      additive). gstack-slug.sh runs with GSTACK_HOME defaulting to
-#      $HOME/.simonk/state so its slug cache no longer recreates ~/.gstack.
+#      $HOME/.simonk/state so its slug cache no longer recreates ~/.gstack;
+#      legacy per-project rules are also matched under the slug from the
+#      legacy sticky cache.
 # check-careful.sh — PreToolUse hook for /careful skill
 # Reads JSON from stdin, checks Bash command for destructive patterns.
 # Two tiers:
@@ -567,26 +569,42 @@ $_LEGACY_HOME_DIR/careful-patterns.txt"
   # EVERY Bash command while /careful is active — only pay it when some
   # per-project pattern file actually exists anywhere.
   _ANY_PROJ_PAT=$(find "$_GSTACK_HOME_DIR/projects" -maxdepth 2 -name careful-patterns.txt -print -quit 2>/dev/null || true)
-  if [ -z "$_ANY_PROJ_PAT" ] && [ -n "$_LEGACY_HOME_DIR" ]; then
-    _ANY_PROJ_PAT=$(find "$_LEGACY_HOME_DIR/projects" -maxdepth 2 -name careful-patterns.txt -print -quit 2>/dev/null || true)
+  _ANY_LEGACY_PROJ_PAT=""
+  if [ -n "$_LEGACY_HOME_DIR" ]; then
+    _ANY_LEGACY_PROJ_PAT=$(find "$_LEGACY_HOME_DIR/projects" -maxdepth 2 -name careful-patterns.txt -print -quit 2>/dev/null || true)
   fi
-  if [ -n "$_ANY_PROJ_PAT" ]; then
+  if [ -n "$_ANY_PROJ_PAT" ] || [ -n "$_ANY_LEGACY_PROJ_PAT" ]; then
     # SimonK: vendored helper, and its output is parsed, not eval'd. A rule the
     # user configured but the hook cannot locate is a hook failure (deny),
     # not a silent skip.
     _SLUG_HELPER="$_HOOK_DIR/gstack-slug.sh"
     [ -f "$_SLUG_HELPER" ] || _careful_fail "gstack-slug.sh is missing, so per-project careful patterns cannot be applied."
-    _SLUG_RC=0
-    _SLUG_OUT=$(GSTACK_HOME="${GSTACK_HOME:-$HOME/.simonk/state}" bash "$_SLUG_HELPER" 2>/dev/null) || _SLUG_RC=$?
-    # gstack-slug prints exactly one sanitized SLUG= line; accept only that shape.
-    SLUG=$(printf '%s\n' "$_SLUG_OUT" | sed -n 's/^SLUG=\([a-zA-Z0-9._-]*\)$/\1/p')
-    case "$_SLUG_RC:$SLUG" in
-      0:|0:.|0:..|[1-9]*) _careful_fail "gstack-slug.sh could not resolve the project slug for per-project careful patterns." ;;
-    esac
+    # _careful_slug CACHE_ROOT: resolve the slug with gstack-slug's sticky cache
+    # under CACHE_ROOT; sets SLUG or fails closed.
+    _careful_slug() {
+      _SLUG_RC=0
+      _SLUG_OUT=$(GSTACK_HOME="$1" bash "$_SLUG_HELPER" 2>/dev/null) || _SLUG_RC=$?
+      # gstack-slug prints exactly one sanitized SLUG= line; accept only that shape.
+      SLUG=$(printf '%s\n' "$_SLUG_OUT" | sed -n 's/^SLUG=\([a-zA-Z0-9._-]*\)$/\1/p')
+      case "$_SLUG_RC:$SLUG" in
+        0:|0:.|0:..|[1-9]*) _careful_fail "gstack-slug.sh could not resolve the project slug for per-project careful patterns." ;;
+      esac
+    }
+    _careful_slug "${GSTACK_HOME:-$HOME/.simonk/state}"
     _PATTERN_FILES="$_PATTERN_FILES
 $_GSTACK_HOME_DIR/projects/$SLUG/careful-patterns.txt"
-    [ -z "$_LEGACY_HOME_DIR" ] || _PATTERN_FILES="$_PATTERN_FILES
+    if [ -n "$_ANY_LEGACY_PROJ_PAT" ]; then
+      # SimonK (D-119): a project may have a sticky slug cached under the old
+      # folder (e.g. its directory-name slug from before an origin remote was
+      # added). Resolve with that cache too, so legacy rules filed under it
+      # still apply; both slugs are consulted (additive only).
+      _NEW_SLUG="$SLUG"
+      _careful_slug "$_LEGACY_HOME_DIR"
+      _PATTERN_FILES="$_PATTERN_FILES
+$_LEGACY_HOME_DIR/projects/$_NEW_SLUG/careful-patterns.txt"
+      [ "$SLUG" = "$_NEW_SLUG" ] || _PATTERN_FILES="$_PATTERN_FILES
 $_LEGACY_HOME_DIR/projects/$SLUG/careful-patterns.txt"
+    fi
   fi
   while IFS= read -r _PF; do
     [ -f "$_PF" ] || continue
