@@ -743,7 +743,7 @@ Windows는 Git의 portable 실행 비트를 기록하지만 실제 POSIX executa
 있지만 기존 destination을 삭제하거나 교체하지 않습니다. 자동 정리/롤백은 없습니다.
 
 이 검증은 **포장된 파일 전체의 무결성**입니다. repo-root PowerShell wrapper,
-`~/.claude/scripts/upgrade-vendor.sh`, 외부 vendor/runtime/CLI/API/MCP/인증/과금,
+외부 runtime/CLI/API/MCP/인증/과금,
 호스트별 SKILL frontmatter 호환성 및 스킬 행동 평가까지 닫힌 의존성 검증이 아닙니다.
 빠진 외부 의존은 manifest에 명시하며, 모델·Bot을 실행하거나 설치하지 않습니다.
 공식 plugin의 extras/manifest는 아래 별도 candidate 경로에서 검증합니다.

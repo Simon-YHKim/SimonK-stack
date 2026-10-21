@@ -1,6 +1,6 @@
 # SimonK-Stack
 
-> Claude Code용 스킬 191개를 다섯 플러그인으로 묶은 작업 도구 상자입니다. 아이디어 검증부터 기획·개발·테스트·보안·배포, 디자인, AI 기능, 마케팅까지 "무엇을 하고 싶은지"만 말하면 알맞은 스킬과 모델로 이어 줍니다.
+> Claude Code용 스킬 186개를 다섯 플러그인으로 묶은 작업 도구 상자입니다. 아이디어 검증부터 기획·개발·테스트·보안·배포, 디자인, AI 기능, 마케팅까지 "무엇을 하고 싶은지"만 말하면 알맞은 스킬과 모델로 이어 줍니다.
 
 ![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) ![plugins](https://img.shields.io/badge/plugins-5-5b8cff) ![skills](https://img.shields.io/badge/skills-191-brightgreen)
 
@@ -43,7 +43,7 @@
 
 | 플러그인 | 하는 일 | 스킬 | 진입점 |
 | --- | --- | ---: | --- |
-| `simonk-core` | 공용 기반. 작업 조정(`vibe`), 스프린트(`simonk`), 모델 배정, AI 토론, 메모리·위키, 보고서, 세션 인수인계, 안전(`careful`·`unfreeze`) | 64 | `/simonk-core:vibe` |
+| `simonk-core` | 공용 기반. 작업 조정(`vibe`), 스프린트(`simonk`), 모델 배정, AI 토론, 메모리·위키, 보고서, 세션 인수인계, 안전(`careful`·`unfreeze`) | 59 | `/simonk-core:vibe` |
 | `simonk-stack` | 제품 만들기. 기획·스펙, 개발·리팩터링, 디버깅, QA, 보안, 배포·릴리스, 안전(`freeze`·`guard`) | 64 | `/simonk-stack:skstack` |
 | `simonk-aihub` | AI 기능 만들기. 모델 선택, 프롬프트, 에이전트, RAG, LLM 평가·안전 평가 | 7 | `/simonk-aihub:skaihub` |
 | `simonk-design` | 디자인. UI 방향 잡기, 디자인 시스템, 로고·소셜 그래픽, 슬라이드, 접근성 점검 | 24 | `/simonk-design:skdesign` |
@@ -108,7 +108,7 @@ POSIX 셸에서는 `claude plugin list --json | grep -o 'simonk-[a-z]*@simonk-st
 
 ### Codex CLI에서 쓰기
 
-Codex는 같은 저장소에서 **Codex판**(186개)을 받습니다. Claude Code 전용 안전 스킬 5개(`careful`·`freeze`·`guard`·`investigate`·`unfreeze`)는 Codex에서 차단을 보장할 수 없어 빠져 있습니다(허브 D-29·D-88).
+Codex는 같은 저장소에서 **Codex판**(181개)을 받습니다. Claude Code 전용 안전 스킬 5개(`careful`·`freeze`·`guard`·`investigate`·`unfreeze`)는 Codex에서 차단을 보장할 수 없어 빠져 있습니다(허브 D-29·D-88).
 
 ```
 codex plugin marketplace add Simon-YHKim/SimonK-stack
@@ -174,9 +174,9 @@ codex plugin add simonk-market@simonk-stack
 ### 전체 스킬 목록
 
 <details>
-<summary><code>simonk-core</code> — 64개</summary>
+<summary><code>simonk-core</code> — 59개</summary>
 
-agent-delegate, ai-debate, ai-usage-widget-install, careful, caveman, checkpoint, completion-report, context-restore, context-save, defuddle, designmd-upgrade, domain-glossary, find-skill, founder-context, gcloud-helper, grill-me, html-default-output, human-voice-guard, json-canvas, keepass-helper, learn, llm-wiki-builder, make-pdf, model-router, multi-terminal-dispatcher, notebooklm-import, obsidian-bases, obsidian-cli, obsidian-markdown, office-docs, office-hours, omc-upgrade, omo-upgrade, open-browser, opencowork-upgrade, openharness-upgrade, pair-agent, persona-validate, perspectives, plan-ceo-review, project-context-md, scrape, semantic-recall, session-context-export, session-context-tracker, session-start-hook, setup-browser-cookies, simon-handoff, simon-instincts, simon-ohmo, simon-research, simon-worktree, simonk, simonk-report, sprint-optimizer, stack-update, tech-preference-tracker, unfreeze, vibe, vibe-bot, web-publisher, wiki-ingest, wiki-lint, wiki-query
+agent-delegate, ai-debate, ai-usage-widget-install, careful, caveman, checkpoint, completion-report, context-restore, context-save, defuddle, domain-glossary, find-skill, founder-context, gcloud-helper, grill-me, html-default-output, human-voice-guard, json-canvas, keepass-helper, learn, llm-wiki-builder, make-pdf, model-router, multi-terminal-dispatcher, notebooklm-import, obsidian-bases, obsidian-cli, obsidian-markdown, office-docs, office-hours, open-browser, pair-agent, persona-validate, perspectives, plan-ceo-review, project-context-md, scrape, semantic-recall, session-context-export, session-context-tracker, session-start-hook, setup-browser-cookies, simon-handoff, simon-instincts, simon-ohmo, simon-research, simon-worktree, simonk, simonk-report, sprint-optimizer, stack-update, tech-preference-tracker, unfreeze, vibe, vibe-bot, web-publisher, wiki-ingest, wiki-lint, wiki-query
 </details>
 
 <details>
@@ -286,7 +286,7 @@ Claude Code에서 `/simonk-core:ai-usage-widget-install` 또는 "AI 사용량 �
 ### 저장소 구조
 
 ```
-skills-src/        배포할 스킬 소스 146개 (SKILL.md, evals/, scripts/, references/)
+skills-src/        배포할 스킬 소스 141개 (SKILL.md, evals/, scripts/, references/)
 .claude/skills/    이 저장소에서 쓰는 개발용 스킬 4개
 scripts/           빌드·검증 도구 (skill_release, plugin_bundle, codex_overlay, codex_safe_subset, dist_release)
 scripts/windows/   Windows 사용자 홈 설치 도구 (update-local.ps1)

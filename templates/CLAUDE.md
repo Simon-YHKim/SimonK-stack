@@ -70,11 +70,10 @@
 8. **계획 스트레스 테스트** → `grill-me` (1-Q-at-a-time 인터뷰, `office-hours`/`plan-ceo-review` 와 보완)
 9. **익숙하지 않은 코드 영역** → `/zoom-out` (한 layer 위 맵) → `/explain` (드릴다운)
 10. **세션 토큰 폭주** → `/caveman` 토글 (응답 75% 압축, 보안 경고는 자동 해제)
-11. **"전체 최신화" / "stack 다 받아"** → `/stack-update` (SimonK-stack 본체 + Wiki + gstack + 5 vendored + skill 재설치를 한 번에)
-12. **특정 외부 stack 만 최신화** → `/omc-upgrade`, `/omo-upgrade`, `/openharness-upgrade`, `/opencowork-upgrade`, `/designmd-upgrade`
-13. **세션 끝 / 다른 세션 인수인계** → `/simon-handoff` (git-persistent + main 머지까지 자동, `/checkpoint` 는 ephemeral 이라 cross-session 핸드오프 불가)
-14. **프로젝트 시작 시 founder 4-file 세팅** → `/founder-context` (me.md / vision.md / design.md / workingstyle.md 한 번에 생성, wiki·instincts·simon-design-first 와 양방향 import)
-15. **세션 끝 / 결정 후 blind-spot 감사** → `/perspectives` (Core 5 + 세션 특화 stakeholder 으로 AI 가 안 본 관점 명시화, perspectives.md 누적, SessionStart 자동 알림)
+11. **"전체 최신화" / "stack 다 받아"** → `/stack-update` (지정한 저장소마다 안전한 fast-forward, 스킬 설치는 별도)
+12. **세션 끝 / 다른 세션 인수인계** → `/simon-handoff` (git-persistent + main 머지까지 자동, `/checkpoint` 는 ephemeral 이라 cross-session 핸드오프 불가)
+13. **프로젝트 시작 시 founder 4-file 세팅** → `/founder-context` (me.md / vision.md / design.md / workingstyle.md 한 번에 생성, wiki·instincts·simon-design-first 와 양방향 import)
+14. **세션 끝 / 결정 후 blind-spot 감사** → `/perspectives` (Core 5 + 세션 특화 stakeholder 으로 AI 가 안 본 관점 명시화, perspectives.md 누적, SessionStart 자동 알림)
 
 ---
 

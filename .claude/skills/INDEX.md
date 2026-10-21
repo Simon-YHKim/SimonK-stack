@@ -3,7 +3,7 @@
 **curated simon-stack** skill 세트의 카테고리별 맵. 세션 시작 시 참고용.
 이 표는 SimonK-stack 큐레이션 셋(skills-src + 개발용 dev skill)을 매핑한다. garrytan/gstack 출신 스킬은 2026-10-21(허브 D-117)부터 SimonK-stack이 소유한다 — 본문은 upstream 1.91.9.0, 설명·버전은 SimonK, 이들이 부르는 런타임은 `~/.simonk/runtime`(`scripts/install_runtime.py`), 상태는 `~/.simonk/state`. 출처는 `skills-src/VENDORED.md`.
 
-**`skills-src/` 배포 소스 146개** + `.claude/skills/` 개발용 4개 = **총 150개** (2026-10-21 브랜치의 `SKILL.md` 실측). 이 인덱스는 소스·개발 스킬의 맵이며, 별도로 조립한 5플러그인 빌드의 191개 스킬은 이 카운트에 포함하지 않는다. 아래 카테고리 표는 2026-06-13 cycle-2 분류를 기반으로 하므로 최신 파일 목록 확인은 실제 두 소스 디렉터리 또는 후보 영수증을 기준으로 한다.
+**`skills-src/` 배포 소스 141개** + `.claude/skills/` 개발용 4개 = **총 145개** (2026-10-21 브랜치의 `SKILL.md` 실측). 이 인덱스는 소스·개발 스킬의 맵이며, 별도로 조립한 5플러그인 빌드의 186개 스킬은 이 카운트에 포함하지 않는다. 아래 카테고리 표는 2026-06-13 cycle-2 분류를 기반으로 하므로 최신 파일 목록 확인은 실제 두 소스 디렉터리 또는 후보 영수증을 기준으로 한다.
 
 > **검증**: `python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py <path>` (Windows는 `PYTHONIOENCODING=utf-8` 또는 검증기 UTF-8 패치 필요). **2026-06-13 재검증**: simon-stack 스킬 전부 통과(`wiki-query` E013 수정). 검증기 cp949 크래시·E008 "Todo-list" 오탐 수정(SimonK-stack `4aacecd`). Gstack 스킬은 긴 커맨드-doc 포맷이라 E007/E008 평가 제외.
 > **신규 (PR #8)**: `session-context-tracker` · `html-default-output` (+ `context-guardian` 1.1.0 / `agent-delegate` 1.1.0 보강)
@@ -220,11 +220,6 @@
 | `open-browser` | AI 브라우저(사이드바 확장) 실행 |
 | `ai-usage-widget-install` | `apps/ai-usage-widget`(Claude·Codex·Grok·Antigravity 사용량 작업 표시줄 위젯)를 소스에서 빌드·검증해 사용자 전용 설치, 상태 점검, 브리지 안전장치가 있는 제거 |
 | `stack-update` | **저장소별 안전 갱신** — 읽기 전용 inventory 후 승인 범위의 clean fast-forward만 수행 |
-| `omc-upgrade` | vendored oh-my-claudecode 단독 최신화 |
-| `omo-upgrade` | vendored oh-my-openagent 단독 최신화 |
-| `openharness-upgrade` | vendored OpenHarness 단독 최신화 |
-| `opencowork-upgrade` | vendored open-cowork 단독 최신화 |
-| `designmd-upgrade` | vendored design.md 단독 최신화 |
 
 ---
 

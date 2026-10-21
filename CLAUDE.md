@@ -1,6 +1,6 @@
 # CLAUDE.md — SimonK-stack
 
-Claude Code reads this file at session start. This is a **skill development repo** — this branch has 146 `skills-src/` skills plus 4 development skills (150 source/development skills). The separately assembled five-plugin build has 191 skills; neither count proves what is installed in a user profile. You are not building an app; you are curating a skill library.
+Claude Code reads this file at session start. This is a **skill development repo** — this branch has 141 `skills-src/` skills plus 4 development skills (145 source/development skills). The separately assembled five-plugin build has 186 skills; neither count proves what is installed in a user profile. You are not building an app; you are curating a skill library.
 
 ## 🎯 작업 맥락
 
@@ -10,7 +10,7 @@ Claude Code reads this file at session start. This is a **skill development repo
 - **README·docs 유지보수**
 - **Instincts seed 갱신** (`.claude/instincts/`)
 
-앱 코드는 한 군데뿐입니다 — `apps/ai-usage-widget/`(2026-09-20 통합, 아래 "apps/" 절). 그 밖에는 150개 소스·개발 스킬과 별도 5플러그인 후보를 관리하며, 다른 프로젝트에는 검증된 배포 절차로 스킬을 공급하는 것이 목표입니다.
+앱 코드는 한 군데뿐입니다 — `apps/ai-usage-widget/`(2026-09-20 통합, 아래 "apps/" 절). 그 밖에는 145개 소스·개발 스킬과 별도 5플러그인 후보를 관리하며, 다른 프로젝트에는 검증된 배포 절차로 스킬을 공급하는 것이 목표입니다.
 
 ## 📦 apps/ — 이 레포에 같이 사는 앱
 
@@ -63,7 +63,7 @@ print('YAML OK')
 ## 📂 디렉토리 구조
 
 ```
-skills-src/                    ← 배포용 skill 소스 (128개, Claude Code 미로딩)
+skills-src/                    ← 배포용 skill 소스 (141개, Claude Code 미로딩)
 ├── app-dev-orchestrator/
 ├── simon-tdd/
 ├── ... (배포 대상 skill)
@@ -246,13 +246,9 @@ UserPromptSubmit·Stop hook 이 사용자 명시 없이 wiki 누적·반영을 _
 
 LLM 이 직접 처리할 것:
 - **사용자가 "최신화" / "stack update" 같은 holistic 요청** → `/stack-update` 호출
-  - SimonK-stack 본체 + Wiki + 5 vendored stacks + skill 재설치를 한 번에 처리
-  - 각 단계는 단일 entry point 의 sibling skill (예: `/omc-upgrade`) 위임
+  - 사용자가 지정한 저장소(SimonK-stack·Wiki 등)마다 clean fast-forward 만 한다. 스킬 설치는 별도 단계(`update-local.ps1`)
 - **런타임(`~/.simonk/runtime`)** 갱신 → `runtime/RUNTIME.json` 의 고정 버전을 올리는 PR 을 거친 뒤 `python scripts/install_runtime.py --apply --force` (gstack 설치본이 없으면 `--clone`)
   - 런타임의 자체 업데이트 확인·자동 업그레이드는 꺼져 있다(`update_check false`, `auto_upgrade false`).
-- **특정 외부 stack** 만 업데이트 요청 → 해당 sibling skill 호출
-  - `/omc-upgrade` (oh-my-claudecode), `/omo-upgrade` (oh-my-openagent)
-  - `/openharness-upgrade`, `/opencowork-upgrade`, `/designmd-upgrade`
 
 업데이트 요청이 없으면 별다른 보고 없이 사용자 요청을 바로 처리한다. 매번 "최신입니다" 같은 narration 금지 (T-003 — 토큰 효율).
 
@@ -341,16 +337,12 @@ python -B -m unittest discover -s scripts/tests -p test_install_simonk_profile.p
 python -B -m unittest discover -s scripts/tests -p test_simonk_entrypoint.py
 ```
 
-### 통합 외부 reference (Sprint v22-EXT: vendored, 2026-05-25)
+### 외부 vendored stack 은퇴 (2026-10-21, 허브 D-119)
 
-3 외부 repo 가 **`external/` 안 vendor 됨** (shallow clone + `.git` 제거). SimonK-stack clone 시 즉시 사용 가능, upstream sync 는 수동 (별도 sprint). `.claudeignore` 로 토큰 보호 (110 MB / 8500 files).
+`external/` 에 두었던 oh-my-claudecode·oh-my-openagent·OpenHarness 사본과, `~/.simon-stack/vendor` 사본을 갱신하던 `omc-upgrade`·`omo-upgrade`·`openharness-upgrade`·`opencowork-upgrade`·`designmd-upgrade` 와 `scripts/upgrade-vendor.sh` 는 Simon 결정으로 은퇴했다. 로컬 사본은 지우지 않고 보관 폴더로 옮겼다.
 
-- **OMC (`external/oh-my-claudecode/`, 49 MB)** — upstream: [Yeachan-Heo/oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode). Team Mode + 19 agents + 32 skills. simonk 가 더 강력한 multi-agent 필요시 trigger. Vendored 후에도 정식 plugin install 권장 (`/plugin marketplace add Yeachan-Heo/oh-my-claudecode`) — vendor 는 reference + offline fallback.
-- **OMO (`external/oh-my-openagent/`, 48 MB)** — upstream: [code-yeongyu/oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) (formerly oh-my-opencode). Model-agnostic agent orchestrator (Claude/GPT/Kimi/GLM/Gemini/Minimax 단일 interface). OpenCode 환경 위주, Claude Code 호환 일부.
-- **OpenHarness (`external/OpenHarness/`, 13 MB)** — upstream: [HKUDS/OpenHarness](https://github.com/HKUDS/OpenHarness). Open Agent Harness + 내장 personal agent (Ohmo). Tool-use, skills, memory, multi-agent coordination 핵심 인프라. Phase 6 폐쇄망 운영 또는 simon-ohmo skill 통합 시 활용. `pip install openharness-ai` 보조.
-- **anthropics/skills**: 공식 카탈로그, cherry-pick vendoring 가능 (별도).
-
-**Wiki 연동**: [[wiki/entities/tools/omc]] · [[wiki/entities/tools/omo]] · [[wiki/entities/tools/openharness]] (SimonKWiki PRIVATE) 에 활성화·사용법·simonK 통합 시나리오 명시.
+- OpenHarness 는 pip 패키지 `openharness-ai` 로만 남는다(`simon-ohmo` placeholder 의 전제 조건).
+- 다시 필요하면 upstream 에서 받는다. 이 레포에 사본을 다시 넣지 않는다.
 
 ### Claude Code Native Team Mode 활성
 
@@ -360,7 +352,6 @@ controls must be checked before use, not inferred from a vendored directory.
 
 ### Windows 제약
 
-- `omc team` CLI mode (tmux 워커) 는 `winget install psmux` 필요 (선택사항).
 - The offline PowerShell planning entry does not require tmux or a provider CLI.
 
 ## graphify
@@ -371,5 +362,5 @@ controls must be checked before use, not inferred from a vendored directory.
 - **광역 아키텍처 맥락** → `graphify-out/GRAPH_REPORT.md` (god nodes + communities).
 - **파일 변경 후** → `graphify update .` (AST 기반, LLM/토큰 비용 0).
 - 시각화: `graphify-out/graph.html` (D3 force-directed).
-- 제외 규칙: `.graphifyignore` (external/ vendored 레포·site/ 제외).
+- 제외 규칙: `.graphifyignore` (site/ 등 제외).
 - PreToolUse hook(`.claude/settings.json`)이 grep류 명령 시 graphify 사용을 자동 권장 — `graphify-out/graph.json` 존재 시에만 발화.

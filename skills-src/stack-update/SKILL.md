@@ -5,7 +5,7 @@ description: >
   /stack-update. Produces a per-repository fast-forward
   update report and separate installation gate; never force-installs or
   changes credentials.
-version: 2.0.0
+version: 2.0.1
 allowed-tools:
   - Bash
   - Read
@@ -17,7 +17,7 @@ Refresh the SimonK-stack ecosystem without hiding unrelated writes behind one co
 
 ## 1. Inventory and plan
 
-For SimonK-stack, SimonKWiki and each requested vendored stack, record: resolved repository root, remote/upstream, current branch and commit, dirty files, ahead/behind counts, and whether a fast-forward is possible. Include only repositories the user placed in scope and whose origin is verified. Never infer a missing repository from its folder name or clone a new one automatically.
+For SimonK-stack, SimonKWiki and any other repository the user names, record: resolved repository root, remote/upstream, current branch and commit, dirty files, ahead/behind counts, and whether a fast-forward is possible. Include only repositories the user placed in scope and whose origin is verified. Never infer a missing repository from its folder name or clone a new one automatically.
 
 A request for status stops after the plan. A request to update authorizes safe repository refresh, but not profile installation, forced checkout, credential access, production deployment, or an unrelated vendor upgrade.
 
