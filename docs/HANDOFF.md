@@ -1,6 +1,22 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-24 13:30 / 예약 점검(D-98·D-99 Grok catch-up · grok-4.7 canary · D-105) · 외부 스킬 5종 검토
+## Latest — 2026-10-24 16:50 / /vibe 이미지 생성 = Codex image_gen (D-121) · /cso 빌드 도구 답변
+
+갱신 시각: 2026-10-24 16:50 KST · 갱신자: Claude Code(Opus 5.5). Simon: "빌드 도구가 뭔데? 이미지 생성은 codex 그냥 시켜. 막지마." 허브 a70780cc(D-121).
+
+- **D-121(Simon 지시)**: vibe 2.22.0. `IMAGE_GENERATION` 이 제공자 $0 하드캡 계약(D-32) 때문에 늘 막히던 것을 풀고, Codex 내장 `image_gen` 으로 보낸다. 막는 조건은 D-74 사용량 게이트만(ChatGPT 로그인 · 계정 확인 · codex 사용량 85% 미만 · 한도 미도달).
+  - `runtime_collect.py` 가 `image_tools` 에 `codex:image_gen`(전송 `codex-image`)을 넣고, `orchestrate.py` 의 `assess_codex_image_tool` 이 판정한다. host-image(D-32) 경로는 선택지로 남는다.
+  - 새 실행기 `skills-src/vibe/scripts/execute_codex_image.py --prompt-file <brief> --out <절대 .png> [--transparent]`: 보내기 직전 사용량 재확인 → `codex exec`(gpt-6-astra@xhigh, workspace-write, 임시 폴더) 1회 → 롤아웃의 `image_gen.generation` 기록에서 PNG 저장 + `<name>.receipt.json`. 재전송 없음. 종료 0/2/3/4.
+  - 실측: canary(직접 `codex exec`) 25초 · 사용량 41% → 42%. 실행기 끝까지 1회 44초 · 45% → 45%(입력 135,774 토큰, Codex 가 사용자 훅·스킬 목록을 그대로 읽어 입력이 큼).
+  - 테스트: `test_execute_codex_image.py` 17 · `test_orchestrate.py` 162 · `test_runtime_collect.py` 41 · `test_run_state.py` 67 · CLI 어댑터 2종 · model-router 통합 9 전부 통과. 스킬 품질 게이트 145개 PASS, vibe 검증 0 오류 0 경고.
+- **/cso 빌드 도구(답변만)**: CSO 실행기는 Visual Studio 2022 C++ 빌드 도구(C++ 워크로드)가 있어야 빌드된다. 이 PC 에는 없어서 /cso 는 '평가 안 됨'. 설치는 Simon 이 고를 일(아래 10-21 블록의 명령 그대로).
+
+### 다음 작업 큐
+- 머지 뒤 `scripts/windows/update-local.ps1 -Apply` 로 이 PC vibe 2.22.0 반영 확인.
+- 외부 스킬 `aldegad/sprite-gen` 의 '참고만' 사유 중 "vibe 이미지 게이트 우회"는 D-121 로 없어졌다. 설치는 여전히 Simon 동의가 필요(D-119).
+- 그 밖에는 아래 10-24 13:30 블록 큐 그대로.
+
+## 2026-10-24 13:30 / 예약 점검(D-98·D-99 Grok catch-up · grok-4.7 canary · D-105) · 외부 스킬 5종 검토
 
 갱신 시각: 2026-10-24 13:30 KST · 갱신자: Claude Code(Opus 5.5). Simon: 10-18 예약 작업("남은것까지 진행") + "계속 이어서 진행해. 그리고 … 링크 스킬들도 검토해줘". 허브 b99ba254. 레포 코드 변경 없음.
 

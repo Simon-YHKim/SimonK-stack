@@ -12,6 +12,7 @@
 - Durable state and recovery
 - QA completion gate
 - Guarded Bot adapter
+- Codex image lane (D-121)
 - Conditional host image adapter
 - Guarded Orca adapter
 - Preparation journal and host-injected core
@@ -190,9 +191,10 @@ not manufacture a host snapshot to force an executable plan.
 ```
 
 `kind`: local, llm, gui or typed-only `image`. An `IMAGE_GENERATION` step
-compiles to `kind=image` with the `image_generation` capability. Without a
-current-host atomic subscription-only image tool it returns a blocked plan
-with `IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL`. Untyped `kind=image` is invalid.
+compiles to `kind=image` with the `image_generation` capability. It routes to
+the Codex image lane (D-121) or a current-host atomic image tool; with neither
+admitted it returns a blocked plan with `IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL`.
+Untyped `kind=image` is invalid.
 Text-model `vision`, a local API wrapper, or a GUI Bot must not silently
 substitute for it. A local node supplies an `argv` list and `software`
 names checked against runtime tools. Runtime tool_costs must include the exact
@@ -222,8 +224,8 @@ or a ChatGPT subscription does not convert those API-key calls into included
 subscription use. For Simon's USD 0 subscription-only grant, keep these
 Gstack `design` setup/generate/check commands unavailable, do not collect or
 reuse an API key, and do not label them free local tools. Other design work may
-continue locally; image generation requires separately observed subscription
-inclusion and disabled overage on the exact alternative surface. Inspect any
+continue locally; image generation goes to the Codex image lane (D-121), which
+uses the ChatGPT login and included usage, not an API key. Inspect any
 other Gstack command separately instead of treating the whole suite as paid.
 
 ## Gstack per-run isolation
@@ -752,6 +754,56 @@ use their exit codes as completion or as a substitute for this adapter. No helpe
 result, historical pilot or manual paste grants permission to bypass a delivery
 hold. Source fixtures are not account, generation, OS-isolation or installation proof.
 
+## Codex image lane (D-121)
+
+Hub D-121 (Simon, 2026-10-24: "이미지 생성은 codex 그냥 시켜. 막지마."): an
+`IMAGE_GENERATION` node runs on Codex's built-in `image_gen` through
+`codex exec`. The lane uses the same D-74 included-usage gate as other Codex
+work and needs no provider hard cap or idempotent lookup.
+
+- **Observation.** `runtime_collect.py --surface codex` adds one
+  `runtime.image_tools` entry, `id=codex:image_gen`, `transport=codex-image`,
+  `tool_ref=image_gen`, when the app-server read shows a ChatGPT login with a
+  verified account and a `codex` usage bucket. Its quota is the highest
+  `codex` window; when any `codex` window is unmeasured (reset not yet
+  observed, or no number), usage is `null` and the lane is refused. The
+  billing object carries the reached-limit
+  flags (top level and per bucket); credit balances are information only.
+- **Planner gate** (`assess_codex_image_tool`): `surface=codex`,
+  `tool_ref=image_gen`, available with evidence, fresh billing with
+  `mode=subscription`, `verified=true`, `auth_method=chatgpt`, an account and
+  `api_fallback_disabled=true`, no reached rate limit or spend control
+  (`IMAGE_USAGE_LIMIT_REACHED`), and fresh account-bound `codex-image` usage
+  under 85 percent. When several image tools pass, the least-used one wins.
+- **Handoff.** `{"kind": "codex-image", "tool_ref": "image_gen",
+  "runner": "scripts/execute_codex_image.py", "one_send": true}`. The route has
+  `model=null`; the runner drives the call with `gpt-6-astra` at `xhigh` (D-101).
+- **Runner.** `python scripts/execute_codex_image.py --prompt-file <brief>
+  --out <absolute .png> [--transparent]` refuses an existing output or receipt
+  path and a brief with a secret pattern before anything is sent, then reads
+  the account and usage again (app-server, no model turn). It runs one
+  `codex exec --json --ignore-user-config --skip-git-repo-check --sandbox
+  workspace-write` in a fresh temporary folder with the API-key-free child
+  environment, inside a job object. The PNG comes from the completed
+  `image_gen.generation` item (older builds: `image_generation_call` or
+  `image_generation_end`) in the new session rollout; the `savedPath` the tool
+  reports is not used. Extra images are saved as `<name>-2.png` and so on.
+  `<name>.receipt.json` records the thread, rollout, usage before the send,
+  token use and each image's SHA-256.
+- **Outcomes.** Exit 0 written; 2 bad arguments; 3 refused by the gate or by
+  Codex's own usage-limit message; 4 failed or unknown. Nothing is resent
+  automatically. When the send is cut off (timeout, output limit), the receipt
+  keeps the thread ID and rollout Codex had already reported, and any image the
+  rollout already holds is saved (`status=succeeded` with the warning
+  `CODEX_DRIVER_INTERRUPTED_AFTER_IMAGE`); otherwise read the receipt before
+  trying again. A refusal never falls back to an
+  API wrapper or another vendor's paid image API.
+
+Measured 2026-10-24 (codex-cli 0.163.0, `image_generation` stable and on): one
+flat illustration took 25 seconds and moved the weekly `codex` usage from 41 to
+42 percent. D-121's reversal condition is about 3 points or more per image,
+or a credit deduction while included usage remains.
+
 ## Conditional host image adapter (D-32)
 
 The planner accepts `runtime.image_tools` only from the trusted *current host*.
@@ -772,7 +824,8 @@ Generic login, local boolean assertions, auto-top-up OFF, a dated quota snapshot
 or a text-model capability are not that provider proof. The host must review the
 actual tool contract and provide its own trusted observation; worker prose may
 not populate this snapshot. No currently exposed Codex/Claude image tool on this
-PC meets the atomic cap/lookup contract, so normal plans remain blocked.
+PC meets the atomic cap/lookup contract, so plans use the Codex image lane
+(D-121) instead.
 
 `execute_image.py` is an **in-process integration point, not a usable CLI or
 provider implementation**. A reviewed host injects methods to reobserve the
@@ -801,8 +854,9 @@ OpenAI currently documents that Codex image generation uses included limits
 but may draw from purchased credits after exhaustion, while an API-key route
 uses API pricing. Neither `image_gen__imagegen`'s present tool contract nor
 an automatic-reload-OFF setting supplies the required per-request hard cap or
-idempotent lookup. Do **not** wrap or call that tool through this adapter under
-the USD 0 subscription-only grant. Sources:
+idempotent lookup. Do **not** wrap or call that tool through this adapter.
+D-121 runs Codex image generation through the Codex image lane instead, whose
+85 percent ceiling stops before included usage runs out. Sources:
 https://learn.chatgpt.com/docs/image-generation ;
 https://learn.chatgpt.com/docs/pricing ;
 https://help.openai.com/en/articles/12642688-using-credits-for-flexible-usage-in-chatgpt-personal-plans .
