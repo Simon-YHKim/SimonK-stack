@@ -1010,3 +1010,11 @@ last-sync: 2026-07-05
   - **후속**: SimonK-stack vibe 2.22.0 PR(planner `codex-image` 전송 · runtime_collect 가 codex image 도구 관측 · `execute_codex_image.py` 실행기) → CI → 머지 → update-local.
 
 - 2026-10-24 18:05:33 KST | AMEND | **D-121 /vibe 이미지 생성 = Codex image_gen, 사용량 게이트만** — 이행: SimonK-stack PR #197 머지 6b668db(vibe 2.22.0). Codex 리뷰 P2 2건 반영(codex 사용량 창 하나라도 숫자 없으면 사용량 null로 막음 · 전송 중단 시 스레드 ID·롤아웃 보존과 완성 이미지 회수, 재전송 없음) 뒤 재리뷰 무지적·CI 전부 통과·미해결 스레드 0. update-local -Apply → 후보 20261024-vibe-2220-6b668db 설치, selftest vibe 283/0 · vibe-bot 104/0, problems 0. 설치본 실측: runtime_collect 가 codex:image_gen(사용량 61%) 보고, IMAGE_GENERATION 계획 ready · handoff codex-image. 실행기 끝까지 1회(16:47) 44초 · 사용 전후 45%→45%. 주간 사용량이 그 뒤 61%로 오른 것은 이미지가 아닌 다른 Codex 사용(PR 클라우드 리뷰 2회 등)으로 보이며 원인은 미확인 | claude
+
+- 2026-10-25 08:54:38 KST | DECIDE | **D-122 Codex 주간 한도 소진 중 문서 전용 PR 머지 = CI 통과 + 미해결 0, Codex 리뷰는 리셋 뒤 catch-up** (오케스트레이터 단독 · 35.8 1단) | claude
+  - **사실**: Codex 주간 사용량 100%(rateLimitReachedType rate_limit_reached, credits 0, 리셋 2026-10-31 07:01:50 KST, app-server 무턴 조회 08:53). 10-24 18:05 61% → 밤사이 2nd-B 워크트리(E:/2ndB/.worktrees/t04·t06·t28·b027x 등)의 codex exec 세션 약 70개(18:15~07:35)로 소진. SimonK-stack PR #198(docs/HANDOFF.md 만, +13/-1)의 Codex 커넥터 리뷰가 '사용량 한도'로 failed.
+  - **결정**: #198 은 CI 4/4 통과·미해결 스레드 0 으로 머지한다. 코드·스킬·distribution PR 은 이 결정 범위 밖(Codex 리뷰를 기다린다). 크레딧 추가 안내는 따르지 않는다(D-74).
+  - **근거**: 문서 전용·되돌릴 수 있음. 머지 뒤 Codex 리뷰 후속 처리 전례 D-115. 6일 기다리면 HANDOFF 가 '/cso 평가 안 됨'으로 남아 다음 세션을 오도한다.
+  - **catch-up 의무**: 2026-10-31 07:01 리셋 뒤 #198 에 `@codex review` → 지적이 있으면 후속 PR.
+  - **뒤집는 조건**: Simon 이 Codex 리뷰 없는 머지를 막거나, catch-up 리뷰가 P1 이상을 내면 이 방식을 문서 PR 에도 쓰지 않는다.
+  - **관련 사실(조치 없음)**: 같은 시간대 VS 2022 Build Tools 17.14.42(C++ 워크로드)를 Simon 지시로 E:/Program Files/Microsoft Visual Studio/2022/BuildTools 에 설치, 런타임 재설치로 /cso 실행기 빌드(cso launcher: built, 3.0.0 ABI 3). doctor: static-snapshot ready, 스캐너 6종은 Linux Docker 엔진 없음.
