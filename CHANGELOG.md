@@ -11,6 +11,7 @@
   - `orchestrate.py`: `assess_codex_image_tool` 이 D-74 사용량 게이트만 본다(API 키 아님 · 사용량 85% 미만 · rate limit·spend control 미도달). 통과하면 `codex-image` 핸드오프를 낸다. host-image(D-32) 경로는 그대로 남고, 여럿이면 덜 쓴 쪽을 고른다.
   - 새 `scripts/execute_codex_image.py`: 보내기 직전 사용량을 다시 읽고 `codex exec`(gpt-6-astra@xhigh, workspace-write, 임시 폴더) 1회 → 세션 롤아웃의 `image_gen.generation` 기록에서 PNG 를 꺼내 저장하고 영수증(`<name>.receipt.json`)을 남긴다. 자동 재전송 없음. 종료 코드 0 성공 · 2 인자 · 3 사용량 거절 · 4 실패.
   - 실측(10-24, codex-cli 0.163.0): 1장 25초, 주간 사용량 41% → 42%.
+  - Codex 리뷰 반영(#197): `codex` 사용량 창 중 하나라도 숫자가 없으면 사용량을 모름(null)으로 두어 막는다. 전송이 끊겨도(시간 초과 등) 이미 받은 스레드 ID·롤아웃을 영수증에 남기고, 롤아웃에 완성된 이미지가 있으면 저장한다(재전송은 없음).
   - 테스트: `test_execute_codex_image.py`(17, 가짜 전송 · 실제 시간 초과 1) · `test_orchestrate.py` +3 · `test_runtime_collect.py` +2. CI 에 새 테스트 단계 추가.
 - **안전 스킬 상태 폴더 `~/.gstack` → `~/.simonk/state` (허브 D-119 후속, D-117 남은 일)**: `careful` 0.2.7·`freeze` 0.2.8·`guard` 0.2.4·`unfreeze` 0.2.2·`investigate` 1.0.2. 공유 상태 루트 `${CLAUDE_PLUGIN_DATA:-$HOME/.simonk/state}`(플러그인 데이터 우선 그대로), 사용 기록·slug 캐시도 같은 폴더. 옛 `~/.gstack/freeze-dir.txt` 경계는 새 루트에 상태가 없을 때 그대로 지킨다(실패 시 막음). `/freeze` 가 새 경계로 바꾸고 `/unfreeze` 가 둘 다 지우며, 조사용 acquire 는 옛 경계가 있으면 건드리지 않는다. careful 사용자 규칙은 옛 폴더 것도 더해서 읽는다. 어떤 경로도 `~/.gstack` 을 새로 만들지 않는다. `freeze-state.sh` 는 표시된 SimonK delta 두 곳만 바뀌고(테스트가 나머지를 업스트림 해시와 대조), 5플러그인 안전 투영의 검토된 원문도 함께 옮겼다.
 
