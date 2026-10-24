@@ -1,6 +1,18 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-24 16:50 / /vibe 이미지 생성 = Codex image_gen (D-121) · /cso 빌드 도구 답변
+## Latest — 2026-10-25 08:50 / /cso 실행기 빌드 (VS 2022 Build Tools, E 드라이브)
+
+갱신 시각: 2026-10-25 08:50 KST · 갱신자: Claude Code(Opus 5.5). Simon: "e 드라이브에 빌드 도구 설치해줘". 레포 코드 변경 없음.
+
+- **빌드 도구**: Visual Studio 2022 Build Tools 17.14.42 + C++ 워크로드(권장 포함)를 `E:\Program Files\Microsoft Visual Studio\2022\BuildTools` 에 설치. 공유 구성요소(`Shared`)와 패키지 캐시(`Packages`)도 같은 폴더 아래. MSVC 14.44.35207 · Windows SDK 10.0.26100. winget(설치 관리자 해시 확인) 3분 20초, UAC 1회. 용량 E 4.6GB, C 약 1.8GB(Windows Kits 1.67GB 는 위치를 바꿀 수 없음).
+- **/cso 실행기**: `python scripts/install_runtime.py --clone --apply --force`(main 6b668db, 1분 7초) → `cso launcher: built`. `gstack-cso-launcher.exe --version` = 3.0.0(ABI 3), `.gstack-cso-generation` 해시 = 코어 SHA-256(`86b4fcee…`). /cso 는 더 이상 '평가 안 됨'으로 끝나지 않는다.
+- **doctor**(이 레포 대상): static-snapshot ready. 스캐너 6종(gitleaks·osv·semgrep·zizmor·trivy·schemathesis)과 로컬 격리는 Linux Docker 엔진이 없어 missing → 보고서는 대개 '부분(partial)'. Docker 는 설치하지 않았다(라이선스·WSL2 조건이 있어 Simon 이 고를 일).
+- 10-24 블록의 "머지 뒤 update-local 반영 확인"은 10-24 18:0x 에 끝났다(후보 `20261024-vibe-2220-6b668db`, selftest 283/0·104/0, 허브 D-121 AMEND).
+
+### 다음 작업 큐
+- 아래 10-24 16:50 블록 큐에서 update-local 항목을 뺀 나머지 그대로.
+
+## 2026-10-24 16:50 / /vibe 이미지 생성 = Codex image_gen (D-121) · /cso 빌드 도구 답변
 
 갱신 시각: 2026-10-24 16:50 KST · 갱신자: Claude Code(Opus 5.5). Simon: "빌드 도구가 뭔데? 이미지 생성은 codex 그냥 시켜. 막지마." 허브 a70780cc(D-121).
 
