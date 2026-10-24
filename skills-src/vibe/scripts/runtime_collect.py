@@ -606,11 +606,14 @@ def codex_image_tool(observation):
             or observation.get("account_verified") is not True
             or not observation.get("account_ref")):
         return None
-    windows = [w for w in observation.get("quota_windows", [])
-               if w.get("bucket") == "codex" and w.get("state") == "observed"
-               and type(w.get("used_pct")) in (int, float)]
+    windows = [w for w in observation.get("quota_windows", []) if w.get("bucket") == "codex"]
     if not windows:
         return None
+    # Every reported codex window must be measured; one unknown window leaves usage
+    # unknown (None), which the planner and the runner refuse.
+    known = all(w.get("state") == "observed" and type(w.get("used_pct")) in (int, float)
+                for w in windows)
+    used = max(w["used_pct"] for w in windows) if known else None
     now, account, billing = observation["observed_at"], observation["account_ref"], observation["billing"]
     evidence = [observation["source"] + ":account/read+account/rateLimits/read",
                 "auth=chatgpt; child_env passes no API key (D-74)"]
@@ -624,7 +627,7 @@ def codex_image_tool(observation):
                         "rate_limit_reached_type": billing.get("rate_limit_reached_type"),
                         "buckets": copy.deepcopy(obj(billing.get("buckets"))),
                         "observed_at": now, "evidence": evidence},
-            "quota": {"used_pct": max(w["used_pct"] for w in windows), "bucket": "codex",
+            "quota": {"used_pct": used, "bucket": "codex",
                       "observed_at": now, "account_ref": account, "surface": "codex",
                       "transport": "codex-image", "evidence": evidence}}
 

@@ -116,6 +116,18 @@ class GateTests(unittest.TestCase):
         self.assertEqual(reasons, [])
         self.assertEqual(tool["quota"]["used_pct"], 42)
 
+    def test_an_unmeasured_codex_window_closes_the_gate(self):
+        # PR #197 review: a second window without a number is not "under 85%".
+        raw = codex_raw()
+        raw["limits"]["rateLimitsByLimitId"]["codex"]["secondary"] = {
+            "usedPercent": None, "windowDurationMins": 300, "resetsAt": 1790400000}
+        reasons, tool = m.gate(runtime_collect.normalize("codex", raw, NOW, "/fixture/profile"), NOW)
+        self.assertIsNone(tool["quota"]["used_pct"])
+        self.assertIn("IMAGE_QUOTA_UNVERIFIED", reasons)
+        raw["limits"]["rateLimitsByLimitId"]["codex"]["secondary"]["usedPercent"] = 60
+        reasons, tool = m.gate(runtime_collect.normalize("codex", raw, NOW, "/fixture/profile"), NOW)
+        self.assertEqual((reasons, tool["quota"]["used_pct"]), ([], 60))
+
     def test_d74_conditions_close_the_gate(self):
         self.assertIn("IMAGE_QUOTA_UNVERIFIED", m.gate(observation(used=85), NOW)[0])
         self.assertIn("IMAGE_USAGE_LIMIT_REACHED",
@@ -187,6 +199,52 @@ class GenerateTests(unittest.TestCase):
         self.assertEqual(code, 4)
         self.assertEqual(receipt["reasons"], ["IMAGE_GEN_NOT_RUN"])
         self.assertEqual(len(self.calls), 1)
+
+    def interrupted(self, stdout, rollout=None):
+        def run(argv, prompt, workdir, env):
+            self.calls.append({"argv": argv})
+            if rollout is not None:
+                name = "rollout-2026-09-23T13-00-00-" + THREAD + ".jsonl"
+                (self.home / "sessions" / "2026" / name).write_text(rollout, encoding="utf-8")
+            raise m.SendInterrupted("timeout", stdout.encode("utf-8"))
+        return run
+
+    def test_interrupted_send_keeps_thread_and_saves_a_finished_image(self):
+        # PR #197 review: a timeout after thread.started keeps the identity.
+        partial = json.dumps({"type": "thread.started", "thread_id": THREAD}) + "\n"
+        code, receipt = self.generate(self.interrupted(partial, rollout_lines()))
+        self.assertEqual((code, receipt["status"]), (0, "succeeded"))
+        self.assertEqual(receipt["warnings"], ["CODEX_DRIVER_INTERRUPTED_AFTER_IMAGE"])
+        self.assertEqual(receipt["codex"]["thread_id"], THREAD)
+        self.assertTrue(receipt["codex"]["rollout"].endswith(THREAD + ".jsonl"))
+        self.assertEqual(self.out.read_bytes(), PNG)
+        self.assertEqual(len(self.calls), 1)
+
+    def test_interrupted_send_without_image_is_unknown_not_resent(self):
+        partial = json.dumps({"type": "thread.started", "thread_id": THREAD}) + "\n"
+        empty = json.dumps({"type": "session_meta", "payload": {"id": THREAD}}) + "\n"
+        code, receipt = self.generate(self.interrupted(partial, empty))
+        self.assertEqual((code, receipt["status"]), (4, "unknown"))
+        self.assertEqual(receipt["reasons"], ["CODEX_SEND_OUTCOME_UNKNOWN:timeout"])
+        self.assertEqual(receipt["codex"]["thread_id"], THREAD)
+        self.assertIn("rollout", receipt["codex"])
+        self.assertEqual(receipt["detail"]["recovery"], "IMAGE_GEN_NOT_RUN")
+        saved = json.loads((self.out.parent / "circle.receipt.json").read_text(encoding="utf-8"))
+        self.assertEqual(saved["codex"]["thread_id"], THREAD)
+        self.out.parent.joinpath("circle.receipt.json").unlink()
+        code, receipt = self.generate(self.interrupted(""))
+        self.assertEqual((code, receipt["status"], receipt["codex"]["thread_id"]), (4, "unknown", None))
+        self.assertEqual(len(self.calls), 2)
+
+    def test_real_timeout_returns_the_partial_stream(self):
+        program = ("import sys, time, json\n"
+                   "sys.stdin.read()\n"
+                   "print(json.dumps({'type': 'thread.started', 'thread_id': '" + THREAD + "'}), flush=True)\n"
+                   "time.sleep(30)\n")
+        with self.assertRaises(m.SendInterrupted) as caught:
+            m.run_codex([sys.executable, "-u", "-c", program], "brief", self.root, None, timeout=3)
+        self.assertEqual(caught.exception.code, "timeout")
+        self.assertEqual(m.parse_stream(caught.exception.stdout)["thread_id"], THREAD)
 
     def test_existing_output_or_secret_stops_before_any_call(self):
         self.out.write_bytes(b"keep me")

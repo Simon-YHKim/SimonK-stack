@@ -764,8 +764,10 @@ work and needs no provider hard cap or idempotent lookup.
 - **Observation.** `runtime_collect.py --surface codex` adds one
   `runtime.image_tools` entry, `id=codex:image_gen`, `transport=codex-image`,
   `tool_ref=image_gen`, when the app-server read shows a ChatGPT login with a
-  verified account and an observed `codex` usage bucket. Its quota is the
-  highest observed `codex` window. The billing object carries the reached-limit
+  verified account and a `codex` usage bucket. Its quota is the highest
+  `codex` window; when any `codex` window is unmeasured (reset not yet
+  observed, or no number), usage is `null` and the lane is refused. The
+  billing object carries the reached-limit
   flags (top level and per bucket); credit balances are information only.
 - **Planner gate** (`assess_codex_image_tool`): `surface=codex`,
   `tool_ref=image_gen`, available with evidence, fresh billing with
@@ -790,8 +792,11 @@ work and needs no provider hard cap or idempotent lookup.
   token use and each image's SHA-256.
 - **Outcomes.** Exit 0 written; 2 bad arguments; 3 refused by the gate or by
   Codex's own usage-limit message; 4 failed or unknown. Nothing is resent
-  automatically: a timeout may still have produced an image, so read the
-  receipt and the rollout before trying again. A refusal never falls back to an
+  automatically. When the send is cut off (timeout, output limit), the receipt
+  keeps the thread ID and rollout Codex had already reported, and any image the
+  rollout already holds is saved (`status=succeeded` with the warning
+  `CODEX_DRIVER_INTERRUPTED_AFTER_IMAGE`); otherwise read the receipt before
+  trying again. A refusal never falls back to an
   API wrapper or another vendor's paid image API.
 
 Measured 2026-10-24 (codex-cli 0.163.0, `image_generation` stable and on): one

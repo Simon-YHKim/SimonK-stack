@@ -300,6 +300,13 @@ class RuntimeCollectionTests(unittest.TestCase):
         over["limits"]["rateLimits"]["primary"]["usedPercent"] = 90
         tool = self.m.snapshot([self.parse("codex", over)], NOW)["image_tools"][0]
         self.assertIn("IMAGE_QUOTA_UNVERIFIED", orchestrate.assess_image_tool(tool, {}, {}, NOW))
+        # One unmeasured codex window makes the whole usage unknown (PR #197 review).
+        partial = codex_raw()
+        partial["limits"]["rateLimits"]["secondary"] = {"usedPercent": None,
+                                                        "windowDurationMins": 300}
+        tool = self.m.snapshot([self.parse("codex", partial)], NOW)["image_tools"][0]
+        self.assertIsNone(tool["quota"]["used_pct"])
+        self.assertIn("IMAGE_QUOTA_UNVERIFIED", orchestrate.assess_image_tool(tool, {}, {}, NOW))
 
     def test_no_codex_image_tool_without_a_verified_chatgpt_login(self):
         api_key = codex_raw()

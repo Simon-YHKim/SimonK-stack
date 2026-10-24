@@ -58,6 +58,14 @@ class ImageError(Exception):
         self.code, self.exit_code, self.detail = code, exit_code, detail
 
 
+class SendInterrupted(Exception):
+    """The send started but did not finish cleanly; `stdout` is what Codex printed."""
+    def __init__(self, code, stdout=b""):
+        super().__init__(code)
+        self.code = code
+        self.stdout = stdout.decode("utf-8", errors="replace") if isinstance(stdout, bytes) else stdout
+
+
 def utc_now():
     return datetime.now(timezone.utc).isoformat()
 
@@ -219,17 +227,20 @@ def run_codex(argv, prompt, workdir, env, timeout=TIMEOUT_SECONDS):
         probe.writers.append(writer)
         writer.start()
         raw = bytearray()
-        while True:
-            line = probe.line()
-            if not line:
-                break
-            raw.extend(line)
         try:
+            while True:
+                line = probe.line()
+                if not line:
+                    break
+                raw.extend(line)
             rc = probe.process.wait(timeout=max(0.01, probe.deadline - runtime_collect.time.monotonic()))
         except runtime_collect.subprocess.TimeoutExpired:
-            raise runtime_collect.CollectorError("timeout") from None
+            raise SendInterrupted("timeout", bytes(raw)) from None
+        except runtime_collect.CollectorError as exc:
+            # Keep what Codex already printed: the thread ID finds the rollout later.
+            raise SendInterrupted(exc.code, bytes(raw)) from None
         if errors:
-            raise ImageError("CODEX_STDIN_FAILED")
+            raise SendInterrupted("stdin-failed", bytes(raw))
     return rc, bytes(raw).decode("utf-8", errors="replace")
 
 
@@ -251,6 +262,29 @@ def write_new(path, data):
         stream.write(data)
         stream.flush()
         os.fsync(stream.fileno())
+
+
+def save_images(receipt, sessions, thread_id, preexisting, out, stream):
+    """Record the rollout, then write each completed image. Raises ImageError."""
+    rollout = find_rollout(sessions, thread_id, preexisting)
+    receipt["codex"]["rollout"] = str(rollout)
+    images, failures = extract_images(rollout)
+    if not images:
+        raise ImageError("IMAGE_GEN_NOT_RUN", detail={"failures": failures,
+                                                      "errors": stream["errors"][-3:]})
+    for index, image in enumerate(images, start=1):
+        raw = decode_png(image["b64"])
+        target = out if index == 1 else out.with_name(out.stem + "-" + str(index) + ".png")
+        try:
+            write_new(target, raw)
+        except OSError as exc:
+            if index == 1:
+                raise ImageError("OUTPUT_WRITE_FAILED", detail=str(exc)) from None
+            receipt.setdefault("skipped", []).append(str(target))
+            continue
+        receipt["images"].append({"path": str(target), "bytes": len(raw),
+                                  "sha256": hashlib.sha256(raw).hexdigest(),
+                                  "revised_prompt": image["revised_prompt"]})
 
 
 def generate(brief, out, transparent=False, *, collect=collect_observation, run=run_codex,
@@ -285,8 +319,11 @@ def generate(brief, out, transparent=False, *, collect=collect_observation, run=
     try:
         command = command or runtime_collect.resolve_command("codex")
         env = runtime_collect.child_env(os.environ, "codex")
+        interrupted = None
         try:
             rc, stdout = run(build_argv(command, workdir), prompt, workdir, env)
+        except SendInterrupted as exc:
+            interrupted, rc, stdout = exc.code, None, exc.stdout
         except (runtime_collect.CollectorError, OSError) as exc:
             # The request may have reached Codex; report it and do not resend.
             receipt.update(status="unknown", reasons=["CODEX_SEND_OUTCOME_UNKNOWN:" + str(exc)])
@@ -298,29 +335,23 @@ def generate(brief, out, transparent=False, *, collect=collect_observation, run=
         if limit:
             receipt.update(status="usage_limit", reasons=["CODEX_USAGE_LIMIT"], message=limit)
             return 3, receipt
+        if interrupted:
+            # No resend. Keep the thread and rollout so a finished image can be found.
+            receipt.update(status="unknown", reasons=["CODEX_SEND_OUTCOME_UNKNOWN:" + interrupted])
+            if not stream["thread_id"]:
+                return 4, receipt
+            try:
+                save_images(receipt, sessions, stream["thread_id"], preexisting, out, stream)
+            except ImageError as exc:
+                receipt["detail"] = {"recovery": exc.code, "info": exc.detail}
+                return 4, receipt
+            receipt.update(status="succeeded", warnings=["CODEX_DRIVER_INTERRUPTED_AFTER_IMAGE"])
+            return 0, receipt
         if rc != 0 or not stream["thread_id"]:
             receipt.update(reasons=["CODEX_EXEC_FAILED"], errors=stream["errors"][-3:])
             return 4, receipt
         try:
-            rollout = find_rollout(sessions, stream["thread_id"], preexisting)
-            receipt["codex"]["rollout"] = str(rollout)
-            images, failures = extract_images(rollout)
-            if not images:
-                raise ImageError("IMAGE_GEN_NOT_RUN", detail={"failures": failures,
-                                                              "errors": stream["errors"][-3:]})
-            for index, image in enumerate(images, start=1):
-                raw = decode_png(image["b64"])
-                target = out if index == 1 else out.with_name(out.stem + "-" + str(index) + ".png")
-                try:
-                    write_new(target, raw)
-                except OSError as exc:
-                    if index == 1:
-                        raise ImageError("OUTPUT_WRITE_FAILED", detail=str(exc)) from None
-                    receipt.setdefault("skipped", []).append(str(target))
-                    continue
-                receipt["images"].append({"path": str(target), "bytes": len(raw),
-                                          "sha256": hashlib.sha256(raw).hexdigest(),
-                                          "revised_prompt": image["revised_prompt"]})
+            save_images(receipt, sessions, stream["thread_id"], preexisting, out, stream)
         except ImageError as exc:
             receipt.update(reasons=[exc.code], detail=exc.detail)
             return exc.exit_code, receipt
