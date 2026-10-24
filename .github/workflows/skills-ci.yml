@@ -37,6 +37,8 @@ jobs:
         run: python3 -B -m unittest discover -s skills-src/vibe/scripts -p test_execute_cli.py -q
       - name: Offline Codex CLI adapter regressions (fake transport; no model calls)
         run: python3 -B -m unittest discover -s skills-src/vibe/scripts -p test_execute_codex_cli.py -q
+      - name: Offline Codex image runner regressions (fake transport; no Codex or image calls)
+        run: python3 -B -m unittest discover -s skills-src/vibe/scripts -p test_execute_codex_image.py -q
       - name: Offline tooling option safety regressions (no Orca or registry access)
         run: python3 -B -m unittest discover -s skills-src/vibe/scripts -p test_check_tooling.py -q
       - name: ai-debate runner regressions

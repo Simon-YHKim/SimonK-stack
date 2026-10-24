@@ -71,6 +71,26 @@ def image_tool(**changes):
     return item
 
 
+def codex_image_tool(**changes):
+    """Hub D-121: Codex image_gen as runtime_collect.codex_image_tool reports it."""
+    evidence = ["fixture codex-app-server usage"]
+    item = {
+        "id": "codex:image_gen", "surface": "codex", "transport": "codex-image",
+        "tool_ref": "image_gen", "available": True, "observed_at": NOW, "evidence": evidence,
+        "billing": {"mode": "subscription", "verified": True, "auth_method": "chatgpt",
+                    "account_ref": "fixture-codex-account", "api_fallback_disabled": True,
+                    "spend_control_reached": False, "rate_limit_reached_type": None,
+                    "buckets": {"codex": {"spend_control_reached": False,
+                                          "rate_limit_reached_type": None}},
+                    "observed_at": NOW, "evidence": evidence},
+        "quota": {"used_pct": 42, "bucket": "codex", "observed_at": NOW,
+                  "account_ref": "fixture-codex-account", "surface": "codex",
+                  "transport": "codex-image", "evidence": evidence},
+    }
+    item.update(changes)
+    return item
+
+
 def step(name="read", **changes):
     item = {"id": name, "task": "Inspect the supplied input", "kind": "llm",
             "skills": ["explain"], "needs": ["reasoning"], "demand": "routine",
@@ -2468,6 +2488,74 @@ class OrchestrationTests(unittest.TestCase):
                               blocked["steps"][0]["rejected_candidates"][0]["reasons"])
                 self.assertIn("IMAGE_QUOTA_UNVERIFIED",
                               blocked["steps"][0]["rejected_candidates"][0]["reasons"])
+
+    def test_codex_image_gen_routes_under_the_usage_gate_only(self):
+        # D-121: no host context, provider hard cap or atomic adapter is required.
+        image = self.typed("IMAGE_GENERATION", task="Draw an original blue circle")
+        p = self.plan([image], image_tools=[codex_image_tool()])
+        self.assertEqual(p["status"], "ready", p["steps"][0]["errors"])
+        node = p["steps"][0]
+        self.assertEqual(node["route"]["transport"], "codex-image")
+        self.assertEqual(node["route"]["tool_ref"], "image_gen")
+        self.assertEqual(node["route"]["vendor"], "openai")
+        self.assertIsNone(node["route"]["model"])
+        self.assertIsNone(node["route"]["host_ref"])
+        self.assertEqual(node["handoff"]["kind"], "codex-image")
+        self.assertEqual(node["handoff"]["runner"], "scripts/execute_codex_image.py")
+        self.assertTrue(node["handoff"]["one_send"])
+        self.assertEqual(self.m.ready_steps(p, [], NOW), ["read"])
+        # Credit balances and overage settings stay information only (D-74).
+        info = codex_image_tool()
+        info["billing"]["buckets"]["codex"]["credits"] = {"has_credits": True, "balance": "9"}
+        self.assertEqual(self.plan([image], image_tools=[info])["status"], "ready")
+
+    def test_codex_image_gen_blocks_on_d74_conditions(self):
+        image = self.typed("IMAGE_GENERATION")
+        stale = (datetime.fromisoformat(NOW) - timedelta(minutes=30)).isoformat()
+        cases = {
+            "IMAGE_QUOTA_UNVERIFIED": [{"quota": {"used_pct": 85}}, {"quota": {"used_pct": None}},
+                                       {"quota": {"used_pct": True}},
+                                       {"quota": {"observed_at": stale}},
+                                       {"quota": {"transport": "host-image"}},
+                                       {"quota": {"account_ref": "other"}}],
+            "IMAGE_CODEX_SUBSCRIPTION_UNVERIFIED": [{"billing": {"auth_method": "apikey"}},
+                                                    {"billing": {"api_fallback_disabled": None}},
+                                                    {"billing": {"verified": False}},
+                                                    {"billing": {"observed_at": stale}}],
+            "IMAGE_USAGE_LIMIT_REACHED": [{"billing": {"spend_control_reached": True}},
+                                          {"billing": {"buckets": {"codex": {
+                                              "rate_limit_reached_type": "primary"}}}}],
+            "IMAGE_CODEX_TOOL_UNSUPPORTED": [{"surface": "claude"}, {"tool_ref": "other"}],
+            "IMAGE_TOOL_UNOBSERVED": [{"available": False}, {"evidence": []}],
+        }
+        for reason, changes in cases.items():
+            for change in changes:
+                with self.subTest(reason=reason, change=change):
+                    tool = codex_image_tool()
+                    for key, value in change.items():
+                        if isinstance(value, dict):
+                            tool[key].update(value)
+                        else:
+                            tool[key] = value
+                    blocked = self.plan([image], image_tools=[tool])
+                    self.assertEqual(blocked["status"], "blocked")
+                    self.assertIsNone(blocked["steps"][0]["route"])
+                    self.assertIn(reason, self.m.assess_image_tool(tool, {}, image, NOW))
+        claude_step = self.typed("IMAGE_GENERATION", surface="claude")
+        self.assertIn("SURFACE_MISMATCH",
+                      self.m.assess_image_tool(codex_image_tool(), {}, claude_step, NOW))
+
+    def test_image_route_prefers_the_less_used_tool(self):
+        image = self.typed("IMAGE_GENERATION")
+        host = image_tool(quota={**image_tool()["quota"], "used_pct": 50})
+        p = self.plan([image], image_tools=[codex_image_tool(), host], host_ref="fixture-host",
+                      interaction_ref="fixture-interaction")
+        self.assertEqual(p["steps"][0]["route"]["transport"], "codex-image")
+        host["quota"]["used_pct"] = 5
+        p = self.plan([image], image_tools=[codex_image_tool(), host], host_ref="fixture-host",
+                      interaction_ref="fixture-interaction")
+        self.assertEqual(p["steps"][0]["route"]["transport"], "host-image")
+        self.assertEqual(p["steps"][0]["handoff"]["kind"], "host-image")
 
     def test_image_host_adapter_claims_once_and_never_auto_settles(self):
         import execute_image

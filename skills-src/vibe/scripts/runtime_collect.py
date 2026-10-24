@@ -591,6 +591,44 @@ class LocalBackend:
         return raw, profile
 
 
+def codex_image_tool(observation):
+    """Hub D-121: Codex's built-in image_gen as a planner image tool, or None.
+
+    The D-74 usage gate is the whole contract: a ChatGPT (not API key) login with a
+    verified account and an observed `codex` usage bucket. child_env passes no API
+    key to the CLI, so there is no API fallback. Usage above the ceiling or a
+    reached limit is left to the planner, which records the rejection.
+    """
+    if (not isinstance(observation, dict) or observation.get("surface") != "codex"
+            or observation.get("state") != "ok"
+            or obj(observation.get("auth")).get("method") != "chatgpt"
+            or observation.get("billing", {}).get("mode") != "subscription"
+            or observation.get("account_verified") is not True
+            or not observation.get("account_ref")):
+        return None
+    windows = [w for w in observation.get("quota_windows", [])
+               if w.get("bucket") == "codex" and w.get("state") == "observed"
+               and type(w.get("used_pct")) in (int, float)]
+    if not windows:
+        return None
+    now, account, billing = observation["observed_at"], observation["account_ref"], observation["billing"]
+    evidence = [observation["source"] + ":account/read+account/rateLimits/read",
+                "auth=chatgpt; child_env passes no API key (D-74)"]
+    return {"id": "codex:image_gen", "surface": "codex", "transport": "codex-image",
+            "tool_ref": "image_gen", "available": True, "observed_at": now,
+            "evidence": evidence,
+            # Reached-limit flags keep their top-level and per-bucket places for usage_limit_reached.
+            "billing": {"mode": "subscription", "verified": True, "auth_method": "chatgpt",
+                        "account_ref": account, "api_fallback_disabled": True,
+                        "spend_control_reached": billing.get("spend_control_reached"),
+                        "rate_limit_reached_type": billing.get("rate_limit_reached_type"),
+                        "buckets": copy.deepcopy(obj(billing.get("buckets"))),
+                        "observed_at": now, "evidence": evidence},
+            "quota": {"used_pct": max(w["used_pct"] for w in windows), "bucket": "codex",
+                      "observed_at": now, "account_ref": account, "surface": "codex",
+                      "transport": "codex-image", "evidence": evidence}}
+
+
 def snapshot(observations, now, registry=None):
     registry = registry if registry is not None else load_registry()
     facts = {m["id"]: m for m in registry["models"]}
@@ -608,8 +646,10 @@ def snapshot(observations, now, registry=None):
                 "billing": {**copy.deepcopy(observation["billing"]), "account_ref": observation["account_ref"]},
                 "quota": {"used_pct": None, "observed_at": observation["observed_at"], "bucket": None},
                 "pending_evidence": ["generation-probe", "model-billing", "model-quota-binding", "task-policy"]})
+    image_tools = [tool for tool in map(codex_image_tool, observations) if tool]
     return {"schema_version": 1, "observed_at": now, "candidates": candidates,
-            "tools": [], "observations": observations, "metadata_only": True}
+            "tools": [], "image_tools": image_tools, "observations": observations,
+            "metadata_only": True}
 
 
 def collect_all(surfaces, backend=None, now=None):

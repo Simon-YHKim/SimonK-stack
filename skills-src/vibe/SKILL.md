@@ -1,8 +1,8 @@
 ---
 name: vibe
-description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan and reports blocked coding or image routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
+description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan, sends image generation to Codex image_gen within included usage, and reports blocked coding routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.21.1
+version: 2.22.0
 author: simon-stack
 ---
 
@@ -131,21 +131,20 @@ a model name or benchmark headline.
 | Focused bug fix | Claude Haiku 5.5, then Sonnet 5.5, then Opus 5.5 (no GPT option) | routine, then raise only if tests or ambiguity require it |
 | Polished writing | Claude Opus 5.5 (no GPT option) | reasoning, not automatic max |
 | Bulk transform | Deterministic software first; then an eligible light model such as Claude Haiku 5.5 | routine |
-| Image creation/editing | A real image-generation skill/tool with verified subscription inclusion | tool-managed; text models only plan or critique |
+| Image creation/editing | Codex built-in `image_gen` through `scripts/execute_codex_image.py` (D-121), driven by GPT-6 Astra at xhigh | tool-managed; text models only plan or critique |
 | Recent X discourse | Verified Grok CLI or current-host browsing, corroborated with primary sources | reasoning if controllable |
 
 The [model-release watch](references/model-release-watch.md) records the dated
 sources and shadow-effort limits behind this shortlist. Claude and Codex use
 the same task/acceptance standard but may have different eligible routes.
 `IMAGE_GENERATION` compiles to `kind=image`, never text-model `VISION`.
-The planner accepts a current-host `host-image` route only with exact account,
-interaction, entitlement, quota under 85 percent, disabled API fallback, a provider-enforced
-$0 hard cap and an atomic/idempotent host adapter. In-process `execute_image.py`
-claims once and rechecks before send; it has no default host or CLI and never
-settles or verifies output. See [orchestration](references/orchestration.md).
-The exposed `image_gen__imagegen` lacks that hard cap and request lookup, so
-`IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL` remains blocked. Do not fake an
-observation, substitute an API wrapper or call it under the $0 policy.
+D-121 (Simon, 2026-10-24): it runs on Codex's built-in `image_gen` under the
+D-74 usage gate only (ChatGPT login, verified account, fresh `codex` usage under
+85 percent, no reached limit). Run `python scripts/execute_codex_image.py
+--prompt-file <brief> --out <absolute .png>` (`--transparent` for alpha): one
+`codex exec`, PNG from the rollout, a receipt beside it, no retry. Exit 3 is a
+usage refusal; never switch to a paid image API. The D-32 `host-image` adapter
+stays optional. See [orchestration](references/orchestration.md).
 
 The source-dated [task-fit hypothesis](references/task-fit-policy.json) is
 deliberately **shadow-only**. For `PLAN_ARCHITECTURE`, `CODE_COMPLEX`,
@@ -154,8 +153,8 @@ only after all route-eligibility guards, preserves monetary and >80% quota
 priority, then emits `shadow_task_fit` with the policy digest, source URLs,
 active candidate and advisory alternative. It does **not** change `route` or
 authorize a worker. Expired, unmatched or unranked-winning evidence produces
-no advisory alternative. `IMAGE_GENERATION` explicitly requires a verified
-subscription-included image tool and must not be routed through text `VISION`.
+no advisory alternative. `IMAGE_GENERATION` uses an image tool (Codex
+`image_gen`, D-121) and must not be routed through text `VISION`.
 Public manufacturer/Artificial Analysis claims are hypotheses across different
 harnesses; direct X posts were inaccessible, so X contributes no rank. Promote
 each task profile only after the same skill bundle, task, tools and rubric are

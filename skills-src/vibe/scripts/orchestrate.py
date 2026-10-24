@@ -98,6 +98,11 @@ def money(value):
 # while included usage remains. The route stops at this ceiling instead, before
 # included usage runs out and a provider could draw existing purchased credits.
 INCLUDED_USAGE_CEILING_PCT = 85
+# Hub D-121 (Simon, 2026-10-24: "이미지 생성은 codex 그냥 시켜. 막지마."): image
+# generation runs on Codex's built-in image_gen through `codex exec`, under the
+# same D-74 included-usage gate. The D-32 host-image contract remains available.
+CODEX_IMAGE_TRANSPORT = "codex-image"
+CODEX_IMAGE_TOOL_REF = "image_gen"
 
 
 def usage_limit_reached(billing):
@@ -1004,12 +1009,52 @@ def assess_candidate(c, step, policy, now, producer_vendor=None, debate=None):
     return errors, effort, reserved
 
 
+def assess_codex_image_tool(tool, step, now):
+    """D-121: Codex's built-in image_gen, judged only by the D-74 usage gate.
+
+    No provider hard cap or idempotent lookup is required on this path. The
+    runner (execute_codex_image.py) repeats the same check right before sending.
+    """
+    errors = []
+    if tool.get("surface") != "codex" or tool.get("tool_ref") != CODEX_IMAGE_TOOL_REF:
+        errors.append("IMAGE_CODEX_TOOL_UNSUPPORTED")
+    if step.get("surface") and step["surface"] != "codex":
+        errors.append("SURFACE_MISMATCH")
+    if (tool.get("available") is not True or not fresh(tool.get("observed_at"), now)
+            or not isinstance(tool.get("evidence"), list) or not tool["evidence"]):
+        errors.append("IMAGE_TOOL_UNOBSERVED")
+    billing = tool.get("billing")
+    if (not isinstance(billing, dict) or billing.get("mode") != "subscription"
+            or billing.get("verified") is not True
+            or billing.get("auth_method") != "chatgpt"
+            or not isinstance(billing.get("account_ref"), str)
+            or not billing["account_ref"].strip()
+            or billing.get("api_fallback_disabled") is not True
+            or not fresh(billing.get("observed_at"), now)
+            or not isinstance(billing.get("evidence"), list) or not billing["evidence"]):
+        errors.append("IMAGE_CODEX_SUBSCRIPTION_UNVERIFIED")
+    elif usage_limit_reached(billing):
+        errors.append("IMAGE_USAGE_LIMIT_REACHED")
+    quota = tool.get("quota")
+    if (not isinstance(quota, dict) or isinstance(quota.get("used_pct"), bool)
+            or not included_usage_open(quota, now) or not quota.get("bucket")
+            or not isinstance(billing, dict)
+            or quota.get("account_ref") != billing.get("account_ref")
+            or quota.get("surface") != "codex"
+            or quota.get("transport") != CODEX_IMAGE_TRANSPORT
+            or not isinstance(quota.get("evidence"), list) or not quota["evidence"]):
+        errors.append("IMAGE_QUOTA_UNVERIFIED")
+    return sorted(set(errors))
+
+
 def assess_image_tool(tool, runtime, step, now):
-    """Require a current-host atomic subscription-only transport, not text vision.
+    """Accept Codex image_gen under the usage gate (D-121) or an atomic host tool (D-32).
 
     These are trusted coordinator observations for planning only. The executing
     host must repeat the account/cap check inside its atomic image operation.
     """
+    if tool.get("transport") == CODEX_IMAGE_TRANSPORT:
+        return assess_codex_image_tool(tool, step, now)
     errors = []
     if (tool.get("surface") not in {"codex", "claude"}
             or tool.get("transport") != "host-image"
@@ -1062,9 +1107,9 @@ def image_tool_route(tool):
                       instant(tool["quota"]["observed_at"]))
     valid_until += timedelta(seconds=DEFAULT_TTL)
     return {"candidate_id": tool["id"], "surface": tool["surface"],
-            "vendor": SURFACES[tool["surface"]], "transport": "host-image",
-            "tool_ref": tool["tool_ref"], "host_ref": tool["host_ref"],
-            "interaction_ref": tool["interaction_ref"], "model": None,
+            "vendor": SURFACES[tool["surface"]], "transport": tool["transport"],
+            "tool_ref": tool["tool_ref"], "host_ref": tool.get("host_ref"),
+            "interaction_ref": tool.get("interaction_ref"), "model": None,
             "requested_effort": None, "effective_effort": None,
             "billing": copy.deepcopy(tool["billing"]), "quota": copy.deepcopy(tool["quota"]),
             "reserved_upper_usd": 0.0, "actual_usd": None,
@@ -1237,10 +1282,17 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
             else:
                 tool = min(eligible, key=lambda item: (item["quota"]["used_pct"], item["id"]))
                 s["route"] = image_tool_route(tool)
-                s["handoff"] = {"kind": "host-image", "tool_ref": tool["tool_ref"],
-                                "read_skills": s["skill_paths"],
-                                "atomic_subscription_only": True,
-                                "idempotent_lookup_required": True}
+                if tool["transport"] == CODEX_IMAGE_TRANSPORT:
+                    # One codex exec per node; the runner rechecks usage and never retries.
+                    s["handoff"] = {"kind": CODEX_IMAGE_TRANSPORT, "tool_ref": tool["tool_ref"],
+                                    "read_skills": s["skill_paths"],
+                                    "runner": "scripts/execute_codex_image.py",
+                                    "one_send": True}
+                else:
+                    s["handoff"] = {"kind": "host-image", "tool_ref": tool["tool_ref"],
+                                    "read_skills": s["skill_paths"],
+                                    "atomic_subscription_only": True,
+                                    "idempotent_lookup_required": True}
         parent = by_id.get(s.get("verify_of"))
         vendor = (parent.get("route") or {}).get("vendor") if parent else None
         if parent and not parent.get("route"):

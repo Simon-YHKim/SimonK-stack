@@ -281,6 +281,39 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertEqual(c["billing"]["account_ref"], snapshot["observations"][0]["account_ref"])
         self.assertNotIn("ultra", c["provider_efforts"])
 
+    def test_snapshot_offers_codex_image_gen_under_the_usage_gate(self):
+        # Hub D-121: a ChatGPT-login Codex observation becomes a planner image tool.
+        import orchestrate
+        snapshot = self.m.snapshot([self.parse("codex", codex_raw())], NOW)
+        self.assertEqual(len(snapshot["image_tools"]), 1)
+        tool = snapshot["image_tools"][0]
+        self.assertEqual((tool["transport"], tool["tool_ref"], tool["quota"]["used_pct"]),
+                         ("codex-image", "image_gen", 52))
+        self.assertEqual(tool["billing"]["account_ref"], snapshot["observations"][0]["account_ref"])
+        self.assertEqual(orchestrate.assess_image_tool(tool, {}, {}, NOW), [])
+        plan = orchestrate.make_plan({"run_id": "image-fixture", "steps": [{
+            "id": "draw", "task_type": "IMAGE_GENERATION", "task": "Draw a circle",
+            "skills": [], "depends_on": [], "writes": False}]}, {}, snapshot, NOW)
+        self.assertEqual(plan["status"], "ready", plan["steps"][0]["errors"])
+        self.assertEqual(plan["steps"][0]["handoff"]["kind"], "codex-image")
+        over = codex_raw()
+        over["limits"]["rateLimits"]["primary"]["usedPercent"] = 90
+        tool = self.m.snapshot([self.parse("codex", over)], NOW)["image_tools"][0]
+        self.assertIn("IMAGE_QUOTA_UNVERIFIED", orchestrate.assess_image_tool(tool, {}, {}, NOW))
+
+    def test_no_codex_image_tool_without_a_verified_chatgpt_login(self):
+        api_key = codex_raw()
+        api_key["account"] = {"account": {"type": "apiKey"}}
+        no_usage = codex_raw()
+        no_usage["limits"] = {"rateLimitsByLimitId": {}}
+        observations = [self.parse("codex", api_key), self.parse("codex", no_usage),
+                        self.parse("grok", grok_raw()),
+                        {"surface": "codex", "observed_at": NOW, "state": "error"}]
+        for observation in observations:
+            with self.subTest(observation=observation.get("auth")):
+                self.assertIsNone(self.m.codex_image_tool(observation))
+        self.assertEqual(self.m.snapshot(observations, NOW)["image_tools"], [])
+
     def test_error_report_never_echoes_raw_exception(self):
         class Broken:
             def collect(self, surface):

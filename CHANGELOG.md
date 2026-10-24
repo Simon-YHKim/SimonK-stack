@@ -6,6 +6,12 @@
 ## [Unreleased]
 
 ### Changed
+- **`vibe` 2.22.0 — 이미지 생성을 Codex `image_gen` 으로 (허브 D-121, Simon 지시 "이미지 생성은 codex 그냥 시켜. 막지마.")**: `IMAGE_GENERATION` 노드가 제공자 $0 하드캡·원자 어댑터 계약(D-32) 때문에 늘 `IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL` 로 막히던 것을 푼다.
+  - `runtime_collect.py`: ChatGPT 로그인·계정 확인·`codex` 사용량이 관측되면 `image_tools` 에 `codex:image_gen`(전송 `codex-image`)을 넣는다.
+  - `orchestrate.py`: `assess_codex_image_tool` 이 D-74 사용량 게이트만 본다(API 키 아님 · 사용량 85% 미만 · rate limit·spend control 미도달). 통과하면 `codex-image` 핸드오프를 낸다. host-image(D-32) 경로는 그대로 남고, 여럿이면 덜 쓴 쪽을 고른다.
+  - 새 `scripts/execute_codex_image.py`: 보내기 직전 사용량을 다시 읽고 `codex exec`(gpt-6-astra@xhigh, workspace-write, 임시 폴더) 1회 → 세션 롤아웃의 `image_gen.generation` 기록에서 PNG 를 꺼내 저장하고 영수증(`<name>.receipt.json`)을 남긴다. 자동 재전송 없음. 종료 코드 0 성공 · 2 인자 · 3 사용량 거절 · 4 실패.
+  - 실측(10-24, codex-cli 0.163.0): 1장 25초, 주간 사용량 41% → 42%.
+  - 테스트: `test_execute_codex_image.py`(13, 가짜 전송) · `test_orchestrate.py` +3 · `test_runtime_collect.py` +2. CI 에 새 테스트 단계 추가.
 - **안전 스킬 상태 폴더 `~/.gstack` → `~/.simonk/state` (허브 D-119 후속, D-117 남은 일)**: `careful` 0.2.7·`freeze` 0.2.8·`guard` 0.2.4·`unfreeze` 0.2.2·`investigate` 1.0.2. 공유 상태 루트 `${CLAUDE_PLUGIN_DATA:-$HOME/.simonk/state}`(플러그인 데이터 우선 그대로), 사용 기록·slug 캐시도 같은 폴더. 옛 `~/.gstack/freeze-dir.txt` 경계는 새 루트에 상태가 없을 때 그대로 지킨다(실패 시 막음). `/freeze` 가 새 경계로 바꾸고 `/unfreeze` 가 둘 다 지우며, 조사용 acquire 는 옛 경계가 있으면 건드리지 않는다. careful 사용자 규칙은 옛 폴더 것도 더해서 읽는다. 어떤 경로도 `~/.gstack` 을 새로 만들지 않는다. `freeze-state.sh` 는 표시된 SimonK delta 두 곳만 바뀌고(테스트가 나머지를 업스트림 해시와 대조), 5플러그인 안전 투영의 검토된 원문도 함께 옮겼다.
 
 ### Removed
