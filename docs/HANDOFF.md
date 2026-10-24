@@ -1,6 +1,29 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-21 22:34 / 레지스트리 주간 재확인(#193) · 안전 스킬 상태 `~/.simonk/state`(#194) · gstack 2단계 보류(D-120)
+## Latest — 2026-10-24 13:30 / 예약 점검(D-98·D-99 Grok catch-up · grok-4.7 canary · D-105) · 외부 스킬 5종 검토
+
+갱신 시각: 2026-10-24 13:30 KST · 갱신자: Claude Code(Opus 5.5). Simon: 10-18 예약 작업("남은것까지 진행") + "계속 이어서 진행해. 그리고 … 링크 스킬들도 검토해줘". 허브 b99ba254. 레포 코드 변경 없음.
+
+- **Grok catch-up**(사용량 78%): D-98 은 OBJECT → 오케스트레이터 타이브레이크. 배치(gpt-6.1-sol 핀)는 D-101·D-102 가 이미 대체했고, 지적한 조건(심은 결함 canary 의 비어 있지 않은 출력, 자동 승격 없음, 두 경로 모두 active 모델)은 현행 구현이 지킨다. D-99 는 ACCEPT. 둘 다 FINAL(catch-up), DECISIONS AMEND 기록.
+- **grok canary**(Orca run `run_f057f8196b72`, `--model`·`--effort` 없이 워커 1개, 도구 금지 한 줄 응답): launch 요청·실제 모두 model `None`, 워커 argv 는 `--permission-mode bypassPermissions` 뿐. grok 세션 기록 `current_model_id grok-4.7` · effort xhigh · usage `grok-4.7-build`(`-fast` 아님) · 한 줄 답에 입력 64,407 토큰. worker-stop 뒤 PID 소멸 확인. → Orca grok 워커는 CLI 기본값(grok-4.7)으로 뜨므로 C-realtime 1순위 `grok-4.6` 표기와 실제 실행 모델이 다르다. 레인 이전은 레인 변경이라 하지 않았다.
+- **Codex 카탈로그**(10-24 13:09 수신): Daybreak 별칭 priority 11 · upgrade 없음 · 새 cyber 모델 없음 → 보안 게이트 핀 그대로(D-102).
+- **D-105 승격 조건**: agy 인증서 경로 증명 시도 없음. D-105 이후 열린 토론 0건이라 Argon 좌석 실사용 계측 0/5. B 재검토 조건 미충족.
+- **레지스트리**: 10-21 재확인분(`2026-10-21.1`, 만료 2026-10-28 21:32 KST)이 예약 작업의 10-25 기한을 이미 채웠다.
+- **외부 스킬 5종 검토**(설치 0, 하위 에이전트가 클론을 읽기만 함; 보고 페이지 https://claude.ai/artifact/P4SMaVMNh3tscV6gc9EMb7 , 비공개):
+  - `donchitos/claude-code-game-studios` — 아이디어만 이식. 스킬 74·에이전트 49·bash 훅 15(이벤트 8종)·상시 약 34K자. 엔진 버전 레퍼런스와 단계 게이트(gate-check)만 `phase4-game-orchestrator` 로.
+  - `aldegad/sprite-gen` — 참고만. 기본 생성 경로(codex image_gen)는 vibe `orchestration.md` 가 $0 조건으로 막아 둔 경로이고(자동충전 OFF 도 요청별 상한이 아니다), description 이 일반 이미지 요청까지 잡아 그 게이트를 우회한다. 생성 없는 로컬 도구(cutout·slice·atlas)는 2nd-B 상태 에셋 작업 때 다시 본다.
+  - `gamedev-skills/awesome-gamedev-agent-skills` — 참고만. 실제로는 스킬 76 + 라우터 1의 플러그인 마켓(훅 0). 게임을 시작하면 엔진 하위 플러그인 하나만(web-engines 약 2.8K자) 업스트림에서 별도 설치.
+  - `leonxlnx/taste-skill` — 아이디어만 이식. `simon-design-first` 와 트리거·흐름이 충돌하고 자체 블라인드 평가 5라운드 중 4번 무스킬보다 낮다. 인벤토리 + 경쟁사 테스트 → design-first, 헤드라인 2줄·여백 규칙 → design-review.
+  - `juliusbrussee/caveman` — 아이디어만 이식. 로컬 `skills-src/caveman`(1.0.0)은 mattpocock 경유 옛판이고 "약 75%" 주장을 들고 있다. 업스트림 자체 측정은 "Answer concisely." 대비 −3%. 업스트림 훅 출력에 에이전트용 권유 문구(`src/hooks/caveman-activate.js:608`)와 기본 켜진 사용 통계 전송이 있다.
+
+### 다음 작업 큐
+- 이식 PR(각각 skill-gen-agent 검증): ① `caveman` — v4 규칙 5개(부정어·조사 보존, 약어/화살표 금지, 채팅 밖 평문, 질문은 완문) + 꼬리 블록 예외, 75% 주장·HTML 절 삭제 ② `simon-design-first`·`design-review` — taste 규칙 3개(design-first 변경은 quick 토론 대상) ③ `phase4-game-orchestrator` — 엔진 버전 레퍼런스·단계 게이트·에셋 매니페스트(게임 착수 때 해도 됨).
+- C-realtime 레인 `grok-4.6` → `grok-4.7` 이전 — quick 토론 또는 Simon 지시.
+- 레지스트리 다음 재확인: 2026-10-28 21:32 KST 전.
+- Simon: Claude Code 재시작 · claude.ai gstack 업로드 35개 삭제 · 카드 5(10-21 블록 그대로).
+- 그 밖에는 아래 10-21 22:34 블록 그대로.
+
+## 2026-10-21 22:34 / 레지스트리 주간 재확인(#193) · 안전 스킬 상태 `~/.simonk/state`(#194) · gstack 2단계 보류(D-120)
 
 갱신 시각: 2026-10-21 22:34 KST · 갱신자: Claude Code(Opus 5.5). Simon: "지금 너가 하면 되는거 아니야?"(남은 일 처리). 허브 D-120.
 
