@@ -88,7 +88,8 @@
 - `ProviderId = 'claude'|'codex'|'grok'|'antigravity'`. `PROVIDER_TRAITS: Record<ProviderId, {maxAccounts:number|null, widgetLogin:boolean}>`는 main(계정 수 강제)과 렌더러(버튼 표시)가 함께 쓴다(DECISIONS 26.09.19 11:42).
 - `Account { id, provider, label, enabled, order, profileDir(main 전용), createdAt }` / `AccountDTO { id, provider, label, enabled, order, emailMasked?, plan?, loginState }`. 변환은 반드시 `toAccountDTO()`(필드를 명시적으로 골라 새 필드가 새지 않게 함).
 - `QuotaWindow { kind:'session'|'weekly'|'other', usedPercent:number|null, resetsAt:number|null(epoch ms), windowMinutes:number|null, label? }`. **모르는 값은 null이며 0으로 쓰지 않는다.** `label`(codex 버킷 id, antigravity 모델 그룹)은 팝업 상자 제목 아래에 텍스트로 표시해 같은 kind의 창을 구분한다. 위젯 막대에는 표시하지 않는다.
-- `UsageSnapshot { accountId, provider, state, windows, plan?, measuredAt, lastSuccessAt, errorCode?, source }`
+- `UsageSnapshot { accountId, provider, state, windows, plan?, resetCreditsAvailable?, extraUsage?, measuredAt, lastSuccessAt, errorCode?, source }`
+  - `extraUsage { prepaidCents?, onDemandUsedCents?, onDemandCapCents?, credits?{balance:number|null, unlimited} }`(26.10.25): 포함 한도 밖 유료 사용량. Grok 금액은 USD 센트(grok-build `Cent`), Codex `credits`는 서버가 준 개수. 없는 필드 = 보고되지 않음(0 아님). main `sanitize.ts`가 음수·소수 센트·100만 달러 초과를 버린다. 조회 실패 시 마지막 값이 창과 함께 남는다(`applyFetchFailure`).
   - `state`: `ok` 측정 성공 / `stale` 오래됨 / `loading` 첫 조회 중 / `error` 실패(윈도우는 마지막 실측값일 수 있음) / `unavailable` 공급원이 수치를 주지 않음 / `logged-out` / `reset` 모든 창의 리셋 시각이 지남.
   - `source`: `'codex-app-server'|'claude-statusline'|'grok-acp'|'antigravity-cli-usage'`.
 - `ErrorCode`(21종, 통합 때 `cli-unsupported-install` 추가 — CLI는 있으나 npm shim 등 실행기를 셸 없이 해석할 수 없음): 렌더러는 코드만 받아 i18n 문구로 바꾼다. 공급자 원문 오류는 UI로 가지 않는다.
@@ -282,6 +283,8 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 | ACP 규칙 | 세션·프롬프트를 만들지 않는다(쿼터 소모 금지). 호출은 `initialize`와 billing뿐, 끝나면 항상 프로세스 종료. 서버→클라이언트 요청(권한·파일)은 거부 응답. `initialize`는 확장 메서드 목록을 광고하지 않는다(실측) |
 | 금지 | `/billing` HTTP 직접 호출, `auth.json` 읽기, OIDC refresh 직접 수행, Orca 값, `x.ai/auth/*`(check_subscription 포함, 부작용 미확인) |
 | 실측(T4, 26.09.20, grok 1.0.34) | `_x.ai/billing` = `{config:{currentPeriod:{type:'USAGE_PERIOD_TYPE_WEEKLY',start,end}, onDemandCap:{val}, onDemandUsed:{val}, prepaidBalance:{val}, isUnifiedBillingUser, billingPeriodStart, billingPeriodEnd}, subscription_tier}`(0.8~0.9초). proto3 JSON이라 **0인 스칼라는 생략**된다: 주간 리셋 직후에는 `creditUsagePercent`가 없다. 파서는 weekly `currentPeriod` + 리셋 시각 + 동반 필드 2개 이상이 있을 때만 그 부재를 0%로 읽고, 필드가 있는데 못 읽는 값이면 미확인으로 둔다(DECISIONS 26.09.20 08:40). 같은 날 10:49 재조회에서 `creditUsagePercent: 29`가 나타나 "0일 때만 생략"이 확증됨(DECISIONS 26.09.20 10:51) |
+| 추가 사용량(26.10.25) | `prepaidBalance`·`onDemandUsed`·`onDemandCap`(USD 센트, grok-build `Cent`)을 `extraUsage`로 넘긴다. `{}`는 $0, 필드가 없으면 미보고. 실측: Heavy 계정 `prepaidBalance 4638`(=$46.38)·on-demand 필드 없음, SuperGrok 계정 세 값 모두 `{val:0}`. `isUnifiedBillingUser`는 두 계정 모두 true였고 grok-build 주석상 "Grok 제품 간 공유 풀" 뜻이라 Grok Bot 통합 판정에 쓰지 않는다 |
+| Grok Bot 연결(26.10.25) | Bot 값(`GetSandUsageStatus`)의 `isUnified`=true면 Bot은 연결된 Grok 계정의 주간 풀에서 빠진다(별도 한도 없음). 어느 계정인지는 Bot `nextResetTimestampUtc`와 각 Grok 계정 주간 창 리셋이 5분 안에 맞는 것으로 정한다(실측: 밀리초까지 같음). 통합이면 그 계정 칸에 WK 한 줄만, 분리면 WK+Bot 두 줄, 맞는 계정이 없으면 통합 Bot은 단독 칸·분리 Bot은 첫 Grok 계정(종전). 렌더러 `grok-link.ts` |
 | 미결 | `grok login --device-auth` 실제 출력(호스트·코드 형식·stdin 대기), 만료 토큰 자동 갱신 여부, 다중 GROK_HOME 동시 실행 |
 
 ### 7-4. Antigravity (`providers/antigravity`) — DECISIONS 26.09.19 11:42
@@ -295,7 +298,8 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 | 실패(26.09.30) | 실측 7회(09.20~26): `status:"ERROR"` + `/usage failed: … UNKNOWN (code 500): Unknown Error.`(stderr 첫 줄에도 같은 문구), 매번 다음 주기에 복구. 이 문구(`/usage failed:` + `(code 5xx)`)면 같은 조회 안에서 3초 뒤 **1회만** 다시 실행한다(`/usage`는 요청을 쓰지 않음, 중단 신호는 대기 중에도 즉시 반영). 두 번째도 실패하면 `error`+`provider-error`(이전 수치 유지). 실패 로그에 `attempt`·`reasonField`(사유가 담긴 JSON 키)·`serverError`·`retry`를 남긴다. 연결 계열 문구는 재시도 없이 `network` |
 | 신원 | `/usage` 성공 = `loggedIn:true`(e-mail·plan은 제공되지 않음). 로그아웃 문구가 보이면 `logged-out`, 그 외 실패는 `ProviderError`(unknown). identity·usage가 15초 안에 이어지면 agy 실행 1회를 공유하고, 같은 계정의 동시 호출도 한 실행을 공유한다 |
 | 금지 | wincred(`gemini:antigravity`) 읽기, 로컬 language server RPC, `cloudcode-pa` 직접 호출, Orca 값(RESEARCH 3-5) |
-| 미결 | 로그아웃 상태의 실제 출력 문구(현재 정규식은 추정), 위젯 막대에 표시할 그룹 선택(현재 첫 그룹) |
+| Argon(26.10.25) | agy 1.4.7부터 그룹 `Gemini 4 Argon`(버킷 `gemini-argon-wtu-weekly`, 주간만, 5시간 창 없음)이 붙는다. 설명: "For paid Pro plans, Argon quota is separate. Higher Argon quota (included as part of the larger Gemini quota bucket) is available on Ultra plans." 렌더러는 라벨에 `argon`이 든 창을 팝업 맨 앞에 두고 작업 표시줄 첫 줄(태그 `AR`)로 쓴다. 둘째 줄은 나머지 그룹의 종전 선택(보통 Gemini 5H) |
+| 미결 | 로그아웃 상태의 실제 출력 문구(현재 정규식은 추정) |
 
 ---
 

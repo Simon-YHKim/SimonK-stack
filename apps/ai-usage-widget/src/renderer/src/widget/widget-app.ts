@@ -10,6 +10,7 @@ import { renderWidgetItem } from './themes';
 import { modelNoticeText } from '../../../shared/model-notice';
 import { GROK_BOT_STATUS_KEYS, grokBotReading, grokBotSpillKey, grokBotWeeklyExhausted } from '../../../shared/grok-bot';
 import { formatCountdown } from '../../../shared/usage';
+import { linkGrokBot, type GrokBotLink } from '../grok-link';
 
 /** Clicks within this window after a toggle are ignored (v1 SPEC §2-5). */
 export const TOGGLE_DEBOUNCE_MS = 300;
@@ -115,6 +116,7 @@ export class WidgetApp {
   private pendingRefresh = false;
   private lastSignature = '';
   private hasSeenGrokBot = false;
+  private grokBotLink: GrokBotLink | null = null;
   private lastSize: Size | null = null;
   private tickTimer: ReturnType<typeof setInterval> | null = null;
   private readonly paceHistory = new Map<string, Map<string, PaceSample[]>>();
@@ -365,9 +367,15 @@ export class WidgetApp {
         this.summary.textContent = title;
       } else {
         const botItem = this.showGrokBot(state) ? this.grokBotItem(state, ctx) : null;
+        const link = botItem === null ? null :
+          linkGrokBot(views, grokBotReading(settings, ctx.now, state.grokBotAuto), this.grokBotLink);
+        if (link !== null) this.grokBotLink = link;
         let groupedGrokBot = false;
         const items = views.map((view) => {
-          const groupBot = botItem !== null && !groupedGrokBot && view.account.provider === 'grok';
+          const host = link !== null && view.account.id === link.accountId;
+          // A unified Bot is the host's own weekly pool: one WK row, no second Bot meter. While the
+          // host's own reading is not current, the fresh Bot number of the same pool stays visible.
+          const groupBot = botItem !== null && host && (!link.unified || view.state !== 'ok');
           const displayView = groupBot ? this.grokWithBotView(view, state, ctx) : view;
           const item = renderWidgetItem(displayView, ctx);
           const rowElements = item.querySelectorAll<HTMLElement>('[data-status]');
@@ -381,6 +389,10 @@ export class WidgetApp {
           if (groupBot) {
             item.dataset.state = view.state;
             item.title = `${itemTooltip(view, ctx)}\n${botItem.title}`;
+            groupedGrokBot = true;
+          } else if (host) {
+            item.classList.add('is-unified-pool');
+            item.title += `\n${t('grokUnifiedPool')}`;
             groupedGrokBot = true;
           }
           const notice = state.modelNotices.find((entry) => entry.provider === view.account.provider);

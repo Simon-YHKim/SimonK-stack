@@ -146,6 +146,7 @@ describe('grok adapter: fetchUsage', () => {
         },
       ],
       plan: 'Super Grok',
+      extraUsage: { prepaidCents: 0, onDemandUsedCents: 0, onDemandCapCents: 0 },
       measuredAt: NOW,
       lastSuccessAt: NOW,
       source: 'grok-acp',

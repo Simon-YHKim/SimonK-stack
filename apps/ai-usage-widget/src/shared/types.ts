@@ -161,6 +161,22 @@ export type UsageState = (typeof USAGE_STATES)[number];
 export const USAGE_SOURCES = ['codex-app-server', 'claude-statusline', 'grok-acp', 'antigravity-cli-usage'] as const;
 export type UsageSource = (typeof USAGE_SOURCES)[number];
 
+/**
+ * Paid usage beyond the included quota, as the provider reports it (DECISIONS 26.10.25).
+ * Grok amounts are USD cents (grok-build `Cent`); Codex credits are the count the server gives.
+ * A missing field means "not reported", never 0.
+ */
+export interface ExtraUsage {
+  /** Purchased credits still available (grok `prepaidBalance`). */
+  prepaidCents?: number;
+  /** On-demand spend this period (grok `onDemandUsed`). */
+  onDemandUsedCents?: number;
+  /** On-demand cap (grok `onDemandCap`); 0 = on-demand is off. */
+  onDemandCapCents?: number;
+  /** Codex purchased credits (`account/rateLimits/read` `credits`). */
+  credits?: { balance: number | null; unlimited: boolean };
+}
+
 export interface UsageSnapshot {
   accountId: string;
   provider: ProviderId;
@@ -169,6 +185,7 @@ export interface UsageSnapshot {
   plan?: string;
   /** Codex banked rate-limit resets available; separate from purchased credits. */
   resetCreditsAvailable?: number;
+  extraUsage?: ExtraUsage;
   /** Epoch ms when `windows` were measured, null if never. */
   measuredAt: number | null;
   /** Epoch ms of the last successful fetch, null if never. */

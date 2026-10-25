@@ -73,6 +73,17 @@ export const en: Record<keyof typeof ko, string> = {
   grokBotSpillOnDemand: 'Weekly limit reached · further use may draw on extra credits, then on-demand usage billed by Cursor',
   grokBotRecorded: 'Recorded manually {time}',
   grokBotWidget: 'Bot',
+  grokUnifiedPool: 'Shared Grok + Grok Bot weekly pool',
+  grokUnifiedNote: "Grok Bot usage draws from this account's weekly limit (WK) under unified billing. There is no separate Bot limit.",
+  extraUsageTitle: 'Extra usage',
+  extraUsagePrepaid: 'Purchased credits {amount} left',
+  extraUsageOnDemand: 'On-demand {used} of {cap}',
+  extraUsageOnDemandUsed: 'On-demand {used}',
+  extraUsageOnDemandCap: 'On-demand cap {cap}',
+  extraUsageOnDemandOff: 'On-demand off',
+  extraUsageCredits: '{count} credits',
+  extraUsageCreditsUnlimited: 'Unlimited credits',
+  extraUsageCreditsUnknown: 'Credit balance unknown',
 
   // Accounts tab
   moveUp: 'Move Up',

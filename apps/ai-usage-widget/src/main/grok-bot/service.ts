@@ -16,9 +16,11 @@ export function parseGrokBotUsage(value: unknown, measuredAt: number): GrokBotAu
   const resetsAt = typeof reset === 'string' ? Date.parse(reset) :
     typeof reset === 'number' && Number.isFinite(reset) ? (reset < 1e12 ? reset * 1000 : reset) : NaN;
   const plan = typeof data.grokPlanLabel === 'string' ? data.grokPlanLabel.slice(0, 64) : undefined;
+  // `isUnified` (measured 26.10.25): the Bot draws from the linked Grok account's shared weekly pool.
+  const unified = typeof data.isUnified === 'boolean' ? data.isUnified : undefined;
   return {
     state: 'ok', usedPercent: Math.round(used), resetsAt: Number.isFinite(resetsAt) && resetsAt > measuredAt ? resetsAt : null,
-    measuredAt, ...(plan ? { plan } : {}),
+    measuredAt, ...(plan ? { plan } : {}), ...(unified === undefined ? {} : { unified }),
   };
 }
 

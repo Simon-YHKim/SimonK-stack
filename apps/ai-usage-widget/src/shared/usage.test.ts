@@ -61,6 +61,12 @@ describe('usage helpers', () => {
     expect(deriveDisplayState(okSnapshot({ measuredAt: null }), NOW, 60)).toBe('stale');
   });
 
+  it('applyFetchFailure keeps the last reported extra usage with the last windows', () => {
+    const previous = okSnapshot({ extraUsage: { prepaidCents: 4638 } });
+    const failed = createEmptySnapshot({ accountId: 'acc1', provider: 'codex', source: 'codex-app-server', state: 'error', errorCode: 'timeout' });
+    expect(applyFetchFailure(previous, failed).extraUsage).toEqual({ prepaidCents: 4638 });
+  });
+
   it('applyFetchFailure keeps last real values and their time', () => {
     const previous = okSnapshot({ plan: 'plus' });
     const failed = createEmptySnapshot({

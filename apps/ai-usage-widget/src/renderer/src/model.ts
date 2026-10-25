@@ -12,6 +12,7 @@ import type {
   AccountDTO,
   AppStateSnapshot,
   ErrorCode,
+  ExtraUsage,
   Locale,
   ProviderId,
   QuotaWindow,
@@ -22,6 +23,7 @@ import type {
   UsageState,
 } from '../../shared/types';
 import { deriveDisplayState, displayPercent, isWindowExpired, usageLevel, type UsageLevel } from '../../shared/usage';
+import { formatUsdCents } from '../../shared/grok-bot';
 import { countdownText, percentText, relativeTimeText } from './format';
 
 export interface RenderContext {
@@ -64,6 +66,7 @@ export interface AccountView {
   source: UsageSource | null;
   plan?: string;
   resetCreditsAvailable?: number;
+  extraUsage?: ExtraUsage;
 }
 
 /** States whose windows hold current (or dimmed recent) measurements. */
@@ -113,6 +116,33 @@ export function selectWidgetRows(windows: readonly RowView[], showWeeklyLimit: b
   return rows;
 }
 
+/**
+ * agy's Argon group ("Gemini 4 Argon", agy 1.4.7): on Pro plans its own weekly limit, separate
+ * from the Gemini Flash/Pro bucket. It is the agy quota that runs out first, so it leads the
+ * popup and takes the first taskbar row (DECISIONS 26.10.25).
+ */
+const ARGON_LABEL_RE = /\bargon\b/i;
+export const ARGON_TAG = 'AR';
+
+export function isArgonRow(row: Pick<RowView, 'label'>): boolean {
+  return row.label !== null && ARGON_LABEL_RE.test(row.label);
+}
+
+function argonFirst(windows: readonly RowView[]): RowView[] {
+  return [...windows.filter(isArgonRow), ...windows.filter((row) => !isArgonRow(row))];
+}
+
+/**
+ * Argon, then the usual pick from the other groups; still at most two rows. Argon only has a
+ * weekly window and is shown even when weekly rows are hidden, like Grok WK with Bot.
+ */
+export function selectAntigravityRows(windows: readonly RowView[], showWeeklyLimit: boolean): RowView[] {
+  const argon = windows.find(isArgonRow);
+  if (argon === undefined) return selectWidgetRows(windows, showWeeklyLimit);
+  const rest = selectWidgetRows(windows.filter((row) => !isArgonRow(row)), showWeeklyLimit);
+  return [{ ...argon, tag: ARGON_TAG }, ...rest].slice(0, 2);
+}
+
 export function buildAccountView(
   account: AccountDTO,
   snapshot: UsageSnapshot | null,
@@ -130,10 +160,13 @@ export function buildAccountView(
     return view;
   }
   let state = deriveDisplayState(snapshot, now, settings.refreshIntervalSec);
-  const windows = snapshot.windows.map((w) => toRow(w, now, settings.showUsedPercent));
+  const agy = account.provider === 'antigravity';
+  const measuredRows = snapshot.windows.map((w) => toRow(w, now, settings.showUsedPercent));
+  const windows = agy ? argonFirst(measuredRows) : measuredRows;
   // A failed fetch keeps the last measured windows (DECISIONS 01:36); the widget shows them dimmed.
   const keepsLastValues = state === 'error' && snapshot.measuredAt !== null;
-  let rows = isMeasuredState(state) || keepsLastValues ? selectWidgetRows(windows, settings.showWeeklyLimit) : [];
+  const select = agy ? selectAntigravityRows : selectWidgetRows;
+  let rows = isMeasuredState(state) || keepsLastValues ? select(windows, settings.showWeeklyLimit) : [];
   let errorCode = snapshot.errorCode;
   if (isMeasuredState(state) && rows.length === 0) {
     state = 'unavailable';
@@ -154,7 +187,29 @@ export function buildAccountView(
   if (state === 'ok' && account.provider === 'codex' && snapshot.resetCreditsAvailable !== undefined) {
     view.resetCreditsAvailable = snapshot.resetCreditsAvailable;
   }
+  if ((isMeasuredState(state) || keepsLastValues) && snapshot.extraUsage !== undefined) view.extraUsage = snapshot.extraUsage;
   return view;
+}
+
+/** One short phrase per reported extra-usage amount; empty when nothing was reported. */
+export function extraUsageParts(t: Translator, extra: ExtraUsage | undefined): string[] {
+  if (extra === undefined) return [];
+  const parts: string[] = [];
+  if (extra.prepaidCents !== undefined) parts.push(t('extraUsagePrepaid', { amount: formatUsdCents(extra.prepaidCents) }));
+  if (extra.onDemandCapCents === 0) parts.push(t('extraUsageOnDemandOff'));
+  else if (extra.onDemandCapCents !== undefined) {
+    // An unreported spend is not a $0 spend.
+    parts.push(extra.onDemandUsedCents === undefined ? t('extraUsageOnDemandCap', { cap: formatUsdCents(extra.onDemandCapCents) }) :
+      t('extraUsageOnDemand', { used: formatUsdCents(extra.onDemandUsedCents), cap: formatUsdCents(extra.onDemandCapCents) }));
+  } else if (extra.onDemandUsedCents !== undefined && extra.onDemandUsedCents > 0) {
+    parts.push(t('extraUsageOnDemandUsed', { used: formatUsdCents(extra.onDemandUsedCents) }));
+  }
+  if (extra.credits !== undefined) {
+    parts.push(extra.credits.unlimited ? t('extraUsageCreditsUnlimited') :
+      extra.credits.balance === null ? t('extraUsageCreditsUnknown') :
+      t('extraUsageCredits', { count: Number(extra.credits.balance.toFixed(2)) }));
+  }
+  return parts;
 }
 
 export function sortedAccounts(accounts: readonly AccountDTO[]): AccountDTO[] {
@@ -252,13 +307,19 @@ export function itemTooltip(view: AccountView, ctx: RenderContext): string {
   const suffix: string[] = [];
   if (view.state === 'stale') suffix.push(stateText(t, 'stale'), measuredText(ctx, view.measuredAt));
   if (view.state === 'reset') suffix.push(stateText(t, 'reset'));
+  suffix.push(...extraUsageParts(t, view.extraUsage));
 
   if (isMeasuredState(view.state) && view.rows.length > 0) {
     const [a, b] = view.rows;
     let main: string;
     const valueRow = (row: RowView | undefined): row is RowView & { shownPercent: number } =>
       row !== undefined && row.status === 'value' && row.shownPercent !== null;
-    if (valueRow(a) && valueRow(b)) {
+    // The fixed "5h | weekly" templates cannot name an Argon row; spell every row out with its group.
+    const labelled = view.rows.some(isArgonRow);
+    if (labelled) {
+      main = [name, ...view.rows.map((row) =>
+        `${windowTitle(t, row)}${row.label === null ? '' : ` (${row.label})`}: ${rowValueText(t, row, unitKey)}`)].join(' | ');
+    } else if (valueRow(a) && valueRow(b)) {
       main = t('widgetTooltip', {
         name,
         p: Math.round(a.shownPercent),

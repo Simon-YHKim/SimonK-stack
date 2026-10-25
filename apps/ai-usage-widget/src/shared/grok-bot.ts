@@ -7,6 +7,11 @@ export interface GrokBotAutoUsage {
   resetsAt: number | null;
   measuredAt: number;
   plan?: string;
+  /**
+   * Cursor's `isUnified`: Grok Bot draws from the linked Grok account's shared weekly pool, so its
+   * percent is that account's weekly (WK) usage, not a separate limit (DECISIONS 26.10.25).
+   */
+  unified?: boolean;
 }
 
 /** Manual readings are no longer treated as current after a day or as numeric after a week. */
@@ -44,7 +49,7 @@ export type GrokBotReading =
   /** The weekly reset the user entered has passed since the reading: the number no longer applies. */
   | { state: 'reset'; recordedAt: number; resetAt: number }
   /** Live reading from the signed-in Grok Bot app; independent of manual reset entries. */
-  | { state: 'automatic'; usedPercent: number; leftPercent: number; recordedAt: number; resetsAt: number | null; plan?: string };
+  | { state: 'automatic'; usedPercent: number; leftPercent: number; recordedAt: number; resetsAt: number | null; plan?: string; unified?: boolean };
 
 /** Status text per reading state, shared by the popup card and the taskbar item. */
 export const GROK_BOT_STATUS_KEYS: Readonly<Record<GrokBotReading['state'], MessageKey>> = {
@@ -70,7 +75,8 @@ export function grokBotReading(
   if (automatic?.state === 'ok' && automatic.usedPercent !== null && now - automatic.measuredAt < GROK_BOT_STALE_MS &&
     (automatic.resetsAt === null || automatic.resetsAt > now)) {
     return { state: 'automatic', usedPercent: automatic.usedPercent, leftPercent: 100 - automatic.usedPercent,
-      recordedAt: automatic.measuredAt, resetsAt: automatic.resetsAt, ...(automatic.plan ? { plan: automatic.plan } : {}) };
+      recordedAt: automatic.measuredAt, resetsAt: automatic.resetsAt, ...(automatic.plan ? { plan: automatic.plan } : {}),
+      ...(automatic.unified === undefined ? {} : { unified: automatic.unified }) };
   }
   const used = settings.grokBotUsedPercent;
   const at = settings.grokBotRecordedAt;

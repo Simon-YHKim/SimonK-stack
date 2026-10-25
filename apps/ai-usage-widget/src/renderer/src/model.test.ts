@@ -3,7 +3,7 @@ import { DEFAULT_SETTINGS } from '../../shared/settings';
 import { relativeTimeText } from './format';
 import { pickLocale } from './locale';
 import { createTranslator } from '../../shared/i18n';
-import { buildAccountView, itemTooltip, selectWidgetRows, tagForWindow, toRow } from './model';
+import { buildAccountView, extraUsageParts, itemTooltip, selectWidgetRows, tagForWindow, toRow } from './model';
 import { HOUR, NOW, account, quotaWindow, themeTokens, usage } from './testing/fixtures';
 import { accentForeground, safeAccent } from './theme';
 
@@ -42,6 +42,42 @@ describe('view model', () => {
     expect(tagForWindow('other', 30)).toBe('30m');
     expect(tagForWindow('other', 1440)).toBe('1D');
     expect(tagForWindow('other', null)).toBe('--');
+  });
+
+  it('agy: the Argon weekly limit leads the popup and takes the first taskbar row (agy 1.4.7, 26.10.25)', () => {
+    const labelled = (kind: 'session' | 'weekly', used: number, label: string) => ({ ...quotaWindow(kind, used, HOUR), label });
+    const snapshot = usage('ag', { provider: 'antigravity', source: 'antigravity-cli-usage', windows: [
+      labelled('session', 0, 'Gemini Models'), labelled('weekly', 0, 'Gemini Models'),
+      labelled('session', 0, 'Claude and GPT models'), labelled('weekly', 0, 'Claude and GPT models'),
+      labelled('weekly', 20.34, 'Gemini 4 Argon'),
+    ] });
+    const view = buildAccountView(account({ id: 'ag', provider: 'antigravity', label: 'AG' }), snapshot, DEFAULT_SETTINGS, NOW);
+    expect(view.windows[0]?.label).toBe('Gemini 4 Argon');
+    expect(view.rows.map((row) => [row.tag, row.label])).toEqual([['AR', 'Gemini 4 Argon'], ['5H', 'Gemini Models']]);
+    const ctx = { t: createTranslator('en'), locale: 'en' as const, settings: DEFAULT_SETTINGS, theme: themeTokens(), now: NOW };
+    expect(itemTooltip(view, ctx)).toContain('AG | Weekly Limit (Gemini 4 Argon): 80% left');
+    // Without an Argon group (older agy, Ultra plans) nothing changes.
+    const plain = buildAccountView(account({ id: 'ag', provider: 'antigravity' }),
+      usage('ag', { provider: 'antigravity', windows: [labelled('session', 0, 'Gemini Models'), labelled('weekly', 0, 'Gemini Models')] }),
+      DEFAULT_SETTINGS, NOW);
+    expect(plain.rows.map((row) => row.tag)).toEqual(['5H', 'WK']);
+  });
+
+  it('extra usage: purchased credits and on-demand in dollars, Codex credits as a count, nothing invented', () => {
+    const t = createTranslator('en');
+    expect(extraUsageParts(t, { prepaidCents: 4638 })).toEqual(['Purchased credits $46.38 left']);
+    expect(extraUsageParts(t, { prepaidCents: 0, onDemandUsedCents: 0, onDemandCapCents: 0 }))
+      .toEqual(['Purchased credits $0.00 left', 'On-demand off']);
+    expect(extraUsageParts(t, { onDemandUsedCents: 120, onDemandCapCents: 5000 })).toEqual(['On-demand $1.20 of $50.00']);
+    expect(extraUsageParts(t, { onDemandCapCents: 5000 })).toEqual(['On-demand cap $50.00']);
+    expect(extraUsageParts(t, { credits: { balance: 12.5, unlimited: false } })).toEqual(['12.5 credits']);
+    expect(extraUsageParts(t, { credits: { balance: null, unlimited: true } })).toEqual(['Unlimited credits']);
+    expect(extraUsageParts(t, undefined)).toEqual([]);
+    const snapshot = usage('g', { provider: 'grok', source: 'grok-acp', windows: [quotaWindow('weekly', 100, HOUR)],
+      extraUsage: { prepaidCents: 4638 } });
+    const view = buildAccountView(account({ id: 'g', provider: 'grok', label: 'G' }), snapshot, DEFAULT_SETTINGS, NOW);
+    const ctx = { t, locale: 'en' as const, settings: DEFAULT_SETTINGS, theme: themeTokens(), now: NOW };
+    expect(itemTooltip(view, ctx)).toContain('Purchased credits $46.38 left');
   });
 });
 

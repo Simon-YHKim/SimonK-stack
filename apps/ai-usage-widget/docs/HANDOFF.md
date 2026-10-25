@@ -2,6 +2,20 @@
 > prepend 전용 로그. 새 블록을 맨 위에 얹고 직전 `## Latest`는 날짜 헤더로 강등한다. 덮어쓰지 않는다.
 
 ## Latest
+- **목적**: 사용자 요청(26.10.25) — Grok 두 계정을 통합·분리 방식대로 모니터링, agy 사용량 측정 점검(특히 Argon 현황), 추가 사용량(크레딧) 표시
+- **최종 갱신**: 26.10.25 11:40 KST · Claude Code(워크트리 `SimonK-stack-aiuw-quota-261025`, 브랜치 `feat/aiuw-grok-pool-argon-261025`)
+- **지금까지**:
+  - 실측(읽기 전용, 위젯 모듈을 esbuild로 묶어 위젯 계정 폴더로 호출): Grok Bot 응답 `isUnified:true`, 리셋이 Heavy 계정 주간 끝과 밀리초까지 같음 → Bot은 Heavy 통합 풀. CLI `isUnifiedBillingUser`는 두 계정 모두 true라 판정에 못 씀. Heavy 구매 크레딧 $46.38(센트 4638), SuperGrok 금액 0
+  - agy 1.4.7 `/usage`에 `Gemini 4 Argon` 주간 그룹이 새로 생김(Pro는 별도 한도). 종전 위젯은 막대에 Argon을 못 띄웠다
+  - 수정: Bot↔계정 리셋 매칭(`renderer/src/grok-link.ts`), 통합이면 WK 한 줄·분리면 WK+Bot, agy Argon 우선(태그 AR), `extraUsage` 계약(Grok 크레딧·On-demand, Codex 크레딧). 근거는 DECISIONS 26.10.25 11:40
+  - 검증: `pnpm verify` exit 0(59파일·689테스트)
+- **다음 1개**: PR CI 통과 → merge commit 머지 → 머지 커밋 고정 `-Source`로 설치 스킬 재설치 → 작업 표시줄에서 agy 첫 줄 AR·Heavy 칸 WK 한 줄 확인
+- **막힌 것**: 없음. 분리 계정(SuperGrok)의 Bot 한도는 Bot 앱이 그 계정으로 로그인돼야 자동으로 보인다(앱 로그인은 1계정)
+- **작업 규칙 변화**:
+  - Grok Bot 통합 여부는 Cursor `isUnified`로만 판정한다. grok CLI `isUnifiedBillingUser`는 다른 뜻이다
+  - Argon 사용 실측(26.10.25): 주간 리셋 09:11 KST 뒤 8회 실행에 20.3% 소모(회당 약 2.5%). 대부분 다른 세션이 `agy --print --model gemini-4-argon-high`로 돌린 191자 프롬프트(작업 폴더 파일을 읽게 하는 일)
+
+## 26.10.12 12:14 KST
 - **목적**: 26.10.12 "터미널이 주기적으로 순간 켜졌다 꺼진다" 수정의 반영 결과를 남긴다
 - **최종 갱신**: 26.10.12 12:14 KST · Claude Code(워크트리 `SimonK-stack-aiuw-agyflash-261012`, 설치 소스는 detached `8f273f3`)
 - **지금까지**:

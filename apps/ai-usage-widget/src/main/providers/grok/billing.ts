@@ -3,7 +3,7 @@
 // (crates/codegen/xai-grok-shell/src/extensions/billing.rs) and RESEARCH-auth-quota §3-3.
 // Unknown fields are ignored; anything missing stays null (never 0).
 
-import type { QuotaWindow } from '../../../shared/types';
+import type { ExtraUsage, QuotaWindow } from '../../../shared/types';
 import { WEEKLY_WINDOW_MINUTES, normalizePercent } from '../../../shared/usage';
 
 export type BillingPeriodType = 'weekly' | 'monthly' | 'unknown';
@@ -18,6 +18,8 @@ export interface GrokBilling {
    * null = the response did not say.
    */
   overageAvailable: boolean | null;
+  /** Purchased credits and on-demand spend/cap in USD cents; absent fields were not reported. */
+  extraUsage?: ExtraUsage;
 }
 
 type JsonObject = Record<string, unknown>;
@@ -160,6 +162,29 @@ function detectOverage(root: JsonObject): boolean | null {
   return null;
 }
 
+/**
+ * grok-build `Cent` (USD cents, `{val}`). proto3 sends a $0 Cent as `{}`, which is a measured 0;
+ * an absent field was not reported and stays undefined (measured 26.10.25: one account sent
+ * `onDemandCap {val:0}`, the other left on-demand out entirely).
+ */
+export function parseCents(value: unknown): number | undefined {
+  if (value === undefined) return undefined;
+  if (isRecord(value) && Object.keys(value).length === 0) return 0;
+  const amount = parseAmount(value);
+  return amount !== null && Number.isSafeInteger(amount) && amount >= 0 ? amount : undefined;
+}
+
+function parseExtraUsage(root: JsonObject): ExtraUsage | undefined {
+  const extra: ExtraUsage = {};
+  const prepaid = parseCents(root.prepaidBalance);
+  if (prepaid !== undefined) extra.prepaidCents = prepaid;
+  const used = parseCents(root.onDemandUsed);
+  if (used !== undefined) extra.onDemandUsedCents = used;
+  const cap = parseCents(root.onDemandCap);
+  if (cap !== undefined) extra.onDemandCapCents = cap;
+  return Object.keys(extra).length > 0 ? extra : undefined;
+}
+
 /** Fields the billing config always carries next to `currentPeriod` (measured 26.09.20, grok 1.0.34). */
 const CONFIG_COMPANION_KEYS = ['billingPeriodEnd', 'isUnifiedBillingUser', 'onDemandCap', 'onDemandUsed', 'prepaidBalance'];
 
@@ -238,5 +263,7 @@ export function parseBillingResponse(result: unknown): GrokBilling | null {
   const billing: GrokBilling = { windows, periodType, overageAvailable: detectOverage(root) };
   const plan = findTier(result, root);
   if (plan !== undefined) billing.plan = plan;
+  const extraUsage = parseExtraUsage(root);
+  if (extraUsage !== undefined) billing.extraUsage = extraUsage;
   return billing;
 }
