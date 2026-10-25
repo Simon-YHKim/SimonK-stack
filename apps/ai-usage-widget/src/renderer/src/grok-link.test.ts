@@ -43,9 +43,9 @@ describe('linkGrokBot', () => {
     expect(linkGrokBot([], { state: 'unknown', recordedAt: null })).toEqual({ accountId: null, unified: false });
   });
 
-  it('keeps the previous link while the automatic lookup is failing', () => {
+  it('keeps the previous account while the automatic lookup is failing, as a separate meter that can show why', () => {
     const previous = { accountId: 'heavy', unified: true };
-    expect(linkGrokBot(views, { state: 'unknown', recordedAt: null }, previous)).toBe(previous);
+    expect(linkGrokBot(views, { state: 'unknown', recordedAt: null }, previous)).toEqual({ accountId: 'heavy', unified: false });
     // A fresh automatic reading always wins over memory.
     expect(linkGrokBot(views, automatic(SUPER_RESET, false), previous)).toEqual({ accountId: 'super', unified: false });
   });

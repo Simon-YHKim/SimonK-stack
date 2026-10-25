@@ -191,12 +191,28 @@ describe('WidgetApp', () => {
     expect(two?.classList.contains('is-unified-pool')).toBe(true);
     expect(two?.title).toContain('Shared Grok + Grok Bot weekly pool');
     expect(app.main.querySelector('.grok-bot-item')).toBeNull();
+    // A failing Bot lookup goes back to a Bot row that says why, on the same account.
+    app.update(appState({ ...base, grokBotAuto: { state: 'login-expired', usedPercent: null, resetsAt: null, measuredAt: NOW + 500 } }));
+    const failing = app.main.querySelectorAll<HTMLElement>(':scope > .account-item[data-provider="grok"]')[1];
+    expect(failing?.querySelectorAll('[data-status]')).toHaveLength(2);
+    expect(failing?.title).toContain('Sign in again in the Grok Bot app');
     // The same meter reported as separate keeps its own Bot row, on the account it belongs to.
     app.update(appState({ ...base, grokBotAuto: { state: 'ok', usedPercent: 40, resetsAt: pool, measuredAt: NOW + 1000, unified: false } }));
     const [a, b] = [...app.main.querySelectorAll<HTMLElement>(':scope > .account-item[data-provider="grok"]')];
     expect(a?.querySelectorAll('[data-status]')).toHaveLength(1);
     expect(b?.querySelectorAll('[data-status]')).toHaveLength(2);
     expect(b?.textContent).toContain('Bot');
+  });
+
+  it('keeps a fresh unified Bot number visible while its Grok account\'s own reading failed', () => {
+    const heavy = account({ id: 'g2', provider: 'grok', label: 'Heavy' });
+    const pool = NOW + 5 * 86_400_000;
+    const { app } = setup(appState({ accounts: [heavy], usage: [usage('g2', { provider: 'grok', source: 'grok-acp', state: 'error',
+      errorCode: 'timeout', windows: [{ ...quotaWindow('weekly', 90, null), resetsAt: pool }] })],
+    grokBotAuto: { state: 'ok', usedPercent: 95, resetsAt: pool, measuredAt: NOW, unified: true } }));
+    const item = app.main.querySelector<HTMLElement>('.account-item[data-provider="grok"]');
+    expect(item?.querySelectorAll('[data-status]')).toHaveLength(2);
+    expect(item?.textContent).toContain('5% left');
   });
 
   it('flashes only Bot when its percentage changes in a grouped Grok item', () => {

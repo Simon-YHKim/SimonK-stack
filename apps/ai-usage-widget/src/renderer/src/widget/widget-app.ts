@@ -373,8 +373,9 @@ export class WidgetApp {
         let groupedGrokBot = false;
         const items = views.map((view) => {
           const host = link !== null && view.account.id === link.accountId;
-          // A unified Bot is the host's own weekly pool: one WK row, no second Bot meter.
-          const groupBot = botItem !== null && host && !link.unified;
+          // A unified Bot is the host's own weekly pool: one WK row, no second Bot meter. While the
+          // host's own reading is not current, the fresh Bot number of the same pool stays visible.
+          const groupBot = botItem !== null && host && (!link.unified || view.state !== 'ok');
           const displayView = groupBot ? this.grokWithBotView(view, state, ctx) : view;
           const item = renderWidgetItem(displayView, ctx);
           const rowElements = item.querySelectorAll<HTMLElement>('[data-status]');

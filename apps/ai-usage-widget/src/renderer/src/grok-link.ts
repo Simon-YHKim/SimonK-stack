@@ -23,7 +23,9 @@ function weeklyReset(view: AccountView): number | null {
  * Matches the Bot's weekly reset against each Grok account's weekly window. Without a match a
  * unified Bot stands alone (its pool is not among the shown accounts) and a separate Bot keeps
  * the old placement on the first Grok account. When the reading carries no evidence (automatic
- * lookup failing, no reset entered) the previous link is kept so the item does not jump around.
+ * lookup failing, no reset entered) the previous account is kept so the item does not jump
+ * around, but as a separate meter: the Bot row then shows why the lookup failed and the popup
+ * keeps its card for re-login and manual entry.
  */
 export function linkGrokBot(views: readonly AccountView[], reading: GrokBotReading, previous?: GrokBotLink | null): GrokBotLink {
   const grok = views.filter((view) => view.account.provider === 'grok');
@@ -39,7 +41,7 @@ export function linkGrokBot(views: readonly AccountView[], reading: GrokBotReadi
   if (unified) return { accountId: null, unified: true };
   if (reading.state !== 'automatic' && previous != null && previous.accountId !== null &&
     grok.some((view) => view.account.id === previous.accountId)) {
-    return previous;
+    return { accountId: previous.accountId, unified: false };
   }
   return { accountId: grok[0]?.account.id ?? null, unified: false };
 }

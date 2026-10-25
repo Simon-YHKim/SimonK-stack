@@ -131,9 +131,12 @@ export class UsageTab {
     this.grokBot.update(settings, ctx, automatic);
     const link = linkGrokBot(views, grokBotReading(settings, ctx.now, automatic), this.grokBotLink);
     this.grokBotLink = link;
-    // A unified Bot is the host account's weekly pool: a note replaces the separate Bot card.
-    const groupAccountId = link.unified ? undefined : link.accountId ?? undefined;
-    const unifiedAccountId = link.unified ? link.accountId ?? undefined : undefined;
+    // A unified Bot is the host account's weekly pool: a note replaces the separate Bot card,
+    // unless the host's own reading is not current (then the Bot card carries the fresh number).
+    const hostOk = views.find((view) => view.account.id === link.accountId)?.state === 'ok';
+    const unifiedShown = link.unified && hostOk;
+    const groupAccountId = unifiedShown ? undefined : link.accountId ?? undefined;
+    const unifiedAccountId = unifiedShown ? link.accountId ?? undefined : undefined;
     const standalone = groupAccountId === undefined && unifiedAccountId === undefined;
     this.grokBot.el.classList.toggle('is-grouped', !standalone);
     this.grokBot.el.classList.toggle('card', standalone);

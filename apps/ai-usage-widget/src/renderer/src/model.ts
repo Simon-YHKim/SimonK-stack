@@ -132,7 +132,10 @@ function argonFirst(windows: readonly RowView[]): RowView[] {
   return [...windows.filter(isArgonRow), ...windows.filter((row) => !isArgonRow(row))];
 }
 
-/** Argon, then the usual pick from the other groups; still at most two rows. */
+/**
+ * Argon, then the usual pick from the other groups; still at most two rows. Argon only has a
+ * weekly window and is shown even when weekly rows are hidden, like Grok WK with Bot.
+ */
 export function selectAntigravityRows(windows: readonly RowView[], showWeeklyLimit: boolean): RowView[] {
   const argon = windows.find(isArgonRow);
   if (argon === undefined) return selectWidgetRows(windows, showWeeklyLimit);
@@ -195,7 +198,9 @@ export function extraUsageParts(t: Translator, extra: ExtraUsage | undefined): s
   if (extra.prepaidCents !== undefined) parts.push(t('extraUsagePrepaid', { amount: formatUsdCents(extra.prepaidCents) }));
   if (extra.onDemandCapCents === 0) parts.push(t('extraUsageOnDemandOff'));
   else if (extra.onDemandCapCents !== undefined) {
-    parts.push(t('extraUsageOnDemand', { used: formatUsdCents(extra.onDemandUsedCents ?? 0), cap: formatUsdCents(extra.onDemandCapCents) }));
+    // An unreported spend is not a $0 spend.
+    parts.push(extra.onDemandUsedCents === undefined ? t('extraUsageOnDemandCap', { cap: formatUsdCents(extra.onDemandCapCents) }) :
+      t('extraUsageOnDemand', { used: formatUsdCents(extra.onDemandUsedCents), cap: formatUsdCents(extra.onDemandCapCents) }));
   } else if (extra.onDemandUsedCents !== undefined && extra.onDemandUsedCents > 0) {
     parts.push(t('extraUsageOnDemandUsed', { used: formatUsdCents(extra.onDemandUsedCents) }));
   }

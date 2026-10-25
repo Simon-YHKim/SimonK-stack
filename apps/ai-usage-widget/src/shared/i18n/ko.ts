@@ -80,6 +80,7 @@ export const ko = {
   extraUsagePrepaid: '구매 크레딧 잔액 {amount}',
   extraUsageOnDemand: 'On-demand {used} / 한도 {cap}',
   extraUsageOnDemandUsed: 'On-demand {used}',
+  extraUsageOnDemandCap: 'On-demand 한도 {cap}',
   extraUsageOnDemandOff: 'On-demand 꺼짐',
   extraUsageCredits: '크레딧 {count}',
   extraUsageCreditsUnlimited: '크레딧 무제한',

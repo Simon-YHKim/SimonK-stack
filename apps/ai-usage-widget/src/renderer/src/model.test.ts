@@ -69,6 +69,7 @@ describe('view model', () => {
     expect(extraUsageParts(t, { prepaidCents: 0, onDemandUsedCents: 0, onDemandCapCents: 0 }))
       .toEqual(['Purchased credits $0.00 left', 'On-demand off']);
     expect(extraUsageParts(t, { onDemandUsedCents: 120, onDemandCapCents: 5000 })).toEqual(['On-demand $1.20 of $50.00']);
+    expect(extraUsageParts(t, { onDemandCapCents: 5000 })).toEqual(['On-demand cap $50.00']);
     expect(extraUsageParts(t, { credits: { balance: 12.5, unlimited: false } })).toEqual(['12.5 credits']);
     expect(extraUsageParts(t, { credits: { balance: null, unlimited: true } })).toEqual(['Unlimited credits']);
     expect(extraUsageParts(t, undefined)).toEqual([]);

@@ -79,6 +79,7 @@ export const en: Record<keyof typeof ko, string> = {
   extraUsagePrepaid: 'Purchased credits {amount} left',
   extraUsageOnDemand: 'On-demand {used} of {cap}',
   extraUsageOnDemandUsed: 'On-demand {used}',
+  extraUsageOnDemandCap: 'On-demand cap {cap}',
   extraUsageOnDemandOff: 'On-demand off',
   extraUsageCredits: '{count} credits',
   extraUsageCreditsUnlimited: 'Unlimited credits',

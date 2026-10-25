@@ -436,10 +436,11 @@ export function createCodexAdapter(deps: ProviderDeps, options: CodexAdapterOpti
           if (plan !== undefined) snapshot.plan = plan;
           if (limits.resetCreditCount !== undefined) snapshot.resetCreditsAvailable = limits.resetCreditCount;
           if (limits.credits !== undefined) {
-            // `balance` is a decimal string ("12.50"); a missing one with hasCredits false is a known 0.
-            const parsed = limits.credits.balance !== null && /^\d+(?:\.\d+)?$/.test(limits.credits.balance)
-              ? Number(limits.credits.balance) : null;
-            const balance = parsed ?? (limits.credits.hasCredits || limits.credits.unlimited ? null : 0);
+            // `balance` is a decimal string ("12.50"). Only a missing one with hasCredits false is a
+            // known 0; a balance string that does not parse stays unknown.
+            const raw = limits.credits.balance;
+            const parsed = raw !== null && /^\d+(?:\.\d+)?$/.test(raw) ? Number(raw) : null;
+            const balance = parsed ?? (raw === null && !limits.credits.hasCredits && !limits.credits.unlimited ? 0 : null);
             snapshot.extraUsage = { credits: { balance, unlimited: limits.credits.unlimited } };
           }
           logger.debug('codex usage read', {
