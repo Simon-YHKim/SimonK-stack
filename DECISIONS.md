@@ -1018,3 +1018,9 @@ last-sync: 2026-07-05
   - **catch-up 의무**: 2026-10-31 07:01 리셋 뒤 #198 에 `@codex review` → 지적이 있으면 후속 PR.
   - **뒤집는 조건**: Simon 이 Codex 리뷰 없는 머지를 막거나, catch-up 리뷰가 P1 이상을 내면 이 방식을 문서 PR 에도 쓰지 않는다.
   - **관련 사실(조치 없음)**: 같은 시간대 VS 2022 Build Tools 17.14.42(C++ 워크로드)를 Simon 지시로 E:/Program Files/Microsoft Visual Studio/2022/BuildTools 에 설치, 런타임 재설치로 /cso 실행기 빌드(cso launcher: built, 3.0.0 ABI 3). doctor: static-snapshot ready, 스캐너 6종은 Linux Docker 엔진 없음.
+- 2026-10-25 12:03:40 KST | DECIDE | **D-123 AI 사용량 위젯 Grok 통합·분리 표시, agy Argon 우선, 추가 사용량 표시 머지·재설치** (오케스트레이터 단독 · 35.8 1단) | claude
+  - **결정**: Grok Bot이 Cursor `isUnified`=true면 리셋이 맞는 Grok 계정 칸에 WK 한 줄만(같은 풀), false면 WK+Bot. agy `Gemini 4 Argon` 주간 창을 작업 표시줄 첫 줄(AR)·팝업 맨 앞으로. Grok 구매 크레딧·On-demand(USD 센트)와 Codex 크레딧을 팝업·마우스 설명에 표시. SimonK-stack PR #199를 merge commit `1aa3648`로 머지하고 그 커밋 고정 `-Source`로 설치 스킬 재설치
+  - **근거(기계적)**: 읽기 전용 실측(쿼터 소모 없음) — Bot `isUnified:true`·리셋 2026-10-30T03:38:19.843Z가 Heavy 주간 끝과 밀리초 일치·둘 다 100%. grok `isUnifiedBillingUser`는 두 계정 모두 true라 판정에 안 씀(grok-build 주석상 다른 뜻). grok-build `Cent`=USD 센트, Heavy 구매 크레딧 4638=$46.38. agy 1.4.7 `/usage`에 Argon 그룹 신설, 종전 위젯 미표시. `pnpm verify` exit 0(59파일·690테스트, 설치 스킬 안에서도 동일). PR CI 4/4. Codex 클라우드 리뷰는 사용 한도로 실패 → 독립 리뷰 에이전트로 대체(major 1·minor 2 수정 반영). 설치본 app.asar `6BD70828EDB0`→`7D7C7FCCB63B`, 프로세스 5개, 작업 표시줄 캡처에서 Heavy 칸 WK 한 줄·agy 첫 줄 AR 66% 확인
+  - **1단인 이유**: 사용자가 직접 요청한 모니터링 기능이고, 위젯 PR→CI→머지→설치 스킬 재설치는 D-94 등에서 반복된 절차다. 이의가 있으면 2단으로 올린다
+  - **관찰**: Argon 주간(리셋 11-01 09:11 KST)이 10-25 09:11 이후 3시간 만에 34% 소모(12:03 남은 0.656). 주 사용처는 다른 세션의 `agy --print --model gemini-4-argon-high` 반복 실행. 이 속도면 이번 주 안에 소진될 수 있다
+  - **되돌리는 조건**: 사용자가 계정별 통합·분리를 다르게 확인해 주거나(이 PC Bot 세션은 Heavy·통합으로 실측), Cursor가 `isUnified`를 없애거나, agy가 Argon 그룹 이름을 바꾸면 재검토. 표시가 틀리면 #199 revert | claude
