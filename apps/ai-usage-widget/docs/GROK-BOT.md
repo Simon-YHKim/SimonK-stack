@@ -3,6 +3,16 @@
 > 갱신 26.09.30 · 근거 = 사용자 본인 화면 캡처 2장(grok.com Usage, Grok Bot 앱 "사용량 및 청구"), 공식 grok CLI 실측(`_x.ai/billing`, 읽기 전용), 공개 문서·포럼. 로그인이 필요한 화면을 위젯이나 에이전트가 직접 열지 않았다.
 > 같은 날 앞선 판(공개 문서만 근거)은 "grok.com 사용량 화면에 Grok Bot이 없다"고 적었는데, 사용자 화면에서 **틀린 것으로 확인**됐다(DECISIONS 26.09.30 17:42 줄).
 
+## 통합·분리 (26.10.25)
+
+Grok Bot 사용량은 두 방식으로 계량된다. **통합**(The X Subscription으로 합친 계정)은 Grok·Grok Bot·Cursor가 한 주간 풀을 같이 쓰고, **분리**(Cursor에 연결한 예전 SuperGrok)는 Bot 한도가 따로 있다([xAI 문서](https://docs.x.ai/x-subscription/grok-bot) "Under The X Subscription, Grok Bot usage draws from the weekly shared pool across Grok, Grok Bot, and Cursor").
+
+- 위젯은 Bot 응답의 `isUnified`로 판정하고, Bot 리셋 시각과 같은 주간 리셋을 가진 Grok 계정을 그 Bot의 계정으로 본다.
+- **통합이면** 그 계정 칸에 `WK` 한 줄만 둔다(Bot 사용량이 이미 들어 있다). 마우스를 올리면 "Grok·Grok Bot 통합 주간 한도", 팝업 카드에는 통합 안내가 나오고 별도 Bot 카드는 숨긴다.
+- **분리면** 그 계정 칸에 `WK`·`Bot` 두 줄.
+- 실측(26.10.25): 이 PC의 Grok Bot 앱 세션은 `isUnified: true`이고 리셋 `2026-10-30T03:38:19.843Z`가 SuperGrok Heavy 계정 주간 주기 끝과 밀리초까지 같았다(사용률도 둘 다 100%). Grok CLI의 `isUnifiedBillingUser`는 두 계정 모두 true라 이 판정에 쓰지 않는다.
+- Bot 앱은 Windows에 한 계정만 로그인된다. 다른(분리) 계정의 Bot 한도는 그 계정으로 Bot 앱에 로그인했을 때만 자동으로 보이고, 그 전에는 수동 기록을 쓴다.
+
 ## 현재 동작
 
 Windows의 Grok Bot 앱에 로그인되어 있으면 위젯이 시작 시와 5분마다 **Grok Bot 주간 사용률**을 자동 조회한다. Grok CLI 계정이 활성화되어 있으면 작업표시줄의 같은 Grok 칸에 `WK`·`Bot`을 **위아래 두 줄로** 표시하고, 사용량 팝업에서도 같은 Grok 카드 안에 구분한다. Grok CLI 계정이 없으면 Bot만 독립 항목으로 표시한다. 두 제품의 한도와 로그인은 서로 별개이며, 한쪽 조회가 실패해도 다른 쪽의 유효한 값은 그대로 표시한다. 새로고침 버튼으로 즉시 다시 조회할 수 있다.
