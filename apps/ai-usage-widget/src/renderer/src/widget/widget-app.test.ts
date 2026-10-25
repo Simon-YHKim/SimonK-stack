@@ -195,11 +195,15 @@ describe('WidgetApp', () => {
     expect(two?.classList.contains('is-unified-pool')).toBe(true);
     expect(two?.title).toContain('Shared Grok + Grok Bot weekly pool');
     expect(app.main.querySelector('.grok-bot-item')).toBeNull();
-    // A failing Bot lookup goes back to a Bot row that says why, on the same account.
-    app.update(appState({ ...base, grokBotAuto: { state: 'login-expired', usedPercent: null, resetsAt: null, measuredAt: NOW + 500 } }));
-    const failing = app.main.querySelectorAll<HTMLElement>(':scope > .account-item[data-provider="grok"]')[1];
+    // A failing Bot lookup goes back to a Bot row that says why, on the same account; the manual
+    // reading recorded for the separate account stays there and never becomes the host's Bot.
+    const manual = { grokBotUsedPercent: 12, grokBotRecordedAt: NOW };
+    app.update(appState({ ...base, settings: manual, grokBotAuto: { state: 'login-expired', usedPercent: null, resetsAt: null, measuredAt: NOW + 500 } }));
+    const [separate, failing] = [...app.main.querySelectorAll<HTMLElement>(':scope > .account-item[data-provider="grok"]')];
     expect(failing?.querySelectorAll('[data-status]')).toHaveLength(2);
     expect(failing?.title).toContain('Sign in again in the Grok Bot app');
+    expect(failing?.textContent).not.toContain('88% left');
+    expect(separate?.textContent).toContain('88% left');
     // The same meter reported as separate keeps its own Bot row, on the account it belongs to.
     app.update(appState({ ...base, grokBotAuto: { state: 'ok', usedPercent: 40, resetsAt: pool, measuredAt: NOW + 1000, unified: false } }));
     const [a, b] = [...app.main.querySelectorAll<HTMLElement>(':scope > .account-item[data-provider="grok"]')];

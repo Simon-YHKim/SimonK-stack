@@ -45,7 +45,12 @@ describe('linkGrokBot', () => {
 
   it('keeps the previous account while the automatic lookup is failing, as a separate meter that can show why', () => {
     const previous = { accountId: 'heavy', unified: true, manualAccountId: 'super' };
-    expect(linkGrokBot(views, { state: 'unknown', recordedAt: null }, previous)).toEqual({ accountId: 'heavy', unified: false, manualAccountId: null });
+    // The manual slot stays with the separate account even when its own reading is the fallback.
+    expect(linkGrokBot(views, { state: 'unknown', recordedAt: null }, previous)).toEqual({ accountId: 'heavy', unified: false, manualAccountId: 'super' });
+    const fresh: GrokBotReading = { state: 'fresh', usedPercent: 12, leftPercent: 88, recordedAt: NOW, resetsAt: SUPER_RESET };
+    expect(linkGrokBot(views, fresh, previous)).toEqual({ accountId: 'heavy', unified: false, manualAccountId: 'super' });
+    expect(linkGrokBot(views, { state: 'unknown', recordedAt: null }, { accountId: 'heavy', unified: false, manualAccountId: null }))
+      .toEqual({ accountId: 'heavy', unified: false, manualAccountId: null });
     // A fresh automatic reading always wins over memory.
     expect(linkGrokBot(views, automatic(SUPER_RESET, false), previous)).toEqual({ accountId: 'super', unified: false, manualAccountId: null });
   });

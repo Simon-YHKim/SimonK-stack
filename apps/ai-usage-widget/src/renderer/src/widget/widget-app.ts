@@ -274,9 +274,17 @@ export class WidgetApp {
     return state.settings.grokBotUsedPercent !== null || this.hasSeenGrokBot;
   }
 
-  /** `auto` undefined = manual entry only (the separate Bot of another account, grok-link.ts). */
-  private grokBotRow(state: AppStateSnapshot, ctx: RenderContext, auto: GrokBotAutoUsage | undefined): RowView {
-    const reading = grokBotReading(state.settings, ctx.now, auto);
+  /**
+   * `auto` undefined = manual entry only (the separate Bot of another account, grok-link.ts);
+   * `manual` false = automatic reading only (the manual slot belongs to another account).
+   */
+  private botReading(state: AppStateSnapshot, now: number, auto: GrokBotAutoUsage | undefined, manual: boolean) {
+    const settings = manual ? state.settings : { ...state.settings, grokBotUsedPercent: null, grokBotRecordedAt: null };
+    return grokBotReading(settings, now, auto);
+  }
+
+  private grokBotRow(state: AppStateSnapshot, ctx: RenderContext, auto: GrokBotAutoUsage | undefined, manual: boolean): RowView {
+    const reading = this.botReading(state, ctx.now, auto, manual);
     const numeric = reading.state === 'fresh' || reading.state === 'stale' || reading.state === 'automatic';
     return {
       ...toRow({ kind: 'weekly', usedPercent: numeric ? reading.usedPercent : null,
@@ -288,7 +296,7 @@ export class WidgetApp {
   }
 
   private grokWithBotView(view: AccountView, state: AppStateSnapshot, ctx: RenderContext,
-    auto: GrokBotAutoUsage | undefined): AccountView {
+    auto: GrokBotAutoUsage | undefined, manual: boolean): AccountView {
     const cliRow = view.rows.find((row) => row.kind === 'weekly') ??
       (view.rows.length > 0 ? view.windows.find((row) => row.kind === 'weekly') : undefined) ?? view.rows[0] ??
       toRow({ kind: 'weekly', usedPercent: null, resetsAt: null, windowMinutes: 10_080 }, ctx.now,
@@ -296,12 +304,12 @@ export class WidgetApp {
     // A failed Grok CLI fetch must not hide a valid, independently measured Bot quota.
     return { ...view, state: 'ok', rows: [
       { ...cliRow, isStale: view.state === 'stale' || view.state === 'error' },
-      this.grokBotRow(state, ctx, auto),
+      this.grokBotRow(state, ctx, auto, manual),
     ] };
   }
 
-  private grokBotItem(state: AppStateSnapshot, ctx: RenderContext, auto: GrokBotAutoUsage | undefined): HTMLElement {
-    const reading = grokBotReading(state.settings, ctx.now, auto);
+  private grokBotItem(state: AppStateSnapshot, ctx: RenderContext, auto: GrokBotAutoUsage | undefined, manual = true): HTMLElement {
+    const reading = this.botReading(state, ctx.now, auto, manual);
     const numeric = reading.state === 'fresh' || reading.state === 'stale' || reading.state === 'automatic';
     const percent = numeric ? (state.settings.showUsedPercent ? reading.usedPercent : reading.leftPercent) : null;
     const value = percent === null ? '—' : `${percent}% ${ctx.t(state.settings.showUsedPercent ? 'unitUsed' : 'unitLeft')}`;
@@ -379,10 +387,12 @@ export class WidgetApp {
           // host's own reading is not current, the fresh Bot number of the same pool stays visible.
           const groupBot = botItem !== null && host && (!link.unified || view.state !== 'ok');
           // The other Grok account's own (separate) Bot meter: manual entry only, since the one
-          // Grok Bot app login on this PC belongs to the unified account.
-          const manualHost = link !== null && link.unified && view.account.id === link.manualAccountId;
-          const displayView = groupBot ? this.grokWithBotView(view, state, ctx, state.grokBotAuto) :
-            manualHost ? this.grokWithBotView(view, state, ctx, undefined) : view;
+          // Grok Bot app login on this PC belongs to the unified account. While it owns the manual
+          // slot, the host's Bot row shows the automatic reading alone.
+          const manualId = link?.manualAccountId ?? null;
+          const manualHost = manualId !== null && view.account.id === manualId;
+          const displayView = groupBot ? this.grokWithBotView(view, state, ctx, state.grokBotAuto, manualId === null) :
+            manualHost ? this.grokWithBotView(view, state, ctx, undefined, true) : view;
           const item = renderWidgetItem(displayView, ctx);
           const rowElements = item.querySelectorAll<HTMLElement>('[data-status]');
           displayView.rows.forEach((row, index) => {
@@ -395,7 +405,8 @@ export class WidgetApp {
           });
           if (groupBot) {
             item.dataset.state = view.state;
-            item.title = `${itemTooltip(view, ctx)}\n${botItem.title}`;
+            const hostBot = manualId === null ? botItem : this.grokBotItem(state, ctx, state.grokBotAuto, false);
+            item.title = `${itemTooltip(view, ctx)}\n${hostBot.title}`;
             groupedGrokBot = true;
           } else if (host) {
             item.classList.add('is-unified-pool');
