@@ -2,6 +2,17 @@
 > prepend 전용 로그. 새 블록을 맨 위에 얹고 직전 `## Latest`는 날짜 헤더로 강등한다. 덮어쓰지 않는다.
 
 ## Latest
+- **목적**: PR #201(같은 벤더 붙여 배치, 분리 Grok 계정 Bot 줄)의 반영 결과를 남긴다
+- **최종 갱신**: 26.10.25 12:35 KST · Claude Code(설치 소스는 detached `6d1fbef`, 워크트리 `SimonK-stack-aiuw-main-261025`)
+- **지금까지**:
+  - PR #201 머지(`6d1fbef`, CI 4/4). 독립 리뷰 지적(수동 기록 칸이 자동 조회 실패 때 통합 계정으로 넘어감, 위젯·팝업 조건 불일치, 문구 서식)을 고쳐 같은 PR에 넣었다
+  - 설치 스킬 재설치: 스킬 안 `pnpm verify` exit 0(59파일·692테스트), app.asar 앞 12자 `92833ddf1085`, 프로세스 5개
+  - 작업 표시줄 캡처(12:34): Claude·Codex·Grok Heavy(`WK` 한 줄)·Grok SuperGrok(`WK 0%`·`Bot —`)·agy(`AR 62%`·`5H 100%`). 결정은 허브 D-124
+- **다음 1개**: 없음(관찰). SuperGrok의 Bot 값은 팝업 SuperGrok 카드의 Grok Bot 기록 칸에 직접 넣거나, Bot 앱을 그 계정으로 로그인해야 숫자가 생긴다
+- **막힌 것**: 없음
+- **작업 규칙 변화**: 수동 Grok Bot 기록은 한 칸뿐이다. 통합 판정 뒤에는 그 칸이 분리 계정 몫이다(`GrokBotLink.manualAccountId`)
+
+## 26.10.25 12:15 KST
 - **목적**: 사용자 후속 요청(26.10.25) — 같은 벤더 계정은 붙여 배치, Grok 다른(분리) 계정은 기존처럼 WK/Bot 두 줄
 - **최종 갱신**: 26.10.25 12:15 KST · Claude Code(워크트리 `SimonK-stack-aiuw-quota-261025`, 브랜치 `feat/aiuw-vendor-order-split-bot-261025`)
 - **지금까지**:
