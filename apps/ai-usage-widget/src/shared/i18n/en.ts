@@ -74,6 +74,7 @@ export const en: Record<keyof typeof ko, string> = {
   grokBotRecorded: 'Recorded manually {time}',
   grokBotWidget: 'Bot',
   grokUnifiedPool: 'Shared Grok + Grok Bot weekly pool',
+  grokBotOtherAccount: "This account's Grok Bot limit is separate. The Grok Bot app on this PC is signed in to the unified account, so it cannot be read automatically. Record it here or sign the Bot app in to this account.",
   grokUnifiedNote: "Grok Bot usage draws from this account's weekly limit (WK) under unified billing. There is no separate Bot limit.",
   extraUsageTitle: 'Extra usage',
   extraUsagePrepaid: 'Purchased credits {amount} left',

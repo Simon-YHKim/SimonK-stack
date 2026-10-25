@@ -2,6 +2,17 @@
 > prepend 전용 로그. 새 블록을 맨 위에 얹고 직전 `## Latest`는 날짜 헤더로 강등한다. 덮어쓰지 않는다.
 
 ## Latest
+- **목적**: 사용자 후속 요청(26.10.25) — 같은 벤더 계정은 붙여 배치, Grok 다른(분리) 계정은 기존처럼 WK/Bot 두 줄
+- **최종 갱신**: 26.10.25 12:15 KST · Claude Code(워크트리 `SimonK-stack-aiuw-quota-261025`, 브랜치 `feat/aiuw-vendor-order-split-bot-261025`)
+- **지금까지**:
+  - `groupByProvider`(model.ts): 벤더 첫 계정 자리에 그 벤더 계정을 모아 order 순으로. 작업 표시줄·팝업 공통
+  - `GrokBotLink.manualAccountId`: 자동 Bot이 통합이면 나머지 첫 Grok 계정에 수동 기록 전용 Bot 줄(작업 표시줄)·기록 카드(팝업)를 둔다. 통합 계정의 자동 값은 그 계정에 넣지 않는다. 결정은 DECISIONS 26.10.25 12:15
+  - 검증: `pnpm verify` exit 0(59파일·692테스트, 벤더 순서·분리 계정 Bot 줄·팝업 배치 테스트 추가)
+- **다음 1개**: PR CI → merge commit 머지 → 고정 `-Source`로 재설치 → 작업 표시줄에서 Grok 두 칸이 붙어 있고 SuperGrok 칸에 `WK`·`Bot —`가 보이는지 확인
+- **막힌 것**: 없음. SuperGrok의 Bot 값은 수동 기록이나 Bot 앱 계정 전환 없이는 자동으로 못 읽는다
+- **작업 규칙 변화**: 없음
+
+## 26.10.25 12:04 KST
 - **목적**: PR #199(Grok 통합·분리, agy Argon, 추가 사용량)의 반영 결과를 남긴다
 - **최종 갱신**: 26.10.25 12:04 KST · Claude Code(설치 소스는 detached `1aa3648`, 워크트리 `SimonK-stack-aiuw-main-261025`)
 - **지금까지**:

@@ -10,6 +10,14 @@ export interface GrokBotLink {
   accountId: string | null;
   /** The Bot draws from that account's weekly pool: no separate Bot meter to show. */
   unified: boolean;
+  /**
+   * With a unified automatic reading on one account, the next Grok account keeps a separate Bot
+   * meter of its own (legacy SuperGrok linked to Cursor, Simon 26.10.25: "다른 계정은 grok/bot으로
+   * 나뉜다"). Only one Grok Bot app login exists per PC, so that meter is fed by manual entry.
+   * While this is set the single manual slot belongs to this account only: `accountId` shows the
+   * automatic reading alone, never the manual one.
+   */
+  manualAccountId: string | null;
 }
 
 /** Slack for the reset comparison; a different account's period would be hours or days apart. */
@@ -29,19 +37,28 @@ function weeklyReset(view: AccountView): number | null {
  */
 export function linkGrokBot(views: readonly AccountView[], reading: GrokBotReading, previous?: GrokBotLink | null): GrokBotLink {
   const grok = views.filter((view) => view.account.provider === 'grok');
+  const shown = (id: string | null): id is string => id !== null && grok.some((view) => view.account.id === id);
   const unified = reading.state === 'automatic' && reading.unified === true;
+  // Once the manual slot belongs to the separate account, a failing automatic lookup (whose
+  // fallback is that manual reading) must not move the manual number onto the unified account.
+  if (reading.state !== 'automatic' && previous != null && shown(previous.manualAccountId) && shown(previous.accountId)) {
+    return { accountId: previous.accountId, unified: false, manualAccountId: previous.manualAccountId };
+  }
   const botReset = reading.state === 'automatic' || reading.state === 'fresh' || reading.state === 'stale' ? reading.resetsAt : null;
   if (botReset !== null) {
     const match = grok.find((view) => {
       const reset = weeklyReset(view);
       return reset !== null && Math.abs(reset - botReset) <= RESET_MATCH_MS;
     });
-    if (match !== undefined) return { accountId: match.account.id, unified };
+    if (match !== undefined) {
+      const other = unified ? grok.find((view) => view.account.id !== match.account.id) : undefined;
+      return { accountId: match.account.id, unified, manualAccountId: other?.account.id ?? null };
+    }
   }
-  if (unified) return { accountId: null, unified: true };
+  if (unified) return { accountId: null, unified: true, manualAccountId: null };
   if (reading.state !== 'automatic' && previous != null && previous.accountId !== null &&
     grok.some((view) => view.account.id === previous.accountId)) {
-    return { accountId: previous.accountId, unified: false };
+    return { accountId: previous.accountId, unified: false, manualAccountId: null };
   }
-  return { accountId: grok[0]?.account.id ?? null, unified: false };
+  return { accountId: grok[0]?.account.id ?? null, unified: false, manualAccountId: null };
 }

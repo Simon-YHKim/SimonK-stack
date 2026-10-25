@@ -284,7 +284,7 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 | 금지 | `/billing` HTTP 직접 호출, `auth.json` 읽기, OIDC refresh 직접 수행, Orca 값, `x.ai/auth/*`(check_subscription 포함, 부작용 미확인) |
 | 실측(T4, 26.09.20, grok 1.0.34) | `_x.ai/billing` = `{config:{currentPeriod:{type:'USAGE_PERIOD_TYPE_WEEKLY',start,end}, onDemandCap:{val}, onDemandUsed:{val}, prepaidBalance:{val}, isUnifiedBillingUser, billingPeriodStart, billingPeriodEnd}, subscription_tier}`(0.8~0.9초). proto3 JSON이라 **0인 스칼라는 생략**된다: 주간 리셋 직후에는 `creditUsagePercent`가 없다. 파서는 weekly `currentPeriod` + 리셋 시각 + 동반 필드 2개 이상이 있을 때만 그 부재를 0%로 읽고, 필드가 있는데 못 읽는 값이면 미확인으로 둔다(DECISIONS 26.09.20 08:40). 같은 날 10:49 재조회에서 `creditUsagePercent: 29`가 나타나 "0일 때만 생략"이 확증됨(DECISIONS 26.09.20 10:51) |
 | 추가 사용량(26.10.25) | `prepaidBalance`·`onDemandUsed`·`onDemandCap`(USD 센트, grok-build `Cent`)을 `extraUsage`로 넘긴다. `{}`는 $0, 필드가 없으면 미보고. 실측: Heavy 계정 `prepaidBalance 4638`(=$46.38)·on-demand 필드 없음, SuperGrok 계정 세 값 모두 `{val:0}`. `isUnifiedBillingUser`는 두 계정 모두 true였고 grok-build 주석상 "Grok 제품 간 공유 풀" 뜻이라 Grok Bot 통합 판정에 쓰지 않는다 |
-| Grok Bot 연결(26.10.25) | Bot 값(`GetSandUsageStatus`)의 `isUnified`=true면 Bot은 연결된 Grok 계정의 주간 풀에서 빠진다(별도 한도 없음). 어느 계정인지는 Bot `nextResetTimestampUtc`와 각 Grok 계정 주간 창 리셋이 5분 안에 맞는 것으로 정한다(실측: 밀리초까지 같음). 통합이면 그 계정 칸에 WK 한 줄만, 분리면 WK+Bot 두 줄, 맞는 계정이 없으면 통합 Bot은 단독 칸·분리 Bot은 첫 Grok 계정(종전). 렌더러 `grok-link.ts` |
+| Grok Bot 연결(26.10.25) | Bot 값(`GetSandUsageStatus`)의 `isUnified`=true면 Bot은 연결된 Grok 계정의 주간 풀에서 빠진다(별도 한도 없음). 어느 계정인지는 Bot `nextResetTimestampUtc`와 각 Grok 계정 주간 창 리셋이 5분 안에 맞는 것으로 정한다(실측: 밀리초까지 같음). 통합이면 그 계정 칸에 WK 한 줄만, 분리면 WK+Bot 두 줄, 맞는 계정이 없으면 통합 Bot은 단독 칸·분리 Bot은 첫 Grok 계정(종전). 자동 값이 통합이면 나머지 첫 Grok 계정(`manualAccountId`)에 수동 기록 전용 Bot 줄·팝업 기록 카드를 둔다(Bot 앱 로그인은 1계정이라 그 계정 Bot 값은 자동 조회 불가). 렌더러 `grok-link.ts` |
 | 미결 | `grok login --device-auth` 실제 출력(호스트·코드 형식·stdin 대기), 만료 토큰 자동 갱신 여부, 다중 GROK_HOME 동시 실행 |
 
 ### 7-4. Antigravity (`providers/antigravity`) — DECISIONS 26.09.19 11:42
@@ -321,6 +321,7 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 
 - 프레임워크 없는 TS/DOM. HTML 문자열 금지: `h()`(`src/renderer/src/dom.ts`)처럼 `createElement`·`textContent`만 쓴다. ESLint가 `innerHTML`·`outerHTML`·`insertAdjacentHTML`·`document.write`를 막는다(V1-06).
 - 상태 변경 시 전체 재렌더 대신 키 기반 부분 갱신, 입력·포커스·스크롤 보존, 애니메이션은 표시할 때만(V1-25·26).
+- 작업 표시줄·사용량 팝업의 계정 순서(26.10.25): 같은 벤더 계정은 붙여 놓는다. 벤더 자리는 그 벤더 첫 계정의 `order` 자리, 벤더 안에서는 `order` 순(`groupByProvider`, `model.ts`). 계정 탭은 벤더별 목록이라 바뀌지 않는다.
 - 위젯 막대: 계정별 아이콘·5H/주간 값·리셋 카운트다운(매초가 아니라 분 단위로 로컬 재계산), **새로고침 버튼**(회전 표시, `refresh` 상태 기준 비활성). 빈 상태 클릭 → 팝업 계정 탭.
 - 수치 단위는 위젯 값 옆에 `남음`/`left` 또는 `소모`/`used`로 직접 표시한다. 팝업 수치는 항상 소모율이므로 `소모`/`used`를 붙인다.
 - 빠른 소모 강조는 실제 토큰 개수가 아닌 **계정별 한도 사용률 증가**를 비교한다. 위젯 실행 중 같은 한도 창에서 모은 최근 2~20분의 관측치를 사용한다. 15분 이내 12%p 이상 뛰면 이전 이력 없이도 즉시 경고한다. 그보다 작은 증가(최소 3%p)는 둘 이상의 증가 관측치와 시간당 최소 12%p, 이전 관측 구간 대비 2.5배를 요구한다. 단일 지연 업데이트가 12%p 미만이면 제외하고, 리셋·조회 실패·미확인 수치에서도 경고하지 않는다. 해당 계정은 상자 없이 배경을 하늘색·민트·보라로 천천히 디밍하고(모션 감소=정적 옅은 배경, 고대비=Highlight 테두리) 아이콘 아래쪽에 삼각형 표시를 붙인다. 삼각형은 세 모드 모두 남아 색 없이도 값 변경 표시(밑줄)와 구분된다(DECISIONS 26.10.04 D-63). 아이콘 위의 별도 투명 창에 8초간 말풍선을 표시하며, 같은 계정은 15분 동안 반복하지 않는다. 강조는 최근 증가가 관측 창에서 빠지면 사라진다. 이력은 앱 실행 중 메모리에만 저장하며, 수치는 사용률 기반 추정임을 툴팁과 말풍선에 밝힌다.

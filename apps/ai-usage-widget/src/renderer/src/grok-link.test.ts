@@ -27,26 +27,31 @@ describe('linkGrokBot', () => {
   const views = [grokView('super', 0, SUPER_RESET), grokView('heavy', 1, HEAVY_RESET)];
 
   it('puts a unified Bot on the account whose weekly reset it shares, not on the first Grok account', () => {
-    expect(linkGrokBot(views, automatic(HEAVY_RESET, true))).toEqual({ accountId: 'heavy', unified: true });
+    expect(linkGrokBot(views, automatic(HEAVY_RESET, true))).toEqual({ accountId: 'heavy', unified: true, manualAccountId: 'super' });
   });
 
   it('keeps a separate Bot as its own meter on the matching account', () => {
-    expect(linkGrokBot(views, automatic(SUPER_RESET + 60_000, false))).toEqual({ accountId: 'super', unified: false });
+    expect(linkGrokBot(views, automatic(SUPER_RESET + 60_000, false))).toEqual({ accountId: 'super', unified: false, manualAccountId: null });
   });
 
   it('shows a unified Bot on its own when its pool is not among the shown accounts', () => {
-    expect(linkGrokBot(views, automatic(Date.parse('2026-10-31T00:00:00Z'), true))).toEqual({ accountId: null, unified: true });
+    expect(linkGrokBot(views, automatic(Date.parse('2026-10-31T00:00:00Z'), true))).toEqual({ accountId: null, unified: true, manualAccountId: null });
   });
 
   it('falls back to the first Grok account for a separate Bot without a match', () => {
-    expect(linkGrokBot(views, automatic(null))).toEqual({ accountId: 'super', unified: false });
-    expect(linkGrokBot([], { state: 'unknown', recordedAt: null })).toEqual({ accountId: null, unified: false });
+    expect(linkGrokBot(views, automatic(null))).toEqual({ accountId: 'super', unified: false, manualAccountId: null });
+    expect(linkGrokBot([], { state: 'unknown', recordedAt: null })).toEqual({ accountId: null, unified: false, manualAccountId: null });
   });
 
   it('keeps the previous account while the automatic lookup is failing, as a separate meter that can show why', () => {
-    const previous = { accountId: 'heavy', unified: true };
-    expect(linkGrokBot(views, { state: 'unknown', recordedAt: null }, previous)).toEqual({ accountId: 'heavy', unified: false });
+    const previous = { accountId: 'heavy', unified: true, manualAccountId: 'super' };
+    // The manual slot stays with the separate account even when its own reading is the fallback.
+    expect(linkGrokBot(views, { state: 'unknown', recordedAt: null }, previous)).toEqual({ accountId: 'heavy', unified: false, manualAccountId: 'super' });
+    const fresh: GrokBotReading = { state: 'fresh', usedPercent: 12, leftPercent: 88, recordedAt: NOW, resetsAt: SUPER_RESET };
+    expect(linkGrokBot(views, fresh, previous)).toEqual({ accountId: 'heavy', unified: false, manualAccountId: 'super' });
+    expect(linkGrokBot(views, { state: 'unknown', recordedAt: null }, { accountId: 'heavy', unified: false, manualAccountId: null }))
+      .toEqual({ accountId: 'heavy', unified: false, manualAccountId: null });
     // A fresh automatic reading always wins over memory.
-    expect(linkGrokBot(views, automatic(SUPER_RESET, false), previous)).toEqual({ accountId: 'super', unified: false });
+    expect(linkGrokBot(views, automatic(SUPER_RESET, false), previous)).toEqual({ accountId: 'super', unified: false, manualAccountId: null });
   });
 });

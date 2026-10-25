@@ -1,4 +1,4 @@
-import { PROVIDER_NAME_KEYS, USAGE_SOURCE_KEYS } from '../../../shared/i18n';
+import { PROVIDER_NAME_KEYS, USAGE_SOURCE_KEYS, type Translator } from '../../../shared/i18n';
 import { h, setStyles } from '../dom';
 import { clampPercent } from '../format';
 import { providerIcon } from '../icons';
@@ -106,6 +106,17 @@ export function cardContent(view: AccountView, ctx: RenderContext): HTMLElement[
   return parts;
 }
 
+/** The automatic Grok Bot reading in one line: its number, or why there is none. */
+function automaticBotLine(t: Translator, automatic: GrokBotAutoUsage | undefined, showUsed: boolean): string {
+  if (automatic?.state === 'ok' && automatic.usedPercent !== null) {
+    const shown = showUsed ? automatic.usedPercent : 100 - automatic.usedPercent;
+    return `${t('grokBotTitle')} · ${shown}% ${t(showUsed ? 'unitUsed' : 'unitLeft')} · ${t('grokBotAutomatic')}`;
+  }
+  const key = automatic?.state === 'login-expired' ? 'grokBotAutoExpired' :
+    automatic?.state === 'unavailable' ? 'grokBotAutoUnavailable' : 'grokBotAutoError';
+  return `${t('grokBotTitle')} · ${t(key)}`;
+}
+
 export class UsageTab {
   readonly el: HTMLElement;
   private readonly listEl: HTMLElement;
@@ -128,15 +139,19 @@ export class UsageTab {
     this.latestContext = ctx;
     this.latestAutomatic = automatic;
     const { t } = ctx;
-    this.grokBot.update(settings, ctx, automatic);
     const link = linkGrokBot(views, grokBotReading(settings, ctx.now, automatic), this.grokBotLink);
     this.grokBotLink = link;
-    // A unified Bot is the host account's weekly pool: a note replaces the separate Bot card,
-    // unless the host's own reading is not current (then the Bot card carries the fresh number).
+    // A unified Bot is the host account's weekly pool: a note replaces the Bot card there. When
+    // another Grok account owns the manual slot (grok-link.ts), the card always sits on that
+    // account with manual entry only, and the host gets a one-line automatic reading instead
+    // (same rule as the taskbar). Otherwise the card follows the Bot's account as before.
+    const manualId = link.manualAccountId ?? undefined;
     const hostOk = views.find((view) => view.account.id === link.accountId)?.state === 'ok';
     const unifiedShown = link.unified && hostOk;
-    const groupAccountId = unifiedShown ? undefined : link.accountId ?? undefined;
+    const groupAccountId = manualId ?? (unifiedShown ? undefined : link.accountId ?? undefined);
     const unifiedAccountId = unifiedShown ? link.accountId ?? undefined : undefined;
+    const autoNoteAccountId = manualId !== undefined && !unifiedShown ? link.accountId ?? undefined : undefined;
+    this.grokBot.update(settings, ctx, manualId !== undefined ? undefined : automatic);
     const standalone = groupAccountId === undefined && unifiedAccountId === undefined;
     this.grokBot.el.classList.toggle('is-grouped', !standalone);
     this.grokBot.el.classList.toggle('card', standalone);
@@ -170,7 +185,13 @@ export class UsageTab {
         resetControls.push(official);
         content.push(h('div', { class: 'reset-credit-row' }, resetControls));
       }
-      if (view.account.id === groupAccountId) content.push(this.grokBot.el);
+      if (view.account.id === groupAccountId) {
+        content.push(this.grokBot.el);
+        if (manualId !== undefined) content.push(h('p', { class: 'grok-unified-note' }, [t('grokBotOtherAccount')]));
+      }
+      if (view.account.id === autoNoteAccountId) {
+        content.push(h('p', { class: 'grok-unified-note' }, [automaticBotLine(t, automatic, settings.showUsedPercent)]));
+      }
       if (view.account.id === unifiedAccountId) content.push(h('p', { class: 'grok-unified-note' }, [t('grokUnifiedNote')]));
       card.replaceChildren(...content);
       return card;
