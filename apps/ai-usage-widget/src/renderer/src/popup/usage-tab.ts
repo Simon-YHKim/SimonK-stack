@@ -128,15 +128,16 @@ export class UsageTab {
     this.latestContext = ctx;
     this.latestAutomatic = automatic;
     const { t } = ctx;
-    this.grokBot.update(settings, ctx, automatic);
     const link = linkGrokBot(views, grokBotReading(settings, ctx.now, automatic), this.grokBotLink);
     this.grokBotLink = link;
-    // A unified Bot is the host account's weekly pool: a note replaces the separate Bot card,
-    // unless the host's own reading is not current (then the Bot card carries the fresh number).
+    // A unified Bot is the host account's weekly pool: a note replaces the Bot card there, unless
+    // the host's own reading is not current (then the Bot card carries the fresh number). The card
+    // then serves the other Grok account's separate Bot meter, by manual entry only.
     const hostOk = views.find((view) => view.account.id === link.accountId)?.state === 'ok';
     const unifiedShown = link.unified && hostOk;
-    const groupAccountId = unifiedShown ? undefined : link.accountId ?? undefined;
+    const groupAccountId = unifiedShown ? link.manualAccountId ?? undefined : link.accountId ?? undefined;
     const unifiedAccountId = unifiedShown ? link.accountId ?? undefined : undefined;
+    this.grokBot.update(settings, ctx, unifiedShown ? undefined : automatic);
     const standalone = groupAccountId === undefined && unifiedAccountId === undefined;
     this.grokBot.el.classList.toggle('is-grouped', !standalone);
     this.grokBot.el.classList.toggle('card', standalone);
@@ -170,7 +171,10 @@ export class UsageTab {
         resetControls.push(official);
         content.push(h('div', { class: 'reset-credit-row' }, resetControls));
       }
-      if (view.account.id === groupAccountId) content.push(this.grokBot.el);
+      if (view.account.id === groupAccountId) {
+        content.push(this.grokBot.el);
+        if (unifiedShown) content.push(h('p', { class: 'grok-unified-note' }, [t('grokBotOtherAccount')]));
+      }
       if (view.account.id === unifiedAccountId) content.push(h('p', { class: 'grok-unified-note' }, [t('grokUnifiedNote')]));
       card.replaceChildren(...content);
       return card;

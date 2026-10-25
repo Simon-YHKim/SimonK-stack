@@ -282,6 +282,27 @@ describe('Usage tab', () => {
     expect(list.firstElementChild?.classList.contains('grok-bot-card')).toBe(true);
   });
 
+  it('puts a unified Bot note on its Grok card and the manual Bot card on the other, separate account', () => {
+    const pool = NOW + 5 * 86_400_000;
+    const superGrok = account({ id: 'g1', provider: 'grok', label: 'SuperGrok', order: 0 });
+    const heavy = account({ id: 'g2', provider: 'grok', label: 'Heavy', order: 1 });
+    const { root } = setup(appState({ accounts: [superGrok, heavy], usage: [
+      usage('g1', { provider: 'grok', source: 'grok-acp', windows: [{ kind: 'weekly', usedPercent: 37, resetsAt: NOW + 86_400_000, windowMinutes: 10_080 }] }),
+      usage('g2', { provider: 'grok', source: 'grok-acp', windows: [{ kind: 'weekly', usedPercent: 100, resetsAt: pool, windowMinutes: 10_080 }],
+        extraUsage: { prepaidCents: 4638 } }),
+    ], grokBotAuto: { state: 'ok', usedPercent: 100, resetsAt: pool, measuredAt: NOW, unified: true } }));
+    const heavyCard = root.querySelector('[data-account-id="g2"]') as HTMLElement;
+    const superCard = root.querySelector('[data-account-id="g1"]') as HTMLElement;
+    expect(heavyCard.querySelector('.grok-unified-note')?.textContent).toBe(en.grokUnifiedNote);
+    expect(heavyCard.querySelector('.grok-bot-card')).toBeNull();
+    expect(heavyCard.querySelector('.extra-usage-row')?.textContent).toContain('Purchased credits $46.38 left');
+    const botCard = superCard.querySelector('.grok-bot-card') as HTMLElement;
+    expect(botCard).not.toBeNull();
+    // The unified account's automatic number never lands on the separate account's card.
+    expect(botCard.textContent).not.toContain('Unofficial auto');
+    expect(superCard.textContent).toContain(en.grokBotOtherAccount);
+  });
+
   it('offers one Codex reset only for a fresh measured count and routes use through main', async () => {
     const api = new FakeApi().reply('usage:redeem-reset-credit', () => ({ ok: true, value: 'cancelled' }));
     const state = appState({ accounts: [account({ id: 'a1', provider: 'codex' })],

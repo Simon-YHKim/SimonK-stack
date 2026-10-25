@@ -8,7 +8,7 @@ import { V1_COLORS, buildEnabledViews, itemTooltip, toRow, type AccountView, typ
 import { applyDocumentTheme, skinFor } from '../theme';
 import { renderWidgetItem } from './themes';
 import { modelNoticeText } from '../../../shared/model-notice';
-import { GROK_BOT_STATUS_KEYS, grokBotReading, grokBotSpillKey, grokBotWeeklyExhausted } from '../../../shared/grok-bot';
+import { GROK_BOT_STATUS_KEYS, grokBotReading, grokBotSpillKey, grokBotWeeklyExhausted, type GrokBotAutoUsage } from '../../../shared/grok-bot';
 import { formatCountdown } from '../../../shared/usage';
 import { linkGrokBot, type GrokBotLink } from '../grok-link';
 
@@ -274,8 +274,9 @@ export class WidgetApp {
     return state.settings.grokBotUsedPercent !== null || this.hasSeenGrokBot;
   }
 
-  private grokBotRow(state: AppStateSnapshot, ctx: RenderContext): RowView {
-    const reading = grokBotReading(state.settings, ctx.now, state.grokBotAuto);
+  /** `auto` undefined = manual entry only (the separate Bot of another account, grok-link.ts). */
+  private grokBotRow(state: AppStateSnapshot, ctx: RenderContext, auto: GrokBotAutoUsage | undefined): RowView {
+    const reading = grokBotReading(state.settings, ctx.now, auto);
     const numeric = reading.state === 'fresh' || reading.state === 'stale' || reading.state === 'automatic';
     return {
       ...toRow({ kind: 'weekly', usedPercent: numeric ? reading.usedPercent : null,
@@ -286,7 +287,8 @@ export class WidgetApp {
     };
   }
 
-  private grokWithBotView(view: AccountView, state: AppStateSnapshot, ctx: RenderContext): AccountView {
+  private grokWithBotView(view: AccountView, state: AppStateSnapshot, ctx: RenderContext,
+    auto: GrokBotAutoUsage | undefined): AccountView {
     const cliRow = view.rows.find((row) => row.kind === 'weekly') ??
       (view.rows.length > 0 ? view.windows.find((row) => row.kind === 'weekly') : undefined) ?? view.rows[0] ??
       toRow({ kind: 'weekly', usedPercent: null, resetsAt: null, windowMinutes: 10_080 }, ctx.now,
@@ -294,18 +296,18 @@ export class WidgetApp {
     // A failed Grok CLI fetch must not hide a valid, independently measured Bot quota.
     return { ...view, state: 'ok', rows: [
       { ...cliRow, isStale: view.state === 'stale' || view.state === 'error' },
-      this.grokBotRow(state, ctx),
+      this.grokBotRow(state, ctx, auto),
     ] };
   }
 
-  private grokBotItem(state: AppStateSnapshot, ctx: RenderContext): HTMLElement {
-    const reading = grokBotReading(state.settings, ctx.now, state.grokBotAuto);
+  private grokBotItem(state: AppStateSnapshot, ctx: RenderContext, auto: GrokBotAutoUsage | undefined): HTMLElement {
+    const reading = grokBotReading(state.settings, ctx.now, auto);
     const numeric = reading.state === 'fresh' || reading.state === 'stale' || reading.state === 'automatic';
     const percent = numeric ? (state.settings.showUsedPercent ? reading.usedPercent : reading.leftPercent) : null;
     const value = percent === null ? '—' : `${percent}% ${ctx.t(state.settings.showUsedPercent ? 'unitUsed' : 'unitLeft')}`;
-    const automaticStatus = state.grokBotAuto?.state === 'login-expired' ? 'grokBotAutoExpired' :
-      state.grokBotAuto?.state === 'unavailable' ? 'grokBotAutoUnavailable' :
-      state.grokBotAuto?.state === 'error' ? 'grokBotAutoError' : null;
+    const automaticStatus = auto?.state === 'login-expired' ? 'grokBotAutoExpired' :
+      auto?.state === 'unavailable' ? 'grokBotAutoUnavailable' :
+      auto?.state === 'error' ? 'grokBotAutoError' : null;
     const status = reading.state === 'unknown' && automaticStatus !== null ? ctx.t(automaticStatus) :
       ctx.t(GROK_BOT_STATUS_KEYS[reading.state]);
     const resetsAt = numeric ? reading.resetsAt : null;
@@ -366,7 +368,7 @@ export class WidgetApp {
         this.main.replaceChildren(h('span', { class: 'white-circle-dot', 'aria-hidden': 'true' }));
         this.summary.textContent = title;
       } else {
-        const botItem = this.showGrokBot(state) ? this.grokBotItem(state, ctx) : null;
+        const botItem = this.showGrokBot(state) ? this.grokBotItem(state, ctx, state.grokBotAuto) : null;
         const link = botItem === null ? null :
           linkGrokBot(views, grokBotReading(settings, ctx.now, state.grokBotAuto), this.grokBotLink);
         if (link !== null) this.grokBotLink = link;
@@ -376,13 +378,18 @@ export class WidgetApp {
           // A unified Bot is the host's own weekly pool: one WK row, no second Bot meter. While the
           // host's own reading is not current, the fresh Bot number of the same pool stays visible.
           const groupBot = botItem !== null && host && (!link.unified || view.state !== 'ok');
-          const displayView = groupBot ? this.grokWithBotView(view, state, ctx) : view;
+          // The other Grok account's own (separate) Bot meter: manual entry only, since the one
+          // Grok Bot app login on this PC belongs to the unified account.
+          const manualHost = link !== null && link.unified && view.account.id === link.manualAccountId;
+          const displayView = groupBot ? this.grokWithBotView(view, state, ctx, state.grokBotAuto) :
+            manualHost ? this.grokWithBotView(view, state, ctx, undefined) : view;
           const item = renderWidgetItem(displayView, ctx);
           const rowElements = item.querySelectorAll<HTMLElement>('[data-status]');
           displayView.rows.forEach((row, index) => {
             if (row.status !== 'value' || row.shownPercent === null) return;
-            const isBot = groupBot && row.tag === 'Bot';
-            const key = isBot ? 'grok-bot' : JSON.stringify([view.account.id, row.kind, row.label, row.windowMinutes]);
+            const isBot = (groupBot || manualHost) && row.tag === 'Bot';
+            const key = isBot ? (manualHost ? 'grok-bot-manual' : 'grok-bot') :
+              JSON.stringify([view.account.id, row.kind, row.label, row.windowMinutes]);
             this.markChangedPercent(key, Math.round(row.shownPercent), nextVisiblePercent,
               rowElements.item(index), isBot || view.state === 'ok', settings.showUsedPercent);
           });
@@ -394,6 +401,9 @@ export class WidgetApp {
             item.classList.add('is-unified-pool');
             item.title += `\n${t('grokUnifiedPool')}`;
             groupedGrokBot = true;
+          } else if (manualHost) {
+            item.dataset.state = view.state;
+            item.title = `${itemTooltip(view, ctx)}\n${this.grokBotItem(state, ctx, undefined).title}\n${t('grokBotOtherAccount')}`;
           }
           const notice = state.modelNotices.find((entry) => entry.provider === view.account.provider);
           if (notice !== undefined) {

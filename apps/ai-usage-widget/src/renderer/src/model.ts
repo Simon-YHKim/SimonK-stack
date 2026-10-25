@@ -216,9 +216,18 @@ export function sortedAccounts(accounts: readonly AccountDTO[]): AccountDTO[] {
   return [...accounts].sort((a, b) => a.order - b.order);
 }
 
+/**
+ * Accounts of one vendor sit next to each other, in their own order; vendors keep the position
+ * of their first account (DECISIONS 26.10.25 "벤더가 같다면 순서대로 배치").
+ */
+export function groupByProvider<T extends Pick<AccountDTO, 'provider'>>(accounts: readonly T[]): T[] {
+  const providers: ProviderId[] = [];
+  for (const account of accounts) if (!providers.includes(account.provider)) providers.push(account.provider);
+  return providers.flatMap((provider) => accounts.filter((account) => account.provider === provider));
+}
+
 export function buildEnabledViews(state: AppStateSnapshot, now: number): AccountView[] {
-  return sortedAccounts(state.accounts)
-    .filter((account) => account.enabled)
+  return groupByProvider(sortedAccounts(state.accounts).filter((account) => account.enabled))
     .map((account) => {
       const snapshot =
         state.usage.find((u) => u.accountId === account.id && u.provider === account.provider) ?? null;
