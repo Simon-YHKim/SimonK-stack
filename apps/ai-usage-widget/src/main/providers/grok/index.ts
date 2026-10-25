@@ -231,6 +231,7 @@ export function createGrokAdapter(deps: ProviderDeps, options: GrokAdapterOption
       lastSuccessAt: now,
     };
     if (billing.plan !== undefined) snapshot.plan = billing.plan;
+    if (billing.extraUsage !== undefined) snapshot.extraUsage = { ...billing.extraUsage };
     return snapshot;
   };
 

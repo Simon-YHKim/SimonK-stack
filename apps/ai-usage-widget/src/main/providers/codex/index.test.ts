@@ -262,6 +262,8 @@ describe('codex adapter: fetchUsage', () => {
         source: 'codex-app-server',
         plan: 'pro',
         resetCreditsAvailable: 0,
+        // hasCredits false with no balance string: a known 0, not an unknown balance.
+        extraUsage: { credits: { balance: 0, unlimited: false } },
       });
 
       const messages = received(account.profileDir);

@@ -1,7 +1,7 @@
 // Fixtures follow field names found in grok.exe 1.0.30 (extensions/billing.rs serde strings)
 // and RESEARCH-auth-quota §3-3; the real `_x.ai/billing` payload is still pending live test T4.
 import { describe, expect, it } from 'vitest';
-import { normalizeTier, parseAmount, parseBillingResponse, parsePeriodType, parseTimestamp, unrecognizedBillingKeys } from './billing';
+import { normalizeTier, parseAmount, parseBillingResponse, parseCents, parsePeriodType, parseTimestamp, unrecognizedBillingKeys } from './billing';
 
 describe('unrecognizedBillingKeys', () => {
   // Shape measured with grok 1.0.41 on 26.09.30 (values replaced by neutral ones).
@@ -196,7 +196,30 @@ describe('parseBillingResponse', () => {
       plan: 'SuperGrok Heavy',
       periodType: 'weekly',
       overageAvailable: null,
+      extraUsage: { prepaidCents: 0, onDemandUsedCents: 0, onDemandCapCents: 0 },
     });
+  });
+
+  it('reads purchased credits and on-demand amounts as USD cents (measured 26.10.25)', () => {
+    // SuperGrok Heavy on grok 1.0.41: on-demand left out entirely, $46.38 of bought credits left.
+    const heavy = {
+      config: {
+        creditUsagePercent: 100,
+        currentPeriod: { type: 'USAGE_PERIOD_TYPE_WEEKLY', start: '2026-10-23T03:38:19.843+00:00', end: '2026-10-30T03:38:19.843+00:00' },
+        prepaidBalance: { val: 4638 },
+        isUnifiedBillingUser: true,
+        billingPeriodStart: '2026-10-23T03:38:19.843+00:00',
+        billingPeriodEnd: '2026-10-30T03:38:19.843+00:00',
+      },
+      subscription_tier: 'SuperGrok Heavy',
+    };
+    expect(parseBillingResponse(heavy)?.extraUsage).toEqual({ prepaidCents: 4638 });
+    // proto3 sends a $0 Cent as `{}`; int64 may arrive as a string.
+    expect(parseBillingResponse({ config: { ...heavy.config, onDemandCap: {}, onDemandUsed: { val: '120' } } })?.extraUsage)
+      .toEqual({ prepaidCents: 4638, onDemandUsedCents: 120, onDemandCapCents: 0 });
+    // Negative or fractional cents are not trusted; no reported field means no extraUsage at all.
+    expect(parseBillingResponse({ config: { ...heavy.config, prepaidBalance: { val: -5 } } })?.extraUsage).toBeUndefined();
+    expect(parseCents({ val: 12.5 })).toBeUndefined();
   });
 
   it('does not read a missing percent as 0 without the rest of the weekly config', () => {

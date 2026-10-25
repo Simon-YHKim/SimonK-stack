@@ -12,6 +12,13 @@ describe('Grok Bot weekly usage', () => {
     expect(() => parseGrokBotUsage({ usagePercent: '19' }, NOW)).toThrow();
   });
 
+  it('carries Cursor isUnified so a shared weekly pool is not shown as a second meter (26.10.25)', () => {
+    expect(parseGrokBotUsage({ usagePercent: 100, nextResetTimestampUtc: '2026-10-05T00:00:00Z', isUnified: true }, NOW))
+      .toMatchObject({ state: 'ok', usedPercent: 100, unified: true });
+    expect(parseGrokBotUsage({ usagePercent: 40, isUnified: false }, NOW).unified).toBe(false);
+    expect(parseGrokBotUsage({ usagePercent: 40, isUnified: 'yes' }, NOW)).not.toHaveProperty('unified');
+  });
+
   it('uses the signed-in desktop token only for the Cursor usage request', async () => {
     const onChange = vi.fn();
     const request = vi.fn((_url: string | URL | Request, init?: RequestInit) => {

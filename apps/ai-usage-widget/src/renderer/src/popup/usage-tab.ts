@@ -4,6 +4,7 @@ import { clampPercent } from '../format';
 import { providerIcon } from '../icons';
 import {
   errorText,
+  extraUsageParts,
   isMeasuredState,
   measuredText,
   stateText,
@@ -17,7 +18,8 @@ import {
 import { syncChildren } from './keyed';
 import type { Api } from '../api';
 import type { Settings } from '../../../shared/settings';
-import type { GrokBotAutoUsage } from '../../../shared/grok-bot';
+import { grokBotReading, type GrokBotAutoUsage } from '../../../shared/grok-bot';
+import { linkGrokBot, type GrokBotLink } from '../grok-link';
 import { GrokBotCard } from './grok-bot-card';
 
 function quotaBox(view: AccountView, row: RowView, index: number, ctx: RenderContext): HTMLElement {
@@ -86,6 +88,13 @@ export function cardContent(view: AccountView, ctx: RenderContext): HTMLElement[
       ),
     );
   }
+  const extra = extraUsageParts(t, view.extraUsage);
+  if (extra.length > 0) {
+    parts.push(h('div', { class: 'extra-usage-row' }, [
+      h('span', { class: 'extra-usage-title' }, [t('extraUsageTitle')]),
+      ...extra.map((text) => h('span', { class: 'extra-usage-item' }, [text])),
+    ]));
+  }
   const meta: HTMLElement[] = [h('span', { class: 'card-measured' }, [measuredText(ctx, view.measuredAt)])];
   if (view.source !== null) {
     meta.push(h('span', { class: 'card-source' }, [t('sourceLabel', { source: t(USAGE_SOURCE_KEYS[view.source]) })]));
@@ -105,6 +114,7 @@ export class UsageTab {
   private latestViews: readonly AccountView[] = [];
   private latestContext: RenderContext | null = null;
   private latestAutomatic?: GrokBotAutoUsage;
+  private grokBotLink: GrokBotLink | null = null;
   readonly grokBot: GrokBotCard;
 
   constructor(private readonly deps: { api: Api; report(message: string): void }) {
@@ -119,9 +129,14 @@ export class UsageTab {
     this.latestAutomatic = automatic;
     const { t } = ctx;
     this.grokBot.update(settings, ctx, automatic);
-    const groupAccountId = views.find((view) => view.account.provider === 'grok')?.account.id;
-    this.grokBot.el.classList.toggle('is-grouped', groupAccountId !== undefined);
-    this.grokBot.el.classList.toggle('card', groupAccountId === undefined);
+    const link = linkGrokBot(views, grokBotReading(settings, ctx.now, automatic), this.grokBotLink);
+    this.grokBotLink = link;
+    // A unified Bot is the host account's weekly pool: a note replaces the separate Bot card.
+    const groupAccountId = link.unified ? undefined : link.accountId ?? undefined;
+    const unifiedAccountId = link.unified ? link.accountId ?? undefined : undefined;
+    const standalone = groupAccountId === undefined && unifiedAccountId === undefined;
+    this.grokBot.el.classList.toggle('is-grouped', !standalone);
+    this.grokBot.el.classList.toggle('card', standalone);
     const seen = new Set<string>();
     const cards = views.map((view) => {
       seen.add(view.account.id);
@@ -153,11 +168,12 @@ export class UsageTab {
         content.push(h('div', { class: 'reset-credit-row' }, resetControls));
       }
       if (view.account.id === groupAccountId) content.push(this.grokBot.el);
+      if (view.account.id === unifiedAccountId) content.push(h('p', { class: 'grok-unified-note' }, [t('grokUnifiedNote')]));
       card.replaceChildren(...content);
       return card;
     });
     for (const id of [...this.cards.keys()]) if (!seen.has(id)) this.cards.delete(id);
-    syncChildren(this.listEl, groupAccountId === undefined ? [this.grokBot.el, ...cards] : cards);
+    syncChildren(this.listEl, standalone ? [this.grokBot.el, ...cards] : cards);
   }
 
   private redeem(accountId: string, button: HTMLButtonElement): void {

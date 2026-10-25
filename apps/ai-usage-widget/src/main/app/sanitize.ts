@@ -4,6 +4,7 @@ import {
   USAGE_STATES,
   isErrorCode,
   type Account,
+  type ExtraUsage,
   type QuotaWindow,
   type UsageSnapshot,
 } from '../../shared/types';
@@ -26,6 +27,28 @@ function sanitizeWindow(input: unknown): QuotaWindow | null {
   const label = normalizeLabel(input.label);
   if (label !== null) window.label = label;
   return window;
+}
+
+/** $1,000,000 in cents: anything larger is not a plausible personal balance. */
+const MAX_CENTS = 100_000_000;
+const cents = (value: unknown): number | undefined =>
+  typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 && value <= MAX_CENTS ? value : undefined;
+
+function sanitizeExtraUsage(input: unknown): ExtraUsage | undefined {
+  if (!isPlainObject(input)) return undefined;
+  const extra: ExtraUsage = {};
+  const prepaid = cents(input.prepaidCents);
+  if (prepaid !== undefined) extra.prepaidCents = prepaid;
+  const used = cents(input.onDemandUsedCents);
+  if (used !== undefined) extra.onDemandUsedCents = used;
+  const cap = cents(input.onDemandCapCents);
+  if (cap !== undefined) extra.onDemandCapCents = cap;
+  const credits = input.credits;
+  if (isPlainObject(credits) && typeof credits.unlimited === 'boolean') {
+    const balance = isFiniteNumber(credits.balance) && credits.balance >= 0 && credits.balance <= 1e9 ? credits.balance : null;
+    extra.credits = { balance, unlimited: credits.unlimited };
+  }
+  return Object.keys(extra).length > 0 ? extra : undefined;
 }
 
 /**
@@ -57,6 +80,8 @@ export function sanitizeSnapshot(account: Account, input: UsageSnapshot): UsageS
       Number.isSafeInteger(raw.resetCreditsAvailable) && raw.resetCreditsAvailable >= 0 && raw.resetCreditsAvailable <= 1_000) {
     snapshot.resetCreditsAvailable = raw.resetCreditsAvailable;
   }
+  const extraUsage = sanitizeExtraUsage(raw.extraUsage);
+  if (extraUsage !== undefined) snapshot.extraUsage = extraUsage;
   if (isErrorCode(raw.errorCode)) snapshot.errorCode = raw.errorCode;
   else if (state === 'error') snapshot.errorCode = 'internal';
   return snapshot;

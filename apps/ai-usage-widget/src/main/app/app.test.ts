@@ -281,6 +281,18 @@ describe('sanitizeSnapshot', () => {
     expect(sanitizeSnapshot(codex, { ...okUsage(codex), resetCreditsAvailable: -1 }).resetCreditsAvailable).toBeUndefined();
     expect(sanitizeSnapshot(account, { ...okUsage(account), resetCreditsAvailable: 2 }).resetCreditsAvailable).toBeUndefined();
   });
+
+  it('keeps only whole, bounded cent amounts and a well-formed credit balance in extraUsage', () => {
+    const extra = (extraUsage: unknown) =>
+      sanitizeSnapshot(account, { ...okUsage(account), extraUsage } as unknown as UsageSnapshot).extraUsage;
+    expect(extra({ prepaidCents: 4638, onDemandUsedCents: 0, onDemandCapCents: 0, token: 'secret' }))
+      .toEqual({ prepaidCents: 4638, onDemandUsedCents: 0, onDemandCapCents: 0 });
+    expect(extra({ prepaidCents: -1, onDemandUsedCents: 1.5, onDemandCapCents: 1e12 })).toBeUndefined();
+    expect(extra({ credits: { balance: 12.5, unlimited: false } })).toEqual({ credits: { balance: 12.5, unlimited: false } });
+    expect(extra({ credits: { balance: 'lots', unlimited: true } })).toEqual({ credits: { balance: null, unlimited: true } });
+    expect(extra({ credits: { balance: 3 } })).toBeUndefined();
+    expect(extra('junk')).toBeUndefined();
+  });
 });
 
 describe('app controller', () => {

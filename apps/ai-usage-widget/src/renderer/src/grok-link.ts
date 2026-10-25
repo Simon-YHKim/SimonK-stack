@@ -1,0 +1,45 @@
+// Which Grok account a Grok Bot reading belongs to, and whether it is a meter of its own
+// (DECISIONS 26.10.25). Measured 26.10.25: a unified Bot (Cursor `isUnified`) reported the same
+// reset as its Grok account's weekly period to the millisecond, and the same percent.
+
+import type { GrokBotReading } from '../../shared/grok-bot';
+import type { AccountView } from './model';
+
+export interface GrokBotLink {
+  /** Grok account the Bot reading belongs to; null = none of the shown accounts. */
+  accountId: string | null;
+  /** The Bot draws from that account's weekly pool: no separate Bot meter to show. */
+  unified: boolean;
+}
+
+/** Slack for the reset comparison; a different account's period would be hours or days apart. */
+export const RESET_MATCH_MS = 5 * 60_000;
+
+function weeklyReset(view: AccountView): number | null {
+  return view.windows.find((row) => row.kind === 'weekly')?.resetsAt ?? null;
+}
+
+/**
+ * Matches the Bot's weekly reset against each Grok account's weekly window. Without a match a
+ * unified Bot stands alone (its pool is not among the shown accounts) and a separate Bot keeps
+ * the old placement on the first Grok account. When the reading carries no evidence (automatic
+ * lookup failing, no reset entered) the previous link is kept so the item does not jump around.
+ */
+export function linkGrokBot(views: readonly AccountView[], reading: GrokBotReading, previous?: GrokBotLink | null): GrokBotLink {
+  const grok = views.filter((view) => view.account.provider === 'grok');
+  const unified = reading.state === 'automatic' && reading.unified === true;
+  const botReset = reading.state === 'automatic' || reading.state === 'fresh' || reading.state === 'stale' ? reading.resetsAt : null;
+  if (botReset !== null) {
+    const match = grok.find((view) => {
+      const reset = weeklyReset(view);
+      return reset !== null && Math.abs(reset - botReset) <= RESET_MATCH_MS;
+    });
+    if (match !== undefined) return { accountId: match.account.id, unified };
+  }
+  if (unified) return { accountId: null, unified: true };
+  if (reading.state !== 'automatic' && previous != null && previous.accountId !== null &&
+    grok.some((view) => view.account.id === previous.accountId)) {
+    return previous;
+  }
+  return { accountId: grok[0]?.account.id ?? null, unified: false };
+}

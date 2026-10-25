@@ -74,6 +74,16 @@ export const ko = {
   grokBotSpillOnDemand: '주간 한도 도달 · 이후 사용은 추가 크레딧, 그다음 On-demand로 Cursor에 청구될 수 있음',
   grokBotRecorded: '직접 기록 {time}',
   grokBotWidget: 'Bot',
+  grokUnifiedPool: 'Grok·Grok Bot 통합 주간 한도',
+  grokUnifiedNote: 'Grok Bot 사용량이 이 계정의 주간 한도(WK)에서 함께 빠집니다(통합 결제). 별도 Bot 한도는 없습니다.',
+  extraUsageTitle: '추가 사용량',
+  extraUsagePrepaid: '구매 크레딧 잔액 {amount}',
+  extraUsageOnDemand: 'On-demand {used} / 한도 {cap}',
+  extraUsageOnDemandUsed: 'On-demand {used}',
+  extraUsageOnDemandOff: 'On-demand 꺼짐',
+  extraUsageCredits: '크레딧 {count}',
+  extraUsageCreditsUnlimited: '크레딧 무제한',
+  extraUsageCreditsUnknown: '크레딧 잔액 미확인',
 
   // Accounts tab
   moveUp: '위로 이동',

@@ -480,6 +480,10 @@
   color: var(--p-crit);
 }
 
+.extra-usage-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; color: var(--p-fg2); font-size: 11px; }
+.extra-usage-title { font-weight: 600; color: var(--p-fg); }
+.grok-unified-note { margin: 0; color: var(--p-fg2); font-size: 11px; }
+
 .reset-credit-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; color: var(--p-fg2); font-size: 11px; }
 .reset-credit-row button { min-height: 44px; border: 1px solid var(--p-border); border-radius: 6px; padding: 3px 8px; color: var(--p-fg); background: transparent; cursor: pointer; }
 .reset-credit-row button:hover { background: var(--p-control-hover); }

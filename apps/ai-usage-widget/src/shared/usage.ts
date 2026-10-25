@@ -97,6 +97,8 @@ export function applyFetchFailure(previous: UsageSnapshot | undefined, failed: U
   };
   const plan = failed.plan ?? previous.plan;
   if (plan !== undefined) merged.plan = plan;
+  const extraUsage = failed.extraUsage ?? previous.extraUsage;
+  if (extraUsage !== undefined) merged.extraUsage = extraUsage;
   return merged;
 }
 
