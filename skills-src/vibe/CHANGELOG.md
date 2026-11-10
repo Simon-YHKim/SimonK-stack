@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.23.0 - 2026-11-11
+
+- Added dynamic discovery of every topic in the selected Orca build, selective guide retrieval and legacy-name deduplication. Routing covers GUI, environments, iOS/Android, Jira/Linear and plugin authoring as well as CLI/orchestration.
+- Every /vibe invocation now starts with the official non-forced update of existing unmodified Orca skills when needed, followed by a post-check and current catalog discovery. No application upgrade, missing-skill installation, worker/model call or force overwrite is implied.
+- Added an executable sync/discovery helper and offline contract tests. Guide loading, installation freshness and actual execution readiness remain distinct; existing provider/account/cost gates are unchanged.
+
 ## 2.22.1 - 2026-11-11
 
 - Orca 계획 전에 선택한 실행기의 버전별 가이드와 실제 workspace를 확인하도록 진입 절차를 보강했다. 최신 worker 메시징·이벤트 기반 대기와 기존 vibe 어댑터의 지원 범위를 구분한다.
