@@ -3,6 +3,7 @@
 ## Contents
 
 - Scope and current limits
+- Live Orca discovery
 - Intake
 - Plan and prepare
 - Dispatch and recovery
@@ -46,7 +47,7 @@ canary 는 통과했다(run `run_8f7a27febc38`, @low, 정답이 정해진 A 과�
 `pending-transport-and-certificate` 이고 같은 게이트가 걸린다. 큰 입력·10만 토큰 초과 입력은 미측정이다.
 D-98(2026-10-12 오전, 2.16.0)은 보안 생성물 게이트의 고정 레인을 `gpt-6.1-sol` @xhigh 로 옮겼었다. 같은 날 오후
 D-101 이 되돌렸다(아래).
-**D-101(2026-10-12, 2.17.0, Simon 지시)이 지금 값이다.** 위의 D-67·10-05·D-99·D-98 문단은 그 시점 기록이다.
+**D-101(2026-10-12, 2.17.0)은 패키지의 기존 기본 정책이다.** 현재 세션의 명시적 선호가 우선하며, 아래 구현 제약과 충돌하면 정책 불일치로 보고한다. 위의 D-67·10-05·D-99·D-98 문단은 그 시점 기록이다.
 - GPT 쪽에서 일을 받는 레인은 `gpt-6-astra` 하나이고 effort 는 xhigh 고정이다("gpt 쪽은 astra 말고는 쓰지마. gpt 를
   넣어야한다면 astra xhigh."). 다른 effort 는 `off_ladder` 로도 ORCA_DISPATCH_UNSUPPORTED 다.
 - `gpt-6.1-sol`·`gpt-6-luna`·`gpt-5.6-sol`·`gpt-5.6-terra`·`gpt-5.6-luna` 는 철회됐다. 계획에 넣으면
@@ -96,6 +97,63 @@ Legacy live functions `run_dispatch`, `run_codex_exec`,
 preflight/run are disabled. No force flag, dry argv, shell command or manual
 terminal submission bypasses that boundary. The raw `run_orca` helper accepts
 only its exact read-only allowlist; it is not the dispatch adapter.
+
+## Live Orca discovery
+
+Use this check before an Orca plan, after an Orca update, or when a command or
+model appears unavailable. It is discovery, not a second dispatch adapter.
+
+1. Read the installed `orca-cli` discovery stub. Select its executable once
+   using `ORCA_CLI_COMMAND`, then the documented dev/platform rule; keep that
+   executable for the run. On Linux outside Orca, do not confuse the GNOME
+   screen reader with Orca IDE. If discovery is unavailable, report the missing
+   guide and use explicit executable `--help` only for read-only discovery.
+2. Read `skills get orca-cli --json` and `skills get orchestration --json` from
+   that executable, plus its version. The executable's guide is authoritative
+   for CLI syntax and worker lifecycle. A copied skill's old command list is
+   not evidence that the current runtime lacks a feature. Unsupported guide
+   commands permit read-only help inspection, not guessed worker launches.
+3. Compare the observed worktree ID and canonical path with the user-approved
+   repository/workspace. `--worktree current` can still point to an old folder
+   copy. A cwd change or matching basename is not sufficient. Missing or
+   mismatched context blocks dispatch to that workspace; do not silently use
+   another registered folder.
+4. Observe the selected provider's current model catalog using its supported
+   metadata command. Separate listed model IDs, supported transport efforts,
+   requested effort and actual effective effort. A generic `--effort xhigh`
+   flag does not prove that a particular model honors xhigh. Model visibility
+   does not prove subscription inclusion or remaining quota. No generation
+   call is needed just to discover commands or catalog entries.
+5. Record skill source/version, executable/version, workspace binding, current
+   session preferences, capability evidence and remaining gates separately.
+   For update checks, compare the loaded skill with the authorized source and
+   installation receipt. A marketplace version is not the embedded skill's
+   version. Report divergence; update through the authorized source/install
+   workflow and recheck the bytes, never edit a receipt to conceal drift.
+
+| Observation | Report and next action |
+| --- | --- |
+| Current guide supports workers/messages, vibe adapter lacks that path | Adapter gap; do not report that Orca cannot communicate |
+| Model is listed, exact effort unverified | Model listed / effort unverified; no silent downgrade |
+| Historical preference rejects this session's explicit choice | Session policy conflict; preserve the request and execution gates |
+| Account, quota or subscription proof missing | Evidence gap; do not label a supported command unavailable |
+| Worktree is missing or points at a copy | Workspace mismatch; resolve the approved workspace before dispatch |
+| Source and installed skill differ | Installation drift; report both versions and verify the update |
+
+For an independently authorized and guarded modern Orca route, the live guide
+describes `orchestration worker-start`, `send`, `ask`, `reply` and `worker_done`.
+Follow its receipts and recovery reference. Start independent workers and then
+end the coordinator turn so Orca can wake it; do not poll or consume wake mail
+with a background `check` loop. Steer with `send`, not terminal keystrokes.
+A failed start is not permission to resend: inspect `failedStage` and the
+original request identity first. No command in this paragraph replaces the
+existing claim, account/cost evidence, adapter or reconciliation requirements.
+
+Temporary usage restrictions belong to the current run's handoff only. Do not
+write a particular provider's temporary review-only role into skill defaults,
+registries or shared model policy. A later session must discover its own current
+preferences and availability. Never infer successful external execution from
+a model name in a plan or from a CLI help entry.
 
 ## Intake
 
@@ -249,3 +307,26 @@ Include blocked/skipped work, actual unknowns, remaining cleanup and evidence.
 Do not mark five-surface integration, all-mode optimization or installed parity
 complete from this source workflow. Historical troubleshooting remains in Git
 history; old pitfalls/effort-cap instructions cannot override these boundaries.
+
+## Verification commands
+
+```text
+python -B "<skill>/scripts/test_runtime_collect.py"
+python -B "<skill>/scripts/test_run_state.py"
+python -B "<skill>/scripts/test_execute_orca.py"
+python -B "<skill>/scripts/test_model_registry.py"
+python -B "<skill>/scripts/test_orchestrate.py"
+python -B "<skill>/scripts/test_execute_codex_cli.py"
+python -B "<skill>/scripts/selftest.py"
+python -B "<skill>/scripts/sync_skill_table.py" --check
+# Process-denied preparation fixtures, from the skill's scripts directory:
+python -B -m unittest discover -s tests -p "test_prepare*.py"
+# Secret detection equivalence/latency; denies child processes and networking:
+python -B -I -S tests/test_ledger_scan.py
+```
+
+When testing an immutable bundle, also set `PYTHONDONTWRITEBYTECODE=1` for
+child Python processes and reverify its receipt afterward. `-B` on the parent
+command alone does not propagate to subprocesses. Plain Python invocation of
+legacy CLI entrypoints now blocks bytecode before their first local import;
+module imports by other callers still need the caller's own no-bytecode policy.

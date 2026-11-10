@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan, sends image generation to Codex image_gen within included usage, and reports blocked coding routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.22.0
+version: 2.22.1
 author: simon-stack
 ---
 
@@ -30,6 +30,12 @@ covers this run. An approved budget persists within its original scope.
 Quality preference is not spending authorization.
 
 ## 1. Discover the needed skills and software
+
+For Orca work, first follow [live Orca discovery](references/orca-workflow.md#live-orca-discovery).
+Read the selected executable's version-matched guides before declaring a command
+or communication path unavailable. Record loaded skill path/version and compare
+with the authorized source when checking an update; installation alone is not
+proof that the source revision is active. Do not rewrite an immutable bundle.
 
 Run `python -B "<skill>/scripts/orchestrate.py" catalog` to inspect skill metadata.
 For skills outside the bundle (personal skills, separately installed plugins), run `python -B "<skill>/scripts/host_roots.py" --host <claude|codex>` and pass its `root_args` to `inventory`, then the same roots to `plan`; it only reads host settings, writes nothing, and must be re-run before each plan.
@@ -76,6 +82,12 @@ session when its observed capabilities suffice. Independent substantial tasks
 can use workers. GUI-only steps use the Bot adapter in section 4.
 
 ## 2. Plan model, effort and cost together
+
+Explicit current-session model preferences supersede historical preference tables
+for that session only. Do not persist temporary quota restrictions as global
+role assignments. Preferences do not establish transport, billing or effort
+support: if the packaged planner rejects a requested model, report that policy
+conflict separately and do not silently substitute or bypass its execution gates.
 
 Read [orchestration contract](references/orchestration.md) before constructing
 a run. The helper implements metadata discovery, route preflight, dependency
@@ -376,26 +388,7 @@ The [generated legacy Orca routing table](references/legacy-routing.md) is histo
 
 ## Verification and references
 
-```text
-python -B "<skill>/scripts/test_runtime_collect.py"
-python -B "<skill>/scripts/test_run_state.py"
-python -B "<skill>/scripts/test_execute_orca.py"
-python -B "<skill>/scripts/test_model_registry.py"
-python -B "<skill>/scripts/test_orchestrate.py"
-python -B "<skill>/scripts/test_execute_codex_cli.py"
-python -B "<skill>/scripts/selftest.py"
-python -B "<skill>/scripts/sync_skill_table.py" --check
-# Process-denied preparation fixtures, from the skill's scripts directory:
-python -B -m unittest discover -s tests -p "test_prepare*.py"
-# Secret detection equivalence/latency; denies child processes and networking:
-python -B -I -S tests/test_ledger_scan.py
-```
-
-When testing an immutable bundle, also set `PYTHONDONTWRITEBYTECODE=1` for
-child Python processes and reverify its receipt afterward. `-B` on the parent
-command alone does not propagate to subprocesses. Plain Python invocation of
-legacy CLI entrypoints now blocks bytecode before their first local import;
-module imports by other callers still need the caller's own no-bytecode policy.
+See the [verification commands](references/orca-workflow.md#verification-commands).
 
 - [Orchestration schema and cost policy](references/orchestration.md)
 - [Model catalog map, 2026-10-21 refresh(`gemini-4-argon` 등록 · 레인 없음 D-105), D-101 레인 상태(GPT 는 `gpt-6-astra` @xhigh 만 · 철회 레인 5개 · A 클래스 `claude-haiku-5-5` 선두 · 코딩 opus(xhigh) → fable → sonnet D-106 · 인증서 대기)](references/model-catalog-map.md)
