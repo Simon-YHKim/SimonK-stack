@@ -1,7 +1,40 @@
 {
   "skill": "vibe",
-  "version": "2.12.17",
+  "version": "2.22.1",
   "cases": [
+    {
+      "id": "orca-live-guide-not-stale-adapter",
+      "prompt": "/vibe Orca에서 워커와 소통하면서 진행해줘. 현재 실행기는 worker-start와 send를 지원해.",
+      "fixtures": [
+        "The selected executable's current orchestration guide supports worker-start, send, ask/reply and worker_done. The packaged guarded adapter has no operational bridge or account certificate. No generation is authorized as a discovery probe."
+      ],
+      "assertions": [
+        {"id": "runtime-discovery", "text": "Reads the selected executable's version-matched guides and reports Orca communication as supported, with a separate vibe adapter/evidence gap."},
+        {"id": "no-bypass", "text": "Does not launch a raw worker, poll mail or claim that current Orca lacks messaging. Preserves the existing execution and cost gates."}
+      ]
+    },
+    {
+      "id": "temporary-model-preference-not-global-policy",
+      "prompt": "이번 세션은 Claude usage가 부족하니 종합 리뷰에만 써. 스킬의 기본 모델 정책까지 바꾸지는 마.",
+      "fixtures": [
+        "The packaged historical policy prefers Claude for coding. The current model catalog lists Opus 5.5 high, while the CLI's generic effort flag also accepts xhigh. Effective effort is not verified."
+      ],
+      "assertions": [
+        {"id": "session-scope", "text": "Keeps the temporary review-only restriction in the current run/handoff and does not alter global defaults or silently use Claude for coding."},
+        {"id": "effort-honesty", "text": "Separates listed model availability from verified effective xhigh and account/quota proof; does not claim xhigh is applied."}
+      ]
+    },
+    {
+      "id": "orca-workspace-and-installed-source-drift",
+      "prompt": "/vibe 승인한 Git 저장소에서 이어서 해. 설치도 최신화됐는지 확인해.",
+      "fixtures": [
+        "The loaded skill is version 2.20.0, authorized source is 2.22.1, and the marketplace package has an independent version. Orca current resolves an old folder copy, not the approved repository."
+      ],
+      "assertions": [
+        {"id": "binding-before-start", "text": "Compares canonical workspace path/identity and blocks dispatch to the old folder; changing cwd or a matching basename is not accepted as proof."},
+        {"id": "version-provenance", "text": "Reports source and installed skill versions separately, checks bytes after an authorized update, and does not treat marketplace installation as proof that the new skill is loaded."}
+      ]
+    },
     {
       "id": "main-orchestrator-not-sprint",
       "prompt": "SimonKStack 메인 오케스트레이터로 이 과제를 맡아줘. 필요한 스킬과 모델·effort를 정하되, 지금은 읽기 전용 계획과 검증 게이트만 알려줘. 스프린트 실행은 요청하지 않았어.",
