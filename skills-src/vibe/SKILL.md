@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan, sends image generation to Codex image_gen within included usage, and reports blocked coding routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.22.1
+version: 2.23.0
 author: simon-stack
 ---
 
@@ -31,11 +31,13 @@ Quality preference is not spending authorization.
 
 ## 1. Discover the needed skills and software
 
-For Orca work, first follow [live Orca discovery](references/orca-workflow.md#live-orca-discovery).
-Read the selected executable's version-matched guides before declaring a command
-or communication path unavailable. Record loaded skill path/version and compare
-with the authorized source when checking an update; installation alone is not
-proof that the source revision is active. Do not rewrite an immutable bundle.
+At each /vibe invocation, follow [Orca skill sync and discovery](references/orca-workflow.md#live-orca-discovery):
+run `scripts/orca_skills.py --orca <selected-absolute-executable> --sync`, then
+select relevant live topics and fetch their guides with repeated `--select`.
+This updates only existing unmodified Orca skills, never the Orca application.
+Missing Orca does not block unrelated host work. Inspect update warnings; guide
+discovery is not execution proof. Record loaded skill/source versions; do not
+rewrite immutable bundle receipts or silently replace customized skills.
 
 Run `python -B "<skill>/scripts/orchestrate.py" catalog` to inspect skill metadata.
 For skills outside the bundle (personal skills, separately installed plugins), run `python -B "<skill>/scripts/host_roots.py" --host <claude|codex>` and pass its `root_args` to `inventory`, then the same roots to `plan`; it only reads host settings, writes nothing, and must be re-run before each plan.
