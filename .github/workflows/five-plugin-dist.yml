@@ -10,7 +10,7 @@ name: five-plugin dist (D-76)
 # its content digest too (allow schema 2). The Codex catalog is switched separately.
 on:
   push:
-    branches: [main]
+    branches: [main, release/vibe-223-backport]
   pull_request:
     # Verify only: a PR run never uploads the tree or reaches the publish job.
     branches: [main]
@@ -359,7 +359,7 @@ jobs:
     needs: [build, suites]
     # Disabled: SIMONK_DIST_PUBLISH stays unset until D-82 step 3 approves a
     # session-tested candidate. The variable is one key; the approval file is the other.
-    if: ${{ vars.SIMONK_DIST_PUBLISH == 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+    if: ${{ vars.SIMONK_DIST_PUBLISH == 'true' && github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || (github.ref == 'refs/heads/release/vibe-223-backport' && github.ref_protected)) }}
     runs-on: windows-latest
     timeout-minutes: 20
     permissions:
@@ -373,6 +373,14 @@ jobs:
       SUBSET_DIGEST: ${{ needs.build.outputs.subset_digest }}
       RELEASE_VERSION: ${{ needs.build.outputs.version }}
     steps:
+      - name: Require exact publishing ref
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF -ieq 'refs/heads/main') { exit 0 }
+          if ($env:GITHUB_REF -cne 'refs/heads/release/vibe-223-backport' -or $env:GITHUB_REF_PROTECTED -cne 'true') {
+            throw 'Publishing requires main or the exact protected release ref'
+          }
+
       - name: Disable EOL conversion before any clone
         run: |
           git config --global core.autocrlf false

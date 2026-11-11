@@ -382,10 +382,12 @@ class PublishWorkflowTests(unittest.TestCase):
         self.assertEqual(len(found), 1, needle)
         return found[0]
 
-    def test_job_still_needs_the_variable_on_main_push(self):
+    def test_job_still_needs_variable_on_main_or_protected_backport(self):
         condition = next(line for line in self.publish.splitlines() if line.startswith("    if: "))
         self.assertEqual(condition, "    if: ${{ vars.SIMONK_DIST_PUBLISH == 'true' && github.event_name "
-                                    "!= 'pull_request' && github.ref == 'refs/heads/main' }}")
+                                    "!= 'pull_request' && (github.ref == 'refs/heads/main' || "
+                                    "(github.ref == 'refs/heads/release/vibe-223-backport' "
+                                    "&& github.ref_protected)) }}")
 
     def test_gate_runs_before_anything_reaches_dist(self):
         gate = self.step_index("scripts/dist_release.py gate")
@@ -395,6 +397,17 @@ class PublishWorkflowTests(unittest.TestCase):
                       "codex_safe_subset.py verify", "git -C $wt push"):
             self.assertGreater(self.step_index(later), gate, later)
         self.assertIn("fetch-depth: 0", self.steps[self.step_index("uses: actions/checkout@v4")])
+
+    def test_exact_ref_guard_is_the_first_publish_step(self):
+        guard = self.step_index("name: Require exact publishing ref")
+        self.assertEqual(guard, 0)
+        self.assertIn("shell: pwsh", self.steps[guard])
+        self.assertIn("$env:GITHUB_REF -ieq 'refs/heads/main'", self.steps[guard])
+        self.assertIn("$env:GITHUB_REF -cne 'refs/heads/release/vibe-223-backport'", self.steps[guard])
+        self.assertIn("$env:GITHUB_REF_PROTECTED -cne 'true'", self.steps[guard])
+        for later in ("Disable EOL conversion", "uses: actions/checkout@v4", "uses: actions/setup-python@v5",
+                      "name: five-plugin-receipts-", "scripts/dist_release.py gate", "git -C $wt push"):
+            self.assertLess(guard, self.step_index(later), later)
 
     def test_codex_subset_is_reverified_then_staged_beside_the_plugins(self):
         # D-88 stage 2: the transferred subset is checked against the build's pin before

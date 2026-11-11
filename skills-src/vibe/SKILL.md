@@ -1,8 +1,8 @@
 ---
 name: vibe
-description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan and reports blocked coding or image routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
+description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan, sends image generation to Codex image_gen within included usage, and reports blocked coding routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.20.0
+version: 2.23.0
 author: simon-stack
 ---
 
@@ -31,8 +31,16 @@ Quality preference is not spending authorization.
 
 ## 1. Discover the needed skills and software
 
+At each /vibe invocation, follow [Orca skill sync and discovery](references/orca-workflow.md#live-orca-discovery):
+run `scripts/orca_skills.py --orca <selected-absolute-executable> --sync`, then
+select relevant live topics and fetch their guides with repeated `--select`.
+This updates only existing unmodified Orca skills, never the Orca application.
+Missing Orca does not block unrelated host work. Inspect update warnings; guide
+discovery is not execution proof. Record loaded skill/source versions; do not
+rewrite immutable bundle receipts or silently replace customized skills.
+
 Run `python -B "<skill>/scripts/orchestrate.py" catalog` to inspect skill metadata.
-For separately installed plugins, compose explicit roots from the current host's observed, authorized paths before invoking the helper.
+For skills outside the bundle (personal skills, separately installed plugins), run `python -B "<skill>/scripts/host_roots.py" --host <claude|codex>` and pass its `root_args` to `inventory`, then the same roots to `plan`; it only reads host settings, writes nothing, and must be re-run before each plan.
 Own this step; do not ask Simon to maintain paths already supplied by the host. Follow the split-home procedure in [discovery](references/orchestration.md).
 Inside an intact five-plugin candidate, default catalog/plan uses that bundle's
 five skill roots only. Its receipt, planner, manifests and SKILL metadata must
@@ -76,6 +84,12 @@ session when its observed capabilities suffice. Independent substantial tasks
 can use workers. GUI-only steps use the Bot adapter in section 4.
 
 ## 2. Plan model, effort and cost together
+
+Explicit current-session model preferences supersede historical preference tables
+for that session only. Do not persist temporary quota restrictions as global
+role assignments. Preferences do not establish transport, billing or effort
+support: if the packaged planner rejects a requested model, report that policy
+conflict separately and do not silently substitute or bypass its execution gates.
 
 Read [orchestration contract](references/orchestration.md) before constructing
 a run. The helper implements metadata discovery, route preflight, dependency
@@ -131,21 +145,20 @@ a model name or benchmark headline.
 | Focused bug fix | Claude Haiku 5.5, then Sonnet 5.5, then Opus 5.5 (no GPT option) | routine, then raise only if tests or ambiguity require it |
 | Polished writing | Claude Opus 5.5 (no GPT option) | reasoning, not automatic max |
 | Bulk transform | Deterministic software first; then an eligible light model such as Claude Haiku 5.5 | routine |
-| Image creation/editing | A real image-generation skill/tool with verified subscription inclusion | tool-managed; text models only plan or critique |
+| Image creation/editing | Codex built-in `image_gen` through `scripts/execute_codex_image.py` (D-121), driven by GPT-6 Astra at xhigh | tool-managed; text models only plan or critique |
 | Recent X discourse | Verified Grok CLI or current-host browsing, corroborated with primary sources | reasoning if controllable |
 
 The [model-release watch](references/model-release-watch.md) records the dated
 sources and shadow-effort limits behind this shortlist. Claude and Codex use
 the same task/acceptance standard but may have different eligible routes.
 `IMAGE_GENERATION` compiles to `kind=image`, never text-model `VISION`.
-The planner accepts a current-host `host-image` route only with exact account,
-interaction, entitlement, quota under 85 percent, disabled API fallback, a provider-enforced
-$0 hard cap and an atomic/idempotent host adapter. In-process `execute_image.py`
-claims once and rechecks before send; it has no default host or CLI and never
-settles or verifies output. See [orchestration](references/orchestration.md).
-The exposed `image_gen__imagegen` lacks that hard cap and request lookup, so
-`IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL` remains blocked. Do not fake an
-observation, substitute an API wrapper or call it under the $0 policy.
+D-121 (Simon, 2026-10-24): it runs on Codex's built-in `image_gen` under the
+D-74 usage gate only (ChatGPT login, verified account, fresh `codex` usage under
+85 percent, no reached limit). Run `python scripts/execute_codex_image.py
+--prompt-file <brief> --out <absolute .png>` (`--transparent` for alpha): one
+`codex exec`, PNG from the rollout, a receipt beside it, no retry. Exit 3 is a
+usage refusal; never switch to a paid image API. The D-32 `host-image` adapter
+stays optional. See [orchestration](references/orchestration.md).
 
 The source-dated [task-fit hypothesis](references/task-fit-policy.json) is
 deliberately **shadow-only**. For `PLAN_ARCHITECTURE`, `CODE_COMPLEX`,
@@ -154,8 +167,8 @@ only after all route-eligibility guards, preserves monetary and >80% quota
 priority, then emits `shadow_task_fit` with the policy digest, source URLs,
 active candidate and advisory alternative. It does **not** change `route` or
 authorize a worker. Expired, unmatched or unranked-winning evidence produces
-no advisory alternative. `IMAGE_GENERATION` explicitly requires a verified
-subscription-included image tool and must not be routed through text `VISION`.
+no advisory alternative. `IMAGE_GENERATION` uses an image tool (Codex
+`image_gen`, D-121) and must not be routed through text `VISION`.
 Public manufacturer/Artificial Analysis claims are hypotheses across different
 harnesses; direct X posts were inaccessible, so X contributes no rank. Promote
 each task profile only after the same skill bundle, task, tools and rubric are
@@ -377,29 +390,10 @@ The [generated legacy Orca routing table](references/legacy-routing.md) is histo
 
 ## Verification and references
 
-```text
-python -B "<skill>/scripts/test_runtime_collect.py"
-python -B "<skill>/scripts/test_run_state.py"
-python -B "<skill>/scripts/test_execute_orca.py"
-python -B "<skill>/scripts/test_model_registry.py"
-python -B "<skill>/scripts/test_orchestrate.py"
-python -B "<skill>/scripts/test_execute_codex_cli.py"
-python -B "<skill>/scripts/selftest.py"
-python -B "<skill>/scripts/sync_skill_table.py" --check
-# Process-denied preparation fixtures, from the skill's scripts directory:
-python -B -m unittest discover -s tests -p "test_prepare*.py"
-# Secret detection equivalence/latency; denies child processes and networking:
-python -B -I -S tests/test_ledger_scan.py
-```
-
-When testing an immutable bundle, also set `PYTHONDONTWRITEBYTECODE=1` for
-child Python processes and reverify its receipt afterward. `-B` on the parent
-command alone does not propagate to subprocesses. Plain Python invocation of
-legacy CLI entrypoints now blocks bytecode before their first local import;
-module imports by other callers still need the caller's own no-bytecode policy.
+See the [verification commands](references/orca-workflow.md#verification-commands).
 
 - [Orchestration schema and cost policy](references/orchestration.md)
-- [Model catalog map, 2026-10-18 refresh(`gemini-4-argon` 등록 · 레인 없음 D-105), D-101 레인 상태(GPT 는 `gpt-6-astra` @xhigh 만 · 철회 레인 5개 · A 클래스 `claude-haiku-5-5` 선두 · 코딩 opus(xhigh) → fable → sonnet D-106 · 인증서 대기)](references/model-catalog-map.md)
+- [Model catalog map, 2026-10-21 refresh(`gemini-4-argon` 등록 · 레인 없음 D-105), D-101 레인 상태(GPT 는 `gpt-6-astra` @xhigh 만 · 철회 레인 5개 · A 클래스 `claude-haiku-5-5` 선두 · 코딩 opus(xhigh) → fable → sonnet D-106 · 인증서 대기)](references/model-catalog-map.md)
 - [Guarded Orca workflow and preparation limits](references/orca-workflow.md)
 - [D-28 route decisions](references/d28-routing.md) · [Security artifact gate: D-101 Daybreak lane, D-102 gpt-6-astra fallback, rubric and fail-closed rules](references/security-artifact-gate.md)
 - [Astra effort transport cap](references/v2.2-astra-effort-cap.md)

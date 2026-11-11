@@ -126,6 +126,86 @@ class MainReleaseFenceTests(unittest.TestCase):
             if path.is_file() and HOLD.name in path.read_text(encoding="utf-8"))
         self.assertEqual(readers, [])
 
+    def test_dist_workflow_requires_protected_exact_backport_ref(self):
+        # A backport may advance dist without reverting main's other skills.
+        # Both content approvals and the exact-tree publisher stay unchanged.
+        import ast
+        text = (WORKFLOWS / "five-plugin-dist.yml").read_text(encoding="utf-8")
+        self.assertIn("  push:\n    branches: [main, release/vibe-223-backport]\n", text)
+        publish = text.split("\n  publish:\n", 1)[1]
+        condition = re.search(r"^    if: \$\{\{ (.+) \}\}$", publish, re.M).group(1)
+        expression = condition.replace("vars.SIMONK_DIST_PUBLISH", "enabled").replace(
+            "github.event_name", "event").replace("github.ref_protected", "protected").replace(
+            "github.ref", "ref").replace("&&", "and").replace("||", "or")
+        tree = ast.parse(expression, mode="eval").body
+
+        def evaluate(node, facts):
+            if isinstance(node, ast.Constant) and isinstance(node.value, str):
+                return node.value
+            if isinstance(node, ast.Name) and node.id in facts:
+                return facts[node.id]
+            if isinstance(node, ast.BoolOp) and isinstance(node.op, (ast.And, ast.Or)):
+                values = [evaluate(child, facts) for child in node.values]
+                return all(values) if isinstance(node.op, ast.And) else any(values)
+            if isinstance(node, ast.Compare) and len(node.ops) == 1:
+                left, right = evaluate(node.left, facts), evaluate(node.comparators[0], facts)
+                # GitHub compares strings without case; these facts are ASCII.
+                if isinstance(left, str) and isinstance(right, str):
+                    left, right = left.casefold(), right.casefold()
+                if isinstance(node.ops[0], ast.Eq):
+                    return left == right
+                if isinstance(node.ops[0], ast.NotEq):
+                    return left != right
+            self.fail("Unexpected publisher condition syntax")
+
+        for enabled, event, branch, protected, expected in (
+            ("true", "push", "main", False, True),
+            ("true", "push", "release/vibe-223-backport", True, True),
+            ("true", "workflow_dispatch", "release/vibe-223-backport", True, True),
+            ("true", "push", "release/vibe-223-backport", False, False),
+            ("true", "push", "release/other", True, False),
+            ("true", "push", "fix/vibe-orca-compat", True, False),
+            ("true", "pull_request", "main", True, False),
+            ("true", "pull_request", "release/vibe-223-backport", True, False),
+            ("false", "push", "main", True, False),
+            ("false", "push", "release/vibe-223-backport", True, False),
+            ("true", "workflow_dispatch", "Release/VIBE-223-BACKPORT", True, True),
+            ("true", "workflow_dispatch", "MAIN", False, True),
+        ):
+            with self.subTest(enabled=enabled, event=event, branch=branch, protected=protected):
+                self.assertEqual(evaluate(tree, dict(enabled=enabled, event=event,
+                    ref="refs/heads/" + branch, protected=protected)), expected)
+
+        # workflow_dispatch may target another branch/tag: execute the actual
+        # first-step PowerShell guard separately from the job expression.
+        guard = re.search(r"^      - name: Require exact publishing ref\n"
+                          r"        shell: pwsh\n        run: \|\n((?:          .+\n)+)", publish, re.M)
+        self.assertIsNotNone(guard, "Case-insensitive job equality needs an exact release-ref guard")
+        script = "\n".join(line[10:] for line in guard.group(1).splitlines())
+        shell = shutil.which("pwsh") or shutil.which("powershell")
+        self.assertIsNotNone(shell, "PowerShell is required to verify the Windows publisher guard")
+        for event, ref, protected, expected in (
+            ("workflow_dispatch", "refs/heads/release/vibe-223-backport", True, True),
+            ("push", "refs/heads/release/vibe-223-backport", True, True),
+            ("workflow_dispatch", "refs/heads/release/vibe-223-backport", False, False),
+            ("workflow_dispatch", "refs/heads/Release/VIBE-223-BACKPORT", True, False),
+            ("workflow_dispatch", "refs/heads/release/vibe-223-backporT", True, False),
+            ("workflow_dispatch", "refs/heads/release/other", True, False),
+            ("workflow_dispatch", "refs/tags/release/vibe-223-backport", True, False),
+            ("workflow_dispatch", "refs/tags/main", True, False),
+            ("workflow_dispatch", "refs/heads/main", False, True),
+            ("workflow_dispatch", "refs/heads/MAIN", False, True),
+            ("pull_request", "refs/pull/7/merge", True, False),
+            ("pull_request", "refs/heads/release/vibe-223-backport", True, False),
+        ):
+            with self.subTest(phase="composed-guard", event=event, ref=ref, protected=protected):
+                env = dict(os.environ, GITHUB_REF=ref, GITHUB_REF_PROTECTED=str(protected).lower())
+                result = subprocess.run([shell, "-NoProfile", "-NonInteractive", "-Command", script],
+                    env=env, text=True, encoding="utf-8", capture_output=True, timeout=15)
+                job = evaluate(tree, dict(enabled="true", event=event, ref=ref, protected=protected))
+                self.assertEqual(job and result.returncode == 0, expected, result.stderr)
+
+
     def test_no_workflow_creates_a_github_release(self):
         # Releases reach users as dist commits (1.<N>.0); a GitHub Release from main
         # would collide with that numbering.

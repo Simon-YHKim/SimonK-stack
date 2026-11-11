@@ -1,5 +1,55 @@
 # Changelog
 
+## 2.23.0 - 2026-11-11
+
+- Added dynamic discovery of every topic in the selected Orca build, selective guide retrieval and legacy-name deduplication. Routing covers GUI, environments, iOS/Android, Jira/Linear and plugin authoring as well as CLI/orchestration.
+- Every /vibe invocation now starts with the official non-forced update of existing unmodified Orca skills when needed, followed by a post-check and current catalog discovery. No application upgrade, missing-skill installation, worker/model call or force overwrite is implied.
+- Added an executable sync/discovery helper and offline contract tests. Guide loading, installation freshness and actual execution readiness remain distinct; existing provider/account/cost gates are unchanged.
+- Added receipt-bound discovery for Codex subset schema 2: canonical Core/Stack manifest replacements are re-derived from overlay-bound originals, with exact exclusions and normalized content digest checks. Schema-1, overlay and explicit-root behavior remain supported; candidate tests do not establish installed-host runtime readiness or grant new authority.
+- Subset discovery requires included/excluded member sizes to be JSON integers in both schemas; numerically equal floats and booleans fail closed.
+
+## 2.22.1 - 2026-11-11
+
+- Orca 계획 전에 선택한 실행기의 버전별 가이드와 실제 workspace를 확인하도록 진입 절차를 보강했다. 최신 worker 메시징·이벤트 기반 대기와 기존 vibe 어댑터의 지원 범위를 구분한다.
+- 모델 목록, 요청 effort, 실제 effort, 계정·과금 증거를 분리해 보고한다. 명령 지원을 인증 완료로 오인하거나 어댑터 부족을 Orca 기능 부재로 설명하지 않는다.
+- 현재 세션의 모델 선호는 과거 기본 선호보다 우선하지만, 일시적인 usage 제한은 스킬의 영구 역할 정책에 기록하지 않는다. 기존 실행·비용 게이트는 유지한다.
+- 설치된 스킬과 승인된 소스의 경로·버전을 비교하고 업데이트 후 바이트를 다시 확인하도록 명시했다. 신규 실행 어댑터나 모델 인증서를 구현한 변경은 아니다.
+
+## 2.21.1 - 2026-10-21
+
+- **레지스트리 주간 재확인 `2026-10-21.1`**(만료 2026-10-28 21:32:46 KST, task-fit 정책 `2026-10-21-shadow.1` 은 21:34:08 부터 같은 7일).
+  출처 49개(레지스트리 34·task-fit 전용 6·폐기/모델 목록 5·후보 확인 4)를 모델 호출 없이 다시 읽었다. 바뀐 제공사 사실은 없다.
+  - 사실 필드 267개(등록 모델 20개, 10-06 정의): 일치 267·불일치 0·확인불가 0. 10-12 부터 확인불가였던 `gpt-5.6-terra`·`gpt-5.6-luna`
+    장문 cached_input 은 OpenAI 가격 페이지의 Markdown 판 장문 표로 확인했다($0.40·$0.04).
+  - 관측만: OpenAI 12시간 프롬프트 캐시(10-20, 쓰기 = 입력 2.5배)로 가격표에 쓰기 기간이 둘이 됐다. 기본 `cache_write` 는 모델 페이지의
+    30분 값 그대로, 장문 구간은 두 기간을 한 칸에 담을 수 없어 `null` 그대로다. 미등록: Claude Mythos 5.1, xAI `grok-build-0.1`, Grok Voice 3.0.
+  - CLI: Codex 0.163.0·agy 1.4.4·Claude Code 2.1.305, 목록은 10-18 과 같다. `grok models` 가 "not authenticated" 를 보였다(목록은 같다).
+  - `model_watch.py scan --force`(상태 사본): 새 후보 1개는 고객 사례 글이라 출시가 아니다. 레인·우선순위·task-fit 순위는 그대로다.
+
+## 2.21.0 - 2026-10-21
+
+- **번들 밖 스킬도 찾는다.** 설치된 /vibe 는 후보 번들의 다섯 플러그인 루트만 기본으로 보므로, 개인 스킬(`~/.claude/skills`)과 따로 설치한
+  플러그인(HyperFrames·insane-search 등)이 카탈로그에 없었다. 새 `scripts/host_roots.py --host claude|codex` 가 split-home 1단계(관찰)를 맡는다.
+  - Claude: 사용자 스킬 루트, 그다음 settings `enabledPlugins` 에서 켜진 플러그인마다 `installed_plugins.json` 의 installPath `skills/`
+    (매니페스트가 밝힌 경로는 플러그인 안에 있을 때만). `--project DIR` 이면 프로젝트·로컬 설정과 그 프로젝트의 설치 기록도 읽는다.
+    Codex: `.agents/skills` · `.codex/skills` · `.codex/skills/.system`(기존 폴백 순서 그대로). `--candidate-first` 는 온전한 후보의 다섯 플러그인 루트를 앞에 둔다
+    (명시 루트는 후보 영수증 검사를 건너뛰므로 번들 검증기는 따로).
+  - 꺼진 플러그인·설치 기록 없음·경로 없음·애매한 기록은 이유와 함께 `skipped` 로 남고 추측하지 않는다. 캐시 버전과 claude.ai 동기화
+    플러그인은 풀지 않는다. 호스트 JSON 이 깨졌으면 종료 코드 2. 읽기만 하고 아무것도 저장하지 않는다(루트 목록 영속화 금지 유지).
+  - 이 PC 실측(2026-10-21, #190 뒤 HyperFrames 0.8.183): 루트 3개(사용자 스킬 + insane-search + HyperFrames), 인벤토리 complete·이슈 0,
+    카탈로그 176개 중 SimonK 밖 스킬 32개, 같은 이름 대안 0개.
+  - 매니페스트가 설치 루트 자체를 스킬로 밝히면(`"skills": "."`) 부모 폴더 스캔이 되므로 거부한다(`manifest_skill_root_outside_plugin`).
+  - 매니페스트가 스킬 폴더 하나를 가리키면 그 부모를 스캔하므로, 부모에 선언 안 된 스킬이 있으면 그 플러그인을 건너뛴다(`manifest_partial_skill_dir`).
+  - 플러그인 루트(기본 `skills/` 포함)와 그 안의 스킬 폴더가 링크로 설치 폴더 밖을 가리키면 그 플러그인을 건너뛴다
+    (`skills_root_outside_plugin`·`skill_link_outside_plugin`). 스킬 폴더 안 `SKILL.md` 파일 링크도 같이 본다. 꺼진 이웃 플러그인이 링크로 섞여 들어오지 않게 한다.
+  - 테스트 `test_host_roots.py` 18개(임시 홈만 사용), CI 단계 추가.
+
+## 2.20.1 - 2026-10-21
+
+- **D-117: gstack 런타임이 `~/.simonk/runtime` 으로 옮겨 갔다.** Gstack 출신 스킬 감지(`GSTACK_BIN`·`GSTACK_REFERENCE`)가
+  `.simonk/runtime/bin/` 과 `~/.simonk/state` 도 같은 것으로 본다. 옛 위치(`skills/gstack/bin/`·`~/.gstack`)는 이전 설치를 위해 그대로 잡는다.
+  실행별 격리(`run_state.py gstack-env`)는 런타임이 여전히 읽는 `GSTACK_*` 변수를 쓰므로 바뀌지 않았다. 테스트 1개 추가.
+
 ## 2.20.0 - 2026-10-18
 
 - **D-106: 단순 코딩은 Sonnet 5.5, 복잡한 코딩은 Opus 5.5 xhigh**(Simon 지시 "sonnet5.5는 간단한 코딩에 써야 하는거 아니야?

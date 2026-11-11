@@ -143,8 +143,8 @@ Check planning, complex/simple coding, writing, image generation and GUI/Bot
 boundaries separately. Verify current account, subscription inclusion,
 overage/credit fallback OFF, quota, exact transport model and effective effort;
 unknown stays blocked. Do not infer subscription cost from API token prices.
-Image generation still needs a verified subscription-included image tool, not
-text `VISION`; Grok Bot remains GUI-only and provider-managed for model/effort.
+Image generation uses the Codex image lane (`image_gen`, D-121), not text
+`VISION`; Grok Bot remains GUI-only and provider-managed for model/effort.
 
 When evidence supports a change, update the central registry/task-fit policy,
 tests and necessary docs in a focused branch; build an immutable candidate,
