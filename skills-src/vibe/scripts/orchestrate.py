@@ -431,6 +431,40 @@ def discover_skills(roots, exclude_roots=(), host_skills=None):
     return skill_inventory(roots, exclude_roots, host_skills)["catalog"]
 
 
+def _codex_discovery_manifest(owner, original):
+    """Re-derive the public D-88 schema-2 manifest projection, offline."""
+    notices = {
+        "SimonKCore": "careful 안전 훅은 Windows 전용이라 다른 OS에서는 Bash·PowerShell 명령을 "
+                      "일부러 모두 막는다.",
+        "SimonKStack": "레거시 simonk-stack 0.1.0에서 업데이트했다면 나머지 넷을 따로 설치해야 "
+                       "market·design으로 옮긴 스킬 10개가 돌아온다: "
+                       "claude plugin install simonk-core@simonk-stack · "
+                       "claude plugin install simonk-market@simonk-stack · "
+                       "claude plugin install simonk-design@simonk-stack · "
+                       "claude plugin install simonk-aihub@simonk-stack. "
+                       "freeze·guard·investigate 안전 훅은 Windows 전용이라 다른 OS에서는 "
+                       "Edit·Write·Bash를 일부러 모두 막는다.",
+    }
+    missing = {"SimonKCore": "careful·unfreeze", "SimonKStack": "freeze·guard·investigate"}
+    document = json.loads(original.decode("utf-8"))
+    encode = lambda doc: (json.dumps(doc, ensure_ascii=False, sort_keys=True,
+                                    indent=2, allow_nan=False) + "\n").encode("utf-8")
+    interface = document.get("interface") if isinstance(document, dict) else None
+    description = document.get("description") if isinstance(document, dict) else None
+    suffix = ". " + notices[owner]
+    # Canonical bytes also reject duplicate keys, non-finite values and any
+    # unreceipted text rewrite. Do not trust the replacement's own digest.
+    if (not isinstance(interface, dict) or not isinstance(description, str)
+            or not description.endswith(suffix) or not description[:-len(suffix)].strip()
+            or interface.get("shortDescription") != description
+            or interface.get("longDescription") != description or encode(document) != original):
+        raise ValueError("Codex discovery manifest projection differs")
+    text = description[:-len(suffix)] + ". Codex판에는 Claude Code 전용인 " + missing[owner] + " 안전 스킬이 없다."
+    document["description"] = text
+    interface["shortDescription"] = interface["longDescription"] = text
+    return encode(document)
+
+
 def candidate_inventory(exclude_roots=(), host_skills=None):
     """Bind metadata to an intact local bundle, not a split installed cache.
 
@@ -513,6 +547,7 @@ def candidate_inventory(exclude_roots=(), host_skills=None):
     # to its original bundle bytes and exact projection before inventory.
     overlay = None
     overlay_bytes = None
+    discovery_generated = {}
     overlay_path = local("overlay.json")
     if overlay_path.exists():
         overlay_bytes = raw("overlay.json", 8 * 1024 * 1024)
@@ -565,14 +600,20 @@ def candidate_inventory(exclude_roots=(), host_skills=None):
                     or not re.fullmatch(r"[a-f0-9]{64}", spec["sha256"])
                     or type(spec["size"]) is not int or not 0 <= spec["size"] <= MAX_SKILL_BYTES):
                 raise ValueError("Invalid Codex discovery member")
-            data = raw(path, MAX_SKILL_BYTES)
-            if len(data) != spec["size"] or hashlib.sha256(data).hexdigest() != spec["sha256"]:
-                raise ValueError("Codex discovery member drift")
+            discovery_generated[path] = spec
     # The D-29 Codex subset omits Claude-only safety controls. Accept those
     # omissions only when the exact source-overlay membership is receipted;
     # an arbitrary missing skill must never become a successful discovery.
+    def same_members(actual, expected):
+        # Python equality accepts 1.0 == 1 == True. Keep JSON size types
+        # strict before exact row equality binds every other member field.
+        return (isinstance(actual, list)
+                and all(isinstance(row, dict) and type(row.get("size")) is int for row in actual)
+                and actual == expected)
+
     subset = None
     subset_bytes = None
+    subset_v2 = False
     excluded_skills = (("SimonKCore", "careful"), ("SimonKStack", "freeze"),
                        ("SimonKStack", "guard"), ("SimonKStack", "investigate"),
                        ("SimonKCore", "unfreeze"))
@@ -583,6 +624,10 @@ def candidate_inventory(exclude_roots=(), host_skills=None):
             raise ValueError("Codex subset requires a verified overlay")
         subset_bytes = raw("subset.json", 8 * 1024 * 1024)
         subset = decode(subset_bytes)
+        if (not isinstance(subset, dict) or type(subset.get("schema_version")) is not int
+                or subset["schema_version"] not in (1, 2)):
+            raise ValueError("Invalid Codex discovery subset schema")
+        subset_v2 = subset["schema_version"] == 2
         prefixes = (tuple(f"plugins/{owner}/skills/{name}/" for owner, name in excluded_skills)
                     + tuple(f"plugins/{owner}/.simonk-runtime/"
                             for owner in ("SimonKCore", "SimonKStack")))
@@ -590,6 +635,9 @@ def candidate_inventory(exclude_roots=(), host_skills=None):
                           for owner, name in excluded_skills)
                     + tuple(f"plugins/{owner}/.simonk-runtime/safety_runtime.py"
                             for owner in ("SimonKCore", "SimonKStack")))
+        if subset_v2:
+            prefixes += tuple(f"plugins/{owner}/.claude-plugin/" for owner in owners)
+            required += tuple(f"plugins/{owner}/.claude-plugin/plugin.json" for owner in owners)
         if (any(receipt["owners"].get(name) != owner for owner, name in excluded_skills)
                 or any(path not in members for path in required)
                 or any(local(prefix[:-1]).exists() for prefix in prefixes)):
@@ -602,27 +650,85 @@ def candidate_inventory(exclude_roots=(), host_skills=None):
             specs[path] = {"path": path, "sha256": hashlib.sha256(data).hexdigest(),
                            "size": len(data)}
         omitted = {path for path in specs if path.startswith(prefixes)}
-        included = [specs[path] for path in sorted(specs.keys() - omitted)]
         excluded = [specs[path] for path in sorted(omitted)]
         expected_keys = {"schema_version", "scope", "decision_ref", "source_overlay_digest",
                          "excluded_skills", "included_members", "excluded_members",
                          "host_compatibility_verified", "installation_ready", "limitations"}
+        if subset_v2:
+            expected_keys |= {"replaced_members", "content_digest"}
+            replacements = subset.get("replaced_members")
+            replacement_owners = ("SimonKCore", "SimonKStack")
+            replacement_keys = {"path", "original_base64", "original_sha256", "original_size", "sha256", "size"}
+            if (not isinstance(replacements, list) or len(replacements) != 2
+                    or any(not isinstance(row, dict) or set(row) != replacement_keys for row in replacements)
+                    or [row["path"] for row in replacements]
+                    != [f"plugins/{owner}/.codex-plugin/plugin.json" for owner in replacement_owners]):
+                raise ValueError("Codex discovery manifest replacement set differs")
+            for owner, row in zip(replacement_owners, replacements):
+                path = row["path"]
+                encoded = row["original_base64"]
+                if (not isinstance(encoded, str)
+                        or any(type(row[key]) is not int for key in ("original_size", "size"))):
+                    raise ValueError("Invalid Codex discovery manifest provenance")
+                original = base64.b64decode(encoded, validate=True)
+                original_spec = {"size": len(original), "sha256": hashlib.sha256(original).hexdigest()}
+                if (base64.b64encode(original).decode("ascii") != encoded
+                        or original_spec != overlay["generated"][path]
+                        or row["original_size"] != original_spec["size"]
+                        or row["original_sha256"] != original_spec["sha256"]):
+                    raise ValueError("Codex discovery manifest provenance differs")
+                projected = _codex_discovery_manifest(owner, original)
+                projected_spec = {"size": len(projected), "sha256": hashlib.sha256(projected).hexdigest()}
+                if (row["size"] != projected_spec["size"] or row["sha256"] != projected_spec["sha256"]
+                        or raw(path, MAX_SKILL_BYTES) != projected):
+                    raise ValueError("Codex discovery manifest replacement differs")
+                specs[path] = {"path": path, **projected_spec}
+                discovery_generated[path] = projected_spec
+        included = [specs[path] for path in sorted(specs.keys() - omitted)]
         if (not isinstance(subset, dict) or set(subset) != expected_keys
-                or type(subset["schema_version"]) is not int or subset["schema_version"] != 1
                 or subset["scope"] != "five-plugin-codex-general-skills-only-v2"
                 or subset["decision_ref"] != "D-29"
                 or subset["source_overlay_digest"] != hashlib.sha256(overlay_bytes).hexdigest()
                 or subset["excluded_skills"]
                 != [f"simonk-{owner.removeprefix('SimonK').lower()}:{name}"
                     for owner, name in excluded_skills]
-                or subset["included_members"] != included
-                or subset["excluded_members"] != excluded
+                or not same_members(subset["included_members"], included)
+                or not same_members(subset["excluded_members"], excluded)
                 or subset["host_compatibility_verified"] is not False
                 or subset["installation_ready"] is not False
                 or not isinstance(subset["limitations"], list)
                 or any(not isinstance(item, str) for item in subset["limitations"])):
             raise ValueError("Invalid Codex discovery subset")
         excluded_names = {name for _, name in excluded_skills}
+        if subset_v2:
+            normalized = []
+            manifest_paths = {f"plugins/{owner}/.codex-plugin/plugin.json" for owner in owners}
+            for row in included:
+                path, sha256 = row["path"], row["sha256"]
+                if path in ("bundle.json", "overlay.json"):
+                    continue
+                if not path.startswith("plugins/"):
+                    raise ValueError("Unexpected Codex discovery content member")
+                if path in manifest_paths:
+                    data = raw(path, MAX_SKILL_BYTES)
+                    document = decode(data)
+                    if (hashlib.sha256(data).hexdigest() != sha256
+                            or not isinstance(document, dict) or not isinstance(document.get("version"), str)):
+                        raise ValueError("Invalid Codex discovery content manifest")
+                    document["version"] = ""
+                    sha256 = hashlib.sha256((json.dumps(document, ensure_ascii=False, sort_keys=True,
+                        indent=2, allow_nan=False) + "\n").encode("utf-8")).hexdigest()
+                normalized.append({"path": path, "sha256": sha256})
+            content = {"scope": "five-plugin-codex-subset-content-v1",
+                       "excluded_skills": subset["excluded_skills"], "files": normalized}
+            digest = hashlib.sha256((json.dumps(content, ensure_ascii=False, sort_keys=True,
+                indent=2, allow_nan=False) + "\n").encode("utf-8")).hexdigest()
+            if subset["content_digest"] != digest:
+                raise ValueError("Codex discovery content digest differs")
+    for path, spec in discovery_generated.items():
+        data = raw(path, MAX_SKILL_BYTES)
+        if len(data) != spec["size"] or hashlib.sha256(data).hexdigest() != spec["sha256"]:
+            raise ValueError("Codex discovery member drift")
     expected_skills, roots = {}, []
     for name, owner in receipt["owners"].items():
         if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", name) or owner not in owners:
@@ -635,11 +741,16 @@ def candidate_inventory(exclude_roots=(), host_skills=None):
         expected_skills[str(local(member))] = (name, expected_sha)
     for owner in owners:
         names = {n for n, o in receipt["owners"].items() if o == owner}
-        manifest = decode(checked(f"plugins/{owner}/.claude-plugin/plugin.json"))
-        if (not isinstance(manifest, dict) or not isinstance(manifest.get("skills"), list)
+        if subset_v2:
+            manifest = decode(raw(f"plugins/{owner}/.codex-plugin/plugin.json", MAX_SKILL_BYTES))
+            if not isinstance(manifest, dict) or manifest.get("skills") != "./skills/":
+                raise ValueError("Codex manifest skill root mismatch")
+        else:
+            manifest = decode(checked(f"plugins/{owner}/.claude-plugin/plugin.json"))
+            if (not isinstance(manifest, dict) or not isinstance(manifest.get("skills"), list)
                 or any(not isinstance(s, str) for s in manifest["skills"])
                 or sorted(manifest["skills"]) != sorted(f"./skills/{n}/" for n in names)):
-            raise ValueError("Candidate manifest membership mismatch")
+                raise ValueError("Candidate manifest membership mismatch")
         root = local(f"plugins/{owner}/skills")
         children = list(islice(root.iterdir(), MAX_SKILL_ENTRIES + 1))
         if len(children) > MAX_SKILL_ENTRIES or {p.name for p in children} != names - excluded_names:

@@ -5,6 +5,8 @@
 - Added dynamic discovery of every topic in the selected Orca build, selective guide retrieval and legacy-name deduplication. Routing covers GUI, environments, iOS/Android, Jira/Linear and plugin authoring as well as CLI/orchestration.
 - Every /vibe invocation now starts with the official non-forced update of existing unmodified Orca skills when needed, followed by a post-check and current catalog discovery. No application upgrade, missing-skill installation, worker/model call or force overwrite is implied.
 - Added an executable sync/discovery helper and offline contract tests. Guide loading, installation freshness and actual execution readiness remain distinct; existing provider/account/cost gates are unchanged.
+- Added receipt-bound discovery for Codex subset schema 2: canonical Core/Stack manifest replacements are re-derived from overlay-bound originals, with exact exclusions and normalized content digest checks. Schema-1, overlay and explicit-root behavior remain supported; candidate tests do not establish installed-host runtime readiness or grant new authority.
+- Subset discovery requires included/excluded member sizes to be JSON integers in both schemas; numerically equal floats and booleans fail closed.
 
 ## 2.22.1 - 2026-11-11
 
