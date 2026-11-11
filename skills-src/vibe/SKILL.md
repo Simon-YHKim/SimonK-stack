@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan, sends image generation to Codex image_gen within included usage, and reports blocked coding routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.23.0
+version: 2.23.1
 author: simon-stack
 ---
 
@@ -230,12 +230,18 @@ reuse verified results, limit parallelism and cap retries before dropping
 quality. Never remove required verification to reduce cost.
 
 Before a Codex worker start, run `python -B scripts/check_tooling.py --local-codex`.
-It compares the PATH-selected CLI with its adjacent npm package without npm
-registry or Orca access. A newer package and older shim blocks the lane even
-offline; inspect the exact executable. Exit 0 means only "not older than the
-adjacent stable package," not that the binary or subscription works. Exit 1
-means stale, exit 2 unknown; both hold the worker. The full tooling report
-queries npm/Orca and cannot replace this local G11 preflight.
+It checks the PATH-selected CLI against its adjacent stable npm package, or
+recognizes the default Windows x64 standalone layout without registry/Orca access.
+The standalone branch discovers metadata before execution, locks the image,
+metadata and path components against writes/replacement, then verifies cached
+OS Authenticode trust and the OpenAI signer before one exact `--version` call.
+Rejected layout/signature or changes detected before invocation request no
+version process; a failed version call remains unknown. Exit 0 proves
+only npm non-staleness or that local signed standalone identity/version; it does
+not prove latest release, fresh revocation, whole-payload integrity, account,
+subscription or model availability. Exit 1 means stale and exit 2 unknown; both
+hold the worker. Unsupported standalone layouts/runtimes stay unknown. Legacy npm version probing
+is unchanged. The full report queries npm/Orca and cannot replace local G11.
 
 The full Orca skills report stores snapshots in external user state
 (`LOCALAPPDATA/SimonKStack/vibe` on Windows), never the receipt-bound skill.

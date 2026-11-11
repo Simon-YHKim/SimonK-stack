@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.23.1 - 2026-11-12
+
+- Recognize the default Windows x64 Codex standalone using bounded metadata and cached Authenticode signer trust. Discover before execution and retain Windows read-only sharing handles on the image, metadata and path components through the exact version call; rejected layout/signature or changes detected before invocation stay unknown without a version process.
+- Preserve npm stale/unknown behavior, add public-entry sequencing and file-lifetime regressions, and make the junction fixture compatible with Python 3.11. Local identity/version does not establish latest release, fresh revocation, whole-payload integrity or model/subscription readiness.
+
 ## 2.23.0 - 2026-11-11
 
 - Added dynamic discovery of every topic in the selected Orca build, selective guide retrieval and legacy-name deduplication. Routing covers GUI, environments, iOS/Android, Jira/Linear and plugin authoring as well as CLI/orchestration.

@@ -13,7 +13,7 @@
 
 무엇을 보는가:
     - codex CLI      설치본 vs npm 최신
-    - --local-codex   PATH 실행본 vs 인접 npm 패키지 (네트워크·Orca 없음)
+    - --local-codex   PATH 실행본 vs npm 또는 서명 검증된 Windows standalone (네트워크·Orca 없음)
     - orca CLI       설치본 (+ 있으면 최신)
     - orca skills    목록 스냅샷 대비 추가/삭제/설명 변경
     - claude/agy/grok  버전 (있으면)
@@ -216,16 +216,246 @@ def _local_codex_package_version():
     return None
 
 
+def _windows_signed_publisher(path, handle=None):
+    """Verify Authenticode using cached trust only; never fetch certificates/CRLs."""
+    import ctypes as c
+    from ctypes import wintypes as w
+
+    class Guid(c.Structure):
+        _fields_ = [("d1", w.DWORD), ("d2", w.WORD), ("d3", w.WORD), ("d4", c.c_ubyte * 8)]
+
+    class File(c.Structure):
+        _fields_ = [("size", w.DWORD), ("path", w.LPCWSTR), ("handle", w.HANDLE), ("subject", c.c_void_p)]
+
+    class Trust(c.Structure):
+        _fields_ = [("size", w.DWORD), ("callback", c.c_void_p), ("client", c.c_void_p),
+                    ("ui", w.DWORD), ("revocation", w.DWORD), ("choice", w.DWORD),
+                    ("file", c.POINTER(File)), ("action", w.DWORD), ("state", w.HANDLE),
+                    ("url", w.LPCWSTR), ("flags", w.DWORD), ("context", w.DWORD),
+                    ("signature", c.c_void_p)]
+
+    # Only the documented leading fields are read from provider-owned memory.
+    class Certificate(c.Structure):
+        _fields_ = [("size", w.DWORD), ("certificate", c.c_void_p)]
+
+    class Signer(c.Structure):
+        _fields_ = [("size", w.DWORD), ("time", w.FILETIME), ("count", w.DWORD),
+                    ("certificates", c.POINTER(Certificate))]
+
+    trust_api = c.WinDLL("wintrust", use_last_error=True, winmode=0x800)
+    crypt_api = c.WinDLL("crypt32", use_last_error=True, winmode=0x800)
+    verify = trust_api.WinVerifyTrust
+    verify.argtypes = [w.HWND, c.POINTER(Guid), c.POINTER(Trust)]
+    verify.restype = w.LONG
+    provider = trust_api.WTHelperProvDataFromStateData
+    provider.argtypes, provider.restype = [w.HANDLE], c.c_void_p
+    signer = trust_api.WTHelperGetProvSignerFromChain
+    signer.argtypes, signer.restype = [c.c_void_p, w.DWORD, w.BOOL, w.DWORD], c.POINTER(Signer)
+    name = crypt_api.CertGetNameStringW
+    name.argtypes = [c.c_void_p, w.DWORD, w.DWORD, c.c_void_p, w.LPWSTR, w.DWORD]
+    name.restype = w.DWORD
+    action = Guid(0x00AAC56B, 0xCD44, 0x11D0, (c.c_ubyte * 8)(0x8C, 0xC2, 0, 0xC0, 0x4F, 0xC2, 0x95, 0xEE))
+    file = File(c.sizeof(File), path, handle, None)
+    # WTD_UI_NONE, FILE, VERIFY; CACHE_ONLY_URL_RETRIEVAL | REVOCATION_CHECK_NONE.
+    data = Trust(c.sizeof(Trust), None, None, 2, 0, 1, c.pointer(file), 1, None, None, 0x1010, 0, None)
+    try:
+        if verify(None, c.byref(action), c.byref(data)) != 0:
+            return None
+        info = provider(data.state)
+        first = signer(info, 0, False, 0) if info else None
+        if not first or signer(info, 1, False, 0) or not first.contents.count:
+            return None
+        cert = first.contents.certificates[0].certificate
+        # CERT_NAME_ATTR_TYPE / organizationName: bind identity to the verified signer.
+        oid = c.create_string_buffer(b"2.5.4.10")
+        count = name(cert, 3, 0, c.cast(oid, c.c_void_p), None, 0)
+        if not 1 < count <= 256:
+            return None
+        value = c.create_unicode_buffer(count)
+        return value.value if name(cert, 3, 0, c.cast(oid, c.c_void_p), value, count) == count else None
+    finally:
+        data.action = 2  # WTD_STATEACTION_CLOSE, even when verification failed.
+        verify(None, c.byref(action), c.byref(data))
+
+
+def _standalone_entrypoint():
+    """Classify the default visible path without executing it, even if broken."""
+    if sys.platform != "win32":
+        return None
+    shim = shutil.which("codex")
+    app = os.environ.get("LOCALAPPDATA", "")
+    if not shim or not os.path.isabs(app):
+        return None
+    visible = os.path.join(app, "Programs", "OpenAI", "Codex", "bin", "codex.exe")
+    return shim if os.path.normcase(os.path.abspath(shim)) == os.path.normcase(visible) else None
+
+
+def _standalone_layout(shim):
+    """Read bounded metadata/selection; its version is not an executed version."""
+    import platform
+    if platform.machine().lower() not in ("amd64", "x86_64"):
+        return None
+    home = os.environ.get("CODEX_HOME") or os.path.join(os.path.expanduser("~"), ".codex")
+    if not os.path.isabs(home):
+        return None
+    if os.path.lexists(os.path.join(os.path.dirname(shim), "node_modules", "@openai", "codex", "package.json")):
+        return None
+    same = lambda a, b: os.path.normcase(a) == os.path.normcase(b)
+    root = os.path.join(os.path.abspath(home), "packages", "standalone")
+    current = os.path.join(root, "current")
+    try:
+        if not os.path.isjunction(current) or not os.path.isjunction(os.path.dirname(shim)):
+            return None
+        release = os.path.realpath(current)
+        target = "x86_64-pc-windows-msvc"
+        match = re.fullmatch(r"(\d+\.\d+\.\d+)-" + re.escape(target), os.path.basename(release))
+        if not match or not same(os.path.dirname(release), os.path.join(root, "releases")):
+            return None
+        installed = match.group(1)
+        exe = os.path.join(release, "bin", "codex.exe")
+        if not same(os.path.realpath(shim), exe):
+            return None
+        package = os.path.join(release, "codex-package.json")
+        if os.path.islink(package) or not 0 < os.path.getsize(package) <= 65536:
+            return None
+        with open(package, "rb") as stream:
+            raw = stream.read(65537)
+        def unique(pairs):
+            result = {}
+            for key, value in pairs:
+                if key in result:
+                    raise ValueError("duplicate package field")
+                result[key] = value
+            return result
+        doc = json.loads(raw, object_pairs_hook=unique)
+        expected = {"layoutVersion":1, "version":installed, "target":target, "variant":"codex",
+                    "entrypoint":"bin/codex.exe", "execServer":"bin/codex-exec-server.exe",
+                    "resourcesDir":"codex-resources", "pathDir":"codex-path"}
+        if doc != expected or type(doc.get("layoutVersion")) is not int:
+            return None
+        required = ("bin/codex.exe", "bin/codex-code-mode-host.exe", "bin/codex-exec-server.exe",
+                    "codex-path/rg.exe", "codex-resources/codex-command-runner.exe",
+                    "codex-resources/codex-windows-sandbox-setup.exe")
+        for name in required:
+            file = os.path.join(release, *name.split("/"))
+            if not os.path.isfile(file) or not os.path.getsize(file) or not same(os.path.realpath(file), file):
+                return None
+        return dict(shim=shim, exe=exe, package=package, current=current,
+                    version=installed, target=target, raw=raw)
+    except (OSError, ValueError, TypeError, AttributeError):
+        return None
+
+
+@contextlib.contextmanager
+def _locked_standalone_files(layout):
+    """Keep the image, metadata and path components non-writable/non-renamable.
+
+    FILE_SHARE_READ excludes write/delete opens. OPEN_REPARSE_POINT locks the
+    selected junction itself. Parents are locked root-first, so a path cannot
+    be redirected between handle-bound signature verification and CreateProcess.
+    Existing incompatible handles or non-local/oversized paths fail closed.
+    """
+    import ctypes as c
+    from ctypes import wintypes as w
+    api = c.WinDLL("kernel32", use_last_error=True, winmode=0x800)
+    create = api.CreateFileW
+    create.argtypes = [w.LPCWSTR, w.DWORD, w.DWORD, c.c_void_p, w.DWORD, w.DWORD, w.HANDLE]
+    create.restype = w.HANDLE
+    final_name = api.GetFinalPathNameByHandleW
+    final_name.argtypes, final_name.restype = [w.HANDLE, w.LPWSTR, w.DWORD, w.DWORD], w.DWORD
+    close = api.CloseHandle
+    close.argtypes, close.restype = [w.HANDLE], w.BOOL
+    directories = []
+    for path in (os.path.dirname(layout["exe"]), layout["current"], os.path.dirname(layout["shim"])):
+        drive, tail = os.path.splitdrive(path)
+        if not re.fullmatch(r"[A-Za-z]:", drive) or not tail.startswith(os.sep):
+            raise OSError("standalone requires a local absolute drive path")
+        parents = []
+        while True:
+            parents.append(path)
+            if len(parents) > 64:
+                raise OSError("standalone path depth budget")
+            parent = os.path.dirname(path)
+            if parent == path:
+                break
+            path = parent
+        for path in reversed(parents):
+            if os.path.normcase(path) not in [os.path.normcase(p) for p in directories]:
+                directories.append(path)
+    if len(directories) > 64:
+        raise OSError("standalone path depth budget")
+    handles = []
+    try:
+        for path, directory in [(p, True) for p in directories] + [(layout["exe"], False), (layout["package"], False)]:
+            flags = 0x02200000 if directory else 0x00200000  # BACKUP_SEMANTICS | OPEN_REPARSE_POINT
+            handle = create(path, 0x80 if directory else 0x80000000, 1, None, 3, flags, None)
+            if handle == c.c_void_p(-1).value:
+                raise c.WinError(c.get_last_error())
+            handles.append(handle)
+            buffer = c.create_unicode_buffer(32768)
+            length = final_name(handle, buffer, len(buffer), 0)
+            actual = buffer.value.removeprefix("\\\\?\\")
+            if not 0 < length < len(buffer) or os.path.normcase(actual) != os.path.normcase(path):
+                raise OSError("standalone locked path identity mismatch")
+        yield handles[-2]  # The same image handle is passed to WinVerifyTrust.
+    finally:
+        for handle in reversed(handles):
+            close(handle)
+
+
+def _local_codex_standalone(shim):
+    """Prove only local signed image identity/version, not latest or model access."""
+    layout = _standalone_layout(shim)
+    if not layout:
+        return None
+    exe = layout["exe"]
+    def digest():
+        if not 0 < os.path.getsize(exe) <= 512 * 1024 * 1024:
+            raise ValueError("entrypoint byte budget")
+        value, total = hashlib.sha256(), 0
+        with open(exe, "rb") as stream:
+            for block in iter(lambda: stream.read(1024 * 1024), b""):
+                total += len(block)
+                if total > 512 * 1024 * 1024:
+                    raise ValueError("entrypoint byte budget")
+                value.update(block)
+        return value.hexdigest()
+    try:
+        with _locked_standalone_files(layout) as handle:
+            if _standalone_entrypoint() != shim or _standalone_layout(shim) != layout:
+                return None
+            before = digest()
+            publisher = _windows_signed_publisher(exe, handle)
+            if (publisher != "OpenAI OpCo, LLC" or digest() != before
+                    or _standalone_entrypoint() != shim or _standalone_layout(shim) != layout):
+                return None
+            rc, version, _ = _run([exe, "--version"])
+            if (rc != 0 or version != "codex-cli " + layout["version"] or digest() != before
+                    or _standalone_entrypoint() != shim or _standalone_layout(shim) != layout):
+                return None
+            return {"version":layout["version"], "target":layout["target"], "publisher":publisher,
+                    "entrypointSha256":before, "trust":"Authenticode-offline-cache-only",
+                    "latestEstablished":False, "revocationFreshnessEstablished":False}
+    except (OSError, ValueError, TypeError, AttributeError):
+        return None
+
+
 def check_codex_local():
-    """Detect a stale PATH shim without npm registry or Orca access."""
-    installed, _ = _version(["codex", "--version"])
+    """Check npm staleness or signed local standalone identity; never claim latest."""
     local_package = _local_codex_package_version()
-    comparison = _cmp(installed, local_package)
+    shim = _standalone_entrypoint()
+    standalone = _local_codex_standalone(shim) if shim else None
+    if shim:
+        installed = standalone["version"] if standalone else None
+    else:
+        installed, _ = _version(["codex", "--version"])
+    local = local_package or (standalone["version"] if standalone else None)
+    comparison = _cmp(installed, local)
     state = ("뒤처짐" if comparison is not None and comparison < 0 else
              "로컬 이상" if comparison is not None else
              "설치본만 확인" if installed else UNKNOWN)
     return {"tool": "codex", "installed": installed,
-            "local_package": local_package, "state": state}
+            "local_package": local_package, "local_standalone": standalone, "state": state}
 
 
 def check_clis():
@@ -457,7 +687,7 @@ if __name__ == "__main__":
     args = sys.argv[1:]
     if args in (["--help"], ["-h"]):
         print("Usage: check_tooling.py [--local-codex | --ack-skills DIGEST | --migrate-snapshot FILE | --json | --help]")
-        print("  --local-codex  Local Codex PATH/package check; no registry or Orca access")
+        print("  --local-codex  Local Codex npm/signed-standalone check; no registry or Orca access")
         print("  --ack-skills DIGEST  Acknowledge only the reviewed pending state")
         print("  --migrate-snapshot FILE  Copy one legacy snapshot to external user state; never overwrite")
         print("  --json         Full report as JSON (queries registry and Orca)")
