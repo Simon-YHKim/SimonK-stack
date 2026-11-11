@@ -28,6 +28,10 @@ class CodexPathChecks(unittest.TestCase):
         spec = importlib.util.spec_from_file_location("check_tooling", SCRIPT)
         self.module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.module)
+        # These legacy npm/snapshot cases must not discover the host's real standalone.
+        standalone = mock.patch.object(self.module, "_standalone_entrypoint", return_value=None)
+        standalone.start()
+        self.addCleanup(standalone.stop)
 
     def test_help_does_not_probe_orca_registry_or_write_snapshot(self):
         for flag in ("--help", "-h"):
@@ -482,6 +486,239 @@ with module._snapshot_lock(sys.argv[2]):
             self.assertFalse((target_dir / "orca-skills.json").exists())
             self.assertEqual(list(target_dir.glob(".orca-skills-*")), [])
 
+
+
+class StandaloneCodexChecks(unittest.TestCase):
+    """Default Windows official-package identity; no PATH/env installation changes."""
+    def setUp(self):
+        spec = importlib.util.spec_from_file_location("standalone_check_tooling", SCRIPT)
+        self.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.module)
+
+    @contextlib.contextmanager
+    def installation(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            app = root / "app"
+            home = root / "codex-home"
+            standalone = home / "packages" / "standalone"
+            release = standalone / "releases" / "0.167.1-x86_64-pc-windows-msvc"
+            visible = app / "Programs" / "OpenAI" / "Codex" / "bin" / "codex.exe"
+            current = standalone / "current"
+            metadata = {"layoutVersion": 1, "version": "0.167.1",
+                "target": "x86_64-pc-windows-msvc", "variant": "codex",
+                "entrypoint": "bin/codex.exe", "execServer": "bin/codex-exec-server.exe",
+                "resourcesDir": "codex-resources", "pathDir": "codex-path"}
+            for name in ("bin/codex.exe", "bin/codex-code-mode-host.exe", "bin/codex-exec-server.exe",
+                         "codex-path/rg.exe", "codex-resources/codex-command-runner.exe",
+                         "codex-resources/codex-windows-sandbox-setup.exe"):
+                file = release / name
+                file.parent.mkdir(parents=True, exist_ok=True)
+                file.write_bytes(b"fixture, not an official executable")
+            package = release / "codex-package.json"
+            package.write_text(json.dumps(metadata), encoding="utf-8")
+            original_realpath = os.path.realpath
+            def realpath(value, *args, **kwargs):
+                p = Path(value)
+                if p == visible:
+                    return str(release / "bin" / "codex.exe")
+                if p == current or current in p.parents:
+                    return str(release / p.relative_to(current))
+                return original_realpath(value, *args, **kwargs)
+            with mock.patch.object(self.module.sys, "platform", "win32"), \
+                 mock.patch.dict(os.environ, {"LOCALAPPDATA":str(app), "CODEX_HOME":str(home)}), \
+                 mock.patch.object(self.module.shutil, "which", return_value=str(visible)), \
+                 mock.patch.object(self.module.os.path, "realpath", side_effect=realpath), \
+                 mock.patch.object(self.module.os.path, "isjunction", side_effect=lambda p: Path(p) in (current, visible.parent), create=True), \
+                 mock.patch.object(self.module, "_locked_standalone_files", create=True, side_effect=lambda layout: contextlib.nullcontext(None)), \
+                 mock.patch.object(self.module, "_version", return_value=("0.167.1", "codex-cli 0.167.1")), \
+                 mock.patch.object(self.module, "_run", return_value=(0,"codex-cli 0.167.1","")), \
+                 mock.patch.object(self.module, "_windows_signed_publisher", create=True, return_value="OpenAI OpCo, LLC") as trust:
+                yield release, visible, package, metadata, trust
+
+    def test_genuine_layout_signature_version_and_active_selection_accept(self):
+        with self.installation() as (release, visible, package, metadata, trust):
+            row = self.module.check_codex_local()
+        self.assertEqual(row["state"], "로컬 이상")
+        self.assertIsNone(row["local_package"])
+        self.assertEqual(row["local_standalone"]["version"], "0.167.1")
+        self.assertEqual(row["local_standalone"]["publisher"], "OpenAI OpCo, LLC")
+        self.assertFalse(row["local_standalone"]["latestEstablished"])
+        trust.assert_called()
+
+    def test_public_unsigned_standalone_never_requests_a_version_process(self):
+        with self.installation() as (r,v,p,m,trust):
+            trust.return_value = None
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                code = self.module.report_local_codex()
+            self.assertEqual(code, 2)
+            self.module._version.assert_not_called()
+            self.module._run.assert_not_called()
+
+    @unittest.skipUnless(sys.platform == "win32", "Windows cached Authenticode")
+    def test_public_actual_unsigned_fixture_never_requests_a_process(self):
+        actual_trust = self.module._windows_signed_publisher
+        with self.installation() as (r,v,p,m,trust):
+            trust.side_effect = actual_trust
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                code = self.module.report_local_codex()
+            self.assertEqual(code, 2)
+            self.module._version.assert_not_called()
+            self.module._run.assert_not_called()
+
+    def test_public_changed_entrypoint_never_requests_a_version_process(self):
+        with self.installation() as (r,v,p,m,trust):
+            def changed(path, handle=None):
+                (r/"bin/codex.exe").write_bytes(b"changed after verification")
+                return "OpenAI OpCo, LLC"
+            trust.side_effect = changed
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                code = self.module.report_local_codex()
+            self.assertEqual(code, 2)
+            self.module._version.assert_not_called()
+            self.module._run.assert_not_called()
+
+    def test_public_success_checks_trust_before_one_absolute_version_process(self):
+        with self.installation() as (r,v,p,m,trust):
+            order = []
+            trust.side_effect = lambda *args: order.append("trust") or "OpenAI OpCo, LLC"
+            self.module._run.side_effect = lambda argv: order.append(tuple(argv)) or (0,"codex-cli 0.167.1","")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                code = self.module.report_local_codex()
+            self.assertEqual(code, 0)
+            self.module._version.assert_not_called()
+            self.assertEqual(order, ["trust", (str(r/"bin/codex.exe"), "--version")])
+
+    def test_other_platform_remains_unknown(self):
+        with self.installation() as (r,v,p,m,t):
+            with mock.patch.object(self.module.sys,"platform","linux"):
+                self.assertEqual(self.module.check_codex_local()["state"],"설치본만 확인")
+                t.assert_not_called()
+
+    def test_unsigned_tampered_or_other_publisher_stays_unknown(self):
+        for publisher in (None, "Unrelated Publisher"):
+            with self.subTest(publisher=publisher), self.installation() as (r,v,p,m,trust):
+                trust.return_value = publisher
+                self.assertEqual(self.module.check_codex_local()["state"], self.module.UNKNOWN)
+                self.module._run.assert_not_called()
+
+    def test_metadata_unknown_bool_duplicate_escape_and_version_mismatch_refuse(self):
+        for change in ({"layoutVersion":True},{"variant":"other"},{"version":"0.167.2"},
+                       {"target":"aarch64-pc-windows-msvc"},{"entrypoint":"../codex.exe"},
+                       {"unknown":"field"}):
+            with self.subTest(change=change), self.installation() as (r,v,p,m,t):
+                m.update(change);p.write_text(json.dumps(m),encoding="utf-8")
+                self.assertEqual(self.module.check_codex_local()["state"], self.module.UNKNOWN)
+                self.module._run.assert_not_called()
+        with self.installation() as (r,v,p,m,t):
+            p.write_text(p.read_text(encoding="utf-8")[:-1]+',"version":"0.167.1"}',encoding="utf-8")
+            self.assertEqual(self.module.check_codex_local()["state"], self.module.UNKNOWN)
+
+    def test_missing_metadata_companion_and_ambiguous_npm_refuse(self):
+        for missing in ("codex-package.json","bin/codex-exec-server.exe","codex-path/rg.exe"):
+            with self.subTest(missing=missing), self.installation() as (r,v,p,m,t):
+                (r/missing).unlink()
+                self.assertEqual(self.module.check_codex_local()["state"], self.module.UNKNOWN)
+                self.module._run.assert_not_called()
+        with self.installation() as (r,v,p,m,t):
+            ambiguous=v.parent/"node_modules/@openai/codex/package.json"
+            ambiguous.parent.mkdir(parents=True);ambiguous.write_text("{}",encoding="utf-8")
+            self.assertEqual(self.module.check_codex_local()["state"], self.module.UNKNOWN)
+
+    def test_stale_selection_wrong_path_and_changed_version_refuse(self):
+        with self.installation() as (r,v,p,m,t):
+            with mock.patch.object(self.module.os.path,"isjunction",return_value=False):
+                self.assertEqual(self.module.check_codex_local()["state"], self.module.UNKNOWN)
+        with self.installation() as (r,v,p,m,t):
+            with mock.patch.object(self.module.shutil,"which",return_value=str(v.parent.parent/"codex.exe")):
+                self.assertEqual(self.module.check_codex_local()["state"], "설치본만 확인")
+        with self.installation() as (r,v,p,m,t):
+            with mock.patch.object(self.module,"_run",return_value=(0,"codex-cli 0.167.0","")):
+                self.assertEqual(self.module.check_codex_local()["state"], self.module.UNKNOWN)
+
+    def test_change_during_signature_check_refuses(self):
+        with self.installation() as (r,v,p,m,t):
+            def change(_, handle=None):
+                (r/"bin/codex.exe").write_bytes(b"changed after verification")
+                return "OpenAI OpCo, LLC"
+            t.side_effect=change
+            self.assertEqual(self.module.check_codex_local()["state"], self.module.UNKNOWN)
+            self.module._run.assert_not_called()
+
+    def test_public_changed_metadata_or_path_never_requests_process(self):
+        for what in ("metadata", "path", "current"):
+            with self.subTest(change=what), self.installation() as (r,v,p,m,trust):
+                def changed(*args):
+                    if what == "metadata":
+                        m["version"] = "0.167.2"
+                        p.write_text(json.dumps(m), encoding="utf-8")
+                    elif what == "path":
+                        self.module.shutil.which.return_value = str(v.parent.parent/"other.exe")
+                    else:
+                        realpath = self.module.os.path.realpath.side_effect
+                        self.module.os.path.realpath.side_effect = lambda path: str(r.parent/"0.167.2-x86_64-pc-windows-msvc") if Path(path).name == "current" else realpath(path)
+                    return "OpenAI OpCo, LLC"
+                trust.side_effect = changed
+                self.assertEqual(self.module.check_codex_local()["state"], self.module.UNKNOWN)
+                self.module._run.assert_not_called()
+                self.module._version.assert_not_called()
+
+    def test_public_lock_failure_never_requests_process(self):
+        with self.installation() as (r,v,p,m,t):
+            self.module._locked_standalone_files.side_effect = OSError("sharing denied")
+            self.assertEqual(self.module.check_codex_local()["state"], self.module.UNKNOWN)
+            self.module._run.assert_not_called()
+            self.module._version.assert_not_called()
+            t.assert_not_called()
+
+    def test_missing_junction_api_remains_unknown_without_process(self):
+        with self.installation() as (r,v,p,m,t):
+            with mock.patch.object(self.module.os.path, "isjunction", side_effect=AttributeError("Python 3.11")):
+                self.assertEqual(self.module.check_codex_local()["state"], self.module.UNKNOWN)
+            self.module._run.assert_not_called()
+            self.module._version.assert_not_called()
+
+    def test_local_standalone_never_queries_registry_or_orca(self):
+        with self.installation() as (r,v,p,m,t):
+            with mock.patch.object(self.module,"_npm_latest",side_effect=AssertionError("network prohibited")), \
+                 mock.patch.object(self.module,"check_orca_skills",side_effect=AssertionError("Orca prohibited")):
+                output=io.StringIO()
+                with contextlib.redirect_stdout(output): code=self.module.report_local_codex()
+        self.assertEqual(code,0)
+        self.assertIsNone(json.loads(output.getvalue())["local_package"])
+
+
+@unittest.skipUnless(sys.platform == "win32", "Windows sharing semantics")
+class StandaloneFileLifetimeChecks(unittest.TestCase):
+    def test_image_metadata_and_parent_cannot_be_changed_until_close(self):
+        spec = importlib.util.spec_from_file_location("locked_check_tooling", SCRIPT)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            directory = root/"bin"
+            directory.mkdir()
+            exe, package = directory/"codex.exe", root/"codex-package.json"
+            exe.write_bytes(b"not an executable")
+            package.write_bytes(b"metadata fixture")
+            replacement = root/"replacement"
+            replacement.write_bytes(b"replacement")
+            layout = dict(exe=str(exe), package=str(package), current=str(root), shim=str(exe))
+            with module._locked_standalone_files(layout) as handle:
+                self.assertIsNotNone(handle)
+                for file in (exe, package):
+                    with self.subTest(file=file), self.assertRaises(PermissionError):
+                        file.write_bytes(b"must not write")
+                with self.assertRaises(PermissionError):
+                    os.replace(replacement, exe)
+                with self.assertRaises(PermissionError):
+                    directory.rename(root/"moved")
+            exe.write_bytes(b"writable after close")
+            package.write_bytes(b"writable after close")
 
 if __name__ == "__main__":
     unittest.main()
