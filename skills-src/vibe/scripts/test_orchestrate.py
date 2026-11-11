@@ -749,8 +749,28 @@ class OrchestrationTests(unittest.TestCase):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(data)
 
+            def reject_member_number_types(document):
+                for field in ("included_members", "excluded_members"):
+                    entries = document[field]
+                    cases = (("float", next(i for i, row in enumerate(entries) if row["size"] > 1), float),
+                             ("false", next(i for i, row in enumerate(entries) if row["size"] == 0), bool),
+                             ("true", next(i for i, row in enumerate(entries) if row["size"] == 1), bool))
+                    for label, index, convert in cases:
+                        with self.subTest(schema=document["schema_version"], members=field, size_type=label):
+                            altered = copy.deepcopy(document)
+                            altered[field][index]["size"] = convert(entries[index]["size"])
+                            put("subset.json", json.dumps(altered).encode())
+                            with self.assertRaisesRegex(ValueError, "Invalid Codex discovery subset"):
+                                self.m.candidate_inventory()
+                put("subset.json", json.dumps(document).encode())
+
             script_path = "plugins/SimonKCore/skills/vibe/scripts/orchestrate.py"
             source_files[script_path] = b"# fixture\n"
+            # Legitimate zero/one-byte members make bool-vs-int equality a
+            # concrete boundary case in both retained and omitted rows.
+            for prefix in ("plugins/SimonKCore/skills/vibe/", "plugins/SimonKCore/.simonk-runtime/"):
+                source_files[prefix + "empty.bin"] = b""
+                source_files[prefix + "one-byte.bin"] = b"x"
             for owner in ("SimonKCore", "SimonKStack"):
                 source_files[f"plugins/{owner}/.simonk-runtime/safety_runtime.py"] = b"# fixture\n"
             for owner in sorted(set(owners.values())):
@@ -849,6 +869,7 @@ class OrchestrationTests(unittest.TestCase):
                 self.assertEqual(len(found["catalog"]), 5)
                 self.assertNotIn("careful", found["catalog"])
                 self.assertIn("subset", found["catalog"].discovery)
+                reject_member_number_types(subset)
                 removed_row = subset["included_members"].pop()
                 put("subset.json", json.dumps(subset).encode())
                 with self.assertRaises(ValueError):
@@ -944,6 +965,7 @@ class OrchestrationTests(unittest.TestCase):
                 found = self.m.candidate_inventory()
                 self.assertEqual(set(found["catalog"]), {"vibe", "ai-helper", "design-helper", "market-helper", "zoom-out"})
                 self.assertFalse(found["catalog"].discovery["subset"]["installation_verified"])
+                reject_member_number_types(subset2)
                 with contextlib.redirect_stdout(io.StringIO()):
                     self.assertEqual(self.m.main(["catalog"]), 0)
 

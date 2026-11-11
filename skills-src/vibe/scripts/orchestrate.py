@@ -604,6 +604,13 @@ def candidate_inventory(exclude_roots=(), host_skills=None):
     # The D-29 Codex subset omits Claude-only safety controls. Accept those
     # omissions only when the exact source-overlay membership is receipted;
     # an arbitrary missing skill must never become a successful discovery.
+    def same_members(actual, expected):
+        # Python equality accepts 1.0 == 1 == True. Keep JSON size types
+        # strict before exact row equality binds every other member field.
+        return (isinstance(actual, list)
+                and all(isinstance(row, dict) and type(row.get("size")) is int for row in actual)
+                and actual == expected)
+
     subset = None
     subset_bytes = None
     subset_v2 = False
@@ -685,8 +692,8 @@ def candidate_inventory(exclude_roots=(), host_skills=None):
                 or subset["excluded_skills"]
                 != [f"simonk-{owner.removeprefix('SimonK').lower()}:{name}"
                     for owner, name in excluded_skills]
-                or subset["included_members"] != included
-                or subset["excluded_members"] != excluded
+                or not same_members(subset["included_members"], included)
+                or not same_members(subset["excluded_members"], excluded)
                 or subset["host_compatibility_verified"] is not False
                 or subset["installation_ready"] is not False
                 or not isinstance(subset["limitations"], list)

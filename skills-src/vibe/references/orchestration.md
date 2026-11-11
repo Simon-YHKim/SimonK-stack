@@ -50,7 +50,8 @@ bundle verifier before use; keep the trusted single-writer boundary throughout.
 For a Codex overlay, `overlay.json` must bind the sole allowed `zoom-out`
 projection and generated manifests. For its D-29 general-skill subset,
 `subset.json` must bind the same overlay digest and exact included/excluded
-member lists. Schema 1 permits only Core `careful`/`unfreeze`, Stack
+member lists. In both schemas, member sizes must be JSON integers; numerically
+equal floats and booleans are rejected. Schema 1 permits only Core `careful`/`unfreeze`, Stack
 `freeze`/`guard`/`investigate`, and the two Core/Stack safety runtimes to be
 omitted; Claude manifests remain unchanged. Schema 2 also omits the five Claude
 manifest directories and permits only the canonical D-88 Core/Stack Codex
