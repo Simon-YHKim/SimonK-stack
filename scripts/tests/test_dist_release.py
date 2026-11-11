@@ -472,14 +472,18 @@ class PublishWorkflowTests(unittest.TestCase):
         # D-103 + D-105 (2026-10-18): vibe 2.19.0 (Sonnet 5.5 back in coding, registry 2026-10-18.1 with gemini-4-argon) and
         # ai-debate 0.2.8 (Gemini seat on gemini-4-argon-high).
         # D-106 (2026-10-18): vibe 2.20.0 (simple coding on Sonnet 5.5, complex coding on Opus 5.5 xhigh).
+        # D-2026111201: reviewed narrow Vibe 2.23.0 backport; preserved in Git/history.
+        # D-2026111202: Vibe 2.23.1 standalone identity fix, tested source bdda9cef;
+        # exact Claude/Codex content only, existing protected-source gate unchanged.
         allow = dist.validate_allow(json.loads((ROOT / dist.ALLOW).read_text(encoding="utf-8")))
         self.assertEqual(allow["schema_version"], 2)
-        self.assertEqual(allow["decision"], "D-2026111201")
-        self.assertEqual(allow["source_commit"], "20153acd266148bddb1edc27894a129417691fb6")
+        self.assertEqual(allow["scope"], "five-plugin-dist-v1")
+        self.assertEqual(allow["decision"], "D-2026111202")
+        self.assertEqual(allow["source_commit"], "bdda9cef391c8a6787deba22b825dba81157d4ac")
         self.assertEqual(allow["content_digest"],
-                         "08ae1bc8a79f2abbb2baa6e59e1c71f46979c00edc5306a9630dfd0ce4619fbe")
+                         "fdf11d1b37400d5645b490114a3832efb0eb70d47427eb007200ea58bfb3ce8a")
         self.assertEqual(allow["codex_content_digest"],
-                         "60fc9c5b51551ee49e265e6f0043bbf201cf44989afc7b3a673fcc34f159885c")
+                         "6469d1fbc33b4f1ba6b1ecc6effb4c61467c4a554882f093e8cc8014dac10b5f")
 
 
 class StageTests(unittest.TestCase):
