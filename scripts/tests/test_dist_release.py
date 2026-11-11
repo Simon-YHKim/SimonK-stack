@@ -474,12 +474,12 @@ class PublishWorkflowTests(unittest.TestCase):
         # D-106 (2026-10-18): vibe 2.20.0 (simple coding on Sonnet 5.5, complex coding on Opus 5.5 xhigh).
         allow = dist.validate_allow(json.loads((ROOT / dist.ALLOW).read_text(encoding="utf-8")))
         self.assertEqual(allow["schema_version"], 2)
-        self.assertEqual(allow["decision"], "D-106")
-        self.assertEqual(allow["source_commit"], "df2869e38d5c86e9f8979ba5ae79ad4c445c750a")
+        self.assertEqual(allow["decision"], "D-2026111201")
+        self.assertEqual(allow["source_commit"], "20153acd266148bddb1edc27894a129417691fb6")
         self.assertEqual(allow["content_digest"],
-                         "c0495e7a66592a5981ae9cf9af028f70ff9ce444e375dadbdb8a0c4df66abba0")
+                         "08ae1bc8a79f2abbb2baa6e59e1c71f46979c00edc5306a9630dfd0ce4619fbe")
         self.assertEqual(allow["codex_content_digest"],
-                         "032d9047388d03fe30299b5d6cf40a9c5a2b4b5ef001589b8a5e0dcd23c7d04e")
+                         "60fc9c5b51551ee49e265e6f0043bbf201cf44989afc7b3a673fcc34f159885c")
 
 
 class StageTests(unittest.TestCase):
