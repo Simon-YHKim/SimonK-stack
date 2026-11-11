@@ -382,10 +382,12 @@ class PublishWorkflowTests(unittest.TestCase):
         self.assertEqual(len(found), 1, needle)
         return found[0]
 
-    def test_job_still_needs_the_variable_on_main_push(self):
+    def test_job_still_needs_variable_on_main_or_protected_backport(self):
         condition = next(line for line in self.publish.splitlines() if line.startswith("    if: "))
         self.assertEqual(condition, "    if: ${{ vars.SIMONK_DIST_PUBLISH == 'true' && github.event_name "
-                                    "!= 'pull_request' && github.ref == 'refs/heads/main' }}")
+                                    "!= 'pull_request' && (github.ref == 'refs/heads/main' || "
+                                    "(github.ref == 'refs/heads/release/vibe-223-backport' "
+                                    "&& github.ref_protected)) }}")
 
     def test_gate_runs_before_anything_reaches_dist(self):
         gate = self.step_index("scripts/dist_release.py gate")
@@ -395,6 +397,17 @@ class PublishWorkflowTests(unittest.TestCase):
                       "codex_safe_subset.py verify", "git -C $wt push"):
             self.assertGreater(self.step_index(later), gate, later)
         self.assertIn("fetch-depth: 0", self.steps[self.step_index("uses: actions/checkout@v4")])
+
+    def test_exact_ref_guard_is_the_first_publish_step(self):
+        guard = self.step_index("name: Require exact publishing ref")
+        self.assertEqual(guard, 0)
+        self.assertIn("shell: pwsh", self.steps[guard])
+        self.assertIn("$env:GITHUB_REF -ieq 'refs/heads/main'", self.steps[guard])
+        self.assertIn("$env:GITHUB_REF -cne 'refs/heads/release/vibe-223-backport'", self.steps[guard])
+        self.assertIn("$env:GITHUB_REF_PROTECTED -cne 'true'", self.steps[guard])
+        for later in ("Disable EOL conversion", "uses: actions/checkout@v4", "uses: actions/setup-python@v5",
+                      "name: five-plugin-receipts-", "scripts/dist_release.py gate", "git -C $wt push"):
+            self.assertLess(guard, self.step_index(later), later)
 
     def test_codex_subset_is_reverified_then_staged_beside_the_plugins(self):
         # D-88 stage 2: the transferred subset is checked against the build's pin before
@@ -461,12 +474,12 @@ class PublishWorkflowTests(unittest.TestCase):
         # D-106 (2026-10-18): vibe 2.20.0 (simple coding on Sonnet 5.5, complex coding on Opus 5.5 xhigh).
         allow = dist.validate_allow(json.loads((ROOT / dist.ALLOW).read_text(encoding="utf-8")))
         self.assertEqual(allow["schema_version"], 2)
-        self.assertEqual(allow["decision"], "D-106")
-        self.assertEqual(allow["source_commit"], "df2869e38d5c86e9f8979ba5ae79ad4c445c750a")
+        self.assertEqual(allow["decision"], "D-2026111201")
+        self.assertEqual(allow["source_commit"], "20153acd266148bddb1edc27894a129417691fb6")
         self.assertEqual(allow["content_digest"],
-                         "c0495e7a66592a5981ae9cf9af028f70ff9ce444e375dadbdb8a0c4df66abba0")
+                         "08ae1bc8a79f2abbb2baa6e59e1c71f46979c00edc5306a9630dfd0ce4619fbe")
         self.assertEqual(allow["codex_content_digest"],
-                         "032d9047388d03fe30299b5d6cf40a9c5a2b4b5ef001589b8a5e0dcd23c7d04e")
+                         "60fc9c5b51551ee49e265e6f0043bbf201cf44989afc7b3a673fcc34f159885c")
 
 
 class StageTests(unittest.TestCase):
