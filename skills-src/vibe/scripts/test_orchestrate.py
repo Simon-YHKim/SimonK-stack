@@ -871,6 +871,136 @@ class OrchestrationTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.m.candidate_inventory()
 
+                # D-88 schema 2 removes Claude manifests and deterministically
+                # replaces exactly the Core/Stack Codex notices. Expectations
+                # below are independent bytes, not the discovery helper output.
+                canonical = lambda doc: (json.dumps(doc, ensure_ascii=False, sort_keys=True,
+                    indent=2, allow_nan=False) + "\n").encode()
+                sha = lambda data: hashlib.sha256(data).hexdigest()
+                notices = {
+                    "SimonKCore": "careful 안전 훅은 Windows 전용이라 다른 OS에서는 Bash·PowerShell 명령을 일부러 모두 막는다.",
+                    "SimonKStack": "레거시 simonk-stack 0.1.0에서 업데이트했다면 나머지 넷을 따로 설치해야 "
+                        "market·design으로 옮긴 스킬 10개가 돌아온다: "
+                        "claude plugin install simonk-core@simonk-stack · "
+                        "claude plugin install simonk-market@simonk-stack · "
+                        "claude plugin install simonk-design@simonk-stack · "
+                        "claude plugin install simonk-aihub@simonk-stack. "
+                        "freeze·guard·investigate 안전 훅은 Windows 전용이라 다른 OS에서는 "
+                        "Edit·Write·Bash를 일부러 모두 막는다.",
+                }
+                missing = {"SimonKCore": "careful·unfreeze", "SimonKStack": "freeze·guard·investigate"}
+                replacements, rewritten = [], {}
+                for owner in sorted(set(owners.values())):
+                    path = f"plugins/{owner}/.codex-plugin/plugin.json"
+                    description = "Fixture" + (". " + notices[owner] if owner in notices else "")
+                    doc = {"name": owner, "version": "1.868.0", "skills": "./skills/",
+                           "description": description,
+                           "interface": {"shortDescription": description, "longDescription": description}}
+                    original = generated[path] = canonical(doc)
+                    if owner in notices:
+                        text = "Fixture. Codex판에는 Claude Code 전용인 " + missing[owner] + " 안전 스킬이 없다."
+                        doc["description"] = text
+                        doc["interface"] = {"shortDescription": text, "longDescription": text}
+                        data = rewritten[path] = canonical(doc)
+                        replacements.append({"path": path, "original_base64": base64.b64encode(original).decode(),
+                            "original_sha256": sha(original), "original_size": len(original),
+                            "sha256": sha(data), "size": len(data)})
+                overlay["replacement_originals"][zoom_path] = base64.b64encode(original_zoom).decode()
+                overlay["generated"] = {p: {"sha256": sha(data), "size": len(data)}
+                                        for p, data in generated.items()}
+                overlay_data = canonical(overlay)
+                payloads = {**source_files, **generated, "bundle.json": bundle_data, "overlay.json": overlay_data}
+                prefixes = excluded_prefixes + tuple(f"plugins/{owner}/.claude-plugin/"
+                                                     for owner in sorted(set(owners.values())))
+                omitted = {p for p in payloads if p.startswith(prefixes)}
+                rows = lambda paths, data: [{"path": p, "sha256": sha(data[p]), "size": len(data[p])}
+                                            for p in sorted(paths)]
+                projected = {**payloads, **rewritten}
+                subset2 = {**subset, "schema_version": 2,
+                    "source_overlay_digest": sha(overlay_data),
+                    "included_members": rows(set(payloads) - omitted, projected),
+                    "excluded_members": rows(omitted, payloads), "replaced_members": replacements}
+                normalized = []
+                for row in subset2["included_members"]:
+                    path = row["path"]
+                    if path in ("bundle.json", "overlay.json"):
+                        continue
+                    digest = row["sha256"]
+                    if path.endswith("/.codex-plugin/plugin.json"):
+                        doc = json.loads(projected[path])
+                        doc["version"] = ""
+                        digest = sha(canonical(doc))
+                    normalized.append({"path": path, "sha256": digest})
+                subset2["content_digest"] = sha(canonical({"scope": "five-plugin-codex-subset-content-v1",
+                    "excluded_skills": subset2["excluded_skills"], "files": normalized}))
+                for path, data in projected.items():
+                    if path not in omitted:
+                        put(path, data)
+                for prefix in prefixes:
+                    target = base / prefix
+                    if target.exists():
+                        shutil.rmtree(target)
+                put("subset.json", canonical(subset2))
+                found = self.m.candidate_inventory()
+                self.assertEqual(set(found["catalog"]), {"vibe", "ai-helper", "design-helper", "market-helper", "zoom-out"})
+                self.assertFalse(found["catalog"].discovery["subset"]["installation_verified"])
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(self.m.main(["catalog"]), 0)
+
+                # Every altered receipt/file fails closed through the default
+                # bound path; no explicit-root fallback is permitted.
+                mutations = {
+                    "unknown-schema": lambda d: d.update(schema_version=3),
+                    "bool-schema": lambda d: d.update(schema_version=True),
+                    "extra-field": lambda d: d.update(unverified=True),
+                    "readiness": lambda d: d.update(installation_ready=True),
+                    "host-verified": lambda d: d.update(host_compatibility_verified=True),
+                    "content-digest": lambda d: d.update(content_digest="0" * 64),
+                    "overlay-digest": lambda d: d.update(source_overlay_digest="0" * 64),
+                    "missing-included": lambda d: d["included_members"].pop(),
+                    "included-hash": lambda d: d["included_members"][0].update(sha256="0" * 64),
+                    "missing-exclusion": lambda d: d["excluded_members"].pop(),
+                    "missing-excluded-skill": lambda d: d["excluded_skills"].pop(),
+                    "extra-excluded-skill": lambda d: d["excluded_skills"].append("simonk-core:vibe"),
+                    "missing-replacement": lambda d: d["replaced_members"].pop(),
+                    "replacement-order": lambda d: d["replaced_members"].reverse(),
+                    "replacement-digest": lambda d: d["replaced_members"][0].update(sha256="0" * 64),
+                    "original-digest": lambda d: d["replaced_members"][0].update(original_sha256="0" * 64),
+                    "original-bytes": lambda d: d["replaced_members"][0].update(original_base64=base64.b64encode(b"forged").decode()),
+                    "bool-size": lambda d: d["replaced_members"][0].update(size=True),
+                }
+                for label, mutate in mutations.items():
+                    with self.subTest(schema2=label):
+                        altered = copy.deepcopy(subset2)
+                        mutate(altered)
+                        put("subset.json", canonical(altered))
+                        with self.assertRaises(ValueError):
+                            self.m.candidate_inventory()
+                put("subset.json", canonical(subset2))
+                for path in (zoom_path, replacements[0]["path"],
+                             "plugins/SimonKDesign/.codex-plugin/plugin.json", script_path):
+                    with self.subTest(schema2_file=path):
+                        put(path, projected[path] + b"tampered")
+                        with self.assertRaises(ValueError):
+                            self.m.candidate_inventory()
+                        put(path, projected[path])
+                forged = copy.deepcopy(subset2)
+                path = replacements[0]["path"]
+                data = projected[path].replace(b"Fixture.", b"Forged.")
+                put(path, data)
+                forged["replaced_members"][0].update(sha256=sha(data), size=len(data))
+                for row in forged["included_members"]:
+                    if row["path"] == path:
+                        row.update(sha256=sha(data), size=len(data))
+                put("subset.json", canonical(forged))
+                with self.assertRaisesRegex(ValueError, "manifest replacement differs"):
+                    self.m.candidate_inventory()
+                put(path, projected[path])
+                put("subset.json", canonical(subset2))
+                put("plugins/SimonKCore/.claude-plugin/plugin.json", b"{}")
+                with self.assertRaises(ValueError):
+                    self.m.candidate_inventory()
+
     def test_coverage_compares_selected_install_not_a_matching_shadow(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

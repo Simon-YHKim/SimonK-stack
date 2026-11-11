@@ -50,11 +50,16 @@ bundle verifier before use; keep the trusted single-writer boundary throughout.
 For a Codex overlay, `overlay.json` must bind the sole allowed `zoom-out`
 projection and generated manifests. For its D-29 general-skill subset,
 `subset.json` must bind the same overlay digest and exact included/excluded
-member lists. The only accepted omissions are Core `careful`/`unfreeze`, Stack
-`freeze`/`guard`/`investigate`, and the two Core/Stack safety runtimes; Claude
-manifests remain unchanged. Discovery exposes a separate subset receipt hash,
+member lists. Schema 1 permits only Core `careful`/`unfreeze`, Stack
+`freeze`/`guard`/`investigate`, and the two Core/Stack safety runtimes to be
+omitted; Claude manifests remain unchanged. Schema 2 also omits the five Claude
+manifest directories and permits only the canonical D-88 Core/Stack Codex
+manifest replacements, re-derived from overlay-bound base64 originals with
+exact size/SHA provenance. Its normalized content digest is checked; the D-29
+skill exclusions and authority are unchanged. Discovery exposes a separate subset receipt hash,
 but full subset byte verification and host policy/selection checks remain
 separate gates. A missing, forged or extra omission fails closed.
+Passing candidate tests does not establish installed-host runtime closure.
 Invoke candidate Python helpers with `python -B`. For test suites or helpers
 that spawn child Python processes, also set `PYTHONDONTWRITEBYTECODE=1` in the
 parent environment: `-B` is not inherited by children. Re-verify the receipt
