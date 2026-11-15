@@ -404,7 +404,7 @@ def screen_actions(step):
     return step.get("screen_actions", ["read"])
 
 
-def assess_gui_tool(tool, step, runtime, now, producer_vendor=None):
+def assess_gui_tool(tool, step, runtime, now, producer_vendor=None, policy=None):
     """D-129 gate for a host-local GUI tool. It never relaxes the Bot-only actions."""
     reasons = []
     if producer_vendor and SURFACES.get(tool.get("host_surface")) == producer_vendor:
@@ -435,54 +435,59 @@ def assess_gui_tool(tool, step, runtime, now, producer_vendor=None):
             reasons.append("GUI_NEEDS_SIGNED_IN_BROWSER")  # The isolated profile has no sign-ins.
     elif transport in ("claude-in-chrome", "computer-use") and tool.get("interactive") is not True:
         reasons.append("GUI_REQUIRES_INTERACTIVE_HOST")
-    if tool.get("host_surface") in ("claude", "codex") and host_usage(runtime, tool["host_surface"], now) is None:
-        reasons.append("GUI_HOST_USAGE_UNVERIFIED")  # D-74: the host session pays in included usage.
+    if tool.get("host_surface") in ("claude", "codex"):
+        host, why = host_usage(runtime, tool["host_surface"], step, now, policy, producer_vendor)
+        if host is None:
+            reasons.append(why)
     return reasons
 
 
-def host_usage(runtime, surface, now):
-    """The host session's own candidate whose included usage passes D-74, else None.
+# A local GUI step has no model capability or effort of its own; every other gate on the
+# host candidate (availability, registry, billing, model inclusion, usage, quality floor,
+# surface pin, reviewer vendor) is the same assess_candidate check any host route gets.
+HOST_GATE_IGNORED = frozenset({"CAPABILITY_MISMATCH", "EFFORT_UNSUPPORTED", "HOST_EFFORT_MISMATCH"})
+DEFAULT_GUI_POLICY = {"mode": "balanced", "approved_usd": "0", "max_attempts": 2}
 
-    A local GUI step runs inside the host session, so it spends that subscription's usage.
+
+def host_usage(runtime, surface, step, now, policy=None, producer_vendor=None):
+    """(host candidate, None) when this session can pay for the step at $0, else (None, reason).
+
+    A local GUI step runs inside the host session, so it spends that subscription's usage (D-74).
     """
-    host = runtime.get("host_ref")
+    host_ref, view = runtime.get("host_ref"), dict(step, kind="llm", needs=[])
+    reasons = set()
     for c in runtime.get("candidates", []):
-        if not isinstance(c, dict) or c.get("transport") != "host" or c.get("surface") != surface:
+        if (not isinstance(c, dict) or c.get("transport") != "host" or c.get("surface") != surface
+                or c.get("host_ref") not in (None, host_ref)):
             continue
-        if c.get("host_ref") not in (None, host):
-            continue
-        if (c.get("available") is not True or c.get("lifecycle") != "active" or not c.get("evidence")
-                or c.get("registry_errors")):
-            continue  # constrain_runtime's registry decisions stand.
-        billing, quota = c.get("billing") or {}, c.get("quota") or {}
-        account = billing.get("account_ref")
-        model = c.get("resolved_model") or c.get("model")
-        if (billing.get("mode") == "subscription" and billing.get("verified") is True
-                and billing.get("model_included") is True and model and billing.get("included_model") == model
-                and billing.get("api_fallback_disabled") is True and isinstance(account, str) and account.strip()
-                and not usage_limit_reached(billing) and included_usage_open(quota, now)
-                and fresh(c.get("observed_at"), now)):
-            return c
-    return None
+        found, _, amount = assess_candidate(c, view, policy or DEFAULT_GUI_POLICY, now, producer_vendor)
+        found = set(found) - HOST_GATE_IGNORED
+        if not found and amount == 0:
+            return c, None
+        reasons |= found or {"COSTS_MORE"}
+    return None, ("GUI_HOST_QUALITY_FLOOR" if reasons == {"QUALITY_FLOOR"} else "GUI_HOST_USAGE_UNVERIFIED")
 
 
 def gui_tool_route(tool, host):
     observed = min(instant(tool["observed_at"]), instant(host["observed_at"]), instant(host["quota"]["observed_at"]))
+    until = observed + timedelta(seconds=DEFAULT_TTL)
+    if host.get("valid_until"):
+        until = min(until, instant(host["valid_until"]))  # Registry and access-proof deadlines stand.
     return {"candidate_id": tool["id"], "surface": tool["host_surface"], "vendor": SURFACES[tool["host_surface"]],
             "transport": tool["transport"], "tool_ref": tool["transport"], "host_ref": tool["host_ref"],
             "host_candidate_id": host["id"], "model": None, "requested_effort": None, "effective_effort": None,
             "billing": copy.deepcopy(host["billing"]), "quota": copy.deepcopy(host["quota"]),
             "reserved_upper_usd": 0.0, "actual_usd": None,
-            "valid_until": (observed + timedelta(seconds=DEFAULT_TTL)).isoformat(),
+            "valid_until": until.isoformat(),
             "runtime_observed_at": min(tool["observed_at"], host["observed_at"])}
 
 
-def pick_local_gui(step, runtime, rejected, fit_policy, now, producer_vendor=None):
+def pick_local_gui(step, runtime, rejected, fit_policy, now, producer_vendor=None, policy=None):
     """D-129: after every Bot candidate is blocked, the table's local tools in order."""
     tools = [t for t in runtime.get("gui_tools", []) if isinstance(t, dict) and isinstance(t.get("id"), str)]
     eligible = []
     for tool in tools:
-        reasons = assess_gui_tool(tool, step, runtime, now, producer_vendor)
+        reasons = assess_gui_tool(tool, step, runtime, now, producer_vendor, policy)
         if reasons:
             rejected.append({"candidate_id": tool["id"], "reasons": reasons})
         else:
@@ -1850,10 +1855,11 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                 choices.append((score, c, effort, amount))
             local = None
             if not choices and s["kind"] == "gui":
-                local, s["selection"] = pick_local_gui(s, runtime, rejected, fit_policy, now, vendor)
+                local, s["selection"] = pick_local_gui(s, runtime, rejected, fit_policy, now, vendor, policy)
                 if local is not None:
                     actions = screen_actions(s)
-                    s["route"] = gui_tool_route(local, host_usage(runtime, local["host_surface"], now))
+                    s["route"] = gui_tool_route(local, host_usage(runtime, local["host_surface"], s, now,
+                                                                  policy, vendor)[0])
                     s["handoff"] = {"kind": "host-gui", "tool": local["transport"], "target": s["target"],
                                     "read_skills": s["skill_paths"], "screen_actions": list(actions),
                                     "confirm_each": sorted(set(actions) & CONFIRM_ACTIONS),

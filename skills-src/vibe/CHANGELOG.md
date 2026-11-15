@@ -10,6 +10,7 @@
   - A local GUI step spends the host session's included usage, so the route binds the host's own candidate and needs its verified billing and fresh usage below 85% (D-74). It then passes `ready_steps` and Store registration like any route (Codex review on #211).
   - The host's model must be verified as included in its subscription, a node pinned to a `surface` never moves to a local tool, and the browser cache follows Playwright's per-platform default (macOS `~/Library/Caches/ms-playwright`) (second Codex review on #211).
   - The host candidate must be available, active and evidenced; a local GUI verifier never shares the producer's vendor; and a Codex host reports Playwright unverified because only Claude Code's registration is inspected (third Codex review on #211).
+  - The host candidate is now judged by `assess_candidate` itself (capability and effort aside) instead of hand-copied checks, so its quality floor and registry deadline apply too, and the route never outlives the host's `valid_until` (fourth Codex review on #211).
   - New `scripts/collect_gui_tools.py`:
     - Observes the Playwright MCP entry, its config and the Chromium folder; Chrome and Computer Use are attested by the host.
     - `--install` adds a missing pointer-lock guard (backing up the config first) or Chromium through the Playwright CLI.

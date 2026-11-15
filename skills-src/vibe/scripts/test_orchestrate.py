@@ -1218,6 +1218,31 @@ class OrchestrationTests(unittest.TestCase):
                 p = self.plan([self.gui()], [paused, self.host_seat(**change)], gui_tools=tools,
                               host_ref="fixture-host", task_fit_policy=ranking)
                 self.assertIn("GUI_HOST_USAGE_UNVERIFIED", str(p["steps"][0]["rejected_candidates"]))
+        # The host now performs the screen work, so the node's quality floor applies to it.
+        weak = self.host_seat(quality_tier=1)
+        p = self.plan([self.gui(demand="critical", quality_floor=3)], [paused, weak], gui_tools=tools,
+                      host_ref="fixture-host", task_fit_policy=ranking)
+        self.assertIn("GUI_HOST_QUALITY_FLOOR", str(p["steps"][0]["rejected_candidates"]))
+        self.assertIsNone(p["steps"][0]["route"])
+        strong = self.host_seat(quality_tier=3)
+        p = self.plan([self.gui(demand="critical", quality_floor=3)], [paused, strong], gui_tools=tools,
+                      host_ref="fixture-host", task_fit_policy=ranking)
+        self.assertEqual(p["steps"][0]["route"]["transport"], "playwright")
+        # The route never outlives the host candidate's own registry deadline.
+        import model_registry
+        cands = [paused, self.host_seat()]
+        registry = fixture_registry(cands)
+        registry["checked_at"] = (datetime.fromisoformat(NOW)
+                                  - timedelta(seconds=model_registry.MAX_FACT_AGE_SECONDS - 60)).isoformat()
+        p = self.m.make_plan({"run_id": "gui-expiry", "steps": [self.gui()], "budget": {}}, self.catalog,
+                             {"candidates": cands, "tools": [], "observed_at": NOW, "gui_tools": tools,
+                              "host_ref": "fixture-host"}, NOW, registry, ranking)
+        route = p["steps"][0]["route"]
+        self.assertEqual(route["transport"], "playwright")
+        self.assertLessEqual(datetime.fromisoformat(route["valid_until"]),
+                             datetime.fromisoformat(NOW) + timedelta(seconds=60))
+        later = (datetime.fromisoformat(NOW) + timedelta(seconds=120)).isoformat()
+        self.assertEqual(self.m.ready_steps(p, [], later), [])
         # A local GUI reviewer never shares the producer's vendor.
         producer = step("draft", surface="claude")
         review = self.gui(id="check", verify_of="draft", depends_on=["draft"])
