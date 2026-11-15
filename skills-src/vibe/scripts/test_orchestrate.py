@@ -1202,6 +1202,20 @@ class OrchestrationTests(unittest.TestCase):
                             task_fit_policy=ranking)
         self.assertIn("GUI_HOST_USAGE_UNVERIFIED", str(blocked["steps"][0]["rejected_candidates"]))
         self.assertIsNone(blocked["steps"][0]["route"])
+        # Codex review #211: the host's model must be verified as included, like any host route.
+        for change in ({"model_included": False}, {"included_model": None}, {"included_model": "other-model"}):
+            with self.subTest(billing=change):
+                unpaid = self.host_seat()
+                unpaid["billing"] = dict(unpaid["billing"], **change)
+                p = self.plan([self.gui()], [paused, unpaid], gui_tools=tools, host_ref="fixture-host",
+                              task_fit_policy=ranking)
+                self.assertIn("GUI_HOST_USAGE_UNVERIFIED", str(p["steps"][0]["rejected_candidates"]))
+                self.assertIsNone(p["steps"][0]["route"])
+        # A node pinned to the Bot surface never moves to another provider.
+        pinned = self.plan([self.gui(surface="grok-bot")], [paused, self.host_seat()], gui_tools=tools,
+                           host_ref="fixture-host", task_fit_policy=ranking)
+        self.assertIn("SURFACE_MISMATCH", str(pinned["steps"][0]["rejected_candidates"]))
+        self.assertIsNone(pinned["steps"][0]["route"])
         self.assertEqual((node["selection"]["mode"], node["selection"]["rank"]), ("ranked", 1))
         self.assertEqual(node["selection"]["skipped"][0]["tool"], "bot")
         self.assertIn("BOT_INACTIVE", node["selection"]["skipped"][0]["reasons"])

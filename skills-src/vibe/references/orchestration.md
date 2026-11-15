@@ -812,10 +812,11 @@ the host's surface and vendor and carries the host session's billing and quota, 
 | --- | --- |
 | tool is one of the three, `available`, fresh `observed_at` with evidence | `GUI_TOOL_UNSUPPORTED`, `GUI_TOOL_UNAVAILABLE`, `GUI_TOOL_STALE` |
 | `host_ref` equals the runtime `host_ref`; `host_surface` is claude/codex (Chrome and Computer Use: claude) | `GUI_TOOL_HOST_MISMATCH`, `GUI_TOOL_HOST_UNSUPPORTED` |
+| a node pinned to a `surface` stays on it | `SURFACE_MISMATCH` |
 | node `screen_actions` has no `login` or `payment` (the host never types credentials or payment details) | `GUI_ACTION_NEEDS_BOT` |
 | Playwright: headless and isolated, pointer-lock guard present, node not `signed_in` | `GUI_PLAYWRIGHT_NOT_HEADLESS_ISOLATED`, `GUI_POINTER_LOCK_UNGUARDED`, `GUI_NEEDS_SIGNED_IN_BROWSER` |
 | Chrome and Computer Use: `interactive` (Simon at this session) | `GUI_REQUIRES_INTERACTIVE_HOST` |
-| the host session's own `transport: host` candidate (same surface and `host_ref`) has verified subscription billing, no reached limit and fresh usage under 85% (D-74); the route copies its `billing` and `quota` | `GUI_HOST_USAGE_UNVERIFIED` |
+| the host session's own `transport: host` candidate (same surface and `host_ref`) has verified subscription billing that includes its exact model, no reached limit and fresh usage under 85% (D-74); the route copies its `billing` and `quota` | `GUI_HOST_USAGE_UNVERIFIED` |
 
 Node fields: `screen_actions` (distinct values from read, input, submit, publish, delete, settings, login, payment;
 default `["read"]`) and `signed_in` (boolean, default false). Submit, publish, delete and settings land in

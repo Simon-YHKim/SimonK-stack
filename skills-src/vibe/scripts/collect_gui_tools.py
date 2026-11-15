@@ -55,12 +55,21 @@ def utc_now():
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
+def browser_cache(platform=None, environ=None, home=None):
+    """Playwright's default browser cache: Windows %LOCALAPPDATA%, macOS ~/Library/Caches, else ~/.cache."""
+    platform, environ, home = platform or sys.platform, os.environ if environ is None else environ, home or Path.home()
+    if environ.get("PLAYWRIGHT_BROWSERS_PATH"):
+        return Path(environ["PLAYWRIGHT_BROWSERS_PATH"])
+    if platform.startswith("win") and environ.get("LOCALAPPDATA"):
+        return Path(environ["LOCALAPPDATA"]) / "ms-playwright"
+    if platform == "darwin":
+        return home / "Library" / "Caches" / "ms-playwright"
+    return home / ".cache" / "ms-playwright"
+
+
 def default_paths():
     home = Path.home()
-    local = os.environ.get("LOCALAPPDATA")
-    browsers = os.environ.get("PLAYWRIGHT_BROWSERS_PATH") or (
-        str(Path(local) / "ms-playwright") if local else str(home / ".cache" / "ms-playwright"))
-    return {"claude_json": home / ".claude.json", "browsers": Path(browsers),
+    return {"claude_json": home / ".claude.json", "browsers": browser_cache(home=home),
             "guard": home / ".claude" / "playwright-pointer-guard.js"}
 
 

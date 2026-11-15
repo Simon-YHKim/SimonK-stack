@@ -420,6 +420,8 @@ def assess_gui_tool(tool, step, runtime, now):
     if tool.get("host_surface") not in ("claude", "codex") or (
             transport in ("claude-in-chrome", "computer-use") and tool.get("host_surface") != "claude"):
         reasons.append("GUI_TOOL_HOST_UNSUPPORTED")
+    if step.get("surface") and step["surface"] != tool.get("host_surface"):
+        reasons.append("SURFACE_MISMATCH")  # A pinned node never moves to another provider.
     if set(screen_actions(step)) & LOCAL_FORBIDDEN_ACTIONS:
         reasons.append("GUI_ACTION_NEEDS_BOT")
     if transport == "playwright":
@@ -449,7 +451,9 @@ def host_usage(runtime, surface, now):
             continue
         billing, quota = c.get("billing") or {}, c.get("quota") or {}
         account = billing.get("account_ref")
+        model = c.get("resolved_model") or c.get("model")
         if (billing.get("mode") == "subscription" and billing.get("verified") is True
+                and billing.get("model_included") is True and model and billing.get("included_model") == model
                 and billing.get("api_fallback_disabled") is True and isinstance(account, str) and account.strip()
                 and not usage_limit_reached(billing) and included_usage_open(quota, now)
                 and fresh(c.get("observed_at"), now)):

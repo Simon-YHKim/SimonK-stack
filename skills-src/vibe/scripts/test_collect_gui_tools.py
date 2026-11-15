@@ -141,6 +141,14 @@ class CollectGuiToolsTests(unittest.TestCase):
         with self.assertRaises(m.GuiToolError):
             m.observe(" ", paths=self.paths)
 
+    def test_browser_cache_follows_playwright_defaults_per_platform(self):
+        home = Path("/home/simon")
+        self.assertEqual(m.browser_cache("darwin", {}, home), home / "Library" / "Caches" / "ms-playwright")
+        self.assertEqual(m.browser_cache("linux", {}, home), home / ".cache" / "ms-playwright")
+        self.assertEqual(m.browser_cache("win32", {"LOCALAPPDATA": "C:/Users/s/AppData/Local"}, home),
+                         Path("C:/Users/s/AppData/Local") / "ms-playwright")
+        self.assertEqual(m.browser_cache("darwin", {"PLAYWRIGHT_BROWSERS_PATH": "/opt/pw"}, home), Path("/opt/pw"))
+
 
 if __name__ == "__main__":
     unittest.main()

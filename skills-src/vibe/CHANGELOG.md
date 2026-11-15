@@ -8,6 +8,7 @@
   - Playwright must be headless, isolated and pointer-lock guarded, and cannot serve a signed-in screen. Chrome and Computer Use need Simon at an interactive session.
   - New node fields: `screen_actions` and `signed_in`.
   - A local GUI step spends the host session's included usage, so the route binds the host's own candidate and needs its verified billing and fresh usage below 85% (D-74). It then passes `ready_steps` and Store registration like any route (Codex review on #211).
+  - The host's model must be verified as included in its subscription, a node pinned to a `surface` never moves to a local tool, and the browser cache follows Playwright's per-platform default (macOS `~/Library/Caches/ms-playwright`) (second Codex review on #211).
   - New `scripts/collect_gui_tools.py`:
     - Observes the Playwright MCP entry, its config and the Chromium folder; Chrome and Computer Use are attested by the host.
     - `--install` adds a missing pointer-lock guard (backing up the config first) or Chromium through the Playwright CLI.
