@@ -404,9 +404,11 @@ def screen_actions(step):
     return step.get("screen_actions", ["read"])
 
 
-def assess_gui_tool(tool, step, runtime, now):
+def assess_gui_tool(tool, step, runtime, now, producer_vendor=None):
     """D-129 gate for a host-local GUI tool. It never relaxes the Bot-only actions."""
     reasons = []
+    if producer_vendor and SURFACES.get(tool.get("host_surface")) == producer_vendor:
+        reasons.append("SAME_VENDOR_REVIEW")
     transport = tool.get("transport")
     if transport not in GUI_LOCAL_TOOLS:
         reasons.append("GUI_TOOL_UNSUPPORTED")
@@ -449,6 +451,9 @@ def host_usage(runtime, surface, now):
             continue
         if c.get("host_ref") not in (None, host):
             continue
+        if (c.get("available") is not True or c.get("lifecycle") != "active" or not c.get("evidence")
+                or c.get("registry_errors")):
+            continue  # constrain_runtime's registry decisions stand.
         billing, quota = c.get("billing") or {}, c.get("quota") or {}
         account = billing.get("account_ref")
         model = c.get("resolved_model") or c.get("model")
@@ -472,12 +477,12 @@ def gui_tool_route(tool, host):
             "runtime_observed_at": min(tool["observed_at"], host["observed_at"])}
 
 
-def pick_local_gui(step, runtime, rejected, fit_policy, now):
+def pick_local_gui(step, runtime, rejected, fit_policy, now, producer_vendor=None):
     """D-129: after every Bot candidate is blocked, the table's local tools in order."""
     tools = [t for t in runtime.get("gui_tools", []) if isinstance(t, dict) and isinstance(t.get("id"), str)]
     eligible = []
     for tool in tools:
-        reasons = assess_gui_tool(tool, step, runtime, now)
+        reasons = assess_gui_tool(tool, step, runtime, now, producer_vendor)
         if reasons:
             rejected.append({"candidate_id": tool["id"], "reasons": reasons})
         else:
@@ -1845,7 +1850,7 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                 choices.append((score, c, effort, amount))
             local = None
             if not choices and s["kind"] == "gui":
-                local, s["selection"] = pick_local_gui(s, runtime, rejected, fit_policy, now)
+                local, s["selection"] = pick_local_gui(s, runtime, rejected, fit_policy, now, vendor)
                 if local is not None:
                     actions = screen_actions(s)
                     s["route"] = gui_tool_route(local, host_usage(runtime, local["host_surface"], now))

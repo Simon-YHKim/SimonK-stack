@@ -184,6 +184,10 @@ def observe(host_ref, host_surface="claude", interactive=False, chrome=False, co
     now, paths = now or utc_now(), paths or default_paths()
     facts = inspect_playwright(paths)
     notes = []
+    # Only Claude Code's own registration is inspected; it says nothing about a Codex session.
+    inspected = host_surface == "claude"
+    if not inspected:
+        notes.append("Playwright is only inspected for a Claude host; this Codex host's tool is unverified.")
     if not facts["registered"]:
         notes.append("Playwright MCP is not registered; register it headless and isolated before use.")
     if facts["registered"] and not facts["version_pinned"]:
@@ -193,7 +197,7 @@ def observe(host_ref, host_surface="claude", interactive=False, chrome=False, co
     if facts["registered"] and not facts["pointer_lock_guard"]:
         notes.append("No pointer-lock guard init script; run with --install.")
     tools = [{"id": "host:playwright", "transport": "playwright",
-              "available": facts["registered"] and facts["chromium"], "observed_at": now,
+              "available": inspected and facts["registered"] and facts["chromium"], "observed_at": now,
               "evidence": ["collect_gui_tools: mcpServers.playwright, its config file and the browser folder"],
               "host_ref": host_ref, "host_surface": host_surface, "headless": facts["headless"],
               "isolated": facts["isolated"], "pointer_lock_guard": facts["pointer_lock_guard"],

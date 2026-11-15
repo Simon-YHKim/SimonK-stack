@@ -1211,6 +1211,22 @@ class OrchestrationTests(unittest.TestCase):
                               task_fit_policy=ranking)
                 self.assertIn("GUI_HOST_USAGE_UNVERIFIED", str(p["steps"][0]["rejected_candidates"]))
                 self.assertIsNone(p["steps"][0]["route"])
+        # Codex review #211: an unavailable or registry-rejected host candidate cannot pay for it.
+        # (constrain_runtime turns registry problems into available=False before this point.)
+        for change in ({"available": False}, {"lifecycle": "retired"}, {"evidence": ""}):
+            with self.subTest(host=change):
+                p = self.plan([self.gui()], [paused, self.host_seat(**change)], gui_tools=tools,
+                              host_ref="fixture-host", task_fit_policy=ranking)
+                self.assertIn("GUI_HOST_USAGE_UNVERIFIED", str(p["steps"][0]["rejected_candidates"]))
+        # A local GUI reviewer never shares the producer's vendor.
+        producer = step("draft", surface="claude")
+        review = self.gui(id="check", verify_of="draft", depends_on=["draft"])
+        p = self.plan([producer, review], [candidate("claude-writer", surface="claude", effective_effort="low"),
+                                           paused, self.host_seat()],
+                      gui_tools=tools, host_ref="fixture-host", task_fit_policy=ranking)
+        check = next(n for n in p["steps"] if n["id"] == "check")
+        self.assertIn("SAME_VENDOR_REVIEW", str(check["rejected_candidates"]))
+        self.assertIsNone(check["route"])
         # A node pinned to the Bot surface never moves to another provider.
         pinned = self.plan([self.gui(surface="grok-bot")], [paused, self.host_seat()], gui_tools=tools,
                            host_ref="fixture-host", task_fit_policy=ranking)

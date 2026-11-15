@@ -813,17 +813,19 @@ the host's surface and vendor and carries the host session's billing and quota, 
 | tool is one of the three, `available`, fresh `observed_at` with evidence | `GUI_TOOL_UNSUPPORTED`, `GUI_TOOL_UNAVAILABLE`, `GUI_TOOL_STALE` |
 | `host_ref` equals the runtime `host_ref`; `host_surface` is claude/codex (Chrome and Computer Use: claude) | `GUI_TOOL_HOST_MISMATCH`, `GUI_TOOL_HOST_UNSUPPORTED` |
 | a node pinned to a `surface` stays on it | `SURFACE_MISMATCH` |
+| a verifier (`verify_of`) never shares the producer's vendor | `SAME_VENDOR_REVIEW` |
 | node `screen_actions` has no `login` or `payment` (the host never types credentials or payment details) | `GUI_ACTION_NEEDS_BOT` |
 | Playwright: headless and isolated, pointer-lock guard present, node not `signed_in` | `GUI_PLAYWRIGHT_NOT_HEADLESS_ISOLATED`, `GUI_POINTER_LOCK_UNGUARDED`, `GUI_NEEDS_SIGNED_IN_BROWSER` |
 | Chrome and Computer Use: `interactive` (Simon at this session) | `GUI_REQUIRES_INTERACTIVE_HOST` |
-| the host session's own `transport: host` candidate (same surface and `host_ref`) has verified subscription billing that includes its exact model, no reached limit and fresh usage under 85% (D-74); the route copies its `billing` and `quota` | `GUI_HOST_USAGE_UNVERIFIED` |
+| the host session's own available, active `transport: host` candidate with evidence (same surface and `host_ref`) has verified subscription billing that includes its exact model, no reached limit and fresh usage under 85% (D-74); the route copies its `billing` and `quota` | `GUI_HOST_USAGE_UNVERIFIED` |
 
 Node fields: `screen_actions` (distinct values from read, input, submit, publish, delete, settings, login, payment;
 default `["read"]`) and `signed_in` (boolean, default false). Submit, publish, delete and settings land in
 `confirm_each`: ask Simon before each one. With no usable table the same local order applies in `situational` mode.
 
 `scripts/collect_gui_tools.py` builds the entries. It reads only `mcpServers.playwright` in `~/.claude.json`, the
-config file that entry names and the Playwright browser folder; Chrome and Computer Use are host-attested flags.
+config file that entry names and the Playwright browser folder, so Playwright is verified for a Claude host only (a Codex
+host reports it unverified); Chrome and Computer Use are host-attested flags.
 `--install` writes the pointer-lock guard (`~/.claude/playwright-pointer-guard.js`, a headless pointer lock once
 trapped the real cursor), adds it to `browser.initScript` after backing the config up, and installs Chromium with
 `npx -y playwright install chromium` when none is present. It never registers an MCP server or changes its version;

@@ -141,6 +141,11 @@ class CollectGuiToolsTests(unittest.TestCase):
         with self.assertRaises(m.GuiToolError):
             m.observe(" ", paths=self.paths)
 
+    def test_codex_host_does_not_inherit_the_claude_registration(self):
+        result = m.observe("fixture-host", host_surface="codex", now=NOW, paths=self.paths)
+        self.assertFalse(result["gui_tools"][0]["available"])
+        self.assertTrue(any("unverified" in note for note in result["notes"]))
+
     def test_browser_cache_follows_playwright_defaults_per_platform(self):
         home, local, custom = self.root / "home", self.root / "local", self.root / "custom"
         self.assertEqual(m.browser_cache("darwin", {}, home), home / "Library" / "Caches" / "ms-playwright")
