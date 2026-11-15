@@ -13,6 +13,7 @@
   - New `scripts/sync_task_ranking.py` generates the SKILL.md ranking table from the JSON (`--check`). The JSON is the single source for the table.
 - **Coding steps carry a "simple is the best" principle, and cleanup becomes its own `CODE_CLEANUP` step (hub D-128, Simon's instruction).**
   - Every coding-type step gets `principles` as part of its task intent, and they reach the Orca task body. Callers can add principles but cannot remove them.
+  - The direct CLI adapters (Claude, Codex, Grok via `execute_cli.render_spec`) put `principles` in the prompt as well; untyped nodes keep their old payload and request IDs (Codex review on #210).
   - `CODE_CLEANUP` preserves behavior, is scoped to files changed in this run, requires review, has quality floor 3, and stops auto-merge on any rename, move or deletion.
   - The guidance paraphrases the Karpathy guidelines (MIT), Anthropic's code-simplifier (Apache-2.0) and the cyclomatic-complexity skill (Apache-2.0). Nothing from them is installed.
 - `model-router` 0.2.8: adds `CODE_CLEANUP` to the task-type mirror and one line on where the ranking table lives.
