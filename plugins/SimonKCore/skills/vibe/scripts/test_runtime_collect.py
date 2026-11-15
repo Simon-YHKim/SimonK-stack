@@ -383,6 +383,59 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertEqual(env["PATH"], "safe-path")
         self.assertFalse(any(k in env for k in ("GROK_AUTH_PROVIDER_COMMAND", "NODE_OPTIONS", "NEW_PROVIDER_SECRET", "OPENAI_API_KEY")))
 
+    def test_agy_child_environment_disables_the_auto_updater_with_true(self):
+        # agy honours only "true"; "1" is ignored and runs its background updater (2026-10-12).
+        env = self.m.child_env({"PATH": "p", "GEMINI_API_KEY": "secret", "GOOGLE_API_KEY": "secret"},
+                               "antigravity")
+        self.assertEqual(env["AGY_CLI_DISABLE_AUTO_UPDATE"], "true")
+        self.assertFalse({"GEMINI_API_KEY", "GOOGLE_API_KEY"} & set(env))
+
+    def agy_prose_raw(self, argon=0.95, gemini=0.8, argon_bucket=True):
+        raw = agy_raw()
+        groups = raw["command"]["data"]["groups"]
+        groups[0]["buckets"] = [{"id": "gemini-weekly", "window": "weekly", "remaining_fraction": gemini,
+                                 "reset_time": "2026-09-26T00:48:24Z"},
+                                {"id": "gemini-5h", "window": "5h", "remaining_fraction": gemini,
+                                 "reset_time": "2026-09-26T00:48:24Z"}]
+        if argon_bucket:
+            groups.append({"name": "Gemini 4 Argon", "buckets": [
+                {"id": "gemini-argon-wtu-weekly", "window": "weekly", "remaining_fraction": argon,
+                 "reset_time": "2026-09-26T00:48:24Z"}]})
+        return raw
+
+    def test_agy_prose_tool_uses_the_argon_bucket_and_the_usage_gate_fields(self):
+        # D-126: Pro plans report a separate Argon bucket; that bucket alone is the usage.
+        tool = self.m.agy_prose_tool(self.parse("antigravity", self.agy_prose_raw(argon=0.95, gemini=0.2)))
+        self.assertEqual(tool["id"], "antigravity:argon-prose")
+        self.assertEqual((tool["surface"], tool["transport"], tool["tool_ref"]),
+                         ("antigravity", "agy-prose", "gemini-4-argon-high"))
+        self.assertAlmostEqual(tool["quota"]["used_pct"], 5, places=3)
+        self.assertEqual(tool["quota"]["bucket"], "gemini-argon-wtu-weekly")
+        self.assertEqual(tool["billing"]["auth_method"], "google-account")
+        self.assertTrue(tool["billing"]["api_fallback_disabled"])
+        self.assertEqual(tool["billing"]["account_ref"], tool["quota"]["account_ref"])
+        # Ultra plans fold Argon into the larger Gemini bucket: the gemini-* windows count.
+        ultra = self.m.agy_prose_tool(self.parse("antigravity", self.agy_prose_raw(gemini=0.6, argon_bucket=False)))
+        self.assertAlmostEqual(ultra["quota"]["used_pct"], 40, places=3)
+        self.assertEqual(ultra["quota"]["bucket"], "gemini-5h,gemini-weekly")
+        # The snapshot carries it for the planner.
+        snap = self.m.snapshot([self.parse("antigravity", self.agy_prose_raw())], NOW,
+                               {"models": [], "sources": {}})
+        self.assertEqual([t["id"] for t in snap["prose_tools"]], ["antigravity:argon-prose"])
+
+    def test_agy_prose_tool_needs_zero_token_usage_and_measured_windows(self):
+        raw = self.agy_prose_raw()
+        raw["command"]["data"]["groups"][-1]["buckets"][0]["remaining_fraction"] = None
+        unknown = self.m.agy_prose_tool(self.parse("antigravity", raw))
+        self.assertIsNone(unknown["quota"]["used_pct"])  # The planner and the runner refuse None.
+        for broken in ({"surface": "codex"}, {"state": "error"}, {"collection": {"zero_token_verified": None}},
+                       {"profile_ref": None}, {"quota_windows": []}):
+            with self.subTest(broken=broken):
+                obs = self.parse("antigravity", self.agy_prose_raw())
+                obs.update(broken)
+                self.assertIsNone(self.m.agy_prose_tool(obs))
+        self.assertIsNone(self.m.agy_prose_tool(self.parse("codex", codex_raw())))
+
     def test_codex_preserves_nonprimary_billing_facts(self):
         raw = codex_raw()
         raw["limits"]["rateLimitsByLimitId"] = {"premium": {"credits": {"hasCredits": True,
@@ -496,7 +549,8 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertEqual(run.call_args.args[0], ["fixture", "--version"])
 
     def test_agy_measured_zero_turn_usage_versions_are_metadata_only(self):
-        for version in ("1.2.12", "1.2.13", "1.2.14"):
+        # 1.5.9 measured 2026-11-16 (hub D-126): /usage returns num_turns 0 and zero tokens.
+        for version in ("1.2.12", "1.2.13", "1.2.14", "1.5.9"):
             with self.subTest(version=version), \
                  mock.patch.object(self.m, "resolve_command", return_value=["fixture"]), \
                  mock.patch.object(self.m, "run_text", side_effect=[

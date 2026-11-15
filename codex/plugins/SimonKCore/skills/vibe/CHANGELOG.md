@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.25.0 - 2026-11-16
+
+- **한국어 산문 = Gemini 4 Argon 초안 + Claude 사실 대조(허브 D-126, Simon "진행해" — D-107 을 /vibe 경로로)**. 새 작업 유형 `KOREAN_PROSE`(공지·안내문·윤문·짧은 카피)는 `kind=prose` 로 컴파일되고 Gemini 4 Argon 이 `agy --print` 로 초안을 쓴다. 보고서·기술 문서는 `KOREAN_DOC` 그대로 LLM 경로다.
+  - `runtime_collect.py`: agy 1.5.9 의 무턴 `/usage`(num_turns 0 · 토큰 0) 계약을 넣고 `runtime.prose_tools` 에 `antigravity:argon-prose`(전송 `agy-prose`, `gemini-4-argon-high`)를 만든다. Pro 요금제의 Argon 별도 버킷, 없으면(Ultra) `gemini-*` 버킷. 측정 안 된 창이 하나라도 있으면 사용량 null. 자동 업데이트 차단 값을 agy 가 인정하는 `true` 로 고쳤다(`1` 은 무시됐다).
+  - `orchestrate.py`: `assess_agy_prose_tool` 이 D-74 사용량 게이트만 본다(구글 계정 · API 키 없음 · Argon 사용량 85% 미만). 리뷰 단계(`verify_of`) 없이는 계획이 서지 않는다(`MISSING_REVIEW`, D-107 사실 대조). 넘겨주기 `agy-prose` · 실행기 `scripts/execute_agy_prose.py` · 1회 전송.
+  - 새 `scripts/execute_agy_prose.py`: `--not-confidential` 확인 필수(회사 기밀은 agy 로 보내지 않는다) · 64 KiB · 비밀 패턴 검사 → 보내기 직전 사용량 재확인 → 임시 폴더의 `00_BRIEF.md` 를 읽게 하는 고정 지시로 `agy --print --model gemini-4-argon-high --mode plan --sandbox --disable-slash-commands --output-format json` 1회 → 초안과 영수증(대화 ID · 토큰 · 사용량 전후 · 사실 대조 목록). 재전송 없음. 종료 0/2/3/4.
+  - 실측(11-16, agy 1.5.9): 짧은 사내 공지 1건 47초(Argon 27초, 입력 27,016 토큰), Argon 주간 버킷 2.73% → 3.19%, 사실은 브리프와 일치. 같은 날 Orca `antigravity` 워커도 `--model gemini-4-argon-high` 로 과제를 받아 정답을 냈다(D-28 #12 미재현, 1회) — 일반 Gemini Orca 레인은 바꾸지 않았다.
+- `model-router` 0.2.7: 작업 유형 미러에 `KOREAN_PROSE` 를 더했다.
+- 테스트: `test_execute_agy_prose.py`(7, 가짜 전송), `test_runtime_collect.py` +3, `test_orchestrate.py` +2. CI 에 새 테스트 단계.
+
 ## 2.24.0 - 2026-11-16
 
 - **벤더별 최신 모델 반영(허브 D-125, Simon 지시 "벤더별 최신 업데이트를 진행하고, 여론을 조사해서 적절한 모델을 선정")**. D-67 과 같은 ADD_ALONGSIDE_KEEP_LEGACY: 새 레인 키 `claude-fable-5-2`·`grok-4.7`·`gemini-4-hydrogen` 을 옛 키 옆에 넣고 목록만 옮겼다. 옛 키 `claude-fable-5-1`·`grok-4.6`·`gemini-3.8-flash` 는 원장 호환용이다.

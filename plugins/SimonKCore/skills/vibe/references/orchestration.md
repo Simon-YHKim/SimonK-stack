@@ -13,6 +13,7 @@
 - QA completion gate
 - Guarded Bot adapter
 - Codex image lane (D-121)
+- Gemini Argon Korean prose lane (D-126)
 - Conditional host image adapter
 - Guarded Orca adapter
 - Preparation journal and host-injected core
@@ -809,6 +810,53 @@ Measured 2026-10-24 (codex-cli 0.163.0, `image_generation` stable and on): one
 flat illustration took 25 seconds and moved the weekly `codex` usage from 41 to
 42 percent. D-121's reversal condition is about 3 points or more per image,
 or a credit deduction while included usage remains.
+
+## Gemini Argon Korean prose lane (D-126)
+
+Hub D-126 (Simon, 2026-11-16, "진행해"): D-107's Korean prose rule (Simon's blind
+comparison, 2026-10-18, Argon preferred 2:1) inside /vibe. A `KOREAN_PROSE` node
+(notices, announcements, polishing, short copy) compiles to `kind=prose` and is drafted on
+Gemini 4 Argon through `agy --print`. Korean reports and technical documents stay
+`KOREAN_DOC` on the LLM routes. The lane uses the D-74 included-usage gate only.
+
+- **Observation.** `runtime_collect.py --surface antigravity` runs the zero-turn
+  `agy -p /usage` (contract measured for agy 1.5.9: `num_turns` 0, zero tokens) and adds one
+  `runtime.prose_tools` entry, `id=antigravity:argon-prose`, `transport=agy-prose`,
+  `tool_ref=gemini-4-argon-high`. Pro plans report a separate Argon bucket (ids containing
+  `argon`); Ultra plans fold Argon into the larger Gemini bucket, so without an Argon
+  bucket the `gemini-*` windows count. One unmeasured window leaves usage `null`.
+  agy shows no account ID, plan or credit fields: the profile stands in for the account,
+  `child_env` passes no API key, and the tier quota is the subscription evidence. The
+  child environment disables agy's updater with `AGY_CLI_DISABLE_AUTO_UPDATE=true` (agy
+  ignores `1`).
+- **Planner gate** (`assess_agy_prose_tool`): `surface=antigravity`, `transport=agy-prose`,
+  `tool_ref=gemini-4-argon-high`, available with evidence, fresh billing with
+  `mode=subscription`, `verified=true`, `auth_method=google-account`, an account reference
+  and `api_fallback_disabled=true`, and fresh account-bound `agy-prose` usage under 85
+  percent. `requires_review` holds the node until an LLM review step (`verify_of`) of
+  another vendor exists; it fact-checks numbers, proper nouns and claims against the brief.
+- **Handoff.** `{"kind": "agy-prose", "model": "gemini-4-argon-high", "runner":
+  "scripts/execute_agy_prose.py", "one_send": true, "fact_check": "host-review-step"}`.
+  The route has `model=gemini-4-argon`, effort `high`.
+- **Runner.** `python scripts/execute_agy_prose.py --brief-file <brief> --out <absolute .md>
+  --not-confidential` refuses without the confidentiality confirmation (company-confidential
+  material never goes to agy), a brief over 64 KiB or with a secret pattern, and an
+  existing output or receipt path, before anything is sent. It reads usage again
+  (zero-turn), writes the brief as `00_BRIEF.md` in a fresh temporary folder, and runs
+  one `agy --print <fixed instruction> --model gemini-4-argon-high --mode plan --sandbox
+  --disable-slash-commands --output-format json` inside a job object. The draft is the
+  `response` text; `<name>.receipt.json` records the conversation ID, token use, usage
+  before and after (zero-turn), and the fact-check list.
+- **Outcomes.** Exit 0 written; 2 bad arguments; 3 refused by the gate; 4 failed or
+  unknown. Nothing is resent automatically.
+
+Measured 2026-11-16 (agy 1.5.9): one short office notice took 47 seconds end to end
+(Argon 27 s, 27,016 input tokens) and moved the Argon weekly bucket from 2.73 to 3.19
+percent; the facts matched the brief. D-126's reversal condition is 3 points or more per
+draft, a credit or API-key path, or Simon judging Argon drafts worse than Claude's.
+An Orca `antigravity` worker with `--model gemini-4-argon-high` also delivered a task and
+answered correctly once on the same day (D-28 #12 did not reproduce, n=1); the general
+Gemini Orca lanes keep `dispatch: unavailable` until a separate decision.
 
 ## Conditional host image adapter (D-32)
 

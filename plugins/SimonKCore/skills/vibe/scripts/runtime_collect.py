@@ -44,7 +44,8 @@ MAX_BYTES = 1024 * 1024  # Catalogs fit well below 1 MiB; stop unsolicited flood
 RPC_METHODS = {"initialize", "model/list", "account/read", "account/rateLimits/read",
                "_x.ai/billing", "x.ai/billing"}
 TOKEN_FIELDS = {"input_tokens", "output_tokens", "thinking_tokens", "cache_read_tokens", "total_tokens"}
-AGY_USAGE_VERSIONS = {"1.2.6", "1.2.7", "1.2.9", "1.2.12", "1.2.13", "1.2.14"}  # Zero-turn command contract measured locally.
+AGY_USAGE_VERSIONS = {"1.2.6", "1.2.7", "1.2.9", "1.2.12", "1.2.13", "1.2.14",
+                      "1.5.9"}  # Zero-turn command contract measured locally (1.5.9: 2026-11-16, hub D-126).
 BASE_ENV = {"SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "COMSPEC", "PATH", "PATHEXT", "TEMP", "TMP", "TMPDIR",
             "HOME", "USERPROFILE", "HOMEDRIVE", "HOMEPATH", "APPDATA", "LOCALAPPDATA", "PROGRAMDATA",
             "PROGRAMFILES", "PROGRAMFILES(X86)", "PROGRAMW6432", "COMMONPROGRAMFILES", "COMMONPROGRAMFILES(X86)",
@@ -534,7 +535,8 @@ def child_env(parent, surface):
     profile_key = {"codex": "CODEX_HOME", "claude": "CLAUDE_CONFIG_DIR", "grok": "GROK_HOME"}.get(surface)
     allowed = BASE_ENV | ({profile_key} if profile_key else set())
     result = {k: v for k, v in parent.items() if k.upper() in allowed}
-    result.update(AGY_CLI_DISABLE_AUTO_UPDATE="1", NO_COLOR="1")
+    # agy honours only "true"; "1" is ignored and starts its background updater (measured 2026-10-12).
+    result.update(AGY_CLI_DISABLE_AUTO_UPDATE="true", NO_COLOR="1")
     return result
 
 
@@ -632,6 +634,48 @@ def codex_image_tool(observation):
                       "transport": "codex-image", "evidence": evidence}}
 
 
+# Hub D-126 (Simon 2026-11-16, D-107 inside /vibe): Korean prose drafts on Gemini 4 Argon
+# through `agy --print`, under the D-74 usage gate. The zero-turn /usage answer carries the
+# account's tier quota but no account ID, plan or credit fields, so the profile stands in
+# for the account and child_env passes no API key.
+AGY_PROSE_TRANSPORT = "agy-prose"
+AGY_PROSE_MODEL = "gemini-4-argon-high"
+
+
+def agy_prose_tool(observation):
+    """Gemini 4 Argon prose drafting as a planner tool, or None.
+
+    Pro plans report a separate Argon bucket (ids containing "argon"). Ultra plans fold
+    Argon into the larger Gemini bucket, so without an Argon bucket the gemini-* windows
+    count. Every counted window must be measured; one unknown window leaves usage None.
+    """
+    if (not isinstance(observation, dict) or observation.get("surface") != "antigravity"
+            or observation.get("state") != "ok"
+            or obj(observation.get("collection")).get("zero_token_verified") is not True
+            or not observation.get("profile_ref")):
+        return None
+    windows = observation.get("quota_windows", [])
+    counted = [w for w in windows if "argon" in str(w.get("bucket") or "")]
+    if not counted:
+        counted = [w for w in windows if str(w.get("bucket") or "").startswith("gemini-")]
+    if not counted:
+        return None
+    known = all(w.get("state") == "observed" and type(w.get("used_pct")) in (int, float)
+                for w in counted)
+    used = max(w["used_pct"] for w in counted) if known else None
+    now, account = observation["observed_at"], observation["profile_ref"]
+    evidence = [observation["source"] + ":/usage num_turns=0 tokens=0",
+                "subscription tier quota (weekly/5h); child_env passes no API key (D-74, D-126)"]
+    return {"id": "antigravity:argon-prose", "surface": "antigravity", "transport": AGY_PROSE_TRANSPORT,
+            "tool_ref": AGY_PROSE_MODEL, "model": "gemini-4-argon", "available": True,
+            "observed_at": now, "evidence": evidence,
+            "billing": {"mode": "subscription", "verified": True, "auth_method": "google-account",
+                        "account_ref": account, "api_fallback_disabled": True,
+                        "observed_at": now, "evidence": evidence},
+            "quota": {"used_pct": used, "bucket": ",".join(sorted({str(w.get("bucket")) for w in counted})),
+                      "observed_at": now, "account_ref": account, "surface": "antigravity",
+                      "transport": AGY_PROSE_TRANSPORT, "evidence": evidence}}
+
 def snapshot(observations, now, registry=None):
     registry = registry if registry is not None else load_registry()
     facts = {m["id"]: m for m in registry["models"]}
@@ -650,9 +694,10 @@ def snapshot(observations, now, registry=None):
                 "quota": {"used_pct": None, "observed_at": observation["observed_at"], "bucket": None},
                 "pending_evidence": ["generation-probe", "model-billing", "model-quota-binding", "task-policy"]})
     image_tools = [tool for tool in map(codex_image_tool, observations) if tool]
+    prose_tools = [tool for tool in map(agy_prose_tool, observations) if tool]
     return {"schema_version": 1, "observed_at": now, "candidates": candidates,
-            "tools": [], "image_tools": image_tools, "observations": observations,
-            "metadata_only": True}
+            "tools": [], "image_tools": image_tools, "prose_tools": prose_tools,
+            "observations": observations, "metadata_only": True}
 
 
 def collect_all(surfaces, backend=None, now=None):
