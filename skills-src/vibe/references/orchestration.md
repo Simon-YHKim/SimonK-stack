@@ -1107,7 +1107,12 @@ Owner rule (hub D-101, applied to this transport by D-102): the planner rejects
 a Codex CLI candidate whose model is one of the five withdrawn GPT models
 (`MODEL_WITHDRAWN_BY_OWNER`), and a `gpt-6-astra` candidate at any effort other
 than `xhigh` (`EFFORT_PINNED_BY_OWNER`). The Orca transport gets the same rule
-from the lane table. A host session's own model is not restricted.
+from the lane table. A host session's own model is not restricted. Hub D-130
+reopened `gpt-6.1-sol` for `RESEARCH` and `AGENTIC` steps only, also pinned to
+`xhigh` (`orchestrate.OWNER_LANE_TASKS`). The planner applies that task scope to
+Orca candidates too, because the lane table scopes by process
+(`routing.WITHDRAWN_LANE_SCOPES`) and `research-deep` also holds planning and
+writing steps.
 
 The node's `cli` manifest pins absolute `codex.exe` bytes, private canonical
 `cwd`, actual `CODEX_HOME` profile path, opaque profile/account references,
@@ -1125,8 +1130,14 @@ model inclusion or a USD 0 invoice.
 After a Store claim, the adapter repeats the account/model and certificate
 checks, persists the original predecessor-input digest, then runs the pinned
 native CLI once with `codex exec --json --ephemeral --ignore-user-config
---skip-git-repo-check --sandbox read-only -C <private-cwd> -m <model>
--c model_reasoning_effort=<effort> -`. The bounded task is piped on stdin,
+--disable hooks --disable apps --disable plugins --skip-git-repo-check
+--sandbox read-only -C <private-cwd> -m <model>
+-c model_reasoning_effort=<effort> -`. The three `--disable` flags (D-130) keep
+profile hooks and plugin skills out of the one tool-free turn: on this PC they
+added warning items (`error` type: a clamped hook timeout, the skills context
+budget) that the parser rightly rejects, so every real send failed. The profile's
+PreToolUse guards do not run in this lane; the read-only sandbox and the
+tool-activity rejection remain. The bounded task is piped on stdin,
 not put in the process command line. The child environment is allowlisted and
 sets the pinned `CODEX_HOME`, never forwarding an API key. No wrapper, API/OSS
 fallback, broad workspace grant or approval bypass is permitted. This is a

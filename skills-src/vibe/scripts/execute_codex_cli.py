@@ -190,7 +190,10 @@ class Adapter:
     def argv(plan, node_id, executable, cwd):
         route = execute_cli.selected(plan, node_id)["route"]
         model = route.get("resolved_model") or route["model"]
+        # D-130: profile hooks and plugin skills add warning items ("error" type) to the stream,
+        # which parse_result rightly rejects. This one-send lane runs no tools and needs neither.
         return [executable, "exec", "--json", "--ephemeral", "--ignore-user-config",
+                "--disable", "hooks", "--disable", "apps", "--disable", "plugins",
                 "--skip-git-repo-check", "--sandbox", "read-only", "-C", cwd,
                 "-m", model, "-c", 'model_reasoning_effort="' +
                 route["requested_effort"] + '"', "-"]

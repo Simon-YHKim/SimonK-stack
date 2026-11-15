@@ -841,12 +841,22 @@ def run():
         check("D-101 일을 받는 codex 자리는 gpt-6-astra 와 Daybreak 게이트 고정뿐이다",
               {l for l in active if routing.LANES[l]["vendor"] == "codex"} == {"gpt-6-astra", daybreak})
         for lane in sorted(routing.WITHDRAWN_LANES):
+            # D-130: gpt-6.1-sol is withdrawn outside its scoped processes, so check it in one of those.
+            proc = "claim-verify" if lane in routing.WITHDRAWN_LANE_SCOPES else "research-deep"
             ok_w, v_w, _nw = routing.validate_plan(
-                [{"proc": "research-deep", "lane": lane, "class": "B"}], quota_checked_vendors=routing.VENDORS)
-            check(f"D-101 철회 레인 {lane} 은 새 계획에서 LANE_WITHDRAWN", not ok_w and v_w == ["LANE_WITHDRAWN"], str(v_w))
+                [{"proc": proc, "lane": lane, "class": routing.PROC_BY_ID[proc][1]}],
+                quota_checked_vendors=routing.VENDORS)
+            check(f"D-101 철회 레인 {lane} 은 새 계획({proc})에서 LANE_WITHDRAWN", not ok_w and v_w == ["LANE_WITHDRAWN"], str(v_w))
         ok_rw, v_rw, _nrw, _ = routing.revalidate_for_retry(
-            a_rd, "research-deep", "gpt-6.1-sol", quota_checked_vendors=routing.VENDORS)
+            a_rd, "research-deep", "gpt-6-luna", quota_checked_vendors=routing.VENDORS)
         check("D-101 재시도로 철회 레인에 옮기는 것도 막는다 (G13)", not ok_rw and "LANE_WITHDRAWN" in v_rw, str(v_rw))
+        scoped_ok = all(routing.validate_plan([{"proc": p, "lane": "gpt-6.1-sol", "class": "B"}],
+                                              quota_checked_vendors=routing.VENDORS)[0]
+                        for p in routing.WITHDRAWN_LANE_SCOPES["gpt-6.1-sol"])
+        check("D-130 gpt-6.1-sol 은 research-deep·terminal-ci-git 에서만 다시 선다 (xhigh 고정)",
+              scoped_ok and routing.WITHDRAWN_LANE_SCOPES == {"gpt-6.1-sol": ("research-deep", "terminal-ci-git")}
+              and routing.EFFORT_PINNED.get("gpt-6.1-sol") == "xhigh"
+              and routing.ladder_for("gpt-6.1-sol") == ("xhigh", "xhigh"))
         for coder in ("gpt-6-astra", "gpt-6.1-sol", "gpt-6-luna"):
             ok_c, v_c, _nc = routing.validate_plan(
                 [{"proc": "coding", "lane": coder, "class": "B"}] + gate_a,
@@ -903,7 +913,7 @@ def run():
               and "gpt-6.1-sol" not in routing.OUTPUT_RULES)
         check("D-101 astra 사다리는 std = top = xhigh 이고 effort 가 고정이다",
               routing.ladder_for("gpt-6-astra") == ("xhigh", "xhigh")
-              and routing.EFFORT_PINNED == {"gpt-6-astra": "xhigh"}
+              and routing.EFFORT_PINNED == {"gpt-6-astra": "xhigh", "gpt-6.1-sol": "xhigh"}
               and routing.effort_for("gpt-6-astra", False) == "xhigh"
               and routing.effort_for("gpt-6-astra", True) == "xhigh", str(routing.ladder_for("gpt-6-astra")))
 
