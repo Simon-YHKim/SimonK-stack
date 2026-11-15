@@ -1,6 +1,21 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-11-16 01:50 / /vibe 한국어 산문 = Gemini 4 Argon (D-126, vibe 2.25.0)
+## Latest — 2026-11-16 02:30 / /vibe 작업별 순위표 기본 배정 + simple is the best (D-127·D-128, vibe 2.26.0)
+
+갱신 시각: 2026-11-16 02:30 KST · 갱신자: Claude Code(Opus 5.5). Simon: "상황별, 작업별, 작업 스케일별 매번 판단하는것을 단순화… 기본적으로 지금 배정할 작업별 순위를 따라서… 리스트 중에 없거나 usage로 인한 꼬임이 발생할때는 상황별 판단" · "코딩하는 놈한테는 simple is the best" · "깃허브상에 이용자가 많은 스킬이 있다면 그걸 응용하자". 허브 D-127(cea51b17) · D-128(77ad29f3). PR #210.
+
+- **D-127**: `references/task-fit-policy.json` = schema 2 active 순위표(18개 유형 중 GUI 뺀 17개, 창 2026-11-16 01:50 ~ 11-23 00:08:40). 계획기가 게이트 뒤 가장 싼 경로들 안에서 순위 최고를 고르고 단계에 `selection` 을 남긴다. 표 밖 · 창 밖 · 순위 후보 전부 막힘 = `situational`(예전 점수 + 호스트 판단). 도구 막힘 → `fallback_task_type`(KOREAN_PROSE → KOREAN_DOC). 새 `scale`(small = 현재 세션 먼저, large = 워커 먼저). SKILL.md 표는 `scripts/sync_task_ranking.py` 생성물. `shadow_task_fit` 폐지. routing.py Orca 레인 표는 그대로.
+- **D-128**: CODE_COMPLEX·SIMPLE·NEW·FIX 단계에 `principles`(SIMPLE_RULES)가 작업 의도로 붙고 Orca 과제 본문과 직접 CLI 프롬프트(`execute_cli.render_spec`, Codex 리뷰 지적으로 추가)까지 간다. 새 유형 `CODE_CLEANUP`(writes · 리뷰 · 품질 3 · 동작 보존 · 이번 실행 변경 파일 범위 · 리네임/이동/삭제 = 자동 머지 정지). `CODE_REVIEW` 는 REVIEW_RULES. 응용 출처(설치 없음): Karpathy 지침(MIT ★233k) · Anthropic code-simplifier(Apache-2.0) · cyclomatic-complexity-skill(Apache-2.0 ★409).
+- **검토 판단(Simon 이 물은 정리 역할)**: 기능 코더가 정리까지 하면 diff 확대 · 에이전트 간 파일 경합 · 배송 정지 조건 충돌 → 분리했다. scale: large 코딩 뒤 CODE_CLEANUP 하나.
+- **리뷰**: Codex 6751b34 지적 1(P2, CLI 로 principles 미전달) → 9105ae0 에서 고침 · 재리뷰 지적 0.
+- **D-126 마무리(같은 세션)**: PR #209 머지 a2883e5 · main 게시 성공 · 이 PC 설치 20261116-vibe-2250-a2883e5 · 루트 CLAUDE/AGENTS/GEMINI §21 한국어 산문 줄 동기화 · 허브 AMEND df60977f.
+
+### 다음 작업 큐
+- 11-23 00:08 전: 레지스트리 + 순위표(valid_until) 같이 재확인. 표가 만료되면 모든 유형이 situational 이 된다.
+- Simon: 보고서(https://claude.ai/artifact/F4ahYmdBQPTwMKagXhn9YQ) P3(C-realtime 분리) · P4(A-verify 보조 Gemini) 결정. P6 은 D-101 위반이라 철회했다.
+- 그 밖에는 아래 01:50 블록 큐 그대로.
+
+## 2026-11-16 01:50 / /vibe 한국어 산문 = Gemini 4 Argon (D-126, vibe 2.25.0)
 
 갱신 시각: 2026-11-16 01:50 KST · 갱신자: Claude Code(Opus 5.5). Simon: "진행해"(D-107 을 /vibe 안으로 가져오자는 권고). 허브 6d3a4561(D-126). PR #209.
 

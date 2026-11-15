@@ -476,6 +476,25 @@ class ClaudeCliAdapterTests(unittest.TestCase):
                     + self.m.safe_json({"role": None, "task": task, "acceptance": []}))
         self.assertEqual(self.m.render_spec(self.plan, "opening"), expected)
 
+    def test_typed_principles_reach_the_cli_prompt(self):
+        # D-128 (Codex review on PR #210): the rules must reach direct CLI workers too.
+        plan = copy.deepcopy(self.plan)
+        rules = list(orchestrate.REVIEW_RULES) + ["Keep the public API."]
+        plan["steps"][0]["principles"] = rules
+
+        def sealed(value):
+            value["plan_digest"] = orchestrate.digest({k: v for k, v in value.items() if k != "plan_digest"})
+            return value
+
+        spec = self.m.render_spec(sealed(plan), "opening")
+        for rule in rules:
+            self.assertIn(rule, spec)
+        self.assertIn('"principles"', spec)
+        plan["steps"][0]["principles"] = [""]
+        with self.assertRaises(run_state.StateError) as raised:
+            self.m.render_spec(sealed(plan), "opening")
+        self.assertIn("PRINCIPLES_INVALID", str(raised.exception))
+
 
 if __name__ == "__main__":
     unittest.main()

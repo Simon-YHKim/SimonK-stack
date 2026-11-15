@@ -93,6 +93,13 @@ def render_spec(plan, node_id, inputs=None):
                                "challenger_rebuttal", "judge")
                  if (plan.get("debate") or {}).get(key) == node_id), None)
     payload = {"role": role, "task": task, "acceptance": node.get("acceptance", [])}
+    principles = node.get("principles")
+    if principles is not None:
+        # Hub D-128: typed coding and review rules travel with the task. Untyped nodes keep the
+        # exact old payload, so their request IDs stay stable.
+        require(isinstance(principles, list) and principles
+                and all(isinstance(p, str) and p.strip() for p in principles), "PRINCIPLES_INVALID")
+        payload["principles"] = principles
     safe_json(payload)
     if inputs is None:
         # Keep existing opening/non-debate request IDs stable across upgrades.

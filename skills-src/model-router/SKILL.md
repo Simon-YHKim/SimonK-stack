@@ -4,7 +4,7 @@ description: >-
   Use when choosing model/effort assignments: "which model", "모델 추천",
   "route tasks". Returns an evidence-bound /vibe plan with quota, cost and
   blocked reasons; never launches workers or treats unknown billing as free.
-version: 0.2.7
+version: 0.2.8
 ---
 
 # Model Router — one typed request, one central plan
@@ -24,6 +24,8 @@ silently combine a development planner with an older installed skill home.
   account-bound runtime evidence. Unknown is blocked, not zero.
 - Task-type defaults: `TASK_TYPE_MAP` in the central planner. The mirror below is
   checked against that executable contract by offline integration tests.
+- Default model order per task type: the active task table `../vibe/references/task-fit-policy.json`
+  (D-127). It orders gated candidates only; it never opens a gate.
 - Wiki benchmarks are historical research, not dispatch authority. A fetch time
   or `last-updated` date alone does not prove that benchmark rows were updated.
   Do not run a fetcher to manufacture freshness or claim an unverified score.
@@ -64,6 +66,7 @@ contract without `task_type`; its exact argv cost still needs verification.
 | REASONING_ABSTRACT | Difficult abstract reasoning requiring the critical quality floor |
 | VISION | Image/OCR/diagram interpretation, not authority to control a screen |
 | IMAGE_GENERATION | Produce a new image; blocked until a verified subscription-included image tool exists |
+| CODE_CLEANUP | Behavior-preserving cleanup of tangled code or file layout as its own edit step (D-128); scope is the run's changed files unless named |
 | KOREAN_PROSE | Korean notices, announcements, polishing and short copy; a dedicated prose tool drafts (Gemini Argon, D-126) and a review step fact-checks |
 
 Use the four deliverable-specific profiles above when they fit; retain the
@@ -89,6 +92,7 @@ step; never omit a type merely to bypass a rejected requirement.
   "WRITING": {"kind": "llm", "needs": ["writing"], "demand": "reasoning", "proc": "research-deep", "class": "B"},
   "CODE_NEW": {"kind": "llm", "needs": ["code"], "demand": "reasoning", "proc": "coding", "class": "B"},
   "CODE_FIX": {"kind": "llm", "needs": ["code"], "demand": "reasoning", "proc": "coding", "class": "B"},
+  "CODE_CLEANUP": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "coding", "class": "B"},
   "CODE_REVIEW": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "claim-verify", "class": "A-verify"},
   "RESEARCH": {"kind": "llm", "needs": ["research", "reasoning"], "demand": "reasoning", "proc": "research-deep", "class": "B"},
   "AGENTIC": {"kind": "llm", "needs": ["reasoning"], "demand": "reasoning", "proc": "terminal-ci-git", "class": "B"},

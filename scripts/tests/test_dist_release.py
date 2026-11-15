@@ -477,15 +477,16 @@ class PublishWorkflowTests(unittest.TestCase):
         # exact Claude/Codex content only, existing protected-source gate unchanged.
         # D-125 (2026-11-16): vibe 2.24.0 (Fable 5.2 / Grok 4.7 / Gemini 4 Hydrogen seats, registry 2026-11-16.1).
         # D-126 (2026-11-16): vibe 2.25.0 (Gemini 4 Argon Korean prose lane, agy-prose runner).
+        # D-127/D-128 (2026-11-16): vibe 2.26.0 (per-task ranking table, simple-is-the-best coding rules, CODE_CLEANUP).
         allow = dist.validate_allow(json.loads((ROOT / dist.ALLOW).read_text(encoding="utf-8")))
         self.assertEqual(allow["schema_version"], 2)
         self.assertEqual(allow["scope"], "five-plugin-dist-v1")
-        self.assertEqual(allow["decision"], "D-126")
-        self.assertEqual(allow["source_commit"], "5c2e372ed44a2c9bfb69158477aa47b3f5a1e57b")
+        self.assertEqual(allow["decision"], "D-127")
+        self.assertEqual(allow["source_commit"], "9105ae0b87398b3d46941ae2cab3cbe16551c06e")
         self.assertEqual(allow["content_digest"],
-                         "41b544b9aff00bc6e6bf82e3e98969d5bff0fd3d23fb9bfb85b0517c5c1b3068")
+                         "5972fa1531729eb768c9ceb16389460ef48a0c64939a34262d28fc864d0344a2")
         self.assertEqual(allow["codex_content_digest"],
-                         "4e7c04401317f7704034c93b88270afa558c3a772bef472e4993f507c64eaf74")
+                         "03893e0142c6d766e6084e08de430915f6c61f28a8c3f8aaf56ba15e442ccc8e")
 
 
 class StageTests(unittest.TestCase):

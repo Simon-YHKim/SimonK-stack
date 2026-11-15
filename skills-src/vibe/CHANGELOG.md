@@ -1,5 +1,27 @@
 # Changelog
 
+## 2.26.0 - 2026-11-16
+
+- **Default routing follows the per-task ranking table, with situational judgment only when a task type is not in the table or usage blocks it (hub D-127, Simon's instruction).** `references/task-fit-policy.json` changes from a shadow-only hypothesis to an active schema 2 ranking table covering 17 of the 18 task types (all but GUI).
+  - `orchestrate.py`: after every gate, the planner takes the highest-ranked candidate among the cheapest routes and records `selection` on the step (mode, reason, rank, skipped, policy hash).
+    - When the task type is not in the table, the table is outside its validity window, or every ranked candidate is blocked, the mode is `situational` and the old score decides.
+    - Image and Korean prose tools follow the same table for tool order. When blocked, the step carries `fallback_task_type` (KOREAN_PROSE → KOREAN_DOC).
+    - New step field `scale`: small (default) tries the current session first; large tries workers first.
+    - `shadow_task_fit` is removed.
+  - The ranks come from earlier decisions (D-28, D-101, D-103, D-106, D-107, D-121, D-126). The only new placements are Fable 5.2 first for hard abstract reasoning and Fable third for planning, from the 11-16 model strengths report.
+  - GPT is `gpt-6-astra` @xhigh only. The validator rejects withdrawn lanes and fixed-effort violations.
+  - New `scripts/sync_task_ranking.py` generates the SKILL.md ranking table from the JSON (`--check`). The JSON is the single source for the table.
+- **Coding steps carry a "simple is the best" principle, and cleanup becomes its own `CODE_CLEANUP` step (hub D-128, Simon's instruction).**
+  - Every coding-type step gets `principles` as part of its task intent, and they reach the Orca task body. Callers can add principles but cannot remove them.
+  - The direct CLI adapters (Claude, Codex, Grok via `execute_cli.render_spec`) put `principles` in the prompt as well; untyped nodes keep their old payload and request IDs (Codex review on #210).
+  - `CODE_CLEANUP` preserves behavior, is scoped to files changed in this run, requires review, has quality floor 3, and stops auto-merge on any rename, move or deletion.
+  - The guidance paraphrases the Karpathy guidelines (MIT), Anthropic's code-simplifier (Apache-2.0) and the cyclomatic-complexity skill (Apache-2.0). Nothing from them is installed.
+- `model-router` 0.2.8: adds `CODE_CLEANUP` to the task-type mirror and one line on where the ranking table lives.
+- Tests:
+  - The shadow tests are replaced by ranking-selection tests: top rank, next rank, four situational cases, money and effort taking precedence, scale, tool ranking with fallback type, and the packaged table.
+  - Two new D-128 tests.
+  - `test_model_router_integration.py` now covers 18 task types.
+
 ## 2.25.0 - 2026-11-16
 
 - **한국어 산문 = Gemini 4 Argon 초안 + Claude 사실 대조(허브 D-126, Simon "진행해" — D-107 을 /vibe 경로로)**. 새 작업 유형 `KOREAN_PROSE`(공지·안내문·윤문·짧은 카피)는 `kind=prose` 로 컴파일되고 Gemini 4 Argon 이 `agy --print` 로 초안을 쓴다. 보고서·기술 문서는 `KOREAN_DOC` 그대로 LLM 경로다.
