@@ -1158,6 +1158,12 @@ class OrchestrationTests(unittest.TestCase):
         item.update(changes)
         return item
 
+    def host_seat(self, **changes):
+        """The host session's own candidate: its usage pays for a local GUI step (D-74)."""
+        c = candidate("host-claude", surface="claude", effective_effort="low", host_ref="fixture-host")
+        c.update(changes)
+        return c
+
     def gui_ranking(self):
         policy = self.task_fit_fixture(task_type="COMPUTER_USE")
         policy["profiles"] = {"COMPUTER_USE": [
@@ -1169,31 +1175,47 @@ class OrchestrationTests(unittest.TestCase):
         # D-129 (Simon 2026-11-16): local tools are the fallback when Grok Bot cannot run.
         tools = [self.gui_tool(), self.gui_tool("claude-in-chrome"), self.gui_tool("computer-use")]
         ranking = self.gui_ranking()
-        p = self.plan([self.gui()], [self.bot()], gui_tools=tools, host_ref="fixture-host",
+        p = self.plan([self.gui()], [self.bot(), self.host_seat()], gui_tools=tools, host_ref="fixture-host",
                       task_fit_policy=ranking)
         node = p["steps"][0]
         self.assertEqual((node["route"]["transport"], node["selection"]["mode"], node["selection"]["rank"]),
                          ("bot", "ranked", 0))
         paused = self.bot(bot_status="paused")
-        p = self.plan([self.gui()], [paused], gui_tools=tools, host_ref="fixture-host", task_fit_policy=ranking)
+        p = self.plan([self.gui()], [paused, self.host_seat()], gui_tools=tools, host_ref="fixture-host", task_fit_policy=ranking)
         node = p["steps"][0]
         self.assertEqual(p["status"], "ready", node["errors"])
-        self.assertEqual((node["route"]["surface"], node["route"]["transport"]), ("host", "playwright"))
-        self.assertEqual(node["route"]["vendor"], "anthropic")
+        self.assertEqual((node["route"]["surface"], node["route"]["transport"]), ("claude", "playwright"))
+        self.assertEqual((node["route"]["vendor"], node["route"]["host_candidate_id"]), ("anthropic", "host-claude"))
+        self.assertEqual(node["route"]["billing"]["account_ref"], "test-account")
+        # Codex review #211: the fallback runs through readiness and durable registration.
+        import run_state
+        self.assertEqual(self.m.ready_steps(p, [], NOW), ["read"])
+        with tempfile.TemporaryDirectory(prefix="vibe-gui-state-") as folder:
+            store = run_state.Store(Path(folder) / "state.sqlite3")
+            store.initialize()
+            store.register(p, now=NOW)
+            self.assertEqual(store.ready("test-run", NOW), ["read"])
+        # The host session pays in included usage: over the D-74 ceiling, no local route.
+        busy = self.host_seat()
+        busy["quota"]["used_pct"] = 90
+        blocked = self.plan([self.gui()], [paused, busy], gui_tools=tools, host_ref="fixture-host",
+                            task_fit_policy=ranking)
+        self.assertIn("GUI_HOST_USAGE_UNVERIFIED", str(blocked["steps"][0]["rejected_candidates"]))
+        self.assertIsNone(blocked["steps"][0]["route"])
         self.assertEqual((node["selection"]["mode"], node["selection"]["rank"]), ("ranked", 1))
         self.assertEqual(node["selection"]["skipped"][0]["tool"], "bot")
         self.assertIn("BOT_INACTIVE", node["selection"]["skipped"][0]["reasons"])
         self.assertEqual(node["handoff"]["kind"], "host-gui")
         self.assertEqual(node["handoff"]["screen_actions"], ["read"])
         # A signed-in screen cannot use the isolated browser; Simon's Chrome is next.
-        p = self.plan([self.gui(signed_in=True)], [paused], gui_tools=tools, host_ref="fixture-host",
+        p = self.plan([self.gui(signed_in=True)], [paused, self.host_seat()], gui_tools=tools, host_ref="fixture-host",
                       task_fit_policy=ranking)
         self.assertEqual(p["steps"][0]["route"]["transport"], "claude-in-chrome")
         self.assertIn("GUI_NEEDS_SIGNED_IN_BROWSER", str(p["steps"][0]["rejected_candidates"]))
         # Chrome and Computer Use need Simon at an interactive session; nothing else is left.
         away = [self.gui_tool("claude-in-chrome", interactive=False),
                 self.gui_tool("computer-use", interactive=False)]
-        p = self.plan([self.gui(signed_in=True)], [paused], gui_tools=away, host_ref="fixture-host",
+        p = self.plan([self.gui(signed_in=True)], [paused, self.host_seat()], gui_tools=away, host_ref="fixture-host",
                       task_fit_policy=ranking)
         node = p["steps"][0]
         self.assertEqual(p["status"], "blocked")
@@ -1201,7 +1223,7 @@ class OrchestrationTests(unittest.TestCase):
         self.assertEqual(node["selection"]["mode"], "situational")
         self.assertIn("GUI_REQUIRES_INTERACTIVE_HOST", str(node["rejected_candidates"]))
         # Without a usable table the local order is the same; the host judges.
-        p = self.plan([self.gui()], [paused], gui_tools=tools, host_ref="fixture-host")
+        p = self.plan([self.gui()], [paused, self.host_seat()], gui_tools=tools, host_ref="fixture-host")
         self.assertEqual(p["steps"][0]["route"]["transport"], "playwright")
         self.assertEqual(p["steps"][0]["selection"]["mode"], "situational")
 
@@ -1210,11 +1232,11 @@ class OrchestrationTests(unittest.TestCase):
         paused = self.bot(bot_status="paused")
         for action in ("login", "payment"):
             with self.subTest(action=action):
-                p = self.plan([self.gui(screen_actions=["read", action])], [paused], gui_tools=tools,
+                p = self.plan([self.gui(screen_actions=["read", action])], [paused, self.host_seat()], gui_tools=tools,
                               host_ref="fixture-host", task_fit_policy=self.gui_ranking())
                 self.assertIn("NO_ELIGIBLE_ROUTE", p["steps"][0]["errors"])
                 self.assertIn("GUI_ACTION_NEEDS_BOT", str(p["steps"][0]["rejected_candidates"]))
-        p = self.plan([self.gui(screen_actions=["read", "submit", "delete"])], [paused], gui_tools=tools,
+        p = self.plan([self.gui(screen_actions=["read", "submit", "delete"])], [paused, self.host_seat()], gui_tools=tools,
                       host_ref="fixture-host", task_fit_policy=self.gui_ranking())
         handoff = p["steps"][0]["handoff"]
         self.assertEqual(handoff["confirm_each"], ["delete", "submit"])
@@ -1227,7 +1249,7 @@ class OrchestrationTests(unittest.TestCase):
                  "GUI_TOOL_HOST_UNSUPPORTED": self.gui_tool("claude-in-chrome", host_surface="codex")}
         for reason, tool in cases.items():
             with self.subTest(reason=reason):
-                p = self.plan([self.gui()], [paused], gui_tools=[tool], host_ref="fixture-host",
+                p = self.plan([self.gui()], [paused, self.host_seat()], gui_tools=[tool], host_ref="fixture-host",
                               task_fit_policy=self.gui_ranking())
                 self.assertIn(reason, str(p["steps"][0]["rejected_candidates"]))
                 self.assertIsNone(p["steps"][0]["route"])

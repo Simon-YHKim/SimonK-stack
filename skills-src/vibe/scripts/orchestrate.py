@@ -431,16 +431,41 @@ def assess_gui_tool(tool, step, runtime, now):
             reasons.append("GUI_NEEDS_SIGNED_IN_BROWSER")  # The isolated profile has no sign-ins.
     elif transport in ("claude-in-chrome", "computer-use") and tool.get("interactive") is not True:
         reasons.append("GUI_REQUIRES_INTERACTIVE_HOST")
+    if tool.get("host_surface") in ("claude", "codex") and host_usage(runtime, tool["host_surface"], now) is None:
+        reasons.append("GUI_HOST_USAGE_UNVERIFIED")  # D-74: the host session pays in included usage.
     return reasons
 
 
-def gui_tool_route(tool):
-    return {"candidate_id": tool["id"], "surface": "host", "vendor": SURFACES[tool["host_surface"]],
+def host_usage(runtime, surface, now):
+    """The host session's own candidate whose included usage passes D-74, else None.
+
+    A local GUI step runs inside the host session, so it spends that subscription's usage.
+    """
+    host = runtime.get("host_ref")
+    for c in runtime.get("candidates", []):
+        if not isinstance(c, dict) or c.get("transport") != "host" or c.get("surface") != surface:
+            continue
+        if c.get("host_ref") not in (None, host):
+            continue
+        billing, quota = c.get("billing") or {}, c.get("quota") or {}
+        account = billing.get("account_ref")
+        if (billing.get("mode") == "subscription" and billing.get("verified") is True
+                and billing.get("api_fallback_disabled") is True and isinstance(account, str) and account.strip()
+                and not usage_limit_reached(billing) and included_usage_open(quota, now)
+                and fresh(c.get("observed_at"), now)):
+            return c
+    return None
+
+
+def gui_tool_route(tool, host):
+    observed = min(instant(tool["observed_at"]), instant(host["observed_at"]), instant(host["quota"]["observed_at"]))
+    return {"candidate_id": tool["id"], "surface": tool["host_surface"], "vendor": SURFACES[tool["host_surface"]],
             "transport": tool["transport"], "tool_ref": tool["transport"], "host_ref": tool["host_ref"],
-            "model": None, "requested_effort": None, "effective_effort": None,
+            "host_candidate_id": host["id"], "model": None, "requested_effort": None, "effective_effort": None,
+            "billing": copy.deepcopy(host["billing"]), "quota": copy.deepcopy(host["quota"]),
             "reserved_upper_usd": 0.0, "actual_usd": None,
-            "valid_until": (instant(tool["observed_at"]) + timedelta(seconds=DEFAULT_TTL)).isoformat(),
-            "runtime_observed_at": tool["observed_at"]}
+            "valid_until": (observed + timedelta(seconds=DEFAULT_TTL)).isoformat(),
+            "runtime_observed_at": min(tool["observed_at"], host["observed_at"])}
 
 
 def pick_local_gui(step, runtime, rejected, fit_policy, now):
@@ -1819,7 +1844,7 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                 local, s["selection"] = pick_local_gui(s, runtime, rejected, fit_policy, now)
                 if local is not None:
                     actions = screen_actions(s)
-                    s["route"] = gui_tool_route(local)
+                    s["route"] = gui_tool_route(local, host_usage(runtime, local["host_surface"], now))
                     s["handoff"] = {"kind": "host-gui", "tool": local["transport"], "target": s["target"],
                                     "read_skills": s["skill_paths"], "screen_actions": list(actions),
                                     "confirm_each": sorted(set(actions) & CONFIRM_ACTIONS),

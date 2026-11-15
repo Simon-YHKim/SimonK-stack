@@ -9,6 +9,7 @@ sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import collect_gui_tools as m  # noqa: E402
 import orchestrate  # noqa: E402
+from test_orchestrate import candidate  # noqa: E402
 
 NOW = "2026-11-16T03:00:00+00:00"
 
@@ -24,15 +25,28 @@ class CollectGuiToolsTests(unittest.TestCase):
         self.claude_json = self.root / "claude.json"
         self.write_entry(["-y", "@playwright/mcp@latest", "--config", str(self.config)])
         self.browsers = self.root / "ms-playwright"
-        (self.browsers / "chromium-1234").mkdir(parents=True)
+        self.browser("chromium-1234")
         self.paths = {"claude_json": self.claude_json, "browsers": self.browsers,
                       "guard": self.root / "guard.js"}
+
+    def browser(self, name, complete=True, executable=True):
+        build = self.browsers / name / "chrome-win64"
+        build.mkdir(parents=True)
+        if executable:
+            (build / "chrome.exe").write_bytes(b"MZ")
+        if complete:
+            (self.browsers / name / "INSTALLATION_COMPLETE").write_text("", encoding="utf-8")
 
     def write_entry(self, args, extra=None):
         data = {"oauthAccount": {"emailAddress": "never-read@example.invalid"},
                 "mcpServers": {"playwright": {"type": "stdio", "command": "npx", "args": args}}}
         data.update(extra or {})
         self.claude_json.write_text(json.dumps(data), encoding="utf-8")
+
+    def runtime(self):
+        host = candidate("host", surface="claude", observed_at=NOW)
+        host["quota"]["observed_at"] = NOW
+        return {"host_ref": "fixture-host", "candidates": [host]}
 
     def playwright(self, **kwargs):
         result = m.observe("fixture-host", now=NOW, paths=self.paths, **kwargs)
@@ -47,7 +61,7 @@ class CollectGuiToolsTests(unittest.TestCase):
         self.assertTrue(any("unpinned" in note for note in result["notes"]))
         self.assertNotIn("never-read", json.dumps(result))  # Only mcpServers.playwright is read.
         # The planner rejects it until the guard is in place.
-        runtime = {"host_ref": "fixture-host"}
+        runtime = self.runtime()
         reasons = orchestrate.assess_gui_tool(tool, {"kind": "gui"}, runtime, NOW)
         self.assertEqual(reasons, ["GUI_POINTER_LOCK_UNGUARDED"])
 
@@ -63,25 +77,38 @@ class CollectGuiToolsTests(unittest.TestCase):
         self.assertIn(m.GUARD_MARKER, self.paths["guard"].read_text(encoding="utf-8"))
         _, tool = self.playwright()
         self.assertTrue(tool["pointer_lock_guard"])
-        self.assertEqual(orchestrate.assess_gui_tool(tool, {"kind": "gui"}, {"host_ref": "fixture-host"}, NOW), [])
+        self.assertEqual(orchestrate.assess_gui_tool(tool, {"kind": "gui"}, self.runtime(), NOW), [])
         self.assertEqual(m.install(self.paths, run=lambda argv: runs.append(argv) or 0), [])  # Idempotent.
 
-    def test_missing_chromium_runs_the_playwright_cli_and_must_produce_a_browser(self):
-        (self.browsers / "chromium-1234").rmdir()
+    def test_missing_or_incomplete_chromium_runs_the_playwright_cli_and_must_produce_a_browser(self):
+        import shutil
+        shutil.rmtree(self.browsers / "chromium-1234")
+        self.browser("chromium-1234", complete=False)  # An interrupted install is not a browser.
+        self.browser("chromium-1235", executable=False)
         _, tool = self.playwright()
         self.assertFalse(tool["available"])
 
         def installer(argv):
             self.assertEqual(argv[1:], ["-y", "playwright", "install", "chromium"])
-            (self.browsers / "chromium-1300").mkdir()
+            self.browser("chromium-1300")
             return 0
 
         m.install(self.paths, run=installer, stamp="1")
         self.assertTrue(self.playwright()[1]["available"])
-        (self.browsers / "chromium-1300").rmdir()
+        shutil.rmtree(self.browsers / "chromium-1300")
         with self.assertRaises(m.GuiToolError) as raised:
             m.install(self.paths, run=lambda argv: 0, stamp="2")
         self.assertEqual(raised.exception.code, "CHROMIUM_INSTALL_FAILED")
+
+    def test_install_refuses_to_rewrite_an_unreadable_config(self):
+        for text in ('{"browser": {"isolated": true,}}', "[]"):
+            with self.subTest(text=text):
+                self.config.write_text(text, encoding="utf-8")
+                with self.assertRaises(m.GuiToolError) as raised:
+                    m.install(self.paths, run=lambda argv: 0, stamp="x")
+                self.assertEqual(raised.exception.code, "PLAYWRIGHT_CONFIG_INVALID")
+                self.assertEqual(self.config.read_text(encoding="utf-8"), text)
+                self.assertFalse(self.paths["guard"].exists())
 
     def test_flags_count_and_unregistered_or_flag_only_setups_are_not_changed(self):
         self.write_entry(["@playwright/mcp@0.0.70", "--headless", "--isolated",
@@ -106,10 +133,10 @@ class CollectGuiToolsTests(unittest.TestCase):
         chrome = next(t for t in result["gui_tools"] if t["transport"] == "claude-in-chrome")
         self.assertFalse(chrome["interactive"])
         self.assertIn("GUI_REQUIRES_INTERACTIVE_HOST",
-                      orchestrate.assess_gui_tool(chrome, {"kind": "gui"}, {"host_ref": "fixture-host"}, NOW))
+                      orchestrate.assess_gui_tool(chrome, {"kind": "gui"}, self.runtime(), NOW))
         result = m.observe("fixture-host", interactive=True, chrome=True, now=NOW, paths=self.paths)
         chrome = next(t for t in result["gui_tools"] if t["transport"] == "claude-in-chrome")
-        self.assertEqual(orchestrate.assess_gui_tool(chrome, {"kind": "gui"}, {"host_ref": "fixture-host"}, NOW), [])
+        self.assertEqual(orchestrate.assess_gui_tool(chrome, {"kind": "gui"}, self.runtime(), NOW), [])
         self.assertEqual([t["transport"] for t in result["gui_tools"]], ["playwright", "claude-in-chrome"])
         with self.assertRaises(m.GuiToolError):
             m.observe(" ", paths=self.paths)

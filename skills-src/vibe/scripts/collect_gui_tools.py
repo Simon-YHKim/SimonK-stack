@@ -118,11 +118,36 @@ def guarded(entry, config):
     return False
 
 
+# A Playwright browser folder counts only with its completion marker and an executable.
+BROWSER_EXECUTABLES = ("chrome.exe", "chrome", "chrome-headless-shell.exe", "chrome-headless-shell", "Chromium.app")
+
+
 def chromium_installed(browsers):
     try:
-        return any(p.is_dir() and p.name.startswith("chromium") for p in Path(browsers).iterdir())
+        folders = [p for p in Path(browsers).iterdir() if p.is_dir() and p.name.startswith("chromium")]
+        for folder in folders:
+            if not (folder / "INSTALLATION_COMPLETE").is_file():
+                continue
+            for build in folder.iterdir():
+                if build.is_dir() and build.name.startswith("chrome") and any(
+                        (build / name).exists() for name in BROWSER_EXECUTABLES):
+                    return True
     except OSError:
         return False
+    return False
+
+
+def read_config_strict(path):
+    """Install never rewrites a config it cannot fully read."""
+    if not Path(path).exists():
+        return {}
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        raise GuiToolError("PLAYWRIGHT_CONFIG_INVALID") from None
+    if not isinstance(data, dict):
+        raise GuiToolError("PLAYWRIGHT_CONFIG_INVALID")
+    return data
 
 
 def inspect_playwright(paths):
@@ -182,12 +207,12 @@ def install(paths=None, run=None, stamp=None):
         target = config_path(entry)
         if target is None:
             raise GuiToolError("PLAYWRIGHT_CONFIG_NOT_USED")  # Flags only; add --config by hand first.
+        config = read_config_strict(target)  # Before any write.
         guard = Path(paths["guard"])
         if not guard.exists() or GUARD_MARKER not in guard.read_text(encoding="utf-8"):
             guard.parent.mkdir(parents=True, exist_ok=True)
             guard.write_text(GUARD_SCRIPT, encoding="utf-8", newline="\n")
             changes.append("wrote " + str(guard))
-        config = read_config(target)
         if target.exists():
             backup = target.with_name(target.name + ".bak-" + (stamp or datetime.now().strftime("%Y%m%d%H%M%S")))
             shutil.copy2(target, backup)

@@ -7,10 +7,12 @@
   - Login and payment stay Bot-only. Each submit, publish, delete or settings change needs Simon's yes in chat.
   - Playwright must be headless, isolated and pointer-lock guarded, and cannot serve a signed-in screen. Chrome and Computer Use need Simon at an interactive session.
   - New node fields: `screen_actions` and `signed_in`.
+  - A local GUI step spends the host session's included usage, so the route binds the host's own candidate and needs its verified billing and fresh usage below 85% (D-74). It then passes `ready_steps` and Store registration like any route (Codex review on #211).
   - New `scripts/collect_gui_tools.py`:
     - Observes the Playwright MCP entry, its config and the Chromium folder; Chrome and Computer Use are attested by the host.
     - `--install` adds a missing pointer-lock guard (backing up the config first) or Chromium through the Playwright CLI.
     - It never registers or re-versions the MCP server.
+    - Chromium counts only with `INSTALLATION_COMPLETE` and an executable, and `--install` refuses to rewrite a config it cannot parse (Codex review on #211).
   - Measured on this PC (11-16): Playwright MCP was headless and isolated with Chromium 1234 but had no guard. `--install` added it and backed up the config. The MCP still runs the unpinned `@playwright/mcp@latest`, which is reported but not changed.
 - Tests: 2 new planner tests (Bot first, then fallback order, signed-in and interactive limits; credential and payment refusal, confirmations, gate reasons). The packaged table now covers all 18 types. New `test_collect_gui_tools.py` (5 tests) and a CI step for it.
 
