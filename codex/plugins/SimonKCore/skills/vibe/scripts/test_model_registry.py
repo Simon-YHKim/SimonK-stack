@@ -585,9 +585,10 @@ class ModelRegistryTests(unittest.TestCase):
         # 해야지.") corrects D-103: CODE_COMPLEX is Opus xhigh first, CODE_SIMPLE is Sonnet first.
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
         # D-127 (2026-11-16, Simon) made the table active; the D-106 orders carry over unchanged.
-        self.assertEqual(policy["version"], "2026-11-16-rank.1")
+        # D-130 (same day) moved RESEARCH and AGENTIC to gpt-6.1-sol; the window end is unchanged.
+        self.assertEqual(policy["version"], "2026-11-16-rank.2")
         self.assertEqual((policy["checked_at"], policy["valid_until"]),
-                         ("2026-11-16T01:50:00+09:00", "2026-11-23T00:08:40+09:00"))
+                         ("2026-11-16T07:00:00+09:00", "2026-11-23T00:08:40+09:00"))
         profiles = policy["profiles"]
 
         def rows(profile):
@@ -611,7 +612,9 @@ class ModelRegistryTests(unittest.TestCase):
                     continue  # Tool transports (D-121 image, D-126 prose).
                 with self.subTest(profile=profile, model=entry["model"]):
                     if registry[entry["model"]]["vendor"] == "openai":
-                        self.assertEqual((entry["model"], entry["efforts"]), ("gpt-6-astra", ["xhigh"]))
+                        sol = profile in ("RESEARCH", "AGENTIC")  # D-130
+                        self.assertEqual((entry["model"], entry["efforts"]),
+                                         ("gpt-6.1-sol" if sol else "gpt-6-astra", ["xhigh"]))
         self.assertEqual((policy["sources"]["anthropic_haiku"], policy["sources"]["anthropic_haiku_docs"]),
                          ("https://www.anthropic.com/claude-haiku-5-5",
                           "https://platform.claude.com/docs/en/models/haiku-5-5/overview"))
@@ -720,7 +723,11 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertEqual(codex, {astra} | deprecated | withdrawn)
         self.assertFalse(withdrawn & deprecated)
         self.assertEqual(pins, {daybreak: gate})
-        self.assertEqual(pinned_effort, {astra: "xhigh"})
+        # D-130 (2026-11-16): gpt-6.1-sol stands again in two processes only, also pinned to xhigh.
+        scopes = ast.literal_eval(module_literal("routing.py", "WITHDRAWN_LANE_SCOPES"))
+        self.assertEqual(scopes, {"gpt-6.1-sol": ("research-deep", "terminal-ci-git")})
+        self.assertEqual(pinned_effort, {astra: "xhigh", "gpt-6.1-sol": "xhigh"})
+        self.assertEqual((lanes["gpt-6.1-sol"]["std"], lanes["gpt-6.1-sol"]["top"]), ("xhigh", "xhigh"))
         self.assertEqual((lanes[astra]["std"], lanes[astra]["top"]), ("xhigh", "xhigh"))
         self.assertEqual(lanes[astra]["orca_efforts"][-1], "xhigh")
 
@@ -764,7 +771,8 @@ class ModelRegistryTests(unittest.TestCase):
                 with self.subTest(demotion=name):
                     self.assertEqual(lanes[order[order.index(astra) + 1]]["vendor"], "claude")
 
-        # Task-fit rows: an OpenAI model row is gpt-6-astra at xhigh, nothing else.
+        # Task-fit rows: an OpenAI model row is gpt-6-astra at xhigh, or gpt-6.1-sol at xhigh in the
+        # two D-130 rows.
         registry = self.m.load_registry()
         vendor_of = {m["id"]: m["vendor"] for m in registry["models"]}
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
@@ -775,11 +783,15 @@ class ModelRegistryTests(unittest.TestCase):
                     continue  # Tool transports (D-121 image, D-126 prose).
                 with self.subTest(profile=profile, model=entry["model"]):
                     self.assertIn(entry["model"], vendor_of)
-                    self.assertNotIn(entry["model"], withdrawn | deprecated | {"gpt-6-sol"})
+                    scoped = profile in ("RESEARCH", "AGENTIC")
+                    allowed = withdrawn - ({"gpt-6.1-sol"} if scoped else set())
+                    self.assertNotIn(entry["model"], allowed | deprecated | {"gpt-6-sol"})
                     if vendor_of[entry["model"]] == "openai":
                         gpt_rows += 1
-                        self.assertEqual((entry["model"], entry["efforts"]), (astra, ["xhigh"]))
-        # D-127: PLAN_ARCHITECTURE, CODE_REVIEW, RESEARCH, AGENTIC, DESIGN_UI, REASONING_ABSTRACT, VISION.
+                        self.assertEqual((entry["model"], entry["efforts"]),
+                                         ("gpt-6.1-sol" if scoped else astra, ["xhigh"]))
+        # D-127: PLAN_ARCHITECTURE, CODE_REVIEW, DESIGN_UI, REASONING_ABSTRACT, VISION (Astra) and
+        # D-130: RESEARCH, AGENTIC (Sol).
         self.assertEqual(gpt_rows, 7)
         self.assertFalse(any(vendor_of[e["model"]] == "openai" for p in ("CODE_SIMPLE", "WRITING")
                              for e in policy["profiles"][p]))

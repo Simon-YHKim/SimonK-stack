@@ -219,6 +219,16 @@
 #     별도 월 SDK 크레딧으로 센다. 이 1회는 정가 환산 약 $0.88 이다. hydrogen = agy --print 1회 4.5초 정답(출력에 모델
 #     필드가 없어 요청 슬러그 수용만 확인). grok-4.7 = Grok 사용량 100%(~2026-11-20 12:38 KST)라 canary 를 못 했다.
 #   ⚠ '등록'이지 '동작'이 아니다. $0 게이트(모델 포함 · 초과과금 OFF · API 폴백 OFF)와 G5 · Orca 인증서는 다른 레인과 같다.
+#
+# ── 2026-11-16 D-130 — gpt-6.1-sol 을 리서치·에이전트 공정에서만 되살린다 (2.28.0) ──
+#   Simon 지시(토론 없음 · 허브 DECISIONS D-130): 짝 실측(과제 8개 · xhigh)에서 점수가 Astra 와 같았고
+#   공식 Codex 한도표에서 5시간 메시지가 약 3배다(Astra 5-45 · Sol 15-160).
+#   gpt-6.1-sol 은 WITHDRAWN_LANES 에 그대로 있고 WITHDRAWN_LANE_SCOPES 의 공정(research-deep · terminal-ci-git)에서만
+#   LANE_WITHDRAWN 없이 선다. effort 는 xhigh 고정(EFFORT_PINNED). 그 밖의 공정 · 코디네이터 · 두 보안 게이트 ·
+#   codex 직행 argv(codex_exec_argv)는 그대로 Astra 다. CLASS_LANES 기본 채움도 바꾸지 않았다 —
+#   /vibe 의 기본 배정은 중앙 계획기의 순위표(references/task-fit-policy.json)이고 거기서 RESEARCH · AGENTIC 1순위가 Sol 이다.
+#   중앙 계획기는 작업 유형으로 한 번 더 좁힌다(orchestrate.OWNER_LANE_TASKS) — research-deep 공정에는 기획·글쓰기
+#   단계도 있기 때문이다.
 import hashlib
 import json
 import os
@@ -386,8 +396,11 @@ LANES = {
         # ⚠ 읽기 전용 canary 는 통과했다(2026-10-04 · @xhigh · requested == effective, 서버측 모델 미확인).
         # ⚠ D-101 (2026-10-12): Simon 이 뺐다("gpt 6.1 sol은 너무 느려서 빼기로 결정"). 원장 호환용 키로만 남는다 —
         #   코디네이터 · 생성물 게이트(D-98) · C 클래스 2순위에서 모두 빠졌고, 계획에 넣으면 LANE_WITHDRAWN 이다.
+        # D-130 (2026-11-16 · Simon 지시): research-deep · terminal-ci-git 공정에서만 다시 선다(WITHDRAWN_LANE_SCOPES).
+        #   effort 는 Astra 와 같이 xhigh 고정이다(std = top = xhigh · EFFORT_PINNED).
         "cli": "codex", "vendor": "codex", "effort_style": "flag", "dispatch": "orca",
-        "top": "xhigh", "std": "high", "ctx": "D-101 철회 · 원장 호환용(우선순위 밖) · Orca 상한 xhigh",
+        "top": "xhigh", "std": "xhigh",
+        "ctx": "D-130 research-deep·terminal-ci-git 공정 한정(그 밖은 철회) · 원장 호환용(우선순위 밖) · xhigh 고정 · Orca 상한 xhigh",
         "orca_efforts": ("minimal", "low", "medium", "high", "xhigh"),
     },
     "gpt-5.6-sol": {
@@ -550,10 +563,15 @@ DEPRECATED_LANE_PINS = {"gpt-daybreak-blue-latest": "security-artifact-gate"}
 #   되살리려면 여기서 조용히 빼지 않는다 — Simon 의 지시나 별도 결정 기록이 먼저다.
 WITHDRAWN_LANES = {"gpt-6.1-sol", "gpt-6-luna", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"}
 
-# effort 가 한 값으로 고정된 레인 (D-101). 정책 사다리(std/top)만으로는 allow_off_ladder 가 다른 값을 열 수 있어
+# 철회된 레인이 그래도 서는 공정 (D-130 · 2026-11-16 · Simon 지시). {레인: (공정, ...)}.
+#   DEPRECATED_LANE_PINS 와 같은 구조다: validate_plan 은 공정이 여기 있을 때만 LANE_WITHDRAWN 을 내지 않는다.
+#   코디네이터 · 고정 공정 · 기본 채움 · codex 직행 argv 는 이 표를 보지 않는다.
+WITHDRAWN_LANE_SCOPES = {"gpt-6.1-sol": ("research-deep", "terminal-ci-git")}
+
+# effort 가 한 값으로 고정된 레인 (D-101 · D-130). 정책 사다리(std/top)만으로는 allow_off_ladder 가 다른 값을 열 수 있어
 #   따로 고정한다 — validate_effort 와 codex_exec_argv 가 이 값 밖을 전부 거부한다(off-ladder 포함).
 #   원장은 영향받지 않는다: ledger_efforts 는 과거 행(astra@high·@medium)을 계속 읽는다.
-EFFORT_PINNED = {"gpt-6-astra": "xhigh"}
+EFFORT_PINNED = {"gpt-6-astra": "xhigh", "gpt-6.1-sol": "xhigh"}
 
 # 고정 공정의 폴백 (D-102 · 2026-10-12 · Simon 판정). {공정: (레인, effort)}.
 #   고정 배정(PROCESSES)은 바뀌지 않는다. 폴백은 호출자가 validate_plan(fixed_unavailable={공정: [사유]})으로
@@ -1537,8 +1555,9 @@ def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, qu
             v.append("LANE_DEPRECATED")
             notes.append(f"{a.get('proc')} 의 레인 {lane} 은 제공사가 폐기 표시했다 — "
                          f"고정 공정 {DEPRECATED_LANE_PINS.get(lane, '없음')} 의 고정 effort 로만 선다 (D-98 · D-101)")
-        # D-101 (2026-10-12) — 소유자가 뺀 레인은 원장 호환용 키일 뿐이다. 예외 자리는 없다.
-        if lane in WITHDRAWN_LANES:
+        # D-101 (2026-10-12) — 소유자가 뺀 레인은 원장 호환용 키일 뿐이다.
+        #   D-130 — 예외는 WITHDRAWN_LANE_SCOPES 의 공정뿐이다(gpt-6.1-sol · 리서치·에이전트).
+        if lane in WITHDRAWN_LANES and a.get("proc") not in WITHDRAWN_LANE_SCOPES.get(lane, ()):
             v.append("LANE_WITHDRAWN")
             notes.append(f"{a.get('proc')} 의 레인 {lane} 은 철회됐다 — GPT 쪽은 gpt-6-astra @xhigh 만 쓴다 (D-101)")
         # G13 보강 (2026-09-19 모의 인수인계 실측) — 위의 GATE_VENDOR_BLOCKED 는 코딩 라운드의
@@ -1712,7 +1731,10 @@ def emit_md():
         # D-101 — 표가 '기동 가능'이라고만 말하면 철회·폐기 레인을 쓸 수 있는 것처럼 읽힌다.
         if lane in EFFORT_PINNED:
             phys += f" — 정책은 **`{EFFORT_PINNED[lane]}` 고정** (off-ladder 불가)"
-        if lane in WITHDRAWN_LANES:
+        if lane in WITHDRAWN_LANE_SCOPES:
+            boot = ("⚠ **공정 한정** (D-130) — " + " · ".join(f"`{p}`" for p in WITHDRAWN_LANE_SCOPES[lane])
+                    + " 만 (그 밖은 `LANE_WITHDRAWN`)")
+        elif lane in WITHDRAWN_LANES:
             boot = "⛔ **철회** (D-101) — 새 배정은 `LANE_WITHDRAWN` · 원장 호환용 키"
         elif lane in DEPRECATED_LANES:
             boot = (f"⚠ 폐기 표시 — 고정 공정 `{DEPRECATED_LANE_PINS.get(lane, '없음')}` 자리만 "
@@ -1805,6 +1827,14 @@ def emit_md():
              "canary(오케스트레이터 · run `run_3607f8833d7e` · `ctx_56f442610119` · 23:26 KST): requested == effective"
              f"(`{fb_lane}` · {fb_effort}), 같은 결함 4개 샘플에 `GATE: BLOCK` 정확히, 심은 샘플 1건.")
     L.append("")
+    scoped = "; ".join(f"`{l}` → " + " · ".join(f"`{p}`" for p in procs)
+                       for l, procs in sorted(WITHDRAWN_LANE_SCOPES.items()))
+    L.append("**D-130 (2026-11-16 · 2.28.0 · Simon 지시 · 토론 없음)**: 철회된 레인 중 공정 한정으로 다시 서는 것 — "
+             f"{scoped}. effort 는 `{EFFORT_PINNED['gpt-6.1-sol']}` 고정이다. 그 밖의 공정 · 코디네이터 · 두 보안 게이트 · "
+             "codex 직행 argv 는 그대로 `gpt-6-astra` 다. 이 표의 기본 채움(클래스 목록)은 바꾸지 않았다 — /vibe 기본 배정은 "
+             "중앙 계획기의 순위표(`references/task-fit-policy.json`)이고, 그 표의 RESEARCH · AGENTIC 1순위가 `gpt-6.1-sol` 이다. "
+             "근거: 짝 실측 과제 8개 점수 동일 · 시간 +6% · 공식 Codex 한도표 5시간 Astra 5-45 · Sol 15-160 메시지.")
+    L.append("")
     L.append("### 공정 → 클래스 → 레인")
     L.append("")
     L.append("| 공정 | 클래스 | 1순위 | 2순위 | 3후보 (이후 폴백) |")
@@ -1889,6 +1919,7 @@ if __name__ == "__main__":
             "deprecated": sorted(DEPRECATED_LANES),
             "deprecated_pins": dict(sorted(DEPRECATED_LANE_PINS.items())),
             "withdrawn": sorted(WITHDRAWN_LANES),
+            "withdrawn_scopes": {l: list(p) for l, p in sorted(WITHDRAWN_LANE_SCOPES.items())},
             "effort_pinned": dict(sorted(EFFORT_PINNED.items())),
             "fixed_fallbacks": {p: list(f) for p, f in sorted(FIXED_FALLBACKS.items())},
             "ceilings": {l: ceiling_for(l) for l in LANES},

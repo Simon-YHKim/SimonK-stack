@@ -108,6 +108,10 @@ class CodexCliAdapterTests(unittest.TestCase):
         self.assertEqual(argv[:2], [self.cli.executable, "exec"])
         for flag in ("--json", "--ephemeral", "--ignore-user-config", "read-only"):
             self.assertIn(flag, argv)
+        # D-130: profile hooks and plugin skills stay out of the one tool-free turn.
+        disabled = {argv[i + 1] for i, arg in enumerate(argv) if arg == "--disable"}
+        self.assertEqual(disabled, {"hooks", "apps", "plugins"})
+        self.assertLess(max(i for i, arg in enumerate(argv) if arg == "--disable"), argv.index("-"))
         self.assertEqual(argv[argv.index("-m") + 1], "fixture-gpt")
         self.assertIn('model_reasoning_effort="low"', argv)
         self.assertNotIn("OPENAI_API_KEY", env)

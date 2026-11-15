@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan from a per-task model ranking, sends image generation to Codex image_gen and Korean prose drafts to Gemini Argon within included usage, and reports blocked coding routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff, with local Playwright/Chrome/Computer Use only when the Bot is blocked.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.27.0
+version: 2.28.0
 author: simon-stack
 ---
 
@@ -127,10 +127,10 @@ Follow this table by default and do not re-judge a ranked route. After every gat
 billing, quality floor, owner pins, review vendor) the planner takes the highest rank among the cheapest remaining
 routes and records `selection`: `mode: ranked`, the rank, and each skipped higher rank with its reasons. Within one
 rank `scale: small` prefers the current session and `scale: large` a worker (Orca, then CLI). Rank beats quota
-pressure below the ceiling. GPT is `gpt-6-astra` at xhigh only (D-101); coding stays on Claude because both security
-gates are Codex (D-28).
+pressure below the ceiling. GPT is `gpt-6-astra` at xhigh (D-101), except `gpt-6.1-sol` at xhigh for research and
+agentic steps only (D-130); coding stays on Claude because both security gates are Codex (D-28).
 
-<!-- TASK-RANKING:BEGIN generated from references/task-fit-policy.json sha256 eb850b5024b5 by scripts/sync_task_ranking.py; edit the JSON, not this table -->
+<!-- TASK-RANKING:BEGIN generated from references/task-fit-policy.json sha256 19cc032b1cfb by scripts/sync_task_ranking.py; edit the JSON, not this table -->
 | Task type | Default order (first = rank 1) | Every ranked route blocked |
 | --- | --- | --- |
 | `PLAN_ARCHITECTURE` | `claude-opus-5-5` → `gpt-6-astra` @xhigh → `claude-fable-5-2` | situational |
@@ -141,8 +141,8 @@ gates are Codex (D-28).
 | `CODE_FIX` | `claude-opus-5-5` → `claude-fable-5-2` → `claude-sonnet-5-5` | situational |
 | `CODE_CLEANUP` | `claude-opus-5-5` → `claude-fable-5-2` → `claude-sonnet-5-5` | situational |
 | `CODE_REVIEW` | `gpt-6-astra` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
-| `RESEARCH` | `gpt-6-astra` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
-| `AGENTIC` | `gpt-6-astra` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
+| `RESEARCH` | `gpt-6.1-sol` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
+| `AGENTIC` | `gpt-6.1-sol` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
 | `COMPUTER_USE` | Grok Bot (vibe-bot) → local Playwright headless → local Claude in Chrome → local Computer Use | wait for the Bot or Simon |
 | `DESIGN_UI` | `claude-opus-5-5` → `gpt-6-astra` @xhigh | situational |
 | `KOREAN_DOC` | `claude-opus-5-5` → `claude-sonnet-5-5` | situational |
@@ -151,7 +151,7 @@ gates are Codex (D-28).
 | `VISION` | `claude-opus-5-5` → `gpt-6-astra` @xhigh | situational |
 | `IMAGE_GENERATION` | Codex `image_gen` → host image adapter | situational |
 | `KOREAN_PROSE` | Gemini 4 Argon via `agy-prose` | replan as `KOREAN_DOC` |
-Valid 2026-11-16T01:50:00+09:00 to 2026-11-23T00:08:40+09:00 (`2026-11-16-rank.1`); outside that window every type is situational.
+Valid 2026-11-16T07:00:00+09:00 to 2026-11-23T00:08:40+09:00 (`2026-11-16-rank.2`); outside that window every type is situational.
 <!-- TASK-RANKING:END -->
 
 Judge the situation only when `selection.mode` is `situational`: the type is not ranked, the table is outside its
@@ -271,7 +271,7 @@ Ask only for missing intent or actions beyond existing authority.
 - Orca: read [Orca workflow](references/orca-workflow.md). Validate the entire
   assignment plan, then use `scripts/execute_orca.py` with the guarded adapter
   contract in [orchestration](references/orchestration.md). Its first version
-  covers local Claude/Codex flag-effort lanes only (D-101, 2026-10-12, Simon 지시: GPT 쪽 레인은 `gpt-6-astra` @xhigh 하나다. `gpt-6.1-sol`·`gpt-6-luna`·`gpt-5.6-*` 는 철회돼 계획에 넣으면 ORCA_LANE_WITHDRAWN 이다(결함이 아니라 소유자 지시). A 클래스는 `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5` 다. 등록된 레인은 canary 를 통과했어도 계정/과금 인증서 전이라 동작 레인이 아니다. 보안 생성물 게이트는 폐기 표시된 `gpt-daybreak-blue-latest` @xhigh 고정이고 중앙 계획기의 MODEL_NOT_ACTIVE 는 그대로다. D-102: 그 별칭이 설 수 없을 때만 `gpt-6-astra` @xhigh 가 게이트를 맡는다 — 계획기가 Daybreak 후보를 가용성 사유로 거부했을 때 단계에 `gate_fallback` 을 남기며, 그 상태에서만 두 보안 게이트가 같은 모델이다. 게이트 후보에는 Daybreak 를 항상 넣는다(없어졌으면 `available: false`). 출력이 비거나 차단되거나 판정이 모호하면 실패이고 같은 실행을 폴백에 넘기지 않는다). It calls claim internally;
+  covers local Claude/Codex flag-effort lanes only (D-101, 2026-10-12, Simon 지시: GPT 쪽 레인은 `gpt-6-astra` @xhigh 하나다. `gpt-6.1-sol`·`gpt-6-luna`·`gpt-5.6-*` 는 철회돼 계획에 넣으면 ORCA_LANE_WITHDRAWN 이다(결함이 아니라 소유자 지시). D-130: `gpt-6.1-sol` 만 `research-deep`·`terminal-ci-git` 공정에서 xhigh 로 다시 선다. A 클래스는 `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5` 다. 등록된 레인은 canary 를 통과했어도 계정/과금 인증서 전이라 동작 레인이 아니다. 보안 생성물 게이트는 폐기 표시된 `gpt-daybreak-blue-latest` @xhigh 고정이고 중앙 계획기의 MODEL_NOT_ACTIVE 는 그대로다. D-102: 그 별칭이 설 수 없을 때만 `gpt-6-astra` @xhigh 가 게이트를 맡는다 — 계획기가 Daybreak 후보를 가용성 사유로 거부했을 때 단계에 `gate_fallback` 을 남기며, 그 상태에서만 두 보안 게이트가 같은 모델이다. 게이트 후보에는 Daybreak 를 항상 넣는다(없어졌으면 `available: false`). 출력이 비거나 차단되거나 판정이 모호하면 실패이고 같은 실행을 폴백에 넘기지 않는다). It calls claim internally;
   never hand it a saved dispatch_allowed flag. Native Task/spec, workspace,
   executable and fresh account/billing evidence must match before a start.
   Reentry is lookup-only. Unsupported lanes remain blocked;

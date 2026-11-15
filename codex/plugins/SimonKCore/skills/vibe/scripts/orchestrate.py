@@ -96,6 +96,9 @@ TASK_PRINCIPLES = {"CODE_COMPLEX": SIMPLE_RULES, "CODE_SIMPLE": SIMPLE_RULES, "C
 # Hub D-106 (2026-10-18, owner directive): complex coding runs on claude-opus-5-5 at xhigh.
 # Dispatched transports (cli, orca) are held to it; a host session's own effort is not.
 OWNER_TASK_EFFORTS = {"CODE_COMPLEX": {"claude-opus-5-5": "xhigh"}}
+# Hub D-130: a withdrawn GPT lane the owner reopened for these task types only. Their processes
+# must equal routing.WITHDRAWN_LANE_SCOPES, which guards the same lane at the Orca layer.
+OWNER_LANE_TASKS = {"gpt-6.1-sol": ("RESEARCH", "AGENTIC")}
 ORCHESTRATORS = {"vibe", "simonk", "app-dev-orchestrator", "dev-orchestrator"}
 # Hosts can prefix exports per bash block; Orca worker-start cannot pass env.
 GSTACK_ISOLATION = {"host": "required", "orca": "best-effort"}
@@ -252,8 +255,10 @@ def validate_task_fit_policy(policy):
             if target == "tool" and entry["tool"] not in RANKING_TOOLS[kind]:
                 raise ValueError("Invalid task-fit tool")
             if target == "model":
-                # D-101: withdrawn GPT lanes never rank; a pinned model ranks at its pin only.
-                if entry["model"] in routing.WITHDRAWN_LANES:
+                # D-101: withdrawn GPT lanes never rank (D-130: except their reopened task types);
+                # a pinned model ranks at its pin only.
+                if (entry["model"] in routing.WITHDRAWN_LANES
+                        and task_type not in OWNER_LANE_TASKS.get(entry["model"], ())):
                     raise ValueError("Task-fit model withdrawn by owner")
                 pinned = routing.EFFORT_PINNED.get(entry["model"])
                 if pinned and efforts != [pinned]:
@@ -1256,17 +1261,25 @@ def _routing():
     return routing
 
 
-def owner_gpt_policy(c, effort):
+def owner_scope_errors(c, step):
+    """Hub D-130: a reopened lane outside its task types is still withdrawn (dispatched transports)."""
+    names = {c.get("model"), c.get("requested_model"), c.get("resolved_model")} - {None}
+    outside = [n for n in names & set(OWNER_LANE_TASKS) if step.get("task_type") not in OWNER_LANE_TASKS[n]]
+    return ["MODEL_WITHDRAWN_BY_OWNER"] if outside else []
+
+
+def owner_gpt_policy(c, effort, step=None):
     """Hub D-101, extended to the direct Codex CLI by D-102.
 
     The owner withdrew five GPT models and pinned gpt-6-astra to xhigh. The Orca transport gets
     the same rule from routing.validate_plan; this covers the other dispatched Codex transport.
+    D-130 reopened gpt-6.1-sol for OWNER_LANE_TASKS only, also pinned to xhigh.
     A host session's own model is not restricted here.
     """
     routing = _routing()
     names = {c.get("model"), c.get("requested_model"), c.get("resolved_model")} - {None}
-    errors = []
-    if names & routing.WITHDRAWN_LANES:
+    errors = list(owner_scope_errors(c, step or {}))
+    if names & (routing.WITHDRAWN_LANES - set(OWNER_LANE_TASKS)) and not errors:
         errors.append("MODEL_WITHDRAWN_BY_OWNER")
     pinned = {routing.EFFORT_PINNED[name] for name in names if name in routing.EFFORT_PINNED}
     if pinned and pinned != {effort}:
@@ -1349,7 +1362,10 @@ def assess_candidate(c, step, policy, now, producer_vendor=None, debate=None):
         if c.get("transport") == "host" and c.get("effective_effort") != effort:
             errors.append("HOST_EFFORT_MISMATCH")
         if (surface, c.get("transport")) == ("codex", "cli"):
-            errors.extend(owner_gpt_policy(c, effort))
+            errors.extend(owner_gpt_policy(c, effort, step))
+        elif c.get("transport") == "orca":
+            # D-130: the Orca guard scopes by process, which also holds planning and writing steps.
+            errors.extend(owner_scope_errors(c, step))
         if c.get("transport") in {"cli", "orca"}:
             errors.extend(owner_task_effort(c, step, effort))
     billing = c.get("billing", {})
