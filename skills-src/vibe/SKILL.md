@@ -1,8 +1,8 @@
 ---
 name: vibe
-description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan from a per-task model ranking, sends image generation to Codex image_gen and Korean prose drafts to Gemini Argon within included usage, and reports blocked coding routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
+description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan from a per-task model ranking, sends image generation to Codex image_gen and Korean prose drafts to Gemini Argon within included usage, and reports blocked coding routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff, with local Playwright/Chrome/Computer Use only when the Bot is blocked.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.26.0
+version: 2.27.0
 author: simon-stack
 ---
 
@@ -130,7 +130,7 @@ rank `scale: small` prefers the current session and `scale: large` a worker (Orc
 pressure below the ceiling. GPT is `gpt-6-astra` at xhigh only (D-101); coding stays on Claude because both security
 gates are Codex (D-28).
 
-<!-- TASK-RANKING:BEGIN generated from references/task-fit-policy.json sha256 3252ff23adc7 by scripts/sync_task_ranking.py; edit the JSON, not this table -->
+<!-- TASK-RANKING:BEGIN generated from references/task-fit-policy.json sha256 eb850b5024b5 by scripts/sync_task_ranking.py; edit the JSON, not this table -->
 | Task type | Default order (first = rank 1) | Every ranked route blocked |
 | --- | --- | --- |
 | `PLAN_ARCHITECTURE` | `claude-opus-5-5` → `gpt-6-astra` @xhigh → `claude-fable-5-2` | situational |
@@ -143,7 +143,7 @@ gates are Codex (D-28).
 | `CODE_REVIEW` | `gpt-6-astra` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
 | `RESEARCH` | `gpt-6-astra` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
 | `AGENTIC` | `gpt-6-astra` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
-| `COMPUTER_USE` | vibe-bot (Grok Bot) only | fixed route |
+| `COMPUTER_USE` | Grok Bot (vibe-bot) → local Playwright headless → local Claude in Chrome → local Computer Use | wait for the Bot or Simon |
 | `DESIGN_UI` | `claude-opus-5-5` → `gpt-6-astra` @xhigh | situational |
 | `KOREAN_DOC` | `claude-opus-5-5` → `claude-sonnet-5-5` | situational |
 | `BULK_LIGHT` | `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5` | situational |
@@ -301,34 +301,34 @@ Codex; unavailable review is a reported blocker, not permission to downgrade.
 
 ## 4. Use vibe-bot internally for GUI-only work
 
-Read the discovered vibe-bot SKILL.md for its draft, immutable `bot_delivery`
-descriptor and fresh delivery/account/Relay certificate. Keep the current run,
-whole-plan reservation and shared Store. No authorized CLI/API/MCP alternative
-may be available; execution needs an observed active exact roster entry.
-The planner accepts only the exact live status `active`; a roster snapshot
-description beginning with "active - reported" is not live availability.
-Use the current Bot organization reference: all new deliveries/results use
-Relay, while the selected specialist remains bound in the plan. Team requests
-go through Relay; historical specialist runs retain their original adapter.
-Draft privately while delivery is blocked. Drafting, pasting into chat and
-publishing to a watched bus are different effects; only drafting is local-only.
-Never use the builder's retired hub/webhook/github/--send paths or manually
-preclaim. The central adapter owns claim and publication together:
+Read the discovered vibe-bot SKILL.md for its draft, immutable `bot_delivery` descriptor and fresh
+delivery/account/Relay certificate. Keep the current run, whole-plan reservation and shared Store. No authorized
+CLI/API/MCP alternative may be available; execution needs an observed active exact roster entry. The planner accepts
+only the exact live status `active`; a roster snapshot description beginning with "active - reported" is not live
+availability. Use the current Bot organization reference: all new deliveries/results use Relay, while the selected
+specialist remains bound in the plan. Team requests go through Relay; historical specialist runs retain their original
+adapter. Draft privately while delivery is blocked. Drafting, pasting into chat and publishing to a watched bus are
+different effects; only drafting is local-only. Never use the builder's retired hub/webhook/github/--send paths or
+manually preclaim. The central adapter owns claim and publication together:
 ```text
 python -B "<skill>/scripts/execute_bot.py" dispatch --plan plan.json --node screen --db shared-runs.sqlite3 --certificate bot-evidence.json
 python -B "<skill>/scripts/execute_bot.py" reconcile --plan plan.json --node screen --db shared-runs.sqlite3
 python -B "<skill>/scripts/execute_bot.py" check-result --plan plan.json --node screen --db shared-runs.sqlite3 --evidence screens.json
 ```
-Reentry is lookup-only, never a new nonce or resend. Exact publication remains
-waiting_external with unknown cost; it does not prove Bot acceptance. The legacy
-`orchestrate.py verify-bot` and builder `--verify/--collect` do not bind the Store,
-plan or pinned helper and must not replace `check-result` for this workflow.
-`check-result`'s result_checks_passed is structural evidence only: inspect actual screenshots
-and task criteria, establish terminal and cost evidence, then observe/settle/
-verify through the Store. Required reviews still apply. No automatic completion,
+Reentry is lookup-only, never a new nonce or resend. Exact publication remains waiting_external with unknown cost; it
+does not prove Bot acceptance. The legacy `orchestrate.py verify-bot` and builder `--verify/--collect` do not bind the
+Store, plan or pinned helper and must not replace `check-result` for this workflow. `check-result`'s
+result_checks_passed is structural evidence only: inspect actual screenshots and task criteria, establish terminal and
+cost evidence, then observe/settle/verify through the Store. Required reviews still apply. No automatic completion,
 login/payment/Submit authorization, settlement or provider-model selection.
 
-For an authorized ongoing Bot collaboration, follow the discovered vibe-bot skill's Relay handshake reference for saved-state watching, timely replies, duplicate-write checks and `교훈` results; existing approval gates still apply.
+When every Bot candidate is blocked (D-129), the planner falls back to this host's GUI tools in table order (Playwright
+headless, Claude in Chrome, Computer Use) observed by `scripts/collect_gui_tools.py` (`--install` adds a missing
+pointer-lock guard or Chromium). Login and payment stay Bot-only; confirm each submit/publish/delete/settings change
+with Simon. See [local GUI fallback](references/orchestration.md#local-gui-fallback-d-129).
+
+For an authorized ongoing Bot collaboration, follow the discovered vibe-bot skill's Relay handshake reference for
+saved-state watching, timely replies, duplicate-write checks and `교훈` results; existing approval gates still apply.
 
 ## 5. Account and finish
 

@@ -1,6 +1,21 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-11-16 02:30 / /vibe 작업별 순위표 기본 배정 + simple is the best (D-127·D-128, vibe 2.26.0)
+## Latest — 2026-11-16 03:30 / /vibe 화면 작업: Grok Bot 다음 로컬 Playwright·Chrome·Computer Use (D-129, vibe 2.27.0)
+
+갱신 시각: 2026-11-16 03:30 KST · 갱신자: Claude Code(Opus 5.5). Simon: "혹시 computer use, chrome use, playwrite 자동설치 등에 대해 검토된거 있어?" → "grok bot 사용 여건이 안될경우 진행하려는 거야. grok bot은 vibe-bot 이거 아니야?"(맞다). 허브 D-129(9648d04d). PR #211.
+
+- **결정(D-129)**: COMPUTER_USE 순위 = Grok Bot(vibe-bot) 0 → Playwright headless 1 → Claude in Chrome 2 → Computer Use 3. Bot 후보가 전부 막힐 때만 `runtime.gui_tools` 를 본다(handoff `host-gui`, 디스패치 없음). D-93 그대로.
+- **게이트**: login·payment = Bot 전용 · submit/publish/delete/settings = `confirm_each`(Simon 채팅 확인) · Playwright = headless+isolated+포인터 잠금 가드, `signed_in` 불가 · Chrome/Computer Use = interactive 만 · 고정 surface 유지 · 리뷰어 벤더 분리 · 호스트 후보는 `assess_candidate` 그대로(가용·레지스트리 만료·모델 포함 과금·D-74 85%·품질 하한, $0) · 경로 유효시간 ≤ 호스트 valid_until.
+- **자동설치**: 새 `scripts/collect_gui_tools.py`(MCP 등록·config·Chromium 완료 표시+실행 파일 확인, Claude 호스트만 검증). 이 PC 에서 `--install` 로 가드 `~/.claude/playwright-pointer-guard.js` + initScript 추가, 백업 `playwright-mcp.config.json.bak-20261116022940`. MCP 는 `@playwright/mcp@latest` 미고정(보고만).
+- **리뷰**: Codex 5회(지적 3·3·3·2 → 867fd53 에서 0). 마지막 수정은 호스트 검사를 손으로 베낀 코드 대신 `assess_candidate` 하나로 합친 것(simple is the best).
+- **D-127·D-128 마무리(같은 세션)**: PR #210 머지 d4fec0d · main 게시 run 43740943482 성공 · 설치 20261116-vibe-2260-d4fec0d · 허브 AMEND 6d94369d.
+
+### 다음 작업 큐
+- Simon: Playwright MCP 버전 고정(`@playwright/mcp@latest` → 검토한 버전) 여부.
+- 11-23 00:08 전: 레지스트리 + 순위표 valid_until 재확인.
+- 그 밖에는 아래 02:30 블록 큐 그대로.
+
+## 2026-11-16 02:30 / /vibe 작업별 순위표 기본 배정 + simple is the best (D-127·D-128, vibe 2.26.0)
 
 갱신 시각: 2026-11-16 02:30 KST · 갱신자: Claude Code(Opus 5.5). Simon: "상황별, 작업별, 작업 스케일별 매번 판단하는것을 단순화… 기본적으로 지금 배정할 작업별 순위를 따라서… 리스트 중에 없거나 usage로 인한 꼬임이 발생할때는 상황별 판단" · "코딩하는 놈한테는 simple is the best" · "깃허브상에 이용자가 많은 스킬이 있다면 그걸 응용하자". 허브 D-127(cea51b17) · D-128(77ad29f3). PR #210.
 
