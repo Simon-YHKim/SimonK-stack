@@ -264,7 +264,7 @@ def run():
         check("R1 — 반증 예인 A 작업은 A-verify 로 승격 (D-28 #11 본 규칙)",
               routing.lanes_for_proc("inventory-schema", falsifiable=True) == routing.lanes_for("A-verify"))
         check("A-verify = astra → fable → opus (D-28 #4)",
-              routing.lanes_for("A-verify") == ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5-5"],
+              routing.lanes_for("A-verify") == ["gpt-6-astra", "claude-fable-5-2", "claude-opus-5-5"],
               str(routing.lanes_for("A-verify")))
         gate_a = [{"proc": "security-artifact-gate", "lane": routing.fixed_for("security-artifact-gate")[0], "class": "B"},
                   {"proc": "security-bizlogic-2nd", "lane": routing.fixed_for("security-bizlogic-2nd")[0], "class": "B"}]
@@ -357,8 +357,8 @@ def run():
         check("fable 쿼터 버킷은 fableWeekly",
               routing.LANES["claude-fable-5-1"].get("quota_bucket") == "fableWeekly")
         check("코딩 = opus → fable → sonnet (D-106) · fable 은 B 비코딩 2순위 (D-28 2단계)",
-              routing.PROCESS_LANES["coding"] == ["claude-opus-5-5", "claude-fable-5-1", "claude-sonnet-5-5"]
-              and routing.lanes_for("B")[1] == "claude-fable-5-1",
+              routing.PROCESS_LANES["coding"] == ["claude-opus-5-5", "claude-fable-5-2", "claude-sonnet-5-5"]
+              and routing.lanes_for("B")[1] == "claude-fable-5-2",
               f"coding={routing.PROCESS_LANES['coding']} B={routing.lanes_for('B')}")
         # 이름이 실제로 전달되는 것은 '새 워크트리' 뿐이다 —
         # current/기존 워크트리에는 생성 플래그를 못 붙인다(orca 규칙, 실전에서 확인).
@@ -546,7 +546,7 @@ def run():
         q_c61 = dict(q6190, claude=_q(30))
         lane_d2, _nd2 = MI.pick_default("B", q_c61)
         check("D-101 astra(codex 81%)가 강등되면 Claude 레인으로 간다 — 다른 GPT 레인이나 낮은 effort 가 아니다",
-              lane_d2 == "claude-fable-5-1" and routing.LANES[lane_d2]["vendor"] == "claude", str(lane_d2))
+              lane_d2 == "claude-fable-5-2" and routing.LANES[lane_d2]["vendor"] == "claude", str(lane_d2))
         lane_ad, _nad = MI.pick_default("A-verify", q_c61, proc="claim-verify")
         check("D-101 A-verify 도 astra 강등 시 Claude 레인", routing.LANES[lane_ad]["vendor"] == "claude", str(lane_ad))
         lane_80, _n80 = MI.pick_default("B", dict(q_c61, codex=_q(80)))
@@ -572,7 +572,8 @@ def run():
         check("실호출 실패 벤더는 쿼터와 무관하게 건너뛴다 (D-28 #13③ · D-101 부터 2순위는 claude-opus-5-5)",
               lane_rt == "claude-opus-5-5", str(lane_rt))
         lane_rt2, note_rt2 = MI.pick_default("C-realtime", q_ok, live=dict(live_bad, stale=True))
-        check("오래된 실호출 실패는 막지 않는다 (D-28 #13③)", lane_rt2 == "grok-4.6", f"{lane_rt2} {note_rt2}")
+        check("오래된 실호출 실패는 막지 않는다 (D-28 #13③ · D-125 부터 1순위는 grok-4.7)",
+              lane_rt2 == "grok-4.7", f"{lane_rt2} {note_rt2}")
         st_f, why_f = MI.lane_state_for("claude-fable-5-1", q_ok, fable_pct=100)
         check("fable 은 fableWeekly 버킷으로 판정 (D-28 #13②)", st_f == "blocked", f"{st_f} {why_f}")
         st_f2, wf2 = MI.lane_state_for("claude-fable-5-1", q6190, fable_pct=0)
@@ -638,9 +639,11 @@ def run():
         check("grok 에는 --model 을 붙이지 않는다", "--model" not in gk, str(gk))
         check("codex 에는 --model 이 붙는다",
               "--model" in routing.dispatch_argv("gpt-5.6-luna", "low", "t", "n", "current"))
-        # 기동 불가 레인은 D-28 #12 로 gemini 하나다 — 늘거나 줄면 표를 다시 본다
+        # 기동 불가 레인은 D-28 #12 로 gemini 레인뿐이다(D-125 부터 옛 gemini-3.8-flash 와 후속 gemini-4-hydrogen 둘)
+        #   — 늘거나 줄면 표를 다시 본다
         unavail = [l for l, m in routing.LANES.items() if m.get("dispatch") == "unavailable"]
-        check("기동 불가 레인은 gemini 하나 (D-28 #12)", unavail == ["gemini-3.8-flash"], str(unavail))
+        check("기동 불가 레인은 gemini 레인뿐 (D-28 #12 · D-125)",
+              unavail == ["gemini-3.8-flash", "gemini-4-hydrogen"], str(unavail))
 
         print()
         print("=== 출력 규칙 ===")
@@ -725,8 +728,8 @@ def run():
         check("D-67 종합 고정 = claude-opus-5-5 @max (ultracode 는 flag 레인이 못 받는다)",
               routing.fixed_for("synthesis") == ("claude-opus-5-5", "max"), str(routing.fixed_for("synthesis")))
         check("D-101 C 클래스 = 1순위 → claude-opus-5-5 → gpt-6-astra (옛 gpt-6.1-sol · gpt-5.6-sol 폴백은 철회)",
-              routing.lanes_for("C-realtime") == ["grok-4.6", "claude-opus-5-5", "gpt-6-astra"]
-              and routing.lanes_for("C-platform") == ["gemini-3.8-flash", "claude-opus-5-5", "gpt-6-astra"],
+              routing.lanes_for("C-realtime") == ["grok-4.7", "claude-opus-5-5", "gpt-6-astra"]
+              and routing.lanes_for("C-platform") == ["gemini-4-hydrogen", "claude-opus-5-5", "gpt-6-astra"],
               str(routing.CLASS_LANES))
         for bad in ("max", "ultra"):
             try:

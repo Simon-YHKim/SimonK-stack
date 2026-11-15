@@ -475,15 +475,16 @@ class PublishWorkflowTests(unittest.TestCase):
         # D-2026111201: reviewed narrow Vibe 2.23.0 backport; preserved in Git/history.
         # D-2026111202: Vibe 2.23.1 standalone identity fix, tested source bdda9cef;
         # exact Claude/Codex content only, existing protected-source gate unchanged.
+        # D-125 (2026-11-16): vibe 2.24.0 (Fable 5.2 / Grok 4.7 / Gemini 4 Hydrogen seats, registry 2026-11-16.1).
         allow = dist.validate_allow(json.loads((ROOT / dist.ALLOW).read_text(encoding="utf-8")))
         self.assertEqual(allow["schema_version"], 2)
         self.assertEqual(allow["scope"], "five-plugin-dist-v1")
-        self.assertEqual(allow["decision"], "D-2026111202")
-        self.assertEqual(allow["source_commit"], "bdda9cef391c8a6787deba22b825dba81157d4ac")
+        self.assertEqual(allow["decision"], "D-125")
+        self.assertEqual(allow["source_commit"], "bedc759624c5f865341293a149a00a202327c588")
         self.assertEqual(allow["content_digest"],
-                         "fdf11d1b37400d5645b490114a3832efb0eb70d47427eb007200ea58bfb3ce8a")
+                         "1a9cd0aa04be4e68de5adb7b7384d1412cec47cc6fea2380a93d262121043785")
         self.assertEqual(allow["codex_content_digest"],
-                         "6469d1fbc33b4f1ba6b1ecc6effb4c61467c4a554882f093e8cc8014dac10b5f")
+                         "b79e9820ef24d2605dbb1884874b2223610bed217f006fbec602d02ce01882cd")
 
 
 class StageTests(unittest.TestCase):

@@ -196,6 +196,29 @@
 #   canary(오케스트레이터 실행): 2026-10-12 23:26 KST · Orca run_3607f8833d7e · ctx_56f442610119 · 워커 1개 · 도구 금지.
 #     launch.requested == launch.effective(gpt-6-astra · xhigh) · rollout turn_context 같은 값 · D-98·D-101 과 같은
 #     결함 4개 샘플에 GATE: BLOCK + CWE-89·78·22·502 정확히 · 안전한 함수 2개 미보고 · 자기보고 "unknown". 심은 샘플 1건이다.
+#
+# ── 2026-11-16 D-125 — 벤더별 최신 모델: Fable 5.2 · Grok 4.7 · Gemini 4 Hydrogen (2.24.0) ──
+#   Simon 지시("/vibe 스킬에 대해 벤더별 최신 업데이트를 진행하고, 여론을 조사해서 적절한 모델을 선정하고
+#   푸시 머지 진행해줘") · 35.8 1단 · D-91 세대 교체 원칙. D-67 과 같은 ADD_ALONGSIDE_KEEP_LEGACY 다 —
+#   새 키를 옛 키 옆에 넣고 목록만 옮긴다. 옛 키(claude-fable-5-1 · grok-4.6 · gemini-3.8-flash)는 원장 호환용이다.
+#   바뀐 것:
+#   · B · A-verify · coding 2순위 claude-fable-5-1 → claude-fable-5-2 (2026-11-09 출시 · $8/$40 · 5.1 대비 최대 30% 빠름 ·
+#     Claude Code 별칭 fable = 5.2 · Max 는 포함 + Fable 주간 한도 별도). 1순위 순서(astra · opus)는 그대로다.
+#   · C-realtime 1순위 grok-4.6 → grok-4.7 (grok CLI 기본 모델 · AA 코딩 에이전트 지수 4.6 대비 +9).
+#     Orca grok 은 --model 을 붙이지 않는다(orca-no-model 그대로) — CLI 기본이 grok-4.7 이라 키와 실제가 이제 같다.
+#     Orca 도움말은 이제 Grok·Antigravity 도 --model 을 받는다고 적지만 canary 전이라 dispatch 를 바꾸지 않았다.
+#   · C-platform 1순위 gemini-3.8-flash → gemini-4-hydrogen (2026-11-12 GA · Google 이 3.8 Flash 이전 대상으로 안내 ·
+#     agy 1.5.9 목록 low~xhigh · API 기본 high). dispatch "unavailable"(D-28 #12)은 그대로다.
+#   그대로인 것: GPT 는 gpt-6-astra @xhigh 만(D-101 — GPT-6.1 Terra 는 중간 등급이라 레인 없음) · Opus 5.5 · Sonnet 5.5 ·
+#     Haiku 5.5 · 코디네이터 · 두 보안 게이트 · ai-debate Gemini 좌석(Argon high, D-105). Gemini 4 Carbon 은
+#     Antigravity 에서 Ultra 전용이라 이 계정 agy 목록에 없다 → 레인 없음.
+#   canary: fable-5-2 = Orca run_f057f8196b72 · ctx_49c52654b156 · 2026-11-16 00:19 KST · 읽기 전용 워커 1개 · 도구 금지 ·
+#     launch.requested == launch.effective(claude-fable-5-2 · high) · 세션 기록 message.model claude-fable-5-2 ×3 ·
+#     정답 2/2 · 파일 변경 0 · fableWeekly 0→0. ⚠ 세션 기록 entrypoint 가 sdk-ts 였다(10-12 canary 는 cli) — Orca 의
+#     새 에이전트 탭 설정이 채팅이면 Claude 워커가 Agent SDK 로 뜨고, Anthropic 은 SDK 사용을 대화형 구독 한도가 아니라
+#     별도 월 SDK 크레딧으로 센다. 이 1회는 정가 환산 약 $0.88 이다. hydrogen = agy --print 1회 4.5초 정답(출력에 모델
+#     필드가 없어 요청 슬러그 수용만 확인). grok-4.7 = Grok 사용량 100%(~2026-11-20 12:38 KST)라 canary 를 못 했다.
+#   ⚠ '등록'이지 '동작'이 아니다. $0 게이트(모델 포함 · 초과과금 OFF · API 폴백 OFF)와 G5 · Orca 인증서는 다른 레인과 같다.
 import hashlib
 import json
 import os
@@ -272,8 +295,25 @@ LANES = {
         # D-28 2단계(2026-09-16): M1 실워커 1회 통과 — run_c0c4a6905e26 · claude.exe --model claude-fable-5-1
         #   --effort high 로 기동 · 읽기 전용 과제 정답 3/3 · worker_done · filesModified []. 코딩·B 비코딩 2순위로 편입.
         # prompt-keyword(ultracode) 방식이 아니라 --effort 플래그로 전달한다 — Orca 카탈로그의 launchArgs 가 --effort 다.
+        # D-125 (2026-11-16): 후속 claude-fable-5-2 가 B · A-verify · coding 2순위를 받았다. 이 키는 원장 호환용(우선순위 밖)이다.
+        #   Claude Code 별칭 fable 은 이제 5.2 다 — 5.1 은 정식 id 로만 닿는다(은퇴 2027-09-01 이후).
         "cli": "claude", "vendor": "claude", "effort_style": "flag", "dispatch": "orca",
-        "top": "max", "std": "high", "ctx": "1M · 쿼터 fableWeekly 별도 · API 단가 Opus 5의 2배",
+        "top": "max", "std": "high", "ctx": "1M · 쿼터 fableWeekly 별도 · D-125 원장 호환용(우선순위 밖)",
+        "quota_bucket": "fableWeekly",
+        "orca_efforts": ("low", "medium", "high", "xhigh", "max"),
+    },
+    "claude-fable-5-2": {
+        # D-125 (2026-11-16) — claude-fable-5-1 의 후속(2026-11-09 출시 · Fable 5.2 = Mythos 5.2 와 같은 기반 모델).
+        #   B · A-verify · coding 2순위. --effort 플래그로 전달한다: Orca claude 카탈로그는 별칭만 알아 이 정식 id 를
+        #   모르는 모델로 보고 low~max 를 받는다(claude-sonnet-5-5 와 같다). Claude Code 2.1.321 이상이 필요하다.
+        # effort 사다리는 5.1 과 같은 std high(API 기본) · top max 다. Claude Code 기본은 medium 이다.
+        # 쿼터는 fableWeekly 버킷이다. Max 요금제는 Fable 이 포함이고 Fable 주간 한도가 따로 있으며, 사용 크레딧은 켠 경우에만
+        #   그 한도 뒤에 쓰인다(support.claude.com 15424964 · 12429409). 부분 포함(Pro·Team 표준 좌석은 주간 한도의 50% 까지)이라
+        #   계정마다 다르다 — 배정 전 계정/과금 인증서가 그대로 필요하다.
+        # ⚠ 읽기 전용 canary 는 통과했다(2026-11-16 · run_f057f8196b72 · ctx_49c52654b156 · @high · requested == effective ·
+        #   세션 기록 모델 일치 · 정답 2/2). 세션 기록 entrypoint 는 sdk-ts 였다(위 D-125 절). 동작 레인이 아니다.
+        "cli": "claude", "vendor": "claude", "effort_style": "flag", "dispatch": "orca",
+        "top": "max", "std": "high", "ctx": "1M · 쿼터 fableWeekly 별도 · API 단가 $8/$40 · canary 통과 · 인증서 전",
         "quota_bucket": "fableWeekly",
         "orca_efforts": ("low", "medium", "high", "xhigh", "max"),
     },
@@ -432,15 +472,42 @@ LANES = {
         "dispatch": "unavailable",
         # 2026-09-06 실측: --model 을 주면 "Agent antigravity does not support
         # launch-time model selection". effort 는 슬러그에 들어가므로 목록도 슬러그 기준.
+        # D-125 (2026-11-16): C-platform 1순위는 후속 gemini-4-hydrogen 이다. 이 키는 원장 호환용(우선순위 밖)이다.
         "orca_efforts": ("low", "medium", "high"),
     },
+    "gemini-4-hydrogen": {
+        # D-125 (2026-11-16) — gemini-3.8-flash 의 후속(2026-11-12 Gemini API GA · Google 이 3.8 Flash 이전 대상으로 안내 ·
+        #   Antigravity 는 Google AI Pro·Ultra). agy 1.5.9 목록: gemini-4-hydrogen-{low|medium|high|xhigh}.
+        #   API 기본 thinking 은 high 다 → std high · top xhigh.
+        # dispatch 는 gemini-3.8-flash 와 같은 "unavailable" 이다(D-28 #12 — Orca antigravity 워커로는 과제가 전달되지 않았다).
+        #   Orca 도움말은 이제 Antigravity 도 --model 을 받는다고 적지만 과제 전달 재측정(M6) 전에는 바꾸지 않는다.
+        #   필요하면 CLI 직행(agy --print). canary: agy --print 1회(2026-11-16 · high · 4.5초 · 정답 · 모델 필드 없음).
+        "cli": "antigravity", "cli_binary": "agy",
+        "vendor": "gemini", "effort_style": "slug-suffix",
+        "top": "xhigh", "std": "high", "ctx": "Gemini 4 Hydrogen · 1M 통합 · API 단가 $1.50/$7.50 · D-125",
+        "dispatch": "unavailable",
+        "orca_efforts": ("low", "medium", "high", "xhigh"),
+    },
     "grok-4.6": {
+        # D-125 (2026-11-16): C-realtime 1순위는 후속 grok-4.7 이다. 이 키는 원장 호환용(우선순위 밖)이다.
         "cli": "grok", "vendor": "grok", "effort_style": "flag",
-        "top": "xhigh", "std": "high", "ctx": "500K · 200K초과 2배 과금",
+        "top": "xhigh", "std": "high", "ctx": "500K · 200K초과 2배 과금 · D-125 원장 호환용(우선순위 밖)",
         # 실측: --agent grok 은 되지만 --model 을 주면 거부된다
         # (orca help: "--model supports Claude, Codex, and Cursor")
         # 2026-09-06 재확인: "Agent grok does not support launch-time model selection".
         # --model 이 안 붙으므로 --effort 도 붙이지 않는다 → 목록은 grok CLI 기준이다.
+        "dispatch": "orca-no-model",
+        "orca_efforts": ("low", "medium", "high", "xhigh"),
+    },
+    "grok-4.7": {
+        # D-125 (2026-11-16) — grok-4.6 의 후속. C-realtime 1순위. grok CLI 1.0.70 기본 모델이 grok-4.7 이다
+        #   (`grok models`: "* grok-4.7 (default)"). 2026-10-24 canary 에서 --model 없이 뜬 Orca grok 워커의 세션 기록도
+        #   grok-4.7 이었다(run_f057f8196b72 · usage grok-4.7-build).
+        # dispatch 는 grok-4.6 과 같은 "orca-no-model" 이다 — --model 을 붙이지 않고 CLI 기본에 맡긴다.
+        #   Orca 도움말은 이제 Grok 도 --model 을 받는다고 적지만 canary 전이라 바꾸지 않았다(Grok 사용량 100% · ~11-20).
+        #   grok-4.7-build-fast(= Grok 4.7 Fast · 같은 모델 빠른 인프라 · 2배 단가)는 CLI 전용 이름이라 레인으로 두지 않는다.
+        "cli": "grok", "vendor": "grok", "effort_style": "flag",
+        "top": "xhigh", "std": "high", "ctx": "500K · 200K초과 2배 과금 · CLI 기본 모델 · D-125",
         "dispatch": "orca-no-model",
         "orca_efforts": ("low", "medium", "high", "xhigh"),
     },
@@ -554,20 +621,24 @@ CLASS_LANES = {
     # D-101 (2026-10-12): 목록은 그대로다. 달라진 것은 둘 — astra 는 항상 xhigh 로 돌고(EFFORT_PINNED),
     #   코디네이터도 astra 가 되어 위 09-06 주석의 '구조적으로 겹칠 수 없다' 는 더는 참이 아니다(겸임 경고).
     #   codex 가 80% 를 넘으면 2순위 claude-fable-5-1 로 강등된다 — effort 를 낮추거나 다른 GPT 레인으로 가지 않는다.
-    "B":          ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5-5"],
+    # D-125 (2026-11-16): 2순위 claude-fable-5-1 → claude-fable-5-2 (같은 자리 · 세대 교체). 옛 키는 원장 호환용이다.
+    "B":          ["gpt-6-astra", "claude-fable-5-2", "claude-opus-5-5"],
     # D-28 #4 (Q-260913-08 승인 2026-09-16) — 대조·판정. 심판안 순서 그대로: astra → fable → opus.
     #   읽기 전용 클래스라 G1 과 무관하다(코딩이 아니다). 파일을 바꾸면 validate_plan 이 A_VERIFY_WRITES 로 막는다.
-    "A-verify":   ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5-5"],
+    #   D-125 (2026-11-16): fable 자리는 claude-fable-5-2 다.
+    "A-verify":   ["gpt-6-astra", "claude-fable-5-2", "claude-opus-5-5"],
     # D-28 #6: grok 은 새 계정 실호출 통과 전 blocked(make_intake 가 건너뛴다) → sol → opus.
     #   2026-09-20 08:33 실호출 OK(41.5초) — M3 해소. 상태는 여전히 make_intake 가 실호출로 판정한다
     #   (여기에 고정하지 않는다: G12 창이 24시간이라 하루 지나면 다시 미확인이다).
     # D-101 (2026-10-12 · Simon 지시): 2순위 gpt-6.1-sol 과 끝 폴백 gpt-5.6-sol 을 뺀다. 2순위는 claude-opus-5-5,
     #   GPT 가 필요하면 끝의 gpt-6-astra(@xhigh 고정)다. astra 는 코디네이터이기도 해서 이 폴백이 쓰이면
     #   coordinator_conflict() 가 경고한다.
-    "C-realtime": ["grok-4.6", "claude-opus-5-5", "gpt-6-astra"],
+    # D-125 (2026-11-16 · Simon 지시 "벤더별 최신 업데이트"): 1순위 grok-4.6 → grok-4.7 (CLI 기본 모델 · 세대 교체).
+    "C-realtime": ["grok-4.7", "claude-opus-5-5", "gpt-6-astra"],
     # D-28 #7: gemini 는 dispatch "unavailable" 이라 기본 채움이 건너뛴다(#12) — D-101 부터 오늘 기본은 opus 다
     #   (그 전에는 sol). opus·astra 가 BigQuery·Firebase 작업을 대신할 수 있는지는 미확인.
-    "C-platform": ["gemini-3.8-flash", "claude-opus-5-5", "gpt-6-astra"],
+    # D-125 (2026-11-16): 1순위 gemini-3.8-flash → gemini-4-hydrogen (3.8 Flash 후속 · dispatch unavailable 그대로).
+    "C-platform": ["gemini-4-hydrogen", "claude-opus-5-5", "gpt-6-astra"],
     "D":          ["claude-opus-5-5"],            # 고정
     "N":          [],                             # 모델 미사용 — orca CLI
 }
@@ -585,8 +656,10 @@ CLASS_LANES = {
 #     토론 없음): 복잡한 코딩의 기본·폴백은 opus → fable 이다(fable 은 자기 버킷 fableWeekly). sonnet 은 끝에 남긴다 —
 #     기본 채움으로 오는 자리가 아니라, 단순 코딩 단계(중앙 계획기 CODE_SIMPLE)가 sonnet 을 고를 수 있게 허용 목록에 두는 것이다.
 #     코딩 공정의 opus 기본 effort 는 PROCESS_EFFORTS 가 xhigh 로 정한다.
+#   D-125 (2026-11-16): fable 자리를 claude-fable-5-2 로 옮겼다(세대 교체 · 순서 그대로). 옛 키 claude-fable-5-1 은
+#     허용 목록에서 빠지고 원장 호환용으로만 남는다.
 PROCESS_LANES = {
-    "coding": ["claude-opus-5-5", "claude-fable-5-1", "claude-sonnet-5-5"],
+    "coding": ["claude-opus-5-5", "claude-fable-5-2", "claude-sonnet-5-5"],
 }
 
 # 공정별 기본 effort (D-106 · 2026-10-18 · Simon 지시). {공정: {레인: effort}}.
@@ -738,12 +811,13 @@ EXPLORE_EXCLUDE = {"synthesis", "security-artifact-gate", "security-bizlogic-2nd
 
 # ── 레인별 산출물 제약 (발주 §6) ────────────────────────────────
 OUTPUT_RULES = {
-    "grok-4.6": {
+    # D-125 (2026-11-16): C 클래스 1순위 규칙이라 1순위와 함께 옮겼다(옛 키 grok-4.6 · gemini-3.8-flash).
+    "grok-4.7": {
         "allow": "CSV · 카운트 · 분류 라벨만",
         "deny":  "서술 결론 · 인과 추정 · 200K 초과 입력(과금 2배)",
         "why":   "사실 신뢰도가 4레인 중 최약. 합계는 D 레인이 산술 재검산한다",
     },
-    "gemini-3.8-flash": {
+    "gemini-4-hydrogen": {
         "allow": "발견 목록 + 탐색 드라이브 · 제외 경로 · 스캔 파일 수",
         "deny":  "범위 없는 '0건' 반환 · 무인 장기 루프 단독 배치",
         "why":   "부재 보고 오류가 직전 라운드 오류 5건 중 3건의 원인",

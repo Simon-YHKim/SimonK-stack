@@ -58,6 +58,11 @@ D-101 이 되돌렸다(아래).
   A 작업은 멈춘다. C-realtime: `grok-4.6` → `claude-opus-5-5` → `gpt-6-astra`. C-platform: `gemini-3.8-flash` →
   `claude-opus-5-5` → `gpt-6-astra`. B·A-verify(`gpt-6-astra` → `claude-fable-5-1` → `claude-opus-5-5`)·D·코딩은 그대로다.
   codex 가 80% 를 넘으면 astra 자리는 Claude 레인으로 강등된다.
+  **D-125(2026-11-16, 2.24.0)가 세 자리를 후속 모델로 옮겼다**: fable 자리는 `claude-fable-5-2`(B·A-verify·코딩 2순위),
+  C-realtime 1순위는 `grok-4.7`(grok CLI 기본 모델, `--model` 없이 뜬다), C-platform 1순위는 `gemini-4-hydrogen`
+  (`dispatch: unavailable` 그대로). 옛 키는 원장 호환용이다. Claude 워커의 세션 기록 entrypoint 가 `sdk-ts` 면 Agent SDK 로
+  뜬 것이다 — Orca 의 새 에이전트 탭 설정이 채팅이면 그렇게 되고, Anthropic 은 SDK 사용을 대화형 구독 한도가 아니라 별도
+  월 SDK 크레딧으로 센다. 구독 한도로 돌리려면 그 설정을 터미널로 둔다(Simon 이 고를 일).
 - 코디네이터는 `gpt-6-astra` @xhigh 다. astra 는 인가 게이트이자 B 1순위라 겸임 경고가 자주 뜬다(경고일 뿐이다).
 - 보안 생성물 게이트의 고정 레인은 `gpt-daybreak-blue-latest` @xhigh 다. 제공사는 이 별칭을 여전히 폐기 표시하고
   중앙 계획기는 packaged registry 로 MODEL_NOT_ACTIVE 를 낸다. 그래서 그 경로로는 Daybreak 게이트가 준비되지 않고,

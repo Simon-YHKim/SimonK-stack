@@ -1,10 +1,11 @@
-# Model catalog map — CLI names, registry IDs and the 2026-10-21 refresh
+# Model catalog map — CLI names, registry IDs and the 2026-11-16 refresh
 
 ## Contents
 
 - CLI name map
 - Registered legacy entries
 - Lane migration pending
+- Refresh record (2026-11-16)
 - Refresh record (2026-10-21)
 - Refresh record (2026-10-18)
 - Refresh record (2026-10-12)
@@ -27,6 +28,11 @@ no guarded agy execution adapter exists, so this map grants no route.
 | `antigravity` | `gemini-4-argon-high` | `gemini-4-argon` | `high` | thinking level high; D-105 ai-debate Gemini seat default |
 | `antigravity` | `gemini-4-argon-medium` | `gemini-4-argon` | `medium` | API default level |
 | `antigravity` | `gemini-4-argon-low` | `gemini-4-argon` | `low` | |
+| `antigravity` | `gemini-4-hydrogen-xhigh` | `gemini-4-hydrogen` | `xhigh` | D-125 C-platform lane top |
+| `antigravity` | `gemini-4-hydrogen-high` | `gemini-4-hydrogen` | `high` | API default level; D-125 lane std |
+| `antigravity` | `gemini-4-hydrogen-medium` | `gemini-4-hydrogen` | `medium` | |
+| `antigravity` | `gemini-4-hydrogen-low` | `gemini-4-hydrogen` | `low` | |
+| `antigravity` | `gemini-pro-orchestrator-g1-pro` | `unregistered` | `-` | agy display name "Orchestrator (Argon)": an Antigravity agent mode that pairs models, not one API model |
 | `antigravity` | `gemini-3.8-flash-high` | `gemini-3.8-flash` | `high` | thinking level high |
 | `antigravity` | `gemini-3.8-flash-medium` | `gemini-3.8-flash` | `medium` | API default level |
 | `antigravity` | `gemini-3.8-flash-low` | `gemini-3.8-flash` | `low` | |
@@ -56,6 +62,9 @@ no guarded agy execution adapter exists, so this map grants no route.
 - `claude-opus-5` and `claude-sonnet-5` are labelled Legacy on their Claude
   overview pages and Active in the deprecation table, so they keep
   `lifecycle: active` and carry `generation: legacy`, like `gpt-5.6-*` and `grok-4.6`.
+- D-125 (2026-11-16): `claude-fable-5-1` (successor `claude-fable-5-2`; the
+  Claude Code `fable` alias moved to 5.2) and `gemini-3.8-flash` (successor
+  `gemini-4-hydrogen`) now carry `generation: legacy`. Both stay `lifecycle: active`.
 - registry 에 등록됐다고 Orca 레인이 생기지는 않는다(D-67 과 2026-10-05 Simon 지시로 추가된 네 레인,
   D-99 의 `claude-haiku-5-5` 는 아래 절).
   shadow task-fit 정책은 현행 Claude/Codex 모델만 든다. 자기 게이트를 통과한
@@ -83,6 +92,9 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
 | `claude-sonnet-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | medium / high (xhigh·max 는 정책 밖) | `pending-transport-and-certificate` |
 | `gpt-6-luna` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | low / medium | `held-withdrawn-by-owner` (D-101 철회, 새 배정은 `LANE_WITHDRAWN`) |
 | `claude-haiku-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | low / medium (high·xhigh·max 는 정책 밖) | `pending-transport-and-certificate` |
+| `claude-fable-5-2` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | high / max | `keep-model-check-billing` (D-125, 옛 `claude-fable-5-1` 과 같은 상태) |
+| `grok-4.7` | `--model` 없이 CLI 기본 모델 | low~xhigh (grok CLI 기준) | high / xhigh | `pending-quota-and-canary` (D-125, Grok 사용량 100% 라 canary 대기) |
+| `gemini-4-hydrogen` | 슬러그 접미 effort (`dispatch: unavailable`) | low~xhigh (agy 슬러그) | high / xhigh | `keep-model-orca-unverified` (D-125, 옛 `gemini-3.8-flash` 와 같은 상태) |
 
 - 우선순위 목록·`PROCESS_LANES.coding`·종합 고정·코디네이터를 새 키로 옮겼다.
   종합은 `claude-opus-5-5` @max 다. ultracode 는 프롬프트 키워드라 flag 레인이 받지 못한다.
@@ -214,12 +226,33 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
   - shadow task-fit 정책(`2026-10-12-shadow.2`)도 같은 지시로 바꿨다: GPT 행은 `gpt-6-astra` 의 xhigh 뿐이고,
     CODE_SIMPLE 은 `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5` 다. Sonnet 5.5 가 돌아온 것은 지시
     때문이지 D-90 재진입 조건(Artificial Analysis 재측정)이 충족돼서가 아니다.
-- `legacy_lane_migration` 15건 중 6건이 `pending-*`, 5건이 `held-*`, 4건이 `keep-*` 다. `pending-*` 는
+- **D-125(2026-11-16, 2.24.0, Simon 지시 "벤더별 최신 업데이트 … 적절한 모델을 선정", 35.8 1단, D-91 세대 교체):
+  세 자리를 같은 방식(ADD_ALONGSIDE_KEEP_LEGACY)으로 후속 모델에 옮겼다.** 표의 마지막 세 줄이다.
+  - B·A-verify·coding 2순위 `claude-fable-5-1` → `claude-fable-5-2`(2026-11-09 출시, $8/$40, 5.1 대비 최대 30% 빠름,
+    Claude Code 별칭 `fable` = 5.2). 1순위(`gpt-6-astra`·`claude-opus-5-5`)는 그대로다. 옛 키의 `legacy_lane_migration`
+    후보는 `claude-fable-5-2` 이고 상태는 둘 다 `keep-model-check-billing` 이다(Fable 은 요금제마다 포함 한도가 다르다).
+  - C-realtime 1순위 `grok-4.6` → `grok-4.7`. grok CLI 1.0.70 의 기본 모델이 `grok-4.7` 이고 Orca grok 워커는 `--model`
+    없이 CLI 기본으로 뜨므로, 이제 레인 키와 실제 모델이 같다. `grok-4.6`·`grok-4.7` 은 `pending-quota-and-canary` 다
+    (Grok 사용량 100%, 2026-11-20 12:38 KST 리셋 전에는 canary 를 못 한다).
+  - C-platform 1순위 `gemini-3.8-flash` → `gemini-4-hydrogen`(2026-11-12 GA, Google 이 3.8 Flash 이전 대상으로 안내).
+    `dispatch: unavailable`(D-28 #12)은 그대로라 기본 채움은 여전히 `claude-opus-5-5` 로 간다.
+  - 레인을 두지 않은 새 등록 모델: `gpt-6.1-terra`(중간 등급, D-101 로 GPT 쪽은 Astra 만), `gemini-4-carbon`
+    (Antigravity 에서 Ultra 전용이라 이 계정 agy 목록에 없다). `gemini-4-argon` 은 D-105 그대로 ai-debate 좌석에서만 쓴다.
+  - canary: `claude-fable-5-2` 는 Orca run `run_f057f8196b72`, dispatch `ctx_49c52654b156`(2026-11-16 00:19 KST, 읽기 전용
+    워커 1개, 도구 금지, @high)에서 `launch.requested` == `launch.effective`, 세션 기록 `message.model` 이 3건 모두
+    `claude-fable-5-2`, 정답 2/2, 파일 변경 0, fableWeekly 0% → 0%. 세션 기록의 entrypoint 는 `sdk-ts` 였다(10-12 의
+    `claude-haiku-5-5` canary 는 `cli`). Orca 가 새 에이전트 탭을 채팅으로 여는 설정이면 Claude 워커는 Agent SDK 로 뜨고,
+    Anthropic 은 SDK 사용을 대화형 구독 한도가 아니라 별도 월 SDK 크레딧으로 센다(이 1회 정가 환산 약 $0.88).
+    `gemini-4-hydrogen` 은 `agy --print` 1회(@high, 4.5초, 정답, 출력에 모델 필드 없음). `grok-4.7` 은 canary 없음.
+  - Orca 도움말은 이제 `--model` 이 Grok·Antigravity 도 받는다고 적는다. 2026-09 의 "launch-time model selection 불가"
+    실측과 다르지만 canary 전이라 두 레인의 `dispatch` 값은 바꾸지 않았다.
+- `legacy_lane_migration` 18건 중 7건이 `pending-*`, 5건이 `held-*`, 6건이 `keep-*` 다. `pending-*` 는
   `claude-opus-5-5`·`claude-opus-5`·`claude-sonnet-5-5`·`claude-sonnet-5`·`claude-haiku-5-5`(인증서 대기)와
-  `grok-4.6` → `grok-4.7`(Orca 가 grok 모델을 고정하지 못한다)이다. `held-*` 는 위 D-101 의 철회 다섯 건이다
-  (`gpt-5.6-terra` 의 등급 평가는 대상 `gpt-6.1-sol` 이 철회돼 더 진행하지 않는다). `keep-*` 4건은 자기 모델
-  그대로다: `claude-fable-5-1`, `gpt-6-astra`, `gemini-3.8-flash`, 그리고 D-101 로 돌아온 `gpt-daybreak-blue-latest`.
-- 그래서 planner 는 여전히 `gpt-6-sol`, `grok-4.7`, `grok-4.5` 로의 Orca 발주를
+  `grok-4.6`·`grok-4.7`(사용량·canary 대기)이다. `held-*` 는 위 D-101 의 철회 다섯 건이다
+  (`gpt-5.6-terra` 의 등급 평가는 대상 `gpt-6.1-sol` 이 철회돼 더 진행하지 않는다). `keep-*` 6건: `claude-fable-5-1` →
+  `claude-fable-5-2`, `claude-fable-5-2`, `gpt-6-astra`, `gemini-3.8-flash` → `gemini-4-hydrogen`, `gemini-4-hydrogen`,
+  그리고 D-101 로 돌아온 `gpt-daybreak-blue-latest`.
+- 그래서 planner 는 여전히 `gpt-6-sol`, `gpt-6.1-terra`, `grok-4.5`, `gemini-4-carbon` 으로의 Orca 발주를
   `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막는다. `claude-sonnet-5-5`·`claude-haiku-5-5` 는 등록된 레인이라
   그 코드가 아니라 다음 게이트(G5·$0·런치 인증서)에서 멈추고, 철회된 `gpt-6-luna`·`gpt-6.1-sol` 은 `ORCA_LANE_WITHDRAWN`
   에서 멈춘다. 레인을 더 바꾸려면 Orca canary 와 `/ai-debate` 를 거친 별도 결정이나 Simon 의 명시 지시가 필요하다.
@@ -230,6 +263,32 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
 ### D-105 (2026-10-18): `gemini-4-argon` 은 등록만, 레인은 없다
 
 `gemini-4-argon` 은 2026-10-13 Gemini API GA 라 2026-10-18.1 레지스트리에 등록했지만 `routing.py` 레인은 없다. 그래서 계획에 넣으면 지금처럼 `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막힌다. 이유는 둘이다. Orca 의 antigravity 에이전트는 기동 때 모델을 고를 수 없고(D-28 #12), agy CLI 직행 실행기도 없다. 실행기를 만들더라도 다른 실행기처럼 코디네이터 인증서(모델 포함·남은 쿼터·초과 과금 OFF·API 폴백 OFF)가 있어야 돌고, Antigravity 초과 과금 여부는 아직 확인하지 못했다. 허브 토론 D-104 의 B 판정은 이 사실을 빠뜨린 근거로 나와, 사실을 넣어 다시 연 D-105(FINAL 4/4, A, 확신도 92)가 먼저 agy 인증서 경로를 확인하고 토론 좌석 사용을 최대 5건 계측한 뒤 실행기를 다시 보기로 정했다. 지금 Argon 이 실제로 쓰이는 곳은 ai-debate 의 Gemini 좌석(`gemini-4-argon-high`, ai-debate 0.2.8)이다. 2026-10-18 canary 두 건(화면 녹화 검토, 심어 둔 주장 10개 대조)은 통과했지만 둘 다 n=1 합성 표본이다.
+
+## Refresh record (2026-11-16)
+
+시각은 모두 KST 다. 공식 페이지·커뮤니티는 하위 조사 에이전트(웹 읽기만)가 읽었고, CLI 는 목록·버전·도움말과 메타데이터 조회만
+읽었다. 모델 호출은 canary 2회(위 D-125 항목: Orca Claude 워커 1회, `agy --print` 1회)뿐이다. Bot·유료 API 호출은 0회다.
+2026-10-21 표는 커밋 `c0e243d` 의 이 파일에 있다.
+
+| 근거 | 관측 | 결과 |
+| --- | --- | --- |
+| `model_watch.py scan --force`·`status` | 00:08:40~00:08:43 | 네 소스 모두 변경, 새 후보 0(감지 누락 — 공식 페이지를 직접 확인했다). 대기 후보 중 Claude Fable·Mythos 5.2, Gemini 4 Carbon, GPT-6.1 Terra 가 이번 변경분이다. 고객 사례 글 다섯 건은 출시가 아니다 |
+| Codex app-server `model/list`·`account/rateLimits/read`(턴 0회) | 00:09~00:10 | CLI 0.166.0. 목록 8개: `gpt-6.1-sol`·`gpt-6-astra`·`gpt-6.1-terra`(새로 보임)·`gpt-6-sol`·`gpt-6-luna`·`gpt-5.6-*` 셋. Daybreak·cyber 없음. 주간 사용량 96%(리셋 2026-11-17 17:48) |
+| `grok models`(runtime_collect 환경) | 00:16 | 1.0.70, 로그인 grok.com, 기본 `grok-4.7`, 목록 `grok-4.7`·`grok-4.7-build-fast`·`grok-4.6`·`grok-4.5`. 사용량 100%(SuperGrok Heavy, 주기 끝 2026-11-20 12:38). 일반 셸에서는 "You are not authenticated." 와 기본 `grok-4.6` 을 보였다(로컬 표시 차이) |
+| `agy models` | 00:10 | 1.5.9. 18개: Argon 3·`gemini-4-hydrogen` 4(low~xhigh, 새로 보임)·`gemini-pro-orchestrator-g1-pro`(Orchestrator (Argon))·3.8 Flash 3·Claude 6·`gpt-oss-120b-medium`. Carbon 없음 |
+| `claude --version`·`orca account list` | 00:10·00:18 | Claude Code 2.1.325(Fable 5.2 는 2.1.321+). Max 20x, Claude 주간 11%, fableWeekly 0% |
+| 레지스트리 출처 34개 + 새 출처 8개 | 00:23:51~00:24:36 | OpenAI 13개 중 12개 200(`openai.com/index/gpt-6-astra` 403). Anthropic 17개 200. Google `ai.google.dev` 9개는 `aistudio.google.com/docs` 로 301 뒤 200, antigravity.google 3개 200. xAI 7개 200(`x.ai/news` 403). 대조 결과는 레지스트리 notes 의 2026-11-16 항목(바뀐 사실은 `fable` 별칭 하나) |
+| 커뮤니티(HN Algolia·HN 스레드·X 검색 요약·Artificial Analysis 집계) | 00:10:43~00:17:29 | Fable 5.2 AA 지수 65(1위)·HN 923점/1054댓글, Gemini 4 Hydrogen AA 51(high)/54(xhigh), Carbon 60, Grok 4.7 AA 코딩 에이전트 지수 56(4.6 대비 +9), GPT-6.1 Terra 45. Reddit 은 크롤러 차단, X 는 검색 요약만 읽힌다 |
+
+관측만(레지스트리 등록·레인은 바꾸지 않음).
+- Claude Mythos 5.2(검증 기관 한정), `gpt-6-cyber`(2026-11-05, Daybreak Red 승인 필요 — 이 계정 Codex 목록에 없다),
+  `gpt-6-rosalind`·`gpt-image-2.6-*`, Gemini Omni 1.2 Flash·Gemini Decision 1, Grok 4.7 Fast(= `grok-4.7-build-fast`).
+- Anthropic API `2026-10-21` 판부터 `temperature`·`top_p`·`top_k` 는 400 이다. Google 은 2026-12-01 부터 `gemini-2.5-pro` 요청을
+  `gemini-3.8-flash` 로 돌린다(미등록 모델).
+- Orca 도움말의 `--model` 지원 목록에 Grok·Antigravity 가 생겼다(위 D-125 항목, `dispatch` 미변경).
+
+레지스트리 `checked_at` 은 실제로 쓴 근거 중 가장 이른 watch scan 수신 2026-11-16 00:08:40 이라 사실은 2026-11-23 00:08:40 KST 에
+만료된다. task-fit 정책은 자기 출처를 처음 읽은 00:23:53 부터 2026-11-23 00:23:53 KST 까지 유효하다.
 
 ## Refresh record (2026-10-21)
 
