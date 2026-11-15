@@ -13,6 +13,7 @@
 - Durable state and recovery
 - QA completion gate
 - Guarded Bot adapter
+- Local GUI fallback (D-129)
 - Codex image lane (D-121)
 - Gemini Argon Korean prose lane (D-126)
 - Conditional host image adapter
@@ -798,6 +799,37 @@ unbound helpers; they do not check the registered plan/Store/pinned helper. Do n
 use their exit codes as completion or as a substitute for this adapter. No helper
 result, historical pilot or manual paste grants permission to bypass a delivery
 hold. Source fixtures are not account, generation, OS-isolation or installation proof.
+
+## Local GUI fallback (D-129)
+
+Simon (2026-11-16): "grok bot 사용 여건이 안될경우 진행하려는 거야". Grok Bot (vibe-bot) stays rank 0 for
+`COMPUTER_USE` (D-93). Only when every Bot candidate is rejected does `pick_local_gui` look at
+`runtime.gui_tools` in table order: `playwright` (1), `claude-in-chrome` (2), `computer-use` (3). The route uses
+the host's surface and vendor and carries the host session's billing and quota, so readiness and the Store treat it like any other route; the handoff is `kind: host-gui` with the tool, target, `screen_actions`,
+`confirm_each` and rules. The host performs the step with its own tools; nothing is dispatched.
+
+| Gate (`assess_gui_tool`) | Rejection |
+| --- | --- |
+| tool is one of the three, `available`, fresh `observed_at` with evidence | `GUI_TOOL_UNSUPPORTED`, `GUI_TOOL_UNAVAILABLE`, `GUI_TOOL_STALE` |
+| `host_ref` equals the runtime `host_ref`; `host_surface` is claude/codex (Chrome and Computer Use: claude) | `GUI_TOOL_HOST_MISMATCH`, `GUI_TOOL_HOST_UNSUPPORTED` |
+| a node pinned to a `surface` stays on it | `SURFACE_MISMATCH` |
+| a verifier (`verify_of`) never shares the producer's vendor | `SAME_VENDOR_REVIEW` |
+| node `screen_actions` has no `login` or `payment` (the host never types credentials or payment details) | `GUI_ACTION_NEEDS_BOT` |
+| Playwright: headless and isolated, pointer-lock guard present, node not `signed_in` | `GUI_PLAYWRIGHT_NOT_HEADLESS_ISOLATED`, `GUI_POINTER_LOCK_UNGUARDED`, `GUI_NEEDS_SIGNED_IN_BROWSER` |
+| Chrome and Computer Use: `interactive` (Simon at this session) | `GUI_REQUIRES_INTERACTIVE_HOST` |
+| the host session's own `transport: host` candidate (same surface and `host_ref`) passes `assess_candidate` for the node, capability and effort aside: availability, registry deadlines, verified billing that includes its exact model, usage under 85% (D-74), the node's quality floor, its surface pin and reviewer vendor, at $0; the route copies its `billing`, `quota` and `valid_until` | `GUI_HOST_USAGE_UNVERIFIED`, `GUI_HOST_QUALITY_FLOOR` |
+
+Node fields: `screen_actions` (distinct values from read, input, submit, publish, delete, settings, login, payment;
+default `["read"]`) and `signed_in` (boolean, default false). Submit, publish, delete and settings land in
+`confirm_each`: ask Simon before each one. With no usable table the same local order applies in `situational` mode.
+
+`scripts/collect_gui_tools.py` builds the entries. It reads only `mcpServers.playwright` in `~/.claude.json`, the
+config file that entry names and the Playwright browser folder, so Playwright is verified for a Claude host only (a Codex
+host reports it unverified); Chrome and Computer Use are host-attested flags.
+`--install` writes the pointer-lock guard (`~/.claude/playwright-pointer-guard.js`, a headless pointer lock once
+trapped the real cursor), adds it to `browser.initScript` after backing the config up, and installs Chromium with
+`npx -y playwright install chromium` when none is present. It never registers an MCP server or changes its version;
+an unpinned `@playwright/mcp@latest` is reported in `notes`.
 
 ## Codex image lane (D-121)
 

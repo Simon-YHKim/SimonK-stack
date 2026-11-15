@@ -25,7 +25,9 @@ POLICY = orchestrate.TASK_FIT_PATH
 BEGIN = "<!-- TASK-RANKING:BEGIN"
 END = "<!-- TASK-RANKING:END -->"
 TOOL_LABELS = {"agy-prose": "Gemini 4 Argon via `agy-prose`", "codex-image": "Codex `image_gen`",
-               "host-image": "host image adapter"}
+               "host-image": "host image adapter", "bot": "Grok Bot (vibe-bot)",
+               "playwright": "local Playwright headless", "claude-in-chrome": "local Claude in Chrome",
+               "computer-use": "local Computer Use"}
 
 
 def label(entry):
@@ -48,7 +50,8 @@ def render(policy, policy_bytes):
         if entries:
             groups = itertools.groupby(entries, key=lambda entry: entry["rank"])
             order = " → ".join(" = ".join(label(entry) for entry in group) for _, group in groups)
-            blocked = "replan as `" + fallbacks[name] + "`" if name in fallbacks else "situational"
+            blocked = ("replan as `" + fallbacks[name] + "`" if name in fallbacks
+                       else "wait for the Bot or Simon" if contract["kind"] == "gui" else "situational")
         elif contract["kind"] == "gui":
             order, blocked = "vibe-bot (Grok Bot) only", "fixed route"
         else:

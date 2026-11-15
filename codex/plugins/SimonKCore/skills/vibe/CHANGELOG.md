@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.27.0 - 2026-11-16
+
+- **Screen work falls back to local tools only when Grok Bot is blocked (hub D-129, Simon's instruction).** `COMPUTER_USE` joins the ranking table: Grok Bot (vibe-bot) 0, then Playwright headless, Claude in Chrome and Computer Use. D-93 still puts the Bot first.
+  - `orchestrate.py`: when every Bot candidate is rejected, `pick_local_gui` checks `runtime.gui_tools` in order and plans a `host-gui` handoff with the tool, target, `screen_actions`, `confirm_each` and rules.
+  - Login and payment stay Bot-only. Each submit, publish, delete or settings change needs Simon's yes in chat.
+  - Playwright must be headless, isolated and pointer-lock guarded, and cannot serve a signed-in screen. Chrome and Computer Use need Simon at an interactive session.
+  - New node fields: `screen_actions` and `signed_in`.
+  - A local GUI step spends the host session's included usage, so the route binds the host's own candidate and needs its verified billing and fresh usage below 85% (D-74). It then passes `ready_steps` and Store registration like any route (Codex review on #211).
+  - The host's model must be verified as included in its subscription, a node pinned to a `surface` never moves to a local tool, and the browser cache follows Playwright's per-platform default (macOS `~/Library/Caches/ms-playwright`) (second Codex review on #211).
+  - The host candidate must be available, active and evidenced; a local GUI verifier never shares the producer's vendor; and a Codex host reports Playwright unverified because only Claude Code's registration is inspected (third Codex review on #211).
+  - The host candidate is now judged by `assess_candidate` itself (capability and effort aside) instead of hand-copied checks, so its quality floor and registry deadline apply too, and the route never outlives the host's `valid_until` (fourth Codex review on #211).
+  - New `scripts/collect_gui_tools.py`:
+    - Observes the Playwright MCP entry, its config and the Chromium folder; Chrome and Computer Use are attested by the host.
+    - `--install` adds a missing pointer-lock guard (backing up the config first) or Chromium through the Playwright CLI.
+    - It never registers or re-versions the MCP server.
+    - Chromium counts only with `INSTALLATION_COMPLETE` and an executable, and `--install` refuses to rewrite a config it cannot parse (Codex review on #211).
+  - Measured on this PC (11-16): Playwright MCP was headless and isolated with Chromium 1234 but had no guard. `--install` added it and backed up the config. The MCP still runs the unpinned `@playwright/mcp@latest`, which is reported but not changed.
+- Tests: 2 new planner tests (Bot first, then fallback order, signed-in and interactive limits; credential and payment refusal, confirmations, gate reasons). The packaged table now covers all 18 types. New `test_collect_gui_tools.py` (5 tests) and a CI step for it.
+
 ## 2.26.0 - 2026-11-16
 
 - **Default routing follows the per-task ranking table, with situational judgment only when a task type is not in the table or usage blocks it (hub D-127, Simon's instruction).** `references/task-fit-policy.json` changes from a shadow-only hypothesis to an active schema 2 ranking table covering 17 of the 18 task types (all but GUI).
