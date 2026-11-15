@@ -97,6 +97,7 @@ VENDOR_OF = {
     "claude-opus-5-5": "claude",
     "claude-opus-5": "claude",
     "claude-fable-5-1": "claude",
+    "claude-fable-5-2": "claude",
     "claude-sonnet-5-5": "claude",
     "claude-sonnet-5": "claude",
     "claude-haiku-5-5": "claude",
@@ -108,7 +109,9 @@ VENDOR_OF = {
     "gpt-5.6-luna": "codex",
     "gpt-daybreak-blue-latest": "codex",
     "gemini-3.8-flash": "gemini",
+    "gemini-4-hydrogen": "gemini",
     "grok-4.6": "grok",
+    "grok-4.7": "grok",
 }
 
 ALL_VENDORS = ("claude", "codex", "gemini", "grok")
