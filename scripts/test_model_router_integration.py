@@ -70,7 +70,7 @@ class ModelRouterIntegrationTests(unittest.TestCase):
         self.assertEqual(len(blocks), 1)
         mapping = json.loads(blocks[0])
         self.assertEqual(mapping, orchestrate.TASK_TYPE_MAP)
-        self.assertEqual(len(mapping), 16)
+        self.assertEqual(len(mapping), 17)
         for task_type, fields in mapping.items():
             with self.subTest(task_type=task_type):
                 node = self.node(task_type)
@@ -88,7 +88,7 @@ class ModelRouterIntegrationTests(unittest.TestCase):
                                            "paid_credit_fallback_disabled": True,
                                            "account_ref": "fixture-bot"})
                 nodes, candidates = [node], [c]
-                if task_type == "WRITING":
+                if task_type in ("WRITING", "KOREAN_PROSE"):
                     nodes.append(self.node("CODE_REVIEW", id="review", verify_of="task",
                                            depends_on=["task"]))
                     candidates.append(candidate("reviewer", surface="claude", quality_tier=3,
@@ -97,6 +97,12 @@ class ModelRouterIntegrationTests(unittest.TestCase):
                 if task_type == "IMAGE_GENERATION":
                     self.assertEqual(rc, 2, p)
                     self.assertIn("IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL", p["steps"][0]["errors"])
+                    self.assertIsNone(p["steps"][0]["route"])
+                    continue
+                if task_type == "KOREAN_PROSE":
+                    # D-126: no prose tool in this fixture, so the draft stays unresolved.
+                    self.assertEqual(rc, 2, p)
+                    self.assertIn("KOREAN_PROSE_REQUIRES_VERIFIED_TOOL", p["steps"][0]["errors"])
                     self.assertIsNone(p["steps"][0]["route"])
                     continue
                 self.assertEqual(rc, 0, p)

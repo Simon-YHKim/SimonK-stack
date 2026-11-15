@@ -53,6 +53,10 @@ TASK_TYPE_MAP = {
     "VISION": {"kind": "llm", "needs": ["vision"], "demand": "reasoning", "proc": "ui-visual", "class": "C-platform"},
     # Image output needs a dedicated tool transport; text-model vision cannot satisfy it.
     "IMAGE_GENERATION": {"kind": "image", "needs": ["image_generation"], "demand": "routine", "proc": "ui-visual", "class": "C-platform"},
+    # Hub D-126: Korean notices, announcements, polishing and short copy. Drafted on
+    # Gemini 4 Argon through a dedicated prose transport and fact-checked by a review step.
+    # Korean reports and technical documents stay KOREAN_DOC on the LLM routes.
+    "KOREAN_PROSE": {"kind": "prose", "needs": ["korean_writing"], "demand": "routine", "proc": "research-deep", "class": "B"},
 }
 # Effort demand and capability quality are different axes. A short coding task
 # can use low reasoning without admitting an unproven low-quality model.
@@ -103,6 +107,10 @@ INCLUDED_USAGE_CEILING_PCT = 85
 # same D-74 included-usage gate. The D-32 host-image contract remains available.
 CODEX_IMAGE_TRANSPORT = "codex-image"
 CODEX_IMAGE_TOOL_REF = "image_gen"
+# Hub D-126 (Simon 2026-11-16, D-107 inside /vibe): Korean prose drafts run on Gemini 4
+# Argon through `agy --print` (execute_agy_prose.py) under the same D-74 usage gate.
+AGY_PROSE_TRANSPORT = "agy-prose"
+AGY_PROSE_MODEL = "gemini-4-argon-high"
 
 
 def usage_limit_reached(billing):
@@ -876,8 +884,11 @@ def ordered_steps(steps):
 
 
 def requires_review(node):
-    """Writing output needs review even when it does not edit a file."""
-    return bool(node.get("writes")) or node.get("task_type") == "WRITING"
+    """Writing output needs review even when it does not edit a file.
+
+    D-126: an Argon Korean prose draft is always fact-checked against its source (D-107).
+    """
+    return bool(node.get("writes")) or node.get("task_type") in ("WRITING", "KOREAN_PROSE")
 
 
 DEBATE_ROLES = ("proposer", "challenger", "proposer_rebuttal", "challenger_rebuttal", "judge")
@@ -1227,6 +1238,50 @@ def image_tool_route(tool):
             "valid_until": valid_until.isoformat(), "runtime_observed_at": tool["observed_at"]}
 
 
+def assess_agy_prose_tool(tool, step, now):
+    """D-126: Gemini 4 Argon Korean prose drafts, judged only by the D-74 usage gate.
+
+    agy exposes tier quota but no account ID or credit settings; the profile stands in for
+    the account. The runner (execute_agy_prose.py) repeats this check right before sending.
+    """
+    errors = []
+    if (tool.get("surface") != "antigravity" or tool.get("transport") != AGY_PROSE_TRANSPORT
+            or tool.get("tool_ref") != AGY_PROSE_MODEL):
+        errors.append("PROSE_AGY_TOOL_UNSUPPORTED")
+    if step.get("surface") and step["surface"] != "antigravity":
+        errors.append("SURFACE_MISMATCH")
+    if (tool.get("available") is not True or not fresh(tool.get("observed_at"), now)
+            or not isinstance(tool.get("evidence"), list) or not tool["evidence"]):
+        errors.append("PROSE_TOOL_UNOBSERVED")
+    billing = tool.get("billing")
+    if (not isinstance(billing, dict) or billing.get("mode") != "subscription"
+            or billing.get("verified") is not True
+            or billing.get("auth_method") != "google-account"
+            or not isinstance(billing.get("account_ref"), str)
+            or not billing["account_ref"].strip()
+            or billing.get("api_fallback_disabled") is not True
+            or not fresh(billing.get("observed_at"), now)
+            or not isinstance(billing.get("evidence"), list) or not billing["evidence"]):
+        errors.append("PROSE_AGY_SUBSCRIPTION_UNVERIFIED")
+    elif usage_limit_reached(billing):
+        errors.append("PROSE_USAGE_LIMIT_REACHED")
+    quota = tool.get("quota")
+    if (not isinstance(quota, dict) or isinstance(quota.get("used_pct"), bool)
+            or not included_usage_open(quota, now) or not quota.get("bucket")
+            or not isinstance(billing, dict)
+            or quota.get("account_ref") != billing.get("account_ref")
+            or quota.get("surface") != "antigravity"
+            or quota.get("transport") != AGY_PROSE_TRANSPORT
+            or not isinstance(quota.get("evidence"), list) or not quota["evidence"]):
+        errors.append("PROSE_QUOTA_UNVERIFIED")
+    return sorted(set(errors))
+
+
+def prose_tool_route(tool):
+    route = image_tool_route(tool)
+    route.update(model=tool.get("model"), requested_effort="high", effective_effort="high")
+    return route
+
 def _legacy_validation(nodes, runtime):
     """Retain the full Orca guard. This is preflight, never worker-start."""
     orca_nodes = [s for s in nodes if (s.get("route") or {}).get("transport") == "orca"]
@@ -1340,8 +1395,9 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
         s.pop("gate_fallback", None)  # Only this planner writes it (D-102); a request cannot supply one.
         s["skill_paths"] = []
         s["skill_bindings"] = []
-        if (s.get("kind") not in ("local", "llm", "gui", "image")
+        if (s.get("kind") not in ("local", "llm", "gui", "image", "prose")
                 or (s["kind"] == "image" and s.get("task_type") != "IMAGE_GENERATION")
+                or (s["kind"] == "prose" and s.get("task_type") != "KOREAN_PROSE")
                 or s.get("demand", "routine") not in DEMAND_TIER):
             raise ValueError("Invalid step kind or demand")
         if type(s.get("quality_floor", 1)) is not int or not 1 <= s.get("quality_floor", 1) <= 3:
@@ -1404,6 +1460,33 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                                     "read_skills": s["skill_paths"],
                                     "atomic_subscription_only": True,
                                     "idempotent_lookup_required": True}
+        if s["kind"] == "prose":
+            prose_tools = runtime.get("prose_tools", [])
+            if not isinstance(prose_tools, list):
+                prose_tools = []
+            eligible, ids = [], []
+            for tool in prose_tools:
+                if not isinstance(tool, dict) or not isinstance(tool.get("id"), str) or not tool["id"]:
+                    continue
+                ids.append(tool["id"])
+                reasons = assess_agy_prose_tool(tool, s, now)
+                if reasons:
+                    rejected.append({"candidate_id": tool["id"], "reasons": reasons})
+                else:
+                    eligible.append(tool)
+            if len(set(ids)) != len(ids):
+                errors.append("PROSE_TOOL_ID_AMBIGUOUS")
+            if not eligible or errors:
+                errors.append("KOREAN_PROSE_REQUIRES_VERIFIED_TOOL")
+            else:
+                tool = min(eligible, key=lambda item: (item["quota"]["used_pct"], item["id"]))
+                s["route"] = prose_tool_route(tool)
+                # One agy --print per node; the runner rechecks usage and never retries.
+                # The review step fact-checks numbers, names and claims against the brief (D-107).
+                s["handoff"] = {"kind": AGY_PROSE_TRANSPORT, "model": tool["tool_ref"],
+                                "read_skills": s["skill_paths"],
+                                "runner": "scripts/execute_agy_prose.py",
+                                "one_send": True, "fact_check": "host-review-step"}
         parent = by_id.get(s.get("verify_of"))
         vendor = (parent.get("route") or {}).get("vendor") if parent else None
         if parent and not parent.get("route"):
@@ -1454,7 +1537,7 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                 if gstack_command(argv):
                     # The runner applies `run_state.py gstack-env` output to this process.
                     s["handoff"]["gstack_isolation"] = True
-        elif s["kind"] != "image" and not errors:
+        elif s["kind"] not in ("image", "prose") and not errors:
             # D-102: for a process with a declared fallback, remember why its pinned Orca
             # candidates were rejected. The fallback opens only on those rejections.
             pin = gate_pin(s) if any(c.get("transport") == "orca" for c in candidates) else None

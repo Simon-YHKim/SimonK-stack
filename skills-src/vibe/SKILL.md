@@ -1,8 +1,8 @@
 ---
 name: vibe
-description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan, sends image generation to Codex image_gen within included usage, and reports blocked coding routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
+description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan, sends image generation to Codex image_gen and Korean prose drafts to Gemini Argon within included usage, and reports blocked coding routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.24.0
+version: 2.25.0
 author: simon-stack
 ---
 
@@ -143,7 +143,7 @@ a model name or benchmark headline.
 | Architecture / ambiguous plan | Claude Opus 5.5 or GPT-6 Astra at xhigh (D-101: the only GPT option, always xhigh) | reasoning; critical only for consequential, falsifiable decisions |
 | Difficult, multi-file coding | Claude Opus 5.5 or GPT-6 Astra at xhigh | reasoning; escalate after bounded failure or demonstrated risk |
 | Focused bug fix | Claude Haiku 5.5, then Sonnet 5.5, then Opus 5.5 (no GPT option) | routine, then raise only if tests or ambiguity require it |
-| Polished writing | Claude Opus 5.5 (no GPT option) | reasoning, not automatic max |
+| Polished writing | Claude Opus 5.5 (no GPT option); Korean notices/polish/short copy: Gemini 4 Argon draft via `scripts/execute_agy_prose.py` + Claude fact check (`KOREAN_PROSE`, D-126) | reasoning, not automatic max |
 | Bulk transform | Deterministic software first; then an eligible light model such as Claude Haiku 5.5 | routine |
 | Image creation/editing | Codex built-in `image_gen` through `scripts/execute_codex_image.py` (D-121), driven by GPT-6 Astra at xhigh | tool-managed; text models only plan or critique |
 | Recent X discourse | Verified Grok CLI or current-host browsing, corroborated with primary sources | reasoning if controllable |
@@ -157,8 +157,8 @@ D-74 usage gate only (ChatGPT login, verified account, fresh `codex` usage under
 85 percent, no reached limit). Run `python scripts/execute_codex_image.py
 --prompt-file <brief> --out <absolute .png>` (`--transparent` for alpha): one
 `codex exec`, PNG from the rollout, a receipt beside it, no retry. Exit 3 is a
-usage refusal; never switch to a paid image API. The D-32 `host-image` adapter
-stays optional. See [orchestration](references/orchestration.md).
+usage refusal; never switch to a paid image API; the D-32 `host-image` adapter stays optional.
+`KOREAN_PROSE` (D-126) is `kind=prose`: one Argon `agy --print` under the same gate, then a required review step fact-checks it. See [orchestration](references/orchestration.md).
 
 The source-dated [task-fit hypothesis](references/task-fit-policy.json) is
 deliberately **shadow-only**. For `PLAN_ARCHITECTURE`, `CODE_COMPLEX`,

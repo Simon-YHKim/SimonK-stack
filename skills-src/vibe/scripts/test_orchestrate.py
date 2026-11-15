@@ -91,6 +91,23 @@ def codex_image_tool(**changes):
     return item
 
 
+def agy_prose_tool(**changes):
+    """Hub D-126: Gemini 4 Argon prose drafting as runtime_collect.agy_prose_tool reports it."""
+    evidence = ["fixture agy-usage-command /usage num_turns=0"]
+    item = {
+        "id": "antigravity:argon-prose", "surface": "antigravity", "transport": "agy-prose",
+        "tool_ref": "gemini-4-argon-high", "model": "gemini-4-argon", "available": True,
+        "observed_at": NOW, "evidence": evidence,
+        "billing": {"mode": "subscription", "verified": True, "auth_method": "google-account",
+                    "account_ref": "fixture-agy-profile", "api_fallback_disabled": True,
+                    "observed_at": NOW, "evidence": evidence},
+        "quota": {"used_pct": 3, "bucket": "gemini-argon-wtu-weekly", "observed_at": NOW,
+                  "account_ref": "fixture-agy-profile", "surface": "antigravity",
+                  "transport": "agy-prose", "evidence": evidence},
+    }
+    item.update(changes)
+    return item
+
 def step(name="read", **changes):
     item = {"id": name, "task": "Inspect the supplied input", "kind": "llm",
             "skills": ["explain"], "needs": ["reasoning"], "demand": "routine",
@@ -2473,7 +2490,7 @@ class OrchestrationTests(unittest.TestCase):
         expected = {"CODE_NEW", "CODE_FIX", "CODE_REVIEW", "RESEARCH", "AGENTIC",
                     "COMPUTER_USE", "DESIGN_UI", "KOREAN_DOC", "BULK_LIGHT",
                     "REASONING_ABSTRACT", "VISION", "PLAN_ARCHITECTURE",
-                    "CODE_COMPLEX", "CODE_SIMPLE", "WRITING", "IMAGE_GENERATION"}
+                    "CODE_COMPLEX", "CODE_SIMPLE", "WRITING", "IMAGE_GENERATION", "KOREAN_PROSE"}
         self.assertEqual(set(self.m.TASK_TYPE_MAP), expected)
         for mapping in self.m.TASK_TYPE_MAP.values():
             self.assertEqual(routing.PROC_BY_ID[mapping["proc"]][1], mapping["class"])
@@ -2708,6 +2725,74 @@ class OrchestrationTests(unittest.TestCase):
         claude_step = self.typed("IMAGE_GENERATION", surface="claude")
         self.assertIn("SURFACE_MISMATCH",
                       self.m.assess_image_tool(codex_image_tool(), {}, claude_step, NOW))
+
+    def test_korean_prose_routes_to_argon_under_the_usage_gate_with_a_fact_check(self):
+        # D-126 (Simon 2026-11-16): D-107's Korean prose rule inside /vibe. One agy --print per
+        # node through the runner, and a review step that fact-checks the draft (D-107).
+        prose = self.typed("KOREAN_PROSE", task="Draft a Korean maintenance notice from the brief")
+        review = step("check", task="Fact-check numbers, names and claims against the brief",
+                      verify_of="read", depends_on=["read"])
+        p = self.plan([prose, review], prose_tools=[agy_prose_tool()])
+        self.assertEqual(p["status"], "ready", [s["errors"] for s in p["steps"]])
+        node = p["steps"][0]
+        self.assertEqual(node["kind"], "prose")
+        self.assertEqual(node["route"]["transport"], "agy-prose")
+        self.assertEqual(node["route"]["vendor"], "google")
+        self.assertEqual(node["route"]["model"], "gemini-4-argon")
+        self.assertEqual((node["route"]["requested_effort"], node["route"]["effective_effort"]), ("high", "high"))
+        self.assertEqual(node["handoff"]["kind"], "agy-prose")
+        self.assertEqual(node["handoff"]["model"], "gemini-4-argon-high")
+        self.assertEqual(node["handoff"]["runner"], "scripts/execute_agy_prose.py")
+        self.assertTrue(node["handoff"]["one_send"])
+        self.assertEqual(node["handoff"]["fact_check"], "host-review-step")
+        self.assertNotEqual(p["steps"][1]["route"]["vendor"], "google")
+        # Without the review step the draft is not plannable (D-107 fact check).
+        alone = self.plan([prose], prose_tools=[agy_prose_tool()])
+        self.assertEqual(alone["status"], "blocked")
+        self.assertIn("MISSING_REVIEW", alone["steps"][0]["errors"])
+        # No prose tool: the node stays unresolved instead of falling back to a text model.
+        none = self.plan([prose, review])
+        self.assertIn("KOREAN_PROSE_REQUIRES_VERIFIED_TOOL", none["steps"][0]["errors"])
+        self.assertIsNone(none["steps"][0]["route"])
+        # KOREAN_DOC (reports, technical documents) stays on the LLM routes.
+        self.assertEqual(self.m.TASK_TYPE_MAP["KOREAN_DOC"]["kind"], "llm")
+
+    def test_korean_prose_blocks_on_d74_conditions(self):
+        prose = self.typed("KOREAN_PROSE")
+        review = step("check", verify_of="read", depends_on=["read"])
+        stale = (datetime.fromisoformat(NOW) - timedelta(minutes=30)).isoformat()
+        cases = {
+            "PROSE_QUOTA_UNVERIFIED": [{"quota": {"used_pct": 85}}, {"quota": {"used_pct": None}},
+                                       {"quota": {"used_pct": True}}, {"quota": {"observed_at": stale}},
+                                       {"quota": {"transport": "cli"}}, {"quota": {"account_ref": "other"}},
+                                       {"quota": {"bucket": ""}}],
+            "PROSE_AGY_SUBSCRIPTION_UNVERIFIED": [{"billing": {"auth_method": "apikey"}},
+                                                  {"billing": {"api_fallback_disabled": None}},
+                                                  {"billing": {"verified": False}},
+                                                  {"billing": {"mode": "unknown"}},
+                                                  {"billing": {"observed_at": stale}}],
+            "PROSE_AGY_TOOL_UNSUPPORTED": [{"surface": "codex"}, {"tool_ref": "gemini-4-hydrogen-high"},
+                                           {"transport": "orca"}],
+            "PROSE_TOOL_UNOBSERVED": [{"available": False}, {"evidence": []}],
+        }
+        for reason, changes in cases.items():
+            for change in changes:
+                with self.subTest(reason=reason, change=change):
+                    tool = agy_prose_tool()
+                    for key, value in change.items():
+                        if isinstance(value, dict):
+                            tool[key] = {**tool[key], **value}
+                        else:
+                            tool[key] = value
+                    blocked = self.plan([prose, review], prose_tools=[tool])
+                    self.assertEqual(blocked["status"], "blocked")
+                    self.assertIsNone(blocked["steps"][0]["route"])
+                    self.assertIn(reason, self.m.assess_agy_prose_tool(tool, prose, NOW))
+        self.assertIn("SURFACE_MISMATCH", self.m.assess_agy_prose_tool(
+            agy_prose_tool(), self.typed("KOREAN_PROSE", surface="claude"), NOW))
+        # A prose step cannot pose as another task type, and vice versa.
+        with self.assertRaises(ValueError):
+            self.plan([self.typed("WRITING", kind="prose"), review], prose_tools=[agy_prose_tool()])
 
     def test_image_route_prefers_the_less_used_tool(self):
         image = self.typed("IMAGE_GENERATION")
