@@ -4,7 +4,7 @@ description: >-
   Use when choosing model/effort assignments: "which model", "모델 추천",
   "route tasks". Returns an evidence-bound /vibe plan with quota, cost and
   blocked reasons; never launches workers or treats unknown billing as free.
-version: 0.2.6
+version: 0.2.7
 ---
 
 # Model Router — one typed request, one central plan
@@ -64,6 +64,7 @@ contract without `task_type`; its exact argv cost still needs verification.
 | REASONING_ABSTRACT | Difficult abstract reasoning requiring the critical quality floor |
 | VISION | Image/OCR/diagram interpretation, not authority to control a screen |
 | IMAGE_GENERATION | Produce a new image; blocked until a verified subscription-included image tool exists |
+| KOREAN_PROSE | Korean notices, announcements, polishing and short copy; a dedicated prose tool drafts (Gemini Argon, D-126) and a review step fact-checks |
 
 Use the four deliverable-specific profiles above when they fit; retain the
 older category IDs for compatible consumers. Effort demand and capability
@@ -97,7 +98,8 @@ step; never omit a type merely to bypass a rejected requirement.
   "BULK_LIGHT": {"kind": "llm", "needs": ["reasoning"], "demand": "routine", "proc": "bulk-transform", "class": "A"},
   "REASONING_ABSTRACT": {"kind": "llm", "needs": ["reasoning"], "demand": "critical", "proc": "research-deep", "class": "B"},
   "VISION": {"kind": "llm", "needs": ["vision"], "demand": "reasoning", "proc": "ui-visual", "class": "C-platform"},
-  "IMAGE_GENERATION": {"kind": "image", "needs": ["image_generation"], "demand": "routine", "proc": "ui-visual", "class": "C-platform"}
+  "IMAGE_GENERATION": {"kind": "image", "needs": ["image_generation"], "demand": "routine", "proc": "ui-visual", "class": "C-platform"},
+  "KOREAN_PROSE": {"kind": "prose", "needs": ["korean_writing"], "demand": "routine", "proc": "research-deep", "class": "B"}
 }
 ```
 <!-- task-type-contract:end -->

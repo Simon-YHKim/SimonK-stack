@@ -1,6 +1,22 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-11-16 00:50 / /vibe 벤더별 최신 모델 (D-125, vibe 2.24.0)
+## Latest — 2026-11-16 01:50 / /vibe 한국어 산문 = Gemini 4 Argon (D-126, vibe 2.25.0)
+
+갱신 시각: 2026-11-16 01:50 KST · 갱신자: Claude Code(Opus 5.5). Simon: "진행해"(D-107 을 /vibe 안으로 가져오자는 권고). 허브 6d3a4561(D-126). PR #209.
+
+- **결정(D-126)**: 새 작업 유형 `KOREAN_PROSE`(공지·안내문·윤문·짧은 카피) → `kind=prose` → `scripts/execute_agy_prose.py` 가 `agy --print` 1회(`gemini-4-argon-high`, plan·sandbox·`--disable-slash-commands`) → 필수 review 단계가 수치·고유명사·날짜를 브리프와 대조. `KOREAN_DOC`(보고서·기술 문서)은 그대로 LLM 레인.
+- **게이트**: D-74 사용량만. agy 1.5.9 무턴 `/usage` 계약(num_turns 0, 토큰 0)에서 Pro 는 Argon 버킷, Ultra 는 `gemini-*` 버킷. 85% 이상·미측정·오래된 관측이면 거부(종료 3). `--not-confidential` 없으면 보내지 않는다(회사 기밀 금지). 재전송 없음.
+- **실측**: 사무실 공지 1건 47초(Argon 27초, 입력 27,016 토큰), Argon 주간 2.73% → 3.19%, 사실 전부 브리프와 일치. Orca `antigravity` 워커 `--model gemini-4-argon-high` 1회 배달 정답(run_f057f8196b72 · ctx_f0d8e02318b3) — D-28 #12 재현 안 됨. 일반 Gemini Orca 레인은 바꾸지 않았다.
+- **곁들임**: `AGY_CLI_DISABLE_AUTO_UPDATE=true`(agy 는 `1` 을 무시). model-router 0.2.7 이 새 유형을 반영.
+- **배포 승인**: source `5c2e372`, content `41b544b9…`, Codex `4e7c0440…`(PR 빌드 run 43736243932 RELEASE.json, 미리보기 1.976.0). Codex 리뷰(5c2e372): 지적 0.
+- **조사 보고서**: 모델별 코딩 밖 강점 지도 https://claude.ai/artifact/F4ahYmdBQPTwMKagXhn9YQ — 제안 P1~P6(이미지 모델 확인·C-realtime 분리·Gemini 사실 대조 보조 등)은 Simon 결정 대기.
+
+### 다음 작업 큐
+- Simon: 보고서 제안 P3(C-realtime 분리)·P4(A-verify 보조 Gemini)·P6(GPT Terra·Luna 재개 여부) 결정.
+- Codex 리셋(11-17 17:48) 뒤: image_gen 1장으로 실제 이미지 모델(2.6 여부) 확인 + PR #198 `@codex review`(D-122).
+- 그 밖에는 아래 00:50 블록 큐 그대로.
+
+## 2026-11-16 00:50 / /vibe 벤더별 최신 모델 (D-125, vibe 2.24.0)
 
 갱신 시각: 2026-11-16 00:50 KST · 갱신자: Claude Code(Opus 5.5). Simon: "/vibe 스킬에 대해 벤더별 최신 업데이트를 진행하고, 여론을 조사해서 적절한 모델을 선정하고 푸시 머지 진행해줘". 허브 3f22d128(D-125). PR #208.
 
