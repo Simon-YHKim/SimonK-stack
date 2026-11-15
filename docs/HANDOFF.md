@@ -1,6 +1,23 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-25 08:50 / /cso 실행기 빌드 (VS 2022 Build Tools, E 드라이브)
+## Latest — 2026-11-16 00:50 / /vibe 벤더별 최신 모델 (D-125, vibe 2.24.0)
+
+갱신 시각: 2026-11-16 00:50 KST · 갱신자: Claude Code(Opus 5.5). Simon: "/vibe 스킬에 대해 벤더별 최신 업데이트를 진행하고, 여론을 조사해서 적절한 모델을 선정하고 푸시 머지 진행해줘". 허브 3f22d128(D-125). PR #208.
+
+- **결정(D-125)**: B·A-verify·coding 2순위 `claude-fable-5-1` → `claude-fable-5-2` · C-realtime 1순위 `grok-4.6` → `grok-4.7` · C-platform 1순위 `gemini-3.8-flash` → `gemini-4-hydrogen`. 옛 키는 원장 호환용. GPT 는 `gpt-6-astra` @xhigh 그대로(D-101 — GPT-6.1 Terra 는 중간 등급). Opus·Sonnet·Haiku 5.5·코디네이터·두 보안 게이트·ai-debate Gemini 좌석(Argon) 그대로.
+- **레지스트리 `2026-11-16.1`**(만료 2026-11-23 00:08:40 KST): `claude-fable-5-2`·`gpt-6.1-terra`·`gemini-4-hydrogen`·`gemini-4-carbon` 등록. 바뀐 제공사 사실은 `fable` 별칭(5.1 → 5.2) 하나. task-fit `2026-11-16-shadow.1`(순위 그대로). 10-28 만료 뒤 18일 동안 사실이 낡은 상태였다.
+- **canary**: `claude-fable-5-2` Orca run `run_f057f8196b72` · `ctx_49c52654b156`(requested == effective, 세션 기록 모델 일치, 정답). ⚠ 세션 기록 entrypoint `sdk-ts` — Orca 새 에이전트 탭 설정이 채팅이면 Claude 워커가 Agent SDK 로 뜨고 Anthropic 은 별도 월 SDK 크레딧으로 센다(이 1회 정가 약 $0.88). `gemini-4-hydrogen` agy --print 1회 정답. `grok-4.7` 미실시.
+- **사용량(11-16 00:14)**: Codex 96%(리셋 11-17 17:48) · Grok 100%(~11-20 12:38) · Claude 주간 11%·fableWeekly 0% · Gemini 98% 남음.
+- **배포**: main 의 five-plugin-dist publish 는 11-11 부터 `content-not-approved` 로 실패 중이었다(승인은 릴리스 브랜치 2.23.1 내용). 이 PR 에 승인 커밋(`chore(release): approve the D-125 build`)을 넣었다 — source `bedc759`, content `1a9cd0aa…`, Codex `b79e9820…`(PR 빌드 run 43731296919 의 RELEASE.json, 미리보기 버전 1.972.0). Codex 리뷰(bedc759): 지적 0 · 👍.
+
+### 다음 작업 큐
+- Simon: Orca 의 새 에이전트 탭을 터미널로 둘지(Claude 워커를 대화형 구독 한도로) 결정.
+- `grok-4.7` canary — Grok 리셋(11-20 12:38) 뒤. Orca 도움말이 이제 Grok·Antigravity `--model` 을 받는다고 적으니 `dispatch` 를 바꿀지는 그 canary 뒤에 본다.
+- D-122 catch-up: PR #198 에 `@codex review`(Codex 리셋 뒤 — 이번에도 못 했다).
+- 레지스트리 다음 재확인: 2026-11-23 00:08 KST 전.
+- 그 밖에는 아래 10-24 16:50 블록 큐 그대로.
+
+## 2026-10-25 08:50 / /cso 실행기 빌드 (VS 2022 Build Tools, E 드라이브)
 
 갱신 시각: 2026-10-25 08:50 KST · 갱신자: Claude Code(Opus 5.5). Simon: "e 드라이브에 빌드 도구 설치해줘". 레포 코드 변경 없음.
 
