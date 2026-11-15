@@ -247,13 +247,23 @@ class OrchestrationTests(unittest.TestCase):
             with self.assertRaisesRegex(run_state.StateError, "DEBATE_PLAN_INVALID"):
                 store.register(changed, now=NOW)
 
-    def task_fit_fixture(self, task_type="PLAN_ARCHITECTURE", model="claude-opus-5-5",
-                         efforts=None, rank=0, checked_at=NOW, valid_until="2026-09-24T10:00:00+00:00"):
-        return {"schema_version": 1, "version": "offline-shadow-1", "status": "shadow-only",
-                "checked_at": checked_at, "valid_until": valid_until,
-                "sources": {"manufacturer": "https://www.anthropic.com/claude-opus-5-5"},
-                "profiles": {task_type: [{"model": model, "efforts": efforts or ["high"],
-                                         "rank": rank, "sources": ["manufacturer"]}]}}
+    def task_fit_fixture(self, task_type="PLAN_ARCHITECTURE", models=("claude-opus-5-5",),
+                         checked_at=NOW, valid_until="2026-09-24T10:00:00+00:00", **extra):
+        """Hub D-127 active ranking: one entry per model, rank in the given order."""
+        entries = [{"model": model, "rank": rank, "basis": ["manufacturer"]}
+                   for rank, model in enumerate(models)]
+        policy = {"schema_version": 2, "version": "offline-rank-1", "status": "active",
+                  "checked_at": checked_at, "valid_until": valid_until,
+                  "sources": {"manufacturer": "https://www.anthropic.com/claude-opus-5-5"},
+                  "profiles": {task_type: entries}}
+        policy.update(extra)
+        return policy
+
+    def ranked_seat(self, name, model, surface="claude", rank=9, used=10, **changes):
+        c = candidate(name, surface=surface, model=model, quality_tier=3, resource_rank=rank,
+                      capabilities=["reasoning", "code", "research"], effective_effort="high", **changes)
+        c["quota"]["used_pct"] = used
+        return c
 
     def events(self, plan, *events):
         return [dict(run_id=plan["run_id"], plan_digest=plan["plan_digest"], **event) for event in events]
@@ -2490,11 +2500,60 @@ class OrchestrationTests(unittest.TestCase):
         expected = {"CODE_NEW", "CODE_FIX", "CODE_REVIEW", "RESEARCH", "AGENTIC",
                     "COMPUTER_USE", "DESIGN_UI", "KOREAN_DOC", "BULK_LIGHT",
                     "REASONING_ABSTRACT", "VISION", "PLAN_ARCHITECTURE",
-                    "CODE_COMPLEX", "CODE_SIMPLE", "WRITING", "IMAGE_GENERATION", "KOREAN_PROSE"}
+                    "CODE_COMPLEX", "CODE_SIMPLE", "WRITING", "IMAGE_GENERATION", "KOREAN_PROSE",
+                    "CODE_CLEANUP"}
         self.assertEqual(set(self.m.TASK_TYPE_MAP), expected)
         for mapping in self.m.TASK_TYPE_MAP.values():
             self.assertEqual(routing.PROC_BY_ID[mapping["proc"]][1], mapping["class"])
             self.assertEqual(set(mapping), {"kind", "needs", "demand", "proc", "class"})
+
+    def test_coding_nodes_carry_simple_is_the_best_and_reach_the_worker_task_text(self):
+        # D-128 (Simon 2026-11-16): every coding node carries the rules as task intent.
+        import run_state
+        p = self.plan([self.typed("CODE_FIX", principles=["Keep the public API."])],
+                      [candidate(effective_effort="high")])
+        node = p["steps"][0]
+        self.assertEqual(node["principles"][:len(self.m.SIMPLE_RULES)], list(self.m.SIMPLE_RULES))
+        self.assertEqual(node["principles"][-1], "Keep the public API.")
+        self.assertTrue(node["principles"][0].startswith("Simple is the best"))
+        self.assertIn("Simple is the best", run_state.task_spec(node))
+        # The rules are immutable intent: changing them is a different task, not a refresh.
+        other = copy.deepcopy(p)
+        other["steps"][0]["principles"] = other["steps"][0]["principles"][:-1]
+        self.assertNotEqual(run_state.spec_digest(p), run_state.spec_digest(other))
+        # A caller cannot drop the type's rules, and non-coding nodes get none.
+        dropped = self.plan([self.typed("CODE_FIX", principles=[])], [candidate(effective_effort="high")])
+        self.assertEqual(dropped["steps"][0]["principles"], list(self.m.SIMPLE_RULES))
+        plain = self.plan([self.typed("RESEARCH", needs=["research", "reasoning"])],
+                          [candidate(effective_effort="high")])
+        self.assertNotIn("principles", plain["steps"][0])
+        with self.assertRaisesRegex(ValueError, "principles"):
+            self.plan([self.typed("CODE_FIX", principles=[""])])
+        review = self.plan([self.typed("CODE_REVIEW")], [candidate(quality_tier=3, effective_effort="high")])
+        self.assertEqual(review["steps"][0]["principles"], list(self.m.REVIEW_RULES))
+        self.assertIn("CODE_CLEANUP", review["steps"][0]["principles"][-1])
+
+    def test_code_cleanup_is_a_reviewed_behavior_preserving_edit_step(self):
+        # D-128: spaghetti and file-layout cleanup is its own step, never folded into feature work.
+        with self.assertRaisesRegex(ValueError, "CODE_CLEANUP edits files"):
+            self.plan([self.typed("CODE_CLEANUP")])
+        cleanup = self.typed("CODE_CLEANUP", writes=True)
+        alone = self.plan([cleanup], [candidate(quality_tier=3, effective_effort="high")])
+        self.assertIn("MISSING_REVIEW", alone["steps"][0]["errors"])
+        review = step("check", verify_of="read", depends_on=["read"])
+        p = self.plan([cleanup, review], [candidate(quality_tier=3, effective_effort="high"),
+                                          candidate("claude", surface="claude", effective_effort="low")])
+        self.assertEqual(p["status"], "ready", [s["errors"] for s in p["steps"]])
+        node = p["steps"][0]
+        self.assertEqual((node["proc"], node["quality_floor"]), ("coding", 3))
+        self.assertEqual(node["principles"], list(self.m.CLEANUP_RULES))
+        for needle in ("Preserve behavior exactly", "files this run changed", "guard clauses",
+                       "Do not over-simplify", "stops automatic merging"):
+            self.assertTrue(any(needle in rule for rule in node["principles"]), needle)
+        # Too weak a model cannot clean up: the quality floor is the complex-coding one.
+        weak = self.plan([cleanup, review], [candidate(quality_tier=2, effective_effort="high"),
+                                             candidate("claude", surface="claude", effective_effort="low")])
+        self.assertIn("NO_ELIGIBLE_ROUTE", weak["steps"][0]["errors"])
 
     def test_task_specific_demand_avoids_max_for_every_coding_and_planning_node(self):
         for task_type, quality, expected_effort in (
@@ -2510,72 +2569,144 @@ class OrchestrationTests(unittest.TestCase):
         p = self.plan([critical], [candidate(quality_tier=3, effective_effort="xhigh")])
         self.assertEqual(p["steps"][0]["route"]["requested_effort"], "xhigh")
 
-    def test_task_fit_shadow_records_different_winner_without_changing_dispatch(self):
-        opener = candidate("generic", model="gpt-6-sol", quality_tier=3,
-                           resource_rank=0, capabilities=["reasoning"], effective_effort="high")
-        opus = candidate("task-fit", surface="claude", model="claude-opus-5-5",
-                         quality_tier=3, resource_rank=9, capabilities=["reasoning"],
-                         effective_effort="high")
-        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [opener, opus],
-                      task_fit_policy=self.task_fit_fixture())
-        route = p["steps"][0]["route"]
-        shadow = p["steps"][0]["shadow_task_fit"]
-        self.assertEqual(p["status"], "ready")
-        self.assertEqual(route["candidate_id"], "generic")
-        self.assertEqual(shadow["status"], "ranked")
-        self.assertEqual(shadow["suggested_candidate_id"], "task-fit")
-        self.assertEqual(shadow["active_candidate_id"], "generic")
-        self.assertTrue(shadow["would_change"])
-        self.assertEqual(shadow["policy_version"], "offline-shadow-1")
-        self.assertEqual(shadow["evidence_scope"], "public-advisory-not-host-validation")
-
-    def test_task_fit_shadow_cannot_promote_unsafe_or_wrong_effort(self):
-        generic = candidate("generic", model="gpt-6-sol", quality_tier=3,
-                            resource_rank=0, capabilities=["reasoning"], effective_effort="high")
-        opus = candidate("task-fit", surface="claude", model="claude-opus-5-5",
-                         quality_tier=3, resource_rank=9, capabilities=["reasoning"],
-                         effective_effort="high")
-        no_overage = copy.deepcopy(opus)
-        no_overage["billing"]["model_included"] = False
-        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, no_overage],
-                      task_fit_policy=self.task_fit_fixture())
-        self.assertEqual(p["steps"][0]["route"]["candidate_id"], "generic")
-        self.assertNotEqual(p["steps"][0]["shadow_task_fit"].get("suggested_candidate_id"), "task-fit")
-        wrong_effort = self.task_fit_fixture(efforts=["low"])
+    def test_task_ranking_beats_resource_rank_and_records_the_selection(self):
+        # D-127 (Simon 2026-11-16): the task table decides among gated candidates by default.
+        generic = self.ranked_seat("generic", "fixture-generic", surface="codex", rank=0)
+        opus = self.ranked_seat("opus", "claude-opus-5-5")
         p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, opus],
-                      task_fit_policy=wrong_effort)
-        self.assertEqual(p["steps"][0]["shadow_task_fit"]["status"], "no-matched-evidence")
-        self.assertEqual(p["steps"][0]["route"]["candidate_id"], "generic")
+                      task_fit_policy=self.task_fit_fixture())
+        self.assertEqual(p["status"], "ready", p["steps"][0]["errors"])
+        node = p["steps"][0]
+        self.assertEqual(node["route"]["candidate_id"], "opus")
+        selection = node["selection"]
+        self.assertEqual((selection["mode"], selection["rank"], selection["reason"]), ("ranked", 0, None))
+        self.assertEqual(selection["policy_version"], "offline-rank-1")
+        self.assertEqual(len(selection["policy_sha256"]), 64)
+        self.assertNotIn("skipped", selection)
+        self.assertNotIn("shadow_task_fit", node)
 
-    def test_task_fit_shadow_never_outranks_money_or_high_quota_pressure(self):
-        generic = candidate("generic", model="gpt-6-sol", quality_tier=3,
-                            resource_rank=0, capabilities=["reasoning"], effective_effort="high")
-        opus = candidate("task-fit", surface="claude", model="claude-opus-5-5",
-                         quality_tier=3, resource_rank=9, capabilities=["reasoning"],
-                         effective_effort="high")
-        policy = self.task_fit_fixture()
-        quota_heavy = copy.deepcopy(opus)
-        quota_heavy["quota"]["used_pct"] = 84  # High pressure (>80) but under the D-74 ceiling.
-        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, quota_heavy],
-                      task_fit_policy=policy)
-        self.assertEqual(p["steps"][0]["shadow_task_fit"]["status"], "unranked-wins")
-        self.assertIsNone(p["steps"][0]["shadow_task_fit"]["suggested_candidate_id"])
-        metered = copy.deepcopy(opus)
+    def test_task_ranking_falls_to_the_next_rank_and_names_the_usage_block(self):
+        policy = self.task_fit_fixture(models=("claude-opus-5-5", "claude-fable-5-2"))
+        generic = self.ranked_seat("generic", "fixture-generic", surface="codex", rank=0)
+        opus = self.ranked_seat("opus", "claude-opus-5-5", used=90)  # Over the D-74 ceiling.
+        fable = self.ranked_seat("fable", "claude-fable-5-2")
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, opus, fable], task_fit_policy=policy)
+        node = p["steps"][0]
+        self.assertEqual(node["route"]["candidate_id"], "fable")
+        self.assertEqual((node["selection"]["mode"], node["selection"]["rank"]), ("ranked", 1))
+        self.assertEqual(node["selection"]["skipped"][0]["model"], "claude-opus-5-5")
+        self.assertIn("INCLUDED_USAGE_CEILING", node["selection"]["skipped"][0]["reasons"])
+        # Rank beats quota pressure below the ceiling.
+        warm = self.ranked_seat("opus", "claude-opus-5-5", used=84)
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, warm, fable], task_fit_policy=policy)
+        self.assertEqual(p["steps"][0]["route"]["candidate_id"], "opus")
+
+    def test_situational_when_unranked_out_of_window_or_every_ranked_route_is_blocked(self):
+        generic = self.ranked_seat("generic", "fixture-generic", surface="codex", rank=0)
+        opus = self.ranked_seat("opus", "claude-opus-5-5", used=90)
+        policy = self.task_fit_fixture(models=("claude-opus-5-5", "claude-fable-5-2"))
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, opus], task_fit_policy=policy)
+        node = p["steps"][0]
+        self.assertEqual(p["status"], "ready")
+        self.assertEqual(node["route"]["candidate_id"], "generic")
+        self.assertEqual((node["selection"]["mode"], node["selection"]["reason"]),
+                         ("situational", "RANKED_ROUTES_BLOCKED"))
+        skipped = {item["model"]: item["reasons"] for item in node["selection"]["skipped"]}
+        self.assertIn("INCLUDED_USAGE_CEILING", skipped["claude-opus-5-5"])
+        self.assertEqual(skipped["claude-fable-5-2"], ["NOT_OFFERED"])
+        cases = {"TASK_NOT_RANKED": (self.typed("CODE_FIX"), policy),
+                 "RANKING_EXPIRED": (self.typed("PLAN_ARCHITECTURE"), self.task_fit_fixture(
+                     checked_at="2026-09-21T10:00:00+00:00", valid_until="2026-09-22T10:00:00+00:00")),
+                 "RANKING_NOT_YET_EFFECTIVE": (self.typed("PLAN_ARCHITECTURE"), self.task_fit_fixture(
+                     checked_at="2026-09-24T10:00:00+00:00", valid_until="2026-09-25T10:00:00+00:00"))}
+        fine = self.ranked_seat("opus", "claude-opus-5-5")
+        for reason, (node_spec, fixture) in cases.items():
+            with self.subTest(reason=reason):
+                p = self.plan([node_spec], [generic, fine], task_fit_policy=fixture)
+                self.assertEqual(p["steps"][0]["route"]["candidate_id"], "generic")  # resource_rank 0
+                self.assertEqual((p["steps"][0]["selection"]["mode"], p["steps"][0]["selection"]["reason"]),
+                                 ("situational", reason))
+        # Nothing can run: the node is blocked and the selection explains the ranked side.
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [opus], task_fit_policy=policy)
+        node = p["steps"][0]
+        self.assertEqual(p["status"], "blocked")
+        self.assertIn("NO_ELIGIBLE_ROUTE", node["errors"])
+        self.assertEqual(node["selection"]["mode"], "situational")
+        self.assertIn("INCLUDED_USAGE_CEILING", node["selection"]["skipped"][0]["reasons"])
+
+    def test_task_ranking_never_outranks_money_or_an_owner_effort(self):
+        generic = self.ranked_seat("generic", "fixture-generic", surface="codex", rank=0)
+        metered = self.ranked_seat("opus", "claude-opus-5-5")
         metered["billing"] = {"mode": "api", "verified": True, "account_ref": "fixture-api"}
         metered["upper_usd_per_attempt"] = 0.1
-        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, metered],
-                      budget={"approved_usd": 1}, task_fit_policy=policy)
-        self.assertEqual(p["steps"][0]["shadow_task_fit"]["status"], "unranked-wins")
-        self.assertIsNone(p["steps"][0]["shadow_task_fit"]["suggested_candidate_id"])
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, metered], budget={"approved_usd": 1},
+                      task_fit_policy=self.task_fit_fixture())
+        node = p["steps"][0]
+        self.assertEqual(node["route"]["candidate_id"], "generic")
+        self.assertEqual(node["selection"]["mode"], "situational")
+        self.assertEqual(node["selection"]["skipped"][0]["reasons"], ["COSTS_MORE"])
+        # An entry with an effort ranks a candidate only at that effort.
+        pinned = self.task_fit_fixture()
+        pinned["profiles"]["PLAN_ARCHITECTURE"][0]["efforts"] = ["xhigh"]
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, self.ranked_seat("opus", "claude-opus-5-5")],
+                      task_fit_policy=pinned)
+        self.assertEqual(p["steps"][0]["route"]["candidate_id"], "generic")
+        self.assertEqual(p["steps"][0]["selection"]["skipped"][0]["reasons"], ["EFFORT_NOT_RANKED"])
+        # An unsafe ranked candidate stays rejected; the table never opens a gate.
+        unpaid = self.ranked_seat("opus", "claude-opus-5-5")
+        unpaid["billing"]["model_included"] = False
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, unpaid], task_fit_policy=self.task_fit_fixture())
+        self.assertEqual(p["steps"][0]["route"]["candidate_id"], "generic")
+        self.assertIn("MODEL_INCLUSION_UNVERIFIED", p["steps"][0]["selection"]["skipped"][0]["reasons"])
 
-    def test_task_fit_shadow_expiry_and_image_generation_boundary(self):
-        policy = self.task_fit_fixture(checked_at="2026-09-21T10:00:00+00:00",
-                                       valid_until="2026-09-22T10:00:00+00:00")
-        p = self.plan([self.typed("PLAN_ARCHITECTURE")],
-                      [candidate(quality_tier=3, effective_effort="high")],
-                      task_fit_policy=policy)
-        self.assertEqual(p["steps"][0]["shadow_task_fit"]["status"], "expired")
-        self.assertEqual(p["status"], "ready")
+    def test_scale_orders_transports_within_one_rank(self):
+        host = self.ranked_seat("opus-host", "claude-opus-5-5")
+        cli = self.ranked_seat("opus-cli", "claude-opus-5-5", transport="cli")
+        policy = self.task_fit_fixture()
+        binding = {"skills": [], "cli": cli_binding("claude")}
+        for scale, expected in (("small", "opus-host"), ("large", "opus-cli")):
+            with self.subTest(scale=scale):
+                p = self.plan([self.typed("PLAN_ARCHITECTURE", scale=scale, **binding)], [cli, host],
+                              task_fit_policy=policy)
+                self.assertEqual(p["steps"][0]["route"]["candidate_id"], expected, p["steps"][0]["rejected_candidates"])
+        p = self.plan([self.typed("PLAN_ARCHITECTURE", **binding)], [cli, host], task_fit_policy=policy)
+        self.assertEqual(p["steps"][0]["route"]["candidate_id"], "opus-host")  # small is the default
+        with self.assertRaisesRegex(ValueError, "scale"):
+            self.plan([self.typed("PLAN_ARCHITECTURE", scale="huge")], [host], task_fit_policy=policy)
+
+    def test_tool_ranking_orders_image_tools_and_a_blocked_prose_tool_names_the_fallback(self):
+        image = self.typed("IMAGE_GENERATION", task="Draw an original blue circle")
+        ranking = self.task_fit_fixture(task_type="IMAGE_GENERATION")
+        ranking["profiles"] = {
+            "IMAGE_GENERATION": [{"tool": "codex-image", "rank": 0, "basis": ["D-121"]},
+                                 {"tool": "host-image", "rank": 1, "basis": ["D-32"]}],
+            "KOREAN_PROSE": [{"tool": "agy-prose", "rank": 0, "basis": ["D-126"]}]}
+        ranking["fallback_task_types"] = {"KOREAN_PROSE": "KOREAN_DOC"}
+        tools = [codex_image_tool(), image_tool()]  # Codex used 42%, host 10%.
+        p = self.plan([image], image_tools=tools, host_ref="fixture-host",
+                      interaction_ref="fixture-interaction", task_fit_policy=ranking)
+        self.assertEqual(p["status"], "ready", p["steps"][0]["errors"])
+        self.assertEqual(p["steps"][0]["route"]["transport"], "codex-image")
+        self.assertEqual((p["steps"][0]["selection"]["mode"], p["steps"][0]["selection"]["rank"]), ("ranked", 0))
+        # Without a usable table the lowest usage wins, as before.
+        p = self.plan([image], image_tools=tools, host_ref="fixture-host", interaction_ref="fixture-interaction")
+        self.assertEqual(p["steps"][0]["route"]["transport"], "host-image")
+        self.assertEqual(p["steps"][0]["selection"]["mode"], "situational")
+        prose = self.typed("KOREAN_PROSE")
+        review = step("check", verify_of="read", depends_on=["read"])
+        p = self.plan([prose, review], prose_tools=[agy_prose_tool(quota=dict(agy_prose_tool()["quota"],
+                                                                              used_pct=90))],
+                      task_fit_policy=ranking)
+        node = p["steps"][0]
+        self.assertIn("KOREAN_PROSE_REQUIRES_VERIFIED_TOOL", node["errors"])
+        self.assertIsNone(node["route"])
+        self.assertEqual((node["selection"]["mode"], node["selection"]["reason"],
+                          node["selection"]["fallback_task_type"]),
+                         ("situational", "RANKED_ROUTES_BLOCKED", "KOREAN_DOC"))
+        self.assertEqual(node["selection"]["skipped"][0]["tool"], "agy-prose")
+        self.assertIn("PROSE_QUOTA_UNVERIFIED", node["selection"]["skipped"][0]["reasons"])
+
+    def test_image_generation_is_never_a_text_vision_route(self):
         image = self.typed("IMAGE_GENERATION")
         for surface in ("claude", "codex"):
             with self.subTest(surface=surface):
@@ -2909,39 +3040,64 @@ class OrchestrationTests(unittest.TestCase):
             self.assertEqual(repeat["status"], "uncertain")
             self.assertEqual((host.sends, host.lookups), (0, 2))
 
-    def test_packaged_complex_coding_fit_can_advise_opus_xhigh_without_dispatch(self):
-        # D-106: the packaged policy advises claude-opus-5-5 at xhigh for complex coding (was medium).
+    def test_packaged_ranking_follows_owner_orders_and_falls_to_the_next_rank(self):
+        # D-127 with the packaged table: D-106 coding, D-101 class A and D-126 prose orders.
         policy = self.m.load_task_fit_policy()
-        observed = (datetime.fromisoformat(policy["checked_at"])
-                    + timedelta(minutes=1)).isoformat()
-        active = candidate("generic", model="gpt-6-sol", quality_tier=3)
-        opus = candidate("opus-xhigh", surface="claude", model="claude-opus-5-5",
-                         quality_tier=3, resource_rank=9)
-        result = self.m.shadow_task_fit({"task_type": "CODE_COMPLEX"},
-                                        [(0, active, "high", 0),
-                                         (1, opus, "xhigh", 0)],
-                                        active, policy, observed)
-        self.assertEqual(result["status"], "ranked")
-        self.assertEqual(result["suggested_candidate_id"], "opus-xhigh")
-        self.assertEqual(result["suggested_effort"], "xhigh")
-        self.assertEqual(result["advisory_rank"], 0)
-        self.assertEqual(result["active_candidate_id"], "generic")
-        # Opus at medium no longer matches any complex-coding row.
-        medium = self.m.shadow_task_fit({"task_type": "CODE_COMPLEX"},
-                                        [(0, active, "high", 0), (1, opus, "medium", 0)],
-                                        active, policy, observed)
-        self.assertEqual(medium["status"], "no-matched-evidence")
+        now = (datetime.fromisoformat(policy["checked_at"]) + timedelta(minutes=1)).isoformat()
 
-    def test_packaged_task_fit_entries_use_registered_models_and_api_efforts(self):
+        def seat(name, model, used=10):
+            c = candidate(name, surface="claude", model=model, quality_tier=3, resource_rank=0 if
+                          model == "claude-sonnet-5-5" else 5, effective_effort="high", observed_at=now)
+            c["quota"].update(used_pct=used, observed_at=now)
+            return c
+
+        def chosen(task_type, seats):
+            critical = self.m.TASK_TYPE_MAP[task_type]["demand"] == "critical"
+            node = dict(self.typed(task_type), demand="critical" if critical else "reasoning")
+            seats = [dict(c, effective_effort="xhigh" if critical else "high") for c in seats]
+            registry = dict(fixture_registry(seats), checked_at=now)
+            p = self.m.make_plan({"run_id": "rank", "steps": [node], "budget": {}}, self.catalog,
+                                 {"candidates": seats, "tools": [], "observed_at": now}, now, registry)
+            self.assertEqual(p["status"], "ready", p["steps"][0]["errors"])
+            return p["steps"][0]["route"]["model"], p["steps"][0]["selection"]
+
+        team = [seat("sonnet", "claude-sonnet-5-5"), seat("fable", "claude-fable-5-2"),
+                seat("opus", "claude-opus-5-5"), seat("haiku", "claude-haiku-5-5")]
+        model, selection = chosen("CODE_COMPLEX", team)
+        self.assertEqual((model, selection["mode"], selection["rank"]), ("claude-opus-5-5", "ranked", 0))
+        self.assertEqual(selection["policy_version"], policy["version"])
+        self.assertEqual(chosen("CODE_SIMPLE", team)[0], "claude-sonnet-5-5")
+        self.assertEqual(chosen("BULK_LIGHT", team)[0], "claude-haiku-5-5")
+        self.assertEqual(chosen("REASONING_ABSTRACT", team)[0], "claude-fable-5-2")
+        busy = [seat("sonnet", "claude-sonnet-5-5"), seat("fable", "claude-fable-5-2"),
+                seat("opus", "claude-opus-5-5", used=88)]
+        model, selection = chosen("CODE_COMPLEX", busy)
+        self.assertEqual((model, selection["rank"]), ("claude-fable-5-2", 1))
+        self.assertIn("INCLUDED_USAGE_CEILING", selection["skipped"][0]["reasons"])
+        self.assertEqual(policy["fallback_task_types"], {"KOREAN_PROSE": "KOREAN_DOC"})
+
+    def test_packaged_ranking_uses_registered_models_and_covers_every_task_type(self):
         policy = self.m.load_task_fit_policy()
         models = {m["id"]: m for m in self.m.load_registry()["models"]}
+        gui = {name for name, contract in self.m.TASK_TYPE_MAP.items() if contract["kind"] == "gui"}
+        self.assertEqual(set(policy["profiles"]), set(self.m.TASK_TYPE_MAP) - gui)
         for profile, entries in policy["profiles"].items():
+            kind = self.m.TASK_TYPE_MAP[profile]["kind"]
+            self.assertEqual([e["rank"] for e in entries], sorted(e["rank"] for e in entries))
             for entry in entries:
-                with self.subTest(profile=profile, model=entry["model"]):
+                with self.subTest(profile=profile, entry=entry.get("model") or entry.get("tool")):
+                    if kind in self.m.RANKING_TOOLS:
+                        self.assertIn(entry["tool"], self.m.RANKING_TOOLS[kind])
+                        continue
                     model = models[entry["model"]]
                     self.assertIn(model["surface"], {"claude", "codex"})
                     self.assertNotIn("generation", model)
-                    self.assertLessEqual(set(entry["efforts"]), set(model["api_efforts"]))
+                    self.assertLessEqual(set(entry.get("efforts", [])), set(model["api_efforts"]))
+                    if model["vendor"] == "openai":
+                        self.assertEqual((entry["model"], entry["efforts"]), ("gpt-6-astra", ["xhigh"]))
+        # Coding never ranks a Codex model: both security gates are Codex (D-28 G1).
+        for profile in ("CODE_COMPLEX", "CODE_NEW", "CODE_FIX", "CODE_SIMPLE"):
+            self.assertEqual({models[e["model"]]["vendor"] for e in policy["profiles"][profile]}, {"anthropic"})
 
     def test_legacy_generation_loses_only_to_an_equally_ranked_current_model(self):
         # Candidate-ID order let a legacy model beat an equally ranked current one.
@@ -2986,60 +3142,74 @@ class OrchestrationTests(unittest.TestCase):
         self.assertEqual(p["status"], "ready")
         self.assertEqual([s["route"]["candidate_id"] for s in p["steps"]], ["grok:grok-4.7"] * 2)
 
-    def test_shadow_task_fit_prefers_current_generation_on_an_exact_tie(self):
-        policy = copy.deepcopy(self.m.load_task_fit_policy())
-        observed = (datetime.fromisoformat(policy["checked_at"]) + timedelta(minutes=1)).isoformat()
-        source = next(iter(policy["sources"]))
-        policy["profiles"]["CODE_COMPLEX"] = [
-            {"model": "old-model", "efforts": ["high"], "rank": 0, "sources": [source]},
-            {"model": "new-model", "efforts": ["high"], "rank": 0, "sources": [source]}]
-        old = candidate("a-old", model="old-model", generation="legacy")
-        new = candidate("b-new", model="new-model")
-        result = self.m.shadow_task_fit({"task_type": "CODE_COMPLEX"},
-                                        [(0, old, "high", 0), (0, new, "high", 0)], new, policy, observed)
-        self.assertEqual(result["status"], "ranked")
-        self.assertEqual(result["suggested_candidate_id"], "b-new")
-        self.assertFalse(result["would_change"])
+    def test_equal_rank_prefers_the_current_generation(self):
+        policy = self.task_fit_fixture(models=("old-model",))
+        policy["profiles"]["PLAN_ARCHITECTURE"].append({"model": "new-model", "rank": 0, "basis": ["manufacturer"]})
+        old = self.ranked_seat("a-old", "old-model", rank=1)
+        new = self.ranked_seat("b-new", "new-model", rank=1)
+        registry = fixture_registry([old, new])
+        for model in registry["models"]:
+            if model["id"] == "old-model":
+                model["generation"] = "legacy"
+        p = self.m.make_plan({"run_id": "tie", "steps": [self.typed("PLAN_ARCHITECTURE")], "budget": {}},
+                             self.catalog, {"candidates": [old, new], "tools": [], "observed_at": NOW}, NOW,
+                             registry, policy)
+        self.assertEqual(p["steps"][0]["route"]["candidate_id"], "b-new")
+        self.assertEqual(p["steps"][0]["selection"]["mode"], "ranked")
 
-    def test_advisory_table_names_only_astra_xhigh_on_the_gpt_side_within_the_body_budget(self):
-        # D-101 (2026-10-12, Simon: "gpt 쪽은 astra 말고는 쓰지마. gpt 를 넣어야한다면 astra xhigh."):
-        # the advisory table no longer names GPT-6.1 Sol, GPT-6 Sol or GPT-6 Luna.
+    def test_skill_ranking_table_is_generated_from_the_policy_within_the_body_budget(self):
+        # D-127: SKILL.md carries the generated table; the JSON is the only source.
+        import sync_task_ranking
         text = (SCRIPT.parent.parent / "SKILL.md").read_text(encoding="utf-8")
         body = text.split("\n---\n", 1)[1].splitlines()
         self.assertLessEqual(len(body), 400)
-        start = body.index("| Deliverable | Advisory starting points, never active routes | Initial reasoning |")
-        rows = body[start + 2:body.index("", start)]
+        raw = self.m.TASK_FIT_PATH.read_bytes()
+        block, _, _ = sync_task_ranking.current_block(text)
+        self.assertEqual(block, sync_task_ranking.render(self.m.load_task_fit_policy(), raw))
+        rows = [line for line in block.splitlines() if line.startswith("| `")]
+        self.assertEqual(len(rows), len(self.m.TASK_TYPE_MAP))
         for row in rows:
             with self.subTest(row=row[:40]):
-                for withdrawn in ("GPT-6.1 Sol", "GPT-6 Sol", "GPT-6 Luna", "GPT-5.6"):
+                for withdrawn in ("gpt-6.1-sol", "gpt-6-sol", "gpt-6-luna", "gpt-5.6"):
                     self.assertNotIn(withdrawn, row)
-                if "GPT-" in row:
-                    self.assertIn("GPT-6 Astra at xhigh", row)
-        for deliverable in ("Architecture", "Difficult, multi-file coding"):
-            with self.subTest(deliverable=deliverable):
-                row = next(line for line in rows if line.startswith("| " + deliverable))
-                self.assertIn("Claude Opus 5.5 or GPT-6 Astra at xhigh", row)
-        for deliverable, expected in (("Focused bug fix", "Claude Haiku 5.5, then Sonnet 5.5, then Opus 5.5"),
-                                      ("Polished writing", "Claude Opus 5.5"),
-                                      ("Bulk transform", "Claude Haiku 5.5")):
-            with self.subTest(deliverable=deliverable):
-                row = next(line for line in rows if line.startswith("| " + deliverable))
-                self.assertIn(expected, row)
-                self.assertNotIn("GPT-", row)
+                if "gpt-" in row:
+                    self.assertIn("`gpt-6-astra` @xhigh", row)
+        self.assertNotIn("shadow-only", text)
+        self.assertNotIn("Advisory starting points", text)
 
-    def test_packaged_task_fit_policy_is_shadow_only_and_malformed_entries_fail_cleanly(self):
+    def test_packaged_task_ranking_is_active_and_malformed_entries_fail_cleanly(self):
         policy = self.m.load_task_fit_policy()
-        self.assertEqual(policy["status"], "shadow-only")
-        self.assertEqual(set(policy["profiles"]),
-                         {"PLAN_ARCHITECTURE", "CODE_COMPLEX", "CODE_SIMPLE", "WRITING"})
-        self.assertNotIn("VISION", policy["profiles"])
-        self.assertNotIn("IMAGE_GENERATION", policy["profiles"])
-        for field, value in (("efforts", [["high"]]), ("sources", [["manufacturer"]]),
-                             ("rank", True)):
+        self.assertEqual((policy["schema_version"], policy["status"]), (2, "active"))
+        self.assertNotIn("COMPUTER_USE", policy["profiles"])
+        entry_cases = {"efforts": [["high"]], "basis": [["manufacturer"]], "rank": True}
+        for field, value in entry_cases.items():
             with self.subTest(field=field):
                 malformed = self.task_fit_fixture()
                 malformed["profiles"]["PLAN_ARCHITECTURE"][0][field] = value
                 with self.assertRaisesRegex(ValueError, "Invalid task-fit entry"):
+                    self.m.validate_task_fit_policy(malformed)
+        cases = [
+            ("unknown basis", lambda p: p["profiles"]["PLAN_ARCHITECTURE"][0].update(basis=["nope"]), "entry"),
+            ("withdrawn GPT", lambda p: p["profiles"]["PLAN_ARCHITECTURE"][0].update(model="gpt-6.1-sol"), "withdrawn"),
+            ("astra off its pin", lambda p: p["profiles"]["PLAN_ARCHITECTURE"][0].update(model="gpt-6-astra"), "pinned"),
+            ("duplicate", lambda p: p["profiles"]["PLAN_ARCHITECTURE"].append(
+                dict(p["profiles"]["PLAN_ARCHITECTURE"][0], rank=1)), "Duplicate"),
+            ("tool on a text type", lambda p: p["profiles"].update(
+                WRITING=[{"tool": "agy-prose", "rank": 0, "basis": ["D-126"]}]), "entry"),
+            ("unknown tool", lambda p: p["profiles"].update(
+                IMAGE_GENERATION=[{"tool": "paid-api", "rank": 0, "basis": ["D-121"]}]), "tool"),
+            ("GUI type", lambda p: p["profiles"].update(
+                COMPUTER_USE=[{"model": "claude-opus-5-5", "rank": 0, "basis": ["D-28"]}]), "profile"),
+            ("unknown type", lambda p: p["profiles"].update(NOPE=[]), "profiles"),
+            ("fallback to a tool type", lambda p: p.update(
+                fallback_task_types={"PLAN_ARCHITECTURE": "KOREAN_DOC"}), "fallback"),
+            ("shadow envelope", lambda p: p.update(schema_version=1, status="shadow-only"), "envelope"),
+        ]
+        for name, change, message in cases:
+            with self.subTest(case=name):
+                malformed = self.task_fit_fixture()
+                change(malformed)
+                with self.assertRaisesRegex(ValueError, message):
                     self.m.validate_task_fit_policy(malformed)
 
     def test_coding_quality_floor_is_independent_of_requested_effort(self):

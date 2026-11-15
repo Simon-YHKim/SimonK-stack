@@ -181,12 +181,12 @@ def evidence(value):
 
 
 def spec_digest(plan):
-    # Route evidence and shadow-only advice can refresh; task intent, review
-    # dependencies and policy cannot. gate_fallback (D-102) follows the route: the
-    # planner derives it from that plan's own candidate rejections.
+    # Route evidence can refresh; task intent, review dependencies and policy cannot.
+    # gate_fallback (D-102) and selection (D-127) follow the route: the planner derives
+    # them from that plan's own candidates. shadow_task_fit stays for older stored plans.
     nodes = [{k: v for k, v in n.items() if k not in
               {"route", "handoff", "errors", "rejected_candidates", "skill_paths",
-               "shadow_task_fit", "gate_fallback"}} for n in plan["steps"]]
+               "shadow_task_fit", "gate_fallback", "selection"}} for n in plan["steps"]]
     spec = {"steps": nodes, "budget": {k: plan["budget"][k] for k in
         ("mode", "approved_usd", "spent_usd", "external_reserved_usd", "max_attempts", "max_parallel")}}
     if "debate" in plan:
@@ -197,7 +197,8 @@ def spec_digest(plan):
 def task_spec(node):
     """The same immutable Task text is used by preparation and dispatch."""
     body = {k: v for k, v in node.items() if k not in
-            {"orca", "route", "errors", "rejected_candidates", "shadow_task_fit", "gate_fallback"}}
+            {"orca", "route", "errors", "rejected_candidates", "shadow_task_fit", "gate_fallback",
+             "selection"}}
     return "Vibe supervised task. Read the selected skills; obey ownership and acceptance.\n" + safe_json(body)
 
 

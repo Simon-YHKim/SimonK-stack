@@ -42,6 +42,8 @@ TASK_TYPE_MAP = {
     "WRITING": {"kind": "llm", "needs": ["writing"], "demand": "reasoning", "proc": "research-deep", "class": "B"},
     "CODE_NEW": {"kind": "llm", "needs": ["code"], "demand": "reasoning", "proc": "coding", "class": "B"},
     "CODE_FIX": {"kind": "llm", "needs": ["code"], "demand": "reasoning", "proc": "coding", "class": "B"},
+    # Hub D-128: behavior-preserving cleanup of tangled code or file layout, as its own edit step.
+    "CODE_CLEANUP": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "coding", "class": "B"},
     "CODE_REVIEW": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "claim-verify", "class": "A-verify"},
     "RESEARCH": {"kind": "llm", "needs": ["research", "reasoning"], "demand": "reasoning", "proc": "research-deep", "class": "B"},
     "AGENTIC": {"kind": "llm", "needs": ["reasoning"], "demand": "reasoning", "proc": "terminal-ci-git", "class": "B"},
@@ -60,7 +62,37 @@ TASK_TYPE_MAP = {
 }
 # Effort demand and capability quality are different axes. A short coding task
 # can use low reasoning without admitting an unproven low-quality model.
-TASK_QUALITY_FLOOR = {"CODE_SIMPLE": 2, "CODE_COMPLEX": 3}
+TASK_QUALITY_FLOOR = {"CODE_SIMPLE": 2, "CODE_COMPLEX": 3, "CODE_CLEANUP": 3}
+# Hub D-128 (Simon 2026-11-16: "코딩하는 놈한테는 simple is the best"). Every coding node carries
+# these rules as task intent, so host sessions and Orca workers read the same text. Adapted in
+# our own words from the Karpathy guidelines (MIT), Anthropic's code-simplifier agent and the
+# cyclomatic-complexity skill (both Apache-2.0); nothing was installed (references/orchestration.md).
+SIMPLE_RULES = (
+    "Simple is the best: make the smallest, plainest change that meets the acceptance criteria.",
+    "State assumptions first; if the task can be read two ways or something is unclear, stop and ask.",
+    "Add no feature, abstraction, option or error path the task does not need; if 200 lines could be 50, rewrite.",
+    "Touch only what the task needs, match the existing style and file layout, remove only what your own "
+    "change left unused, and report unrelated mess instead of fixing it.",
+    "Turn the task into a check you can run (a failing test first for a bug) and stop when it passes.",
+)
+CLEANUP_RULES = (
+    "Simple is the best: leave the code plainer than you found it without changing what it does.",
+    "Preserve behavior exactly; the same tests pass before and after, and no feature changes ride along.",
+    "Scope is the files this run changed unless the node names a wider scope.",
+    "Untangle with guard clauses, well-named extracted functions, lookup tables or named predicates; no "
+    "nested ternaries; move complexity into names, not into clever one-liners.",
+    "Remove duplication and dead code inside the scope; split a file only when it mixes unrelated "
+    "responsibilities, and keep every import working.",
+    "Do not over-simplify: keep useful abstractions and prefer readable code over fewer lines.",
+    "List every rename, move or deletion in the result; any of them stops automatic merging for review.",
+)
+REVIEW_RULES = (
+    "Check the change against simple is the best: flag unrequested features or abstractions, duplication, "
+    "deep nesting, misplaced files and lines that do not trace to the task.",
+    "Ask for a separate CODE_CLEANUP step for structural debt instead of widening the change under review.",
+)
+TASK_PRINCIPLES = {"CODE_COMPLEX": SIMPLE_RULES, "CODE_SIMPLE": SIMPLE_RULES, "CODE_NEW": SIMPLE_RULES,
+                   "CODE_FIX": SIMPLE_RULES, "CODE_CLEANUP": CLEANUP_RULES, "CODE_REVIEW": REVIEW_RULES}
 # Hub D-106 (2026-10-18, owner directive): complex coding runs on claude-opus-5-5 at xhigh.
 # Dispatched transports (cli, orca) are held to it; a host session's own effort is not.
 OWNER_TASK_EFFORTS = {"CODE_COMPLEX": {"claude-opus-5-5": "xhigh"}}
@@ -111,6 +143,14 @@ CODEX_IMAGE_TOOL_REF = "image_gen"
 # Argon through `agy --print` (execute_agy_prose.py) under the same D-74 usage gate.
 AGY_PROSE_TRANSPORT = "agy-prose"
 AGY_PROSE_MODEL = "gemini-4-argon-high"
+# Hub D-127 (Simon 2026-11-16): the task ranking (references/task-fit-policy.json) is the
+# default order among gated candidates. Within one rank a small step prefers the current
+# session and a large one prefers a worker. Tool task types rank tool transports.
+SCALES = {"small": ("host", "cli", "orca"), "large": ("orca", "cli", "host")}
+RANKING_TOOLS = {"image": frozenset({CODEX_IMAGE_TRANSPORT, "host-image"}),
+                 "prose": frozenset({AGY_PROSE_TRANSPORT})}
+RANKING_EFFORTS = frozenset({"none", "low", "medium", "high", "xhigh", "max"})
+BASIS_DECISION = re.compile(r"D-\d{1,4}\Z")
 
 
 def usage_limit_reached(billing):
@@ -146,13 +186,13 @@ def fresh(observed, now, ttl=DEFAULT_TTL):
 
 
 def validate_task_fit_policy(policy):
-    """Validate a dated, source-bound hypothesis; it never authorizes dispatch."""
+    """Validate the active task ranking (D-127). It orders gated candidates and opens no gate."""
     required = {"schema_version", "version", "status", "checked_at", "valid_until",
                 "sources", "profiles"}
     if (not isinstance(policy, dict) or not required <= set(policy)
-            or set(policy) - required - {"notes"}
-            or type(policy["schema_version"]) is not int or policy["schema_version"] != 1
-            or policy["status"] != "shadow-only"
+            or set(policy) - required - {"notes", "fallback_task_types"}
+            or type(policy["schema_version"]) is not int or policy["schema_version"] != 2
+            or policy["status"] != "active"
             or not isinstance(policy["version"], str) or not policy["version"]):
         raise ValueError("Invalid task-fit policy envelope")
     start, end = instant(policy["checked_at"]), instant(policy["valid_until"])
@@ -165,31 +205,49 @@ def validate_task_fit_policy(policy):
                    for k, v in sources.items())):
         raise ValueError("Invalid task-fit sources")
     profiles = policy["profiles"]
-    allowed = {"PLAN_ARCHITECTURE", "CODE_COMPLEX", "CODE_SIMPLE", "WRITING"}
-    efforts = {"none", "low", "medium", "high", "xhigh", "max"}
-    if not isinstance(profiles, dict) or not profiles or not set(profiles) <= allowed:
+    if not isinstance(profiles, dict) or not profiles or not set(profiles) <= set(TASK_TYPE_MAP):
         raise ValueError("Invalid task-fit profiles")
-    for entries in profiles.values():
-        if not isinstance(entries, list) or not entries:
-            raise ValueError("Empty task-fit profile")
+    routing = _routing()
+    for task_type, entries in profiles.items():
+        kind = TASK_TYPE_MAP[task_type]["kind"]
+        if kind not in ("llm", *RANKING_TOOLS) or not isinstance(entries, list) or not entries:
+            raise ValueError("Invalid task-fit profile")
+        target = "tool" if kind in RANKING_TOOLS else "model"
+        allowed = {target, "rank", "basis"} | ({"efforts"} if target == "model" else set())
         seen = set()
         for entry in entries:
-            if (not isinstance(entry, dict) or set(entry) != {"model", "efforts", "rank", "sources"}
-                    or not isinstance(entry["model"], str) or not entry["model"].strip()
+            if (not isinstance(entry, dict) or not {target, "rank", "basis"} <= set(entry)
+                    or set(entry) - allowed
+                    or not isinstance(entry[target], str) or not entry[target].strip()
                     or type(entry["rank"]) is not int or not 0 <= entry["rank"] <= 9
-                    or not isinstance(entry["efforts"], list) or not entry["efforts"]
-                    or any(not isinstance(e, str) for e in entry["efforts"])
-                    or not set(entry["efforts"]) <= efforts
-                    or len(entry["efforts"]) != len(set(entry["efforts"]))
-                    or not isinstance(entry["sources"], list) or not entry["sources"]
-                    or any(not isinstance(source, str) for source in entry["sources"])
-                    or not set(entry["sources"]) <= set(sources)):
+                    or not isinstance(entry["basis"], list) or not entry["basis"]
+                    or any(not isinstance(b, str) or not (BASIS_DECISION.match(b) or b in sources)
+                           for b in entry["basis"])):
                 raise ValueError("Invalid task-fit entry")
-            for effort in entry["efforts"]:
-                key = (entry["model"], effort)
-                if key in seen:
-                    raise ValueError("Duplicate task-fit model/effort")
-                seen.add(key)
+            efforts = entry.get("efforts")
+            if efforts is not None and (not isinstance(efforts, list) or not efforts
+                                        or any(not isinstance(e, str) for e in efforts)
+                                        or not set(efforts) <= RANKING_EFFORTS
+                                        or len(efforts) != len(set(efforts))):
+                raise ValueError("Invalid task-fit entry")
+            if target == "tool" and entry["tool"] not in RANKING_TOOLS[kind]:
+                raise ValueError("Invalid task-fit tool")
+            if target == "model":
+                # D-101: withdrawn GPT lanes never rank; a pinned model ranks at its pin only.
+                if entry["model"] in routing.WITHDRAWN_LANES:
+                    raise ValueError("Task-fit model withdrawn by owner")
+                pinned = routing.EFFORT_PINNED.get(entry["model"])
+                if pinned and efforts != [pinned]:
+                    raise ValueError("Task-fit effort pinned by owner")
+            if entry[target] in seen:
+                raise ValueError("Duplicate task-fit entry")
+            seen.add(entry[target])
+    fallbacks = policy.get("fallback_task_types", {})
+    if (not isinstance(fallbacks, dict)
+            or any(key not in profiles or TASK_TYPE_MAP[key]["kind"] not in RANKING_TOOLS
+                   or value not in TASK_TYPE_MAP or TASK_TYPE_MAP[value]["kind"] != "llm"
+                   for key, value in fallbacks.items())):
+        raise ValueError("Invalid task-fit fallback")
     return policy
 
 
@@ -205,49 +263,125 @@ def load_task_fit_policy(path=None):
                                                object_pairs_hook=unique_keys))
 
 
-def shadow_task_fit(step, choices, active, fit_policy, now):
-    """Show the advisory alternative after eligibility, without changing selection."""
-    task_type = step.get("task_type")
-    if task_type not in fit_policy["profiles"]:
-        return None
-    result = {"policy_version": fit_policy["version"], "policy_sha256": digest(fit_policy),
-              "evidence_scope": "public-advisory-not-host-validation",
-              "active_candidate_id": active["id"], "suggested_candidate_id": None,
-              "would_change": False}
-    instant_now = instant(now)
-    if instant_now < instant(fit_policy["checked_at"]):
-        result["status"] = "not-yet-effective"
-        return result
-    if instant_now > instant(fit_policy["valid_until"]):
-        result["status"] = "expired"
-        return result
-    ranks = {}
-    for entry in fit_policy["profiles"][task_type]:
-        for effort in entry["efforts"]:
-            ranks[(entry["model"], effort)] = entry
-    scored = []
-    match_count = 0
-    for _, candidate, effort, amount in choices:
-        exact_model = candidate.get("resolved_model") or candidate.get("model")
-        entry = ranks.get((exact_model, effort))
-        match_count += entry is not None
-        score = (amount, candidate["quota"]["used_pct"] > 80,
-                 entry["rank"] if entry is not None else 99, candidate["resource_rank"],
-                 candidate.get("generation") == "legacy", candidate["quota"]["used_pct"], candidate["id"])
-        scored.append((score, candidate, effort, entry))
-    if not match_count:
-        result["status"] = "no-matched-evidence"
-        return result
-    _, suggested, effort, entry = min(scored, key=lambda item: item[0])
-    if entry is None:
-        result["status"] = "unranked-wins"
-        return result
-    result.update(status="ranked", suggested_candidate_id=suggested["id"],
-                  suggested_model=suggested.get("resolved_model") or suggested.get("model"),
-                  suggested_effort=effort, advisory_rank=entry["rank"],
-                  source_urls=[fit_policy["sources"][key] for key in entry["sources"]],
-                  would_change=suggested["id"] != active["id"])
+def task_ranking(fit_policy, task_type, now):
+    """(entries by rank, None) when the table applies, else (None, why it does not)."""
+    if not isinstance(task_type, str) or task_type not in fit_policy["profiles"]:
+        return None, "TASK_NOT_RANKED"
+    current = instant(now)
+    if current < instant(fit_policy["checked_at"]):
+        return None, "RANKING_NOT_YET_EFFECTIVE"
+    if current > instant(fit_policy["valid_until"]):
+        return None, "RANKING_EXPIRED"
+    return sorted(fit_policy["profiles"][task_type], key=lambda entry: entry["rank"]), None
+
+
+def _ranked_names(candidate, tool):
+    if tool:
+        return {candidate.get("transport")}
+    return {candidate.get("model"), candidate.get("resolved_model")} - {None}
+
+
+def entry_rank(entries, candidate, effort=None, tool=False, any_effort=False):
+    """Rank of the first table entry a gated candidate matches, else None."""
+    names = _ranked_names(candidate, tool)
+    for entry in entries:
+        if (entry.get("tool" if tool else "model") in names
+                and (any_effort or "efforts" not in entry or effort in entry["efforts"])):
+            return entry["rank"]
+    return None
+
+
+def skipped_ranks(entries, offered, rejected, below=None, tool=False, passed=None):
+    """Table entries passed over, each with the reasons its candidates were not used."""
+    reasons_by_id = {}
+    for item in rejected:
+        reasons_by_id.setdefault(item["candidate_id"], set()).update(item["reasons"])
+    for candidate_id, reason in (passed or {}).items():
+        reasons_by_id.setdefault(candidate_id, set()).add(reason)
+    key = "tool" if tool else "model"
+    result = []
+    for entry in entries:
+        if below is not None and entry["rank"] >= below:
+            continue
+        matched = [c for c in offered if isinstance(c, dict) and entry[key] in _ranked_names(c, tool)]
+        reasons = sorted(set().union(*(reasons_by_id.get(c.get("id"), set()) for c in matched)))
+        if not matched:
+            reasons = ["NOT_OFFERED"]
+        elif not reasons:
+            reasons = ["NOT_SELECTED"]
+        result.append({"rank": entry["rank"], key: entry[key], "reasons": reasons})
     return result
+
+
+def selection_record(fit_policy, mode, reason=None, rank=None, skipped=(), fallback=None):
+    """Why this route: ranked follows the table; situational means the host judges (D-127)."""
+    result = {"mode": mode, "reason": reason, "rank": rank,
+              "policy_version": fit_policy["version"], "policy_sha256": digest(fit_policy)}
+    if skipped:
+        result["skipped"] = list(skipped)
+    if fallback:
+        result["fallback_task_type"] = fallback
+    return result
+
+
+def pick_route(step, choices, offered, rejected, fit_policy, now):
+    """D-127: the table's order first; the generic score only when the table has nothing to say."""
+    if step["kind"] == "gui":
+        _, c, effort, amount = min(choices, key=lambda v: v[0])
+        return c, effort, amount, selection_record(fit_policy, "fixed", "GUI_BOT_ONLY")
+    entries, why = task_ranking(fit_policy, step.get("task_type"), now)
+    passed = {}
+    if entries:
+        order = SCALES[step.get("scale", "small")]
+        cheapest = min(v[3] for v in choices)
+        ranked = []
+        for score, c, effort, amount in choices:
+            rank = entry_rank(entries, c, effort)
+            if rank is None:
+                if entry_rank(entries, c, any_effort=True) is not None:
+                    passed[c["id"]] = "EFFORT_NOT_RANKED"
+                continue
+            if amount > cheapest:
+                passed[c["id"]] = "COSTS_MORE"  # Monetary bounds stay ahead of the table.
+                continue
+            place = order.index(c["transport"]) if c["transport"] in order else len(order)
+            ranked.append(((rank, place, score), c, effort, amount, rank))
+        if ranked:
+            _, c, effort, amount, rank = min(ranked, key=lambda v: v[0])
+            return c, effort, amount, selection_record(
+                fit_policy, "ranked", rank=rank,
+                skipped=skipped_ranks(entries, offered, rejected, below=rank, passed=passed))
+        why = "RANKED_ROUTES_BLOCKED"
+    _, c, effort, amount = min(choices, key=lambda v: v[0])
+    return c, effort, amount, selection_record(
+        fit_policy, "situational", why, skipped=skipped_ranks(entries or [], offered, rejected, passed=passed))
+
+
+def pick_tool(step, eligible, offered, rejected, fit_policy, now):
+    """D-127 for tool task types: rank the tool transports, then the lowest usage."""
+    entries, why = task_ranking(fit_policy, step.get("task_type"), now)
+    if entries:
+        ranked = []
+        for tool in eligible:
+            rank = entry_rank(entries, tool, tool=True)
+            if rank is not None:
+                ranked.append(((rank, tool["quota"]["used_pct"], tool["id"]), tool, rank))
+        if ranked:
+            _, tool, rank = min(ranked, key=lambda v: v[0])
+            return tool, selection_record(fit_policy, "ranked", rank=rank,
+                                          skipped=skipped_ranks(entries, offered, rejected, below=rank, tool=True))
+        why = "RANKED_ROUTES_BLOCKED"
+    tool = min(eligible, key=lambda item: (item["quota"]["used_pct"], item["id"]))
+    return tool, selection_record(fit_policy, "situational", why,
+                                  skipped=skipped_ranks(entries or [], offered, rejected, tool=True))
+
+
+def blocked_tool_selection(step, offered, rejected, fit_policy, now):
+    """No tool can run: the host judges, starting from the table's fallback task type."""
+    entries, why = task_ranking(fit_policy, step.get("task_type"), now)
+    return selection_record(fit_policy, "situational", why or "RANKED_ROUTES_BLOCKED",
+                            skipped=skipped_ranks(entries or [], offered, rejected, tool=True),
+                            fallback=fit_policy.get("fallback_task_types", {}).get(step.get("task_type")))
 
 
 # Bounds apply to metadata collection only; no recursive package/body imports.
@@ -836,6 +970,8 @@ def compile_task_type(node):
         raise ValueError("Typed steps require explicit boolean writes scope")
     if name == "CODE_REVIEW" and result["writes"]:
         raise ValueError("CODE_REVIEW is read-only; put repairs in a separate CODE_FIX step")
+    if name == "CODE_CLEANUP" and not result["writes"]:
+        raise ValueError("CODE_CLEANUP edits files; set writes true")
     contract = TASK_TYPE_MAP[name]
     for field in ("kind", "proc", "class"):
         if field in result and result[field] != contract[field]:
@@ -857,6 +993,13 @@ def compile_task_type(node):
             or not set(contract["needs"]) <= set(needs)):
         raise ValueError("task_type capability requirements cannot be weakened")
     result["needs"] = copy.deepcopy(needs)
+    if name in TASK_PRINCIPLES:
+        # D-128: the type's rules always come first; a caller may add, never remove.
+        extra = result.get("principles", [])
+        if not isinstance(extra, list) or any(not isinstance(p, str) or not p.strip() for p in extra):
+            raise ValueError("principles must be a list of nonempty strings")
+        base = list(TASK_PRINCIPLES[name])
+        result["principles"] = base + [p for p in extra if p not in base]
     return result
 
 
@@ -1393,6 +1536,7 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
         errors, rejected, choices = [], [], []
         s["route"], s["handoff"] = None, None
         s.pop("gate_fallback", None)  # Only this planner writes it (D-102); a request cannot supply one.
+        s.pop("selection", None)  # Likewise for the D-127 selection record.
         s["skill_paths"] = []
         s["skill_bindings"] = []
         if (s.get("kind") not in ("local", "llm", "gui", "image", "prose")
@@ -1402,6 +1546,8 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
             raise ValueError("Invalid step kind or demand")
         if type(s.get("quality_floor", 1)) is not int or not 1 <= s.get("quality_floor", 1) <= 3:
             raise ValueError("quality_floor must be an integer from 1 to 3")
+        if s.get("scale", "small") not in SCALES:
+            raise ValueError("scale must be small or large")
         for name in s.get("skills", []):
             item = catalog.get(name)
             if (name in ancestor_names or (item and (item.get("canonical_name", name) in ancestor_names
@@ -1444,10 +1590,14 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
             if len({tool["id"] for tool in image_tools if isinstance(tool, dict) and tool.get("id")}) != len(
                     [tool for tool in image_tools if isinstance(tool, dict) and tool.get("id")]):
                 errors.append("IMAGE_TOOL_ID_AMBIGUOUS")
+            if not eligible:
+                s["selection"] = blocked_tool_selection(
+                    s, [t for t in image_tools if isinstance(t, dict)], rejected, fit_policy, now)
             if not eligible or errors:
                 errors.append("IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL")
             else:
-                tool = min(eligible, key=lambda item: (item["quota"]["used_pct"], item["id"]))
+                tool, s["selection"] = pick_tool(s, eligible, [t for t in image_tools if isinstance(t, dict)],
+                                                 rejected, fit_policy, now)
                 s["route"] = image_tool_route(tool)
                 if tool["transport"] == CODEX_IMAGE_TRANSPORT:
                     # One codex exec per node; the runner rechecks usage and never retries.
@@ -1476,10 +1626,14 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                     eligible.append(tool)
             if len(set(ids)) != len(ids):
                 errors.append("PROSE_TOOL_ID_AMBIGUOUS")
+            if not eligible:
+                s["selection"] = blocked_tool_selection(
+                    s, [t for t in prose_tools if isinstance(t, dict)], rejected, fit_policy, now)
             if not eligible or errors:
                 errors.append("KOREAN_PROSE_REQUIRES_VERIFIED_TOOL")
             else:
-                tool = min(eligible, key=lambda item: (item["quota"]["used_pct"], item["id"]))
+                tool, s["selection"] = pick_tool(s, eligible, [t for t in prose_tools if isinstance(t, dict)],
+                                                 rejected, fit_policy, now)
                 s["route"] = prose_tool_route(tool)
                 # One agy --print per node; the runner rechecks usage and never retries.
                 # The review step fact-checks numbers, names and claims against the brief (D-107).
@@ -1552,7 +1706,8 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                 if reasons:
                     rejected.append({"candidate_id": c["id"], "reasons": reasons})
                     continue
-                # Monetary bounds first. Within a subscription, prefer low quota
+                # Generic score, used directly only when the task ranking has nothing to say
+                # (D-127). Monetary bounds first; within a subscription, prefer low quota
                 # pressure and the declared resource rank, not fabricated prices.
                 # A registry "legacy" label loses to an equally ranked current model.
                 score = (amount, c["quota"]["used_pct"] > 80, c.get("resource_rank", 100),
@@ -1560,11 +1715,12 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                 choices.append((score, c, effort, amount))
             if not choices:
                 errors.append("NO_ELIGIBLE_ROUTE")
+                if s["kind"] != "gui":
+                    entries, why = task_ranking(fit_policy, s.get("task_type"), now)
+                    s["selection"] = selection_record(fit_policy, "situational", why or "RANKED_ROUTES_BLOCKED",
+                                                      skipped=skipped_ranks(entries or [], candidates, rejected))
             else:
-                _, c, effort, amount = min(choices, key=lambda v: v[0])
-                shadow = shadow_task_fit(s, choices, c, fit_policy, now)
-                if shadow is not None:
-                    s["shadow_task_fit"] = shadow
+                c, effort, amount, s["selection"] = pick_route(s, choices, candidates, rejected, fit_policy, now)
                 reserved += amount
                 s["route"] = {"candidate_id": c["id"], "surface": c["surface"],
                               "vendor": SURFACES[c["surface"]], "transport": c["transport"],

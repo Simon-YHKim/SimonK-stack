@@ -210,13 +210,15 @@ class RunStateTests(unittest.TestCase):
         self.assertEqual(self.store.snapshot()["budget"]["held_usd"], "0.3")
         self.assertEqual(self.store.snapshot()["budget"]["known_spent_usd"], "0.1")
 
-    def test_shadow_task_fit_refresh_is_not_new_task_intent(self):
+    def test_selection_refresh_is_not_new_task_intent(self):
+        # D-127: the selection record follows the route; older plans carried shadow_task_fit.
         self.init()
         first = plan()
+        first["steps"][0]["selection"] = {"mode": "ranked", "rank": 0}
         first["steps"][0]["shadow_task_fit"] = {"status": "ranked", "suggested_model": "fixture-a"}
         first["plan_digest"] = orchestrate.digest({k: v for k, v in first.items() if k != "plan_digest"})
         refreshed = plan(now=LATER)
-        refreshed["steps"][0]["shadow_task_fit"] = {"status": "expired"}
+        refreshed["steps"][0]["selection"] = {"mode": "situational", "reason": "RANKED_ROUTES_BLOCKED"}
         refreshed["plan_digest"] = orchestrate.digest({k: v for k, v in refreshed.items() if k != "plan_digest"})
 
         self.store.register(first, now=NOW)

@@ -8,6 +8,7 @@
 - Gstack per-run isolation
 - Runtime snapshot
 - Budget and selection
+- Coding principles and cleanup (D-128)
 - Execution and evidence
 - Durable state and recovery
 - QA completion gate
@@ -503,9 +504,23 @@ native host probe just to turn an unverified claim into PASS.
 ## Budget and selection
 
 Default: balanced, USD 0 additional billing, two attempts, two concurrent jobs.
-Filter capability/quality/effort/availability first. Among eligible candidates,
-minimize the full-attempt incremental bound, avoid quota pressure above 80%,
-then use the declared resource rank. Quality mode raises the routine quality
+Filter capability/quality/effort/availability first. Among the eligible candidates with the lowest
+full-attempt incremental bound, take the highest rank in the task table (`references/task-fit-policy.json`,
+D-127); within one rank `scale: small` prefers `host`, then `cli`, then `orca`, and `scale: large` the
+reverse, then the generic score breaks ties. The node records `selection`:
+
+| Field | Meaning |
+| --- | --- |
+| `mode` | `ranked` (the table decided), `situational` (the host judges) or `fixed` (GUI: Bot only) |
+| `reason` | `null` when ranked; else `TASK_NOT_RANKED`, `RANKING_NOT_YET_EFFECTIVE`, `RANKING_EXPIRED` or `RANKED_ROUTES_BLOCKED` |
+| `rank` | the chosen table rank, or `null` |
+| `skipped` | each passed-over table entry (`model` or `tool`) with its gate reasons, `NOT_OFFERED`, `COSTS_MORE`, `EFFORT_NOT_RANKED` or `NOT_SELECTED` |
+| `fallback_task_type` | for a blocked tool type, the type to replan under (`KOREAN_PROSE` to `KOREAN_DOC`) |
+| `policy_version`, `policy_sha256` | the table that was applied |
+
+In `situational` mode the generic score applies: minimize the incremental bound, avoid quota pressure
+above 80%, then use the declared resource rank. `selection` is route evidence: it may change on refresh
+without changing task intent. Quality mode raises the routine quality
 floor; it does not authorize paid calls. API price equivalents are not actual
 subscription spending. Never use an invented multiplier for high reasoning.
 
@@ -516,6 +531,29 @@ One coordinator owns each run. `run_state.py` serializes cooperating runs and
 account reservations in one local database. This is admission control, not a
 provider-enforced or cross-device billing hard cap. Outside CLI calls and a
 different database are not covered.
+
+## Coding principles and cleanup (D-128)
+
+Simon (2026-11-16): "코딩하는 놈한테는 simple is the best". `compile_task_type` writes `principles` on
+`CODE_COMPLEX`, `CODE_SIMPLE`, `CODE_NEW`, `CODE_FIX` (`SIMPLE_RULES`), `CODE_CLEANUP` (`CLEANUP_RULES`)
+and `CODE_REVIEW` (`REVIEW_RULES`). They are task intent: part of the spec digest and the Orca Task text.
+A caller may add rules, never remove the type's rules. The host obeys them for its own coding nodes.
+
+- Feature work stays surgical: smallest plain change, no unrequested abstraction, existing layout, report
+  unrelated mess. Structural debt becomes a separate `CODE_CLEANUP` node (writes true, review required,
+  quality floor 3, D-106 coding order). Its scope is the files the run changed unless the node names more.
+- After a `scale: large` coding node, add one `CODE_CLEANUP` node on its changed files and its review.
+  Whole-repository spaghetti or file-layout work is a `CODE_CLEANUP` node only when Simon names that scope.
+  Read the `refactor` and `code-health-guard` skills for it, and `deslop-shared-libs` for duplication.
+- Cleanup preserves behavior (same tests before and after). Every rename, move or deletion is listed in
+  the result and stops automatic merging; mass renames and deletions are existing ship stop conditions.
+
+Sources, adapted in our own words and not installed (read 2026-11-16): the Karpathy guidelines
+(`multica-ai/andrej-karpathy-skills`, formerly `forrestchang`, MIT, 233k stars) for the four coding rules;
+Anthropic's `code-simplifier` agent (`anthropics/claude-plugins-official`, Apache-2.0) for the
+recently-changed scope, behavior preservation and "do not over-simplify"; `cyclomatic-complexity-skill`
+(`saurabhkumar8112`, Apache-2.0, 409 stars) for guard clauses, extracted functions, lookup tables and
+named predicates without gaming the metric. The local `karpathy-guidelines` skill holds the long form.
 
 ## Execution and evidence
 

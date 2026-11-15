@@ -584,25 +584,22 @@ class ModelRegistryTests(unittest.TestCase):
         # D-106 (same day, Simon: "sonnet5.5는 간단한 코딩에 써야 하는거 아니야? 복잡한 코딩은 opus5.5 xhigh가
         # 해야지.") corrects D-103: CODE_COMPLEX is Opus xhigh first, CODE_SIMPLE is Sonnet first.
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
-        # The 2026-11-16 recheck (2026-11-16-shadow.1, D-125) renewed the window and kept every rank.
-        self.assertEqual(policy["version"], "2026-11-16-shadow.1")
+        # D-127 (2026-11-16, Simon) made the table active; the D-106 orders carry over unchanged.
+        self.assertEqual(policy["version"], "2026-11-16-rank.1")
         self.assertEqual((policy["checked_at"], policy["valid_until"]),
-                         ("2026-11-16T00:23:53+09:00", "2026-11-23T00:23:53+09:00"))
+                         ("2026-11-16T01:50:00+09:00", "2026-11-23T00:08:40+09:00"))
         profiles = policy["profiles"]
 
         def rows(profile):
-            return [(e["model"], tuple(e["efforts"]), e["rank"]) for e in profiles[profile]]
+            return [(e["model"], tuple(e.get("efforts", ())), e["rank"]) for e in profiles[profile]]
 
-        self.assertEqual(rows("CODE_SIMPLE"), [("claude-sonnet-5-5", ("medium",), 0),
-                                               ("claude-opus-5-5", ("medium",), 1)])
-        self.assertEqual(rows("PLAN_ARCHITECTURE"), [("claude-opus-5-5", ("high", "xhigh"), 0),
-                                                     ("gpt-6-astra", ("xhigh",), 0)])
-        self.assertEqual(rows("CODE_COMPLEX"), [("claude-opus-5-5", ("xhigh",), 0),
-                                                ("gpt-6-astra", ("xhigh",), 1)])
-        self.assertEqual(rows("WRITING"), [("claude-opus-5-5", ("medium", "high"), 0),
-                                           ("claude-sonnet-5-5", ("medium",), 1)])
+        self.assertEqual(rows("CODE_SIMPLE"), [("claude-sonnet-5-5", (), 0), ("claude-opus-5-5", (), 1)])
+        self.assertEqual(rows("PLAN_ARCHITECTURE"), [("claude-opus-5-5", (), 0), ("gpt-6-astra", ("xhigh",), 1),
+                                                     ("claude-fable-5-2", (), 2)])
+        self.assertEqual(rows("CODE_COMPLEX"), [("claude-opus-5-5", (), 0), ("claude-fable-5-2", (), 1),
+                                                ("claude-sonnet-5-5", (), 2)])
+        self.assertEqual(rows("WRITING"), [("claude-opus-5-5", (), 0), ("claude-sonnet-5-5", (), 1)])
         self.assertNotIn("claude-sonnet-5-5", {e["model"] for e in profiles["PLAN_ARCHITECTURE"]})
-        self.assertNotIn("claude-sonnet-5-5", {e["model"] for e in profiles["CODE_COMPLEX"]})
         self.assertEqual({e["rank"] for e in profiles["CODE_SIMPLE"] if e["model"] == "claude-sonnet-5-5"}, {0})
         self.assertEqual({e["rank"] for e in profiles["WRITING"] if e["model"] == "claude-sonnet-5-5"}, {1})
         self.assertNotIn("claude-haiku-5-5", {e["model"] for e in profiles["CODE_SIMPLE"]})
@@ -610,6 +607,8 @@ class ModelRegistryTests(unittest.TestCase):
         registry = {m["id"]: m for m in self.m.load_registry()["models"]}
         for profile, entries in profiles.items():
             for entry in entries:
+                if "model" not in entry:
+                    continue  # Tool transports (D-121 image, D-126 prose).
                 with self.subTest(profile=profile, model=entry["model"]):
                     if registry[entry["model"]]["vendor"] == "openai":
                         self.assertEqual((entry["model"], entry["efforts"]), ("gpt-6-astra", ["xhigh"]))
@@ -772,13 +771,16 @@ class ModelRegistryTests(unittest.TestCase):
         gpt_rows = 0
         for profile, entries in policy["profiles"].items():
             for entry in entries:
+                if "model" not in entry:
+                    continue  # Tool transports (D-121 image, D-126 prose).
                 with self.subTest(profile=profile, model=entry["model"]):
                     self.assertIn(entry["model"], vendor_of)
                     self.assertNotIn(entry["model"], withdrawn | deprecated | {"gpt-6-sol"})
                     if vendor_of[entry["model"]] == "openai":
                         gpt_rows += 1
                         self.assertEqual((entry["model"], entry["efforts"]), (astra, ["xhigh"]))
-        self.assertEqual(gpt_rows, 2)  # PLAN_ARCHITECTURE and CODE_COMPLEX.
+        # D-127: PLAN_ARCHITECTURE, CODE_REVIEW, RESEARCH, AGENTIC, DESIGN_UI, REASONING_ABSTRACT, VISION.
+        self.assertEqual(gpt_rows, 7)
         self.assertFalse(any(vendor_of[e["model"]] == "openai" for p in ("CODE_SIMPLE", "WRITING")
                              for e in policy["profiles"][p]))
 
@@ -1066,8 +1068,9 @@ class ModelRegistryTests(unittest.TestCase):
         # took it out again because no coding lane carries Haiku (class A keeps it first).
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
         named = {profile for profile, entries in policy["profiles"].items()
-                 if new in {entry["model"] for entry in entries}}
-        self.assertEqual(named, set())
+                 if new in {entry.get("model") for entry in entries}}
+        # D-127: Haiku ranks first only for the class A bulk type, never for coding.
+        self.assertEqual(named, {"BULK_LIGHT"})
         # Eval probes offer it for class A problems only.
         probes = json.loads((SCRIPT.parent.parent / "eval" / "probes.json").read_text(encoding="utf-8"))["probes"]
         for probe in probes:
