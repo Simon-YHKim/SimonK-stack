@@ -1,6 +1,6 @@
 ---
 name: guard
-version: 0.2.3
+version: 0.2.4
 description: "Use when asked for \"guard mode\", \"full safety\", \"lock it down\", \"maximum safety\", \"가드 모드\", \"풀 세이프티\", or before touching prod or debugging live systems. Combines /careful and /freeze: a PreToolUse Bash hook produces deny for HIGH destructive commands and ask for MEDIUM ones, and an Edit/Write hook produces deny outside the chosen directory, including Windows drive paths."
 allowed-tools:
   - Bash
@@ -47,8 +47,8 @@ of its own `careful` and `freeze` skills through `$HOME`-anchored commands
 Python and Git Bash are required; native host activation remains unverified.
 
 ```bash
-mkdir -p ~/.gstack/analytics
-echo '{"skill":"guard","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "unknown")'"}'  >> ~/.gstack/analytics/skill-usage.jsonl 2>/dev/null || true
+mkdir -p ~/.simonk/state/analytics
+echo '{"skill":"guard","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "unknown")'"}'  >> ~/.simonk/state/analytics/skill-usage.jsonl 2>/dev/null || true
 ```
 
 ## Setup

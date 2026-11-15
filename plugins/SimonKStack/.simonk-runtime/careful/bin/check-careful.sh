@@ -27,6 +27,13 @@
 #      frontmatter entry, argument "powershell") is checked DENY-ONLY:
 #      literal recursive delete of a drive root or home, disk cmdlets and
 #      force-push to the default branch deny; everything else allows.
+#   7. (hub decision D-119, 2026-10-21) Project patterns are read from the
+#      state root ${CLAUDE_PLUGIN_DATA:-$HOME/.simonk/state} and, without
+#      CLAUDE_PLUGIN_DATA, also from an existing legacy $HOME/.gstack (both
+#      additive). gstack-slug.sh runs with GSTACK_HOME defaulting to
+#      $HOME/.simonk/state so its slug cache no longer recreates ~/.gstack;
+#      legacy per-project rules are also matched under the slug from the
+#      legacy sticky cache.
 # check-careful.sh — PreToolUse hook for /careful skill
 # Reads JSON from stdin, checks Bash command for destructive patterns.
 # Two tiers:
@@ -70,7 +77,7 @@ if [ ! -f "$_HOOK_HELPER" ] || ! . "$_HOOK_HELPER" 2>/dev/null; then
 fi
 # A helper from an older install sources fine but lacks the functions this
 # script needs; calling one would exit 127 mid-run.
-for _FN in gstack_hook_extract_tool_name gstack_hook_extract_field gstack_hook_decision gstack_hook_log_fire gstack_hook_state_root; do
+for _FN in gstack_hook_extract_tool_name gstack_hook_extract_field gstack_hook_decision gstack_hook_log_fire gstack_hook_state_root gstack_hook_legacy_state_dir; do
   command -v "$_FN" >/dev/null 2>&1 || _careful_fail "hook-extract.sh is out of date (no $_FN)."
 done
 
@@ -549,28 +556,55 @@ fi
 # skipped (never fatal — the hook must not break on a typo in config).
 if [ -z "$WARN" ]; then
   # Same state root the writers use — see gstack_hook_state_root in
-  # hook-extract.sh (SimonK: ${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}).
+  # hook-extract.sh (SimonK: ${CLAUDE_PLUGIN_DATA:-$HOME/.simonk/state}).
   _GSTACK_HOME_DIR="$(gstack_hook_state_root; printf x)"; _GSTACK_HOME_DIR="${_GSTACK_HOME_DIR%x}"
+  # SimonK (D-119): rules saved under the old $HOME/.gstack default still count.
+  _LEGACY_HOME_DIR=""
+  if _LEGACY_HOME_DIR="$(gstack_hook_legacy_state_dir)"; then :; else _LEGACY_HOME_DIR=""; fi
+  [ "$_LEGACY_HOME_DIR" != "$_GSTACK_HOME_DIR" ] || _LEGACY_HOME_DIR=""
   _PATTERN_FILES="$_GSTACK_HOME_DIR/careful-patterns.txt"
+  [ -z "$_LEGACY_HOME_DIR" ] || _PATTERN_FILES="$_PATTERN_FILES
+$_LEGACY_HOME_DIR/careful-patterns.txt"
   # Short-circuit: resolving the project slug costs a subprocess + git call on
   # EVERY Bash command while /careful is active — only pay it when some
   # per-project pattern file actually exists anywhere.
   _ANY_PROJ_PAT=$(find "$_GSTACK_HOME_DIR/projects" -maxdepth 2 -name careful-patterns.txt -print -quit 2>/dev/null || true)
-  if [ -n "$_ANY_PROJ_PAT" ]; then
+  _ANY_LEGACY_PROJ_PAT=""
+  if [ -n "$_LEGACY_HOME_DIR" ]; then
+    _ANY_LEGACY_PROJ_PAT=$(find "$_LEGACY_HOME_DIR/projects" -maxdepth 2 -name careful-patterns.txt -print -quit 2>/dev/null || true)
+  fi
+  if [ -n "$_ANY_PROJ_PAT" ] || [ -n "$_ANY_LEGACY_PROJ_PAT" ]; then
     # SimonK: vendored helper, and its output is parsed, not eval'd. A rule the
     # user configured but the hook cannot locate is a hook failure (deny),
     # not a silent skip.
     _SLUG_HELPER="$_HOOK_DIR/gstack-slug.sh"
     [ -f "$_SLUG_HELPER" ] || _careful_fail "gstack-slug.sh is missing, so per-project careful patterns cannot be applied."
-    _SLUG_RC=0
-    _SLUG_OUT=$(bash "$_SLUG_HELPER" 2>/dev/null) || _SLUG_RC=$?
-    # gstack-slug prints exactly one sanitized SLUG= line; accept only that shape.
-    SLUG=$(printf '%s\n' "$_SLUG_OUT" | sed -n 's/^SLUG=\([a-zA-Z0-9._-]*\)$/\1/p')
-    case "$_SLUG_RC:$SLUG" in
-      0:|0:.|0:..|[1-9]*) _careful_fail "gstack-slug.sh could not resolve the project slug for per-project careful patterns." ;;
-    esac
+    # _careful_slug CACHE_ROOT: resolve the slug with gstack-slug's sticky cache
+    # under CACHE_ROOT; sets SLUG or fails closed.
+    _careful_slug() {
+      _SLUG_RC=0
+      _SLUG_OUT=$(GSTACK_HOME="$1" bash "$_SLUG_HELPER" 2>/dev/null) || _SLUG_RC=$?
+      # gstack-slug prints exactly one sanitized SLUG= line; accept only that shape.
+      SLUG=$(printf '%s\n' "$_SLUG_OUT" | sed -n 's/^SLUG=\([a-zA-Z0-9._-]*\)$/\1/p')
+      case "$_SLUG_RC:$SLUG" in
+        0:|0:.|0:..|[1-9]*) _careful_fail "gstack-slug.sh could not resolve the project slug for per-project careful patterns." ;;
+      esac
+    }
+    _careful_slug "${GSTACK_HOME:-$HOME/.simonk/state}"
     _PATTERN_FILES="$_PATTERN_FILES
 $_GSTACK_HOME_DIR/projects/$SLUG/careful-patterns.txt"
+    if [ -n "$_ANY_LEGACY_PROJ_PAT" ]; then
+      # SimonK (D-119): a project may have a sticky slug cached under the old
+      # folder (e.g. its directory-name slug from before an origin remote was
+      # added). Resolve with that cache too, so legacy rules filed under it
+      # still apply; both slugs are consulted (additive only).
+      _NEW_SLUG="$SLUG"
+      _careful_slug "$_LEGACY_HOME_DIR"
+      _PATTERN_FILES="$_PATTERN_FILES
+$_LEGACY_HOME_DIR/projects/$_NEW_SLUG/careful-patterns.txt"
+      [ "$SLUG" = "$_NEW_SLUG" ] || _PATTERN_FILES="$_PATTERN_FILES
+$_LEGACY_HOME_DIR/projects/$SLUG/careful-patterns.txt"
+    fi
   fi
   while IFS= read -r _PF; do
     [ -f "$_PF" ] || continue

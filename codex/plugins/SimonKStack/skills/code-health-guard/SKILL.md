@@ -142,7 +142,7 @@ src/
 
 - `refactor` — 발견된 문제를 실제로 리팩토링
 - `simon-tdd` — 리팩토링 안전망 (테스트 통과 보장)
-- `/review` — PR 사전 리뷰에 통합
+- `/pr-review` — PR 사전 리뷰에 통합
 
 ## 완료 보고 (HTML) — 표준
 작업을 끝내면 **HTML 완료 보고서**를 생성한다 (SimonKCore `completion-report` 표준).

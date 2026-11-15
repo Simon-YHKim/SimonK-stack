@@ -39,7 +39,7 @@ BANNER_A = "<!-- AUTO-GENERATED from "
 BANNER_B = "<!-- Regenerate: bun run gen:skill-docs -->"
 # D-68 fixed warning: investigate stays the gstack copy, whose Windows scope lock is broken.
 INVESTIGATE_WARNING = "Windows에서 investigate 잠금 금지. 편집이 전부 막히면 /unfreeze."
-SKILL_VERSIONS = {"freeze": "0.2.7", "unfreeze": "0.2.1", "guard": "0.2.3"}
+SKILL_VERSIONS = {"freeze": "0.2.8", "unfreeze": "0.2.2", "guard": "0.2.4"}
 HIDE_CYGPATH = ('command() { if [ "${1-}" = -v ] && [ "${2-}" = cygpath ]; then return 1; fi; '
                 'builtin command "$@"; }\n')
 
@@ -86,7 +86,8 @@ class FreezeHookTests(unittest.TestCase):
         override = os.environ.get("FREEZE_HOOK_UNDER_TEST")
         if override:
             shutil.copyfile(override, self.skills / "freeze/bin/check-freeze.sh")
-        self.state = self.home / ".gstack"
+        self.state = self.home / ".simonk/state"
+        self.legacy = self.home / ".gstack"  # pre-D-119 home default
         self.work = self.base / "work dir"
         self.inside = self.work / "src"
         self.inside.mkdir(parents=True)
@@ -224,7 +225,18 @@ class FreezeHookTests(unittest.TestCase):
             i += 1
         self.assertGreater(i, 2, "attribution block missing")
         self.assertIn(b"garrytan/gstack", b"\n".join(lines[1:i]))
-        upstream = b"\n".join([lines[0]] + lines[i:])
+        body, skip = [], False
+        for line in lines[i:]:  # SimonK delta blocks (D-119) are not upstream
+            if line.startswith(b"# >>> SimonK delta"):
+                self.assertFalse(skip, "nested delta block")
+                skip = True
+            elif line.startswith(b"# <<< SimonK delta"):
+                self.assertTrue(skip, "unbalanced delta block")
+                skip = False
+            elif not skip:
+                body.append(line)
+        self.assertFalse(skip, "unterminated delta block")
+        upstream = b"\n".join([lines[0]] + body)
         self.assertEqual(hashlib.sha256(upstream).hexdigest(), STATE_WRITER_UPSTREAM_SHA256)
         for name in ("check-freeze.sh", "freeze-state.sh"):
             self.assertNotIn(b"\r", (FREEZE / "bin" / name).read_bytes(), name)
@@ -446,6 +458,77 @@ class FreezeHookTests(unittest.TestCase):
                 (self.state / "freeze-dir.txt").write_text(line + "\n", encoding="utf-8")
                 self.assertEqual(self.edit(str(self.inside / "x.txt"))[0], "allow")
                 self.assertEqual(self.edit(str(self.outside / "x.txt"))[0], "deny")
+
+    # --- legacy $HOME/.gstack boundary (hub D-119) --------------------------
+    def write_legacy(self, line):
+        self.legacy.mkdir(parents=True, exist_ok=True)
+        (self.legacy / "freeze-dir.txt").write_text(line + "\n", encoding="utf-8")
+
+    def test_writer_uses_simonk_state_and_never_creates_legacy(self):
+        self.freeze()
+        self.assertTrue((self.home / ".simonk/state/freeze-dir.txt").is_file())
+        clear = self.script("clear.sh", bash_block("unfreeze", 'freeze-state.sh" clear'))
+        self.assertEqual(clear.returncode, 0, clear.stderr)
+        self.assertFalse(self.legacy.exists(), "~/.gstack must not be recreated")
+        self.assertEqual(self.edit(str(self.outside / "x.txt"))[0], "allow")
+        self.assertFalse(self.legacy.exists())
+
+    def test_legacy_boundary_stays_active_until_unfreeze(self):
+        self.write_legacy(posix(self.inside))
+        self.assertEqual(self.edit(str(self.inside / "x.txt"))[0], "allow")
+        decision, reason = self.edit(str(self.outside / "x.txt"))
+        self.assertEqual(decision, "deny")
+        clear = self.script("clear.sh", bash_block("unfreeze", 'freeze-state.sh" clear'))
+        self.assertEqual(clear.returncode, 0, clear.stderr)
+        self.assertIn("FREEZE_CLEARED", clear.stdout)
+        self.assertFalse((self.legacy / "freeze-dir.txt").exists())
+        self.assertTrue(self.legacy.is_dir(), "only the state file is removed")
+        self.assertEqual(self.edit(str(self.outside / "x.txt"))[0], "allow")
+
+    def test_set_replaces_legacy_boundary_for_good(self):
+        self.write_legacy(posix(self.inside))
+        self.freeze(str(self.outside))
+        self.assertFalse((self.legacy / "freeze-dir.txt").exists())
+        self.assertEqual(self.edit(str(self.outside / "x.txt"))[0], "allow")
+        self.assertEqual(self.edit(str(self.inside / "x.txt"))[0], "deny")
+        clear = self.script("clear.sh", bash_block("unfreeze", 'freeze-state.sh" clear'))
+        self.assertEqual(clear.returncode, 0, clear.stderr)
+        self.assertEqual(self.edit(str(self.inside / "x.txt"))[0], "allow")  # nothing resurfaces
+
+    def test_current_state_wins_and_clear_removes_both(self):
+        self.freeze()
+        self.write_legacy(posix(self.outside))
+        self.assertEqual(self.edit(str(self.inside / "x.txt"))[0], "allow")
+        self.assertEqual(self.edit(str(self.outside / "x.txt"))[0], "deny")
+        clear = self.script("clear.sh", bash_block("unfreeze", 'freeze-state.sh" clear'))
+        self.assertEqual(clear.returncode, 0, clear.stderr)
+        self.assertFalse((self.state / "freeze-dir.txt").exists())
+        self.assertFalse((self.legacy / "freeze-dir.txt").exists())
+        self.assertEqual(self.edit(str(self.outside / "x.txt"))[0], "allow")
+
+    def test_acquire_preserves_legacy_boundary(self):
+        self.write_legacy(posix(self.inside))
+        writer = posix(self.skills / "freeze/bin/freeze-state.sh")
+        p = self.bash("bash %s acquire %s" % (shlex.quote(writer), shlex.quote(posix(self.outside))))
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertIn(b"FREEZE_PRESERVED", p.stdout)
+        self.assertFalse((self.state / "freeze-dir.txt").exists())
+        self.assertEqual(self.edit(str(self.outside / "x.txt"))[0], "deny")
+
+    def test_unexpected_legacy_state_type_denies_and_is_preserved(self):
+        (self.legacy / "freeze-dir.txt").mkdir(parents=True)
+        self.assertEqual(self.edit(str(self.inside / "x.txt"))[0], "deny")
+        clear = self.script("clear.sh", bash_block("unfreeze", 'freeze-state.sh" clear'))
+        self.assertEqual(clear.returncode, 1)
+        self.assertIn("FREEZE_PRESERVED", clear.stderr)
+        self.assertTrue((self.legacy / "freeze-dir.txt").is_dir())
+
+    def test_plugin_data_root_ignores_legacy_home_state(self):
+        self.write_legacy(posix(self.inside))
+        data = self.base / "plugin data"
+        data.mkdir()
+        env = self.make_env(CLAUDE_PLUGIN_DATA=posix(data))
+        self.assertEqual(self.edit(str(self.outside / "x.txt"), env=env)[0], "allow")
 
     def test_invalid_payload_denies(self):
         self.freeze()

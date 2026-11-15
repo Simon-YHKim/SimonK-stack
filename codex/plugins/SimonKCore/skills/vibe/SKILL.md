@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan, sends image generation to Codex image_gen within included usage, and reports blocked coding routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.23.1
+version: 2.24.0
 author: simon-stack
 ---
 
@@ -399,7 +399,7 @@ The [generated legacy Orca routing table](references/legacy-routing.md) is histo
 See the [verification commands](references/orca-workflow.md#verification-commands).
 
 - [Orchestration schema and cost policy](references/orchestration.md)
-- [Model catalog map, 2026-10-21 refresh(`gemini-4-argon` 등록 · 레인 없음 D-105), D-101 레인 상태(GPT 는 `gpt-6-astra` @xhigh 만 · 철회 레인 5개 · A 클래스 `claude-haiku-5-5` 선두 · 코딩 opus(xhigh) → fable → sonnet D-106 · 인증서 대기)](references/model-catalog-map.md)
+- [Model catalog map, 2026-11-16 refresh(D-125: fable 자리 `claude-fable-5-2` · C-realtime `grok-4.7` · C-platform `gemini-4-hydrogen` · Terra·Carbon 등록만), D-101 레인 상태(GPT 는 `gpt-6-astra` @xhigh 만 · 철회 레인 5개 · A 클래스 `claude-haiku-5-5` 선두 · 코딩 opus(xhigh) → fable → sonnet D-106 · 인증서 대기)](references/model-catalog-map.md)
 - [Guarded Orca workflow and preparation limits](references/orca-workflow.md)
 - [D-28 route decisions](references/d28-routing.md) · [Security artifact gate: D-101 Daybreak lane, D-102 gpt-6-astra fallback, rubric and fail-closed rules](references/security-artifact-gate.md)
 - [Astra effort transport cap](references/v2.2-astra-effort-cap.md)

@@ -96,16 +96,17 @@ Field reference:
 
 ### 1. Resolve the browse binary (Windows + POSIX)
 
-The gstack `browse` daemon binary lives in the gstack home install. Resolve it before any command:
+The `browse` daemon binary lives in the SimonK runtime (`~/.simonk/runtime`). Resolve it before any command:
 
 ```bash
 B=""
-[ -x "$HOME/.claude/skills/gstack/browse/dist/browse" ] && B="$HOME/.claude/skills/gstack/browse/dist/browse"
+[ -x "$HOME/.simonk/runtime/browse/dist/browse" ] && B="$HOME/.simonk/runtime/browse/dist/browse"
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
-[ -n "$_ROOT" ] && [ -x "$_ROOT/.claude/skills/gstack/browse/dist/browse" ] && B="$_ROOT/.claude/skills/gstack/browse/dist/browse"
 [ -z "$B" ] && { echo "NEEDS_SETUP: run the browse skill once to build it"; exit 1; }
 echo "READY: $B"
 ```
+
+Bash calls do not share variables: start every later block that uses `$B` with `B="$HOME/.simonk/runtime/browse/dist/browse"`.
 
 If `NEEDS_SETUP`, invoke the `browse` skill once (it builds the daemon), then re-run.
 

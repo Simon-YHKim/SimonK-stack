@@ -1,6 +1,6 @@
 ---
 name: freeze
-version: 0.2.7
+version: 0.2.8
 description: "Use when debugging to keep edits inside one module, or asked to \"freeze\", \"restrict edits\", \"only edit this folder\", \"lock down edits\", \"이 폴더만 수정\", \"편집 잠금\". Sets a session edit boundary: a PreToolUse Edit/Write hook produces deny for paths outside the chosen directory and for paths it cannot judge (relative, UNC, '..', failed conversion), handling Windows drive paths and /c/ paths."
 allowed-tools:
   - Bash
@@ -36,8 +36,8 @@ writer `bin/freeze-state.sh` (vendored unchanged). SimonK adds the Windows path
 handling and fail-closed deltas below (hub decision D-62, 2026-10-03).
 
 ```bash
-mkdir -p ~/.gstack/analytics
-echo '{"skill":"freeze","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "unknown")'"}'  >> ~/.gstack/analytics/skill-usage.jsonl 2>/dev/null || true
+mkdir -p ~/.simonk/state/analytics
+echo '{"skill":"freeze","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "unknown")'"}'  >> ~/.simonk/state/analytics/skill-usage.jsonl 2>/dev/null || true
 ```
 
 ## Setup
@@ -93,9 +93,11 @@ Every deny names the path and the reason. The way out of a wrong boundary is
 ## How it works
 
 The hook reads `file_path` from the Edit/Write payload and the boundary from
-line 1 of `freeze-dir.txt` under `${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}` (the
+line 1 of `freeze-dir.txt` under `${CLAUDE_PLUGIN_DATA:-$HOME/.simonk/state}` (the
 same root `freeze-state.sh` writes; line 2 is its `gstack-freeze-v1:` owner
-token). Both go through one pipeline:
+token). A boundary left under the old `$HOME/.gstack` default (before hub
+D-119, 2026-10-21) stays active while the new root holds none; the next
+`/freeze` replaces it and `/unfreeze` clears it. Both go through one pipeline:
 
 1. Windows drive paths (`C:\...`, `C:/...`) become `/c/...` with `cygpath -u`;
    without `cygpath` a pure-bash conversion does the same. `/c/...` and other

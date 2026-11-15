@@ -245,8 +245,9 @@ class ModelRegistryTests(unittest.TestCase):
         data = self.m.load_registry()
         ids = {m["id"] for m in data["models"]}
         self.assertTrue({"gpt-6-astra", "gpt-6.1-sol", "gpt-6-sol", "gpt-6-luna", "claude-opus-5-5",
-                         "claude-fable-5-1", "claude-sonnet-5-5", "claude-sonnet-5", "claude-haiku-5-5",
-                         "gemini-3.8-flash", "grok-4.7"} <= ids)
+                         "claude-fable-5-1", "claude-fable-5-2", "claude-sonnet-5-5", "claude-sonnet-5",
+                         "claude-haiku-5-5", "gpt-6.1-terra", "gemini-3.8-flash", "gemini-4-hydrogen",
+                         "gemini-4-carbon", "grok-4.7"} <= ids)
         self.assertEqual({m["vendor"] for m in data["models"]}, {"openai", "anthropic", "google", "xai"})
 
     def test_gpt_61_sol_catalog_does_not_promote_unavailable_runtime(self):
@@ -428,12 +429,12 @@ class ModelRegistryTests(unittest.TestCase):
     def test_previous_generations_stay_active_and_are_labelled_legacy(self):
         models = {m["id"]: m for m in self.m.load_registry()["models"]}
         for model_id in ("claude-opus-5", "claude-sonnet-5", "gpt-5.6-sol", "gpt-5.6-terra",
-                         "gpt-5.6-luna", "grok-4.6", "grok-4.5"):
+                         "gpt-5.6-luna", "grok-4.6", "grok-4.5", "claude-fable-5-1", "gemini-3.8-flash"):
             with self.subTest(model=model_id):
                 self.assertEqual(models[model_id].get("generation"), "legacy")
                 self.assertEqual(models[model_id]["lifecycle"], "active")
-        for model_id in ("claude-fable-5-1", "claude-opus-5-5", "claude-sonnet-5-5",
-                         "gpt-6.1-sol", "gpt-6-astra", "grok-4.7"):
+        for model_id in ("claude-fable-5-2", "claude-opus-5-5", "claude-sonnet-5-5", "gpt-6.1-sol",
+                         "gpt-6-astra", "gpt-6.1-terra", "gemini-4-hydrogen", "gemini-4-carbon", "grok-4.7"):
             with self.subTest(model=model_id):
                 self.assertNotIn("generation", models[model_id])
 
@@ -467,8 +468,11 @@ class ModelRegistryTests(unittest.TestCase):
         unlaned = {m["id"] for m in data["models"] if m["lifecycle"] == "active"} - routing_lanes()
         # Simon's 2026-10-05 instruction gave claude-sonnet-5-5 and gpt-6-luna class A lanes;
         # D-99 (2026-10-12) gave claude-haiku-5-5 one.
-        self.assertTrue({"gpt-6-sol", "grok-4.7", "grok-4.5"} <= unlaned)
-        self.assertFalse({"claude-sonnet-5-5", "gpt-6-luna", "claude-haiku-5-5"} & unlaned)
+        # D-125 (2026-11-16) gave grok-4.7, claude-fable-5-2 and gemini-4-hydrogen lanes; gpt-6.1-terra and
+        # gemini-4-carbon are registered without one.
+        self.assertTrue({"gpt-6-sol", "grok-4.5", "gpt-6.1-terra", "gemini-4-carbon", "gemini-4-argon"} <= unlaned)
+        self.assertFalse({"claude-sonnet-5-5", "gpt-6-luna", "claude-haiku-5-5", "grok-4.7",
+                          "claude-fable-5-2", "gemini-4-hydrogen"} & unlaned)
         pending = catalog_map_section("Lane migration pending")
         self.assertIn("ORCA_UNREGISTERED_PROCESS_OR_MODEL", pending)
         for model_id in sorted(unlaned):
@@ -580,10 +584,10 @@ class ModelRegistryTests(unittest.TestCase):
         # D-106 (same day, Simon: "sonnet5.5는 간단한 코딩에 써야 하는거 아니야? 복잡한 코딩은 opus5.5 xhigh가
         # 해야지.") corrects D-103: CODE_COMPLEX is Opus xhigh first, CODE_SIMPLE is Sonnet first.
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
-        # The 2026-10-21 recheck (2026-10-21-shadow.1) renewed the window and kept every rank.
-        self.assertEqual(policy["version"], "2026-10-21-shadow.1")
+        # The 2026-11-16 recheck (2026-11-16-shadow.1, D-125) renewed the window and kept every rank.
+        self.assertEqual(policy["version"], "2026-11-16-shadow.1")
         self.assertEqual((policy["checked_at"], policy["valid_until"]),
-                         ("2026-10-21T21:34:08+09:00", "2026-10-28T21:34:08+09:00"))
+                         ("2026-11-16T00:23:53+09:00", "2026-11-23T00:23:53+09:00"))
         profiles = policy["profiles"]
 
         def rows(profile):
@@ -634,8 +638,9 @@ class ModelRegistryTests(unittest.TestCase):
     def test_d106_coding_lane_and_opus_xhigh_only_inside_coding(self):
         # D-106 (Simon, 2026-10-18): complex coding = Opus 5.5 xhigh, Sonnet 5.5 is for simple coding.
         import routing
+        # D-125 (2026-11-16) moved the Fable seat to its successor claude-fable-5-2; the order is unchanged.
         self.assertEqual(routing.PROCESS_LANES["coding"],
-                         ["claude-opus-5-5", "claude-fable-5-1", "claude-sonnet-5-5"])
+                         ["claude-opus-5-5", "claude-fable-5-2", "claude-sonnet-5-5"])
         self.assertEqual(routing.PROCESS_EFFORTS, {"coding": {"claude-opus-5-5": "xhigh"}})
         opus = "claude-opus-5-5"
         for falsifiable in (False, True):
@@ -674,7 +679,9 @@ class ModelRegistryTests(unittest.TestCase):
         # pin again. The held-* checks below stay generic for any future hold.
         self.assertEqual(held, ["gpt-5.6-luna", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-6-luna", "gpt-6.1-sol"])
         self.assertEqual(set(held), ast.literal_eval(module_literal("routing.py", "WITHDRAWN_LANES")))
-        self.assertEqual(keep, ["claude-fable-5-1", "gemini-3.8-flash", "gpt-6-astra", "gpt-daybreak-blue-latest"])
+        # D-125 (2026-11-16): the two successors keep their predecessors' statuses.
+        self.assertEqual(keep, ["claude-fable-5-1", "claude-fable-5-2", "gemini-3.8-flash", "gemini-4-hydrogen",
+                                "gpt-6-astra", "gpt-daybreak-blue-latest"])
         pending = " ".join(catalog_map_section("Lane migration pending").split())
         self.assertNotIn("every `legacy_lane_migration` entry is still pending", pending)
         for model_id in keep:
@@ -745,12 +752,13 @@ class ModelRegistryTests(unittest.TestCase):
         # Final class lists (D-101). B, A-verify and D are unchanged. Coding is Opus -> Fable -> Sonnet
         # under D-106 (Simon, 2026-10-18); it is still Claude only, so the gates stay on another vendor.
         self.assertEqual(classes["A"], ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"])
-        self.assertEqual(classes["B"], [astra, "claude-fable-5-1", "claude-opus-5-5"])
-        self.assertEqual(classes["A-verify"], [astra, "claude-fable-5-1", "claude-opus-5-5"])
-        self.assertEqual(classes["C-realtime"], ["grok-4.6", "claude-opus-5-5", astra])
-        self.assertEqual(classes["C-platform"], ["gemini-3.8-flash", "claude-opus-5-5", astra])
+        # D-125 (2026-11-16) replaced the Fable, Grok and Gemini seats with their successors in place.
+        self.assertEqual(classes["B"], [astra, "claude-fable-5-2", "claude-opus-5-5"])
+        self.assertEqual(classes["A-verify"], [astra, "claude-fable-5-2", "claude-opus-5-5"])
+        self.assertEqual(classes["C-realtime"], ["grok-4.7", "claude-opus-5-5", astra])
+        self.assertEqual(classes["C-platform"], ["gemini-4-hydrogen", "claude-opus-5-5", astra])
         self.assertEqual(classes["D"], ["claude-opus-5-5"])
-        self.assertEqual(process_lanes["coding"], ["claude-opus-5-5", "claude-fable-5-1", "claude-sonnet-5-5"])
+        self.assertEqual(process_lanes["coding"], ["claude-opus-5-5", "claude-fable-5-2", "claude-sonnet-5-5"])
         # A quota demotion past gpt-6-astra lands on a Claude lane, never on another GPT lane.
         for name, order in classes.items():
             if astra in order[:-1]:
@@ -822,8 +830,8 @@ class ModelRegistryTests(unittest.TestCase):
                       SCRIPT.with_name("routing.py").read_text(encoding="utf-8"))
 
         data = self.m.load_registry()
-        self.assertEqual(data["version"], "2026-10-21.1")
-        self.assertEqual((data["checked_at"], data["data_as_of"]), ("2026-10-21T21:32:46+09:00", "2026-10-21"))
+        self.assertEqual(data["version"], "2026-11-16.1")
+        self.assertEqual((data["checked_at"], data["data_as_of"]), ("2026-11-16T00:08:40+09:00", "2026-11-16"))
         models = {m["id"]: m for m in data["models"]}
         self.assertEqual(models[gate]["lifecycle"], "deprecated")  # the move does not revive the alias.
         migration = data["legacy_lane_migration"]
@@ -1019,9 +1027,9 @@ class ModelRegistryTests(unittest.TestCase):
         fixed = {p[0]: p[3] for p in ast.literal_eval(module_literal("routing.py", "PROCESSES")) if p[3]}
         new = "claude-haiku-5-5"
         self.assertEqual(classes["A"], [new, "claude-sonnet-5-5", "claude-opus-5-5"])
-        # Class B, A-verify and D are untouched.
-        self.assertEqual(classes["B"], ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5-5"])
-        self.assertEqual(classes["A-verify"], ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5-5"])
+        # Class B, A-verify and D are untouched by D-99 (D-125 later moved their Fable seat to 5.2).
+        self.assertEqual(classes["B"], ["gpt-6-astra", "claude-fable-5-2", "claude-opus-5-5"])
+        self.assertEqual(classes["A-verify"], ["gpt-6-astra", "claude-fable-5-2", "claude-opus-5-5"])
         self.assertEqual(classes["D"], ["claude-opus-5-5"])
         elsewhere = {lane for name, order in classes.items() if name != "A" for lane in order} | set(coding)
         elsewhere |= {lane for lane, _effort in fixed.values()}
@@ -1066,6 +1074,72 @@ class ModelRegistryTests(unittest.TestCase):
             with self.subTest(probe=probe["id"]):
                 self.assertEqual(new in probe["lanes"], probe["class"] == "A")
 
+
+    def test_d125_latest_vendor_models_take_their_predecessors_seats(self):
+        # D-125 (2026-11-16, Simon: latest per-vendor models chosen from official facts and public reports):
+        # generation upgrades added beside the legacy keys (ADD_ALONGSIDE_KEEP_LEGACY). GPT stays Astra only.
+        lanes = ast.literal_eval(module_literal("routing.py", "LANES"))
+        classes = ast.literal_eval(module_literal("routing.py", "CLASS_LANES"))
+        coding = ast.literal_eval(module_literal("routing.py", "PROCESS_LANES"))["coding"]
+        rules = ast.literal_eval(module_literal("routing.py", "OUTPUT_RULES"))
+        data = self.m.load_registry()
+        models = {m["id"]: m for m in data["models"]}
+        migration = data["legacy_lane_migration"]
+        for old, new in (("claude-fable-5-1", "claude-fable-5-2"), ("grok-4.6", "grok-4.7"),
+                         ("gemini-3.8-flash", "gemini-4-hydrogen")):
+            with self.subTest(old=old):
+                self.assertIn(old, lanes)  # ledger.py rejects rows whose lane is not in LANES.
+                self.assertEqual(migration[old]["candidate"], new)
+                self.assertEqual(migration[new]["candidate"], new)
+                self.assertEqual(migration[new]["status"], migration[old]["status"])
+                for name, order in list(classes.items()) + [("coding", coding)]:
+                    self.assertNotIn(old, order, name)
+                self.assertEqual((lanes[new]["vendor"], lanes[new]["cli"], lanes[new]["effort_style"],
+                                  lanes[new]["dispatch"]),
+                                 (lanes[old]["vendor"], lanes[old]["cli"], lanes[old]["effort_style"],
+                                  lanes[old]["dispatch"]))
+                self.assertEqual(models[old].get("generation"), "legacy")
+                self.assertEqual(models[old]["lifecycle"], "active")
+                self.assertNotIn("generation", models[new])
+        self.assertEqual(classes["B"][1], "claude-fable-5-2")
+        self.assertEqual(classes["A-verify"][1], "claude-fable-5-2")
+        self.assertEqual(coding[1], "claude-fable-5-2")
+        self.assertEqual(classes["C-realtime"][0], "grok-4.7")
+        self.assertEqual(classes["C-platform"][0], "gemini-4-hydrogen")
+        # The output rules follow the first seat of each C class.
+        self.assertIn("grok-4.7", rules)
+        self.assertIn("gemini-4-hydrogen", rules)
+        self.assertNotIn("grok-4.6", rules)
+        self.assertNotIn("gemini-3.8-flash", rules)
+        # Fable 5.2 keeps its own quota bucket; the Claude Code alias moved off 5.1.
+        self.assertEqual(lanes["claude-fable-5-2"]["quota_bucket"], "fableWeekly")
+        self.assertEqual(models["claude-fable-5-2"]["aliases"], ["fable"])
+        self.assertEqual(models["claude-fable-5-1"]["aliases"], [])
+        self.assertEqual(models["claude-fable-5-2"]["pricing"]["input"], "8")
+        self.assertEqual(models["claude-fable-5-2"]["pricing"]["output"], "40")
+        self.assertEqual(lanes["gemini-4-hydrogen"]["orca_efforts"], ("low", "medium", "high", "xhigh"))
+        self.assertEqual(models["gemini-4-hydrogen"]["api_efforts"], ["low", "medium", "high", "xhigh"])
+        # Registered without a lane: Terra (D-101: GPT is Astra only) and Carbon (Ultra-only in Antigravity).
+        for model_id in ("gpt-6.1-terra", "gemini-4-carbon"):
+            with self.subTest(unlaned=model_id):
+                self.assertNotIn(model_id, lanes)
+                self.assertNotIn(model_id, migration)
+                self.assertEqual(models[model_id]["lifecycle"], "active")
+        working_codex = ({lane for lane, spec in lanes.items() if spec["vendor"] == "codex"}
+                         - ast.literal_eval(module_literal("routing.py", "WITHDRAWN_LANES"))
+                         - ast.literal_eval(module_literal("routing.py", "DEPRECATED_LANES")))
+        self.assertEqual(working_codex, {"gpt-6-astra"})
+
+    def test_registry_and_task_fit_windows_cover_the_2026_11_16_recheck(self):
+        data = self.m.load_registry()
+        policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
+        floor = datetime.fromisoformat("2026-11-16T00:00:00+09:00")
+        checked = datetime.fromisoformat(data["checked_at"])
+        self.assertGreaterEqual(checked, floor)
+        self.assertLessEqual(checked, datetime.fromisoformat(policy["checked_at"]))
+        earliest = min(checked + timedelta(seconds=self.m.MAX_FACT_AGE_SECONDS),
+                       datetime.fromisoformat(policy["valid_until"]))
+        self.assertGreaterEqual(earliest, datetime.fromisoformat("2026-11-23T00:00:00+09:00"))
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,34 @@
+{
+  "skill": "pr-review",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-before-merge",
+      "prompt": "머지하기 전에 이 브랜치 PR 리뷰해줘",
+      "assertions": [
+        {
+          "id": "a1",
+          "text": "Reviews the diff against the base branch before anything is merged."
+        },
+        {
+          "id": "a2",
+          "text": "Lists findings with file and line and proposes fixes for the user to approve."
+        }
+      ]
+    },
+    {
+      "id": "en-review-pr",
+      "prompt": "Review this PR before I land it.",
+      "assertions": [
+        {
+          "id": "a1",
+          "text": "Checks SQL safety, trust boundaries and missing tests in the diff."
+        },
+        {
+          "id": "a2",
+          "text": "Does not merge or push on its own."
+        }
+      ]
+    }
+  ]
+}

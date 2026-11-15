@@ -63,7 +63,8 @@ Upstream LF-byte SHA-256 of the files taken:
   (adapted; SimonK deltas listed in its header and below)
 - freeze/bin/freeze-state.sh: ee14660e8dd6fedb1e6673fccffa9ff1740047955ef5b59d58d246ad1dccebf5
   (vendored as skills-src/freeze/bin/freeze-state.sh, unchanged except for a
-  leading attribution comment block)
+  leading attribution comment block and two marked "SimonK delta" blocks
+  that retire a boundary left under the old $HOME/.gstack default, hub D-119)
 
 These files reside under skills-src/. They are adapted, not byte-identical
 copies. Local changes preserve the current SimonK skill contracts:
@@ -90,8 +91,12 @@ copies. Local changes preserve the current SimonK skill contracts:
   PowerShell entry as its careful-powershell policy). This is not a security
   sandbox and never grants permission to execute a destructive action.
 - The shared state reader matches existing writers exactly:
-  ${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}. GSTACK_HOME remains analytics-only for
-  these hooks; it does not override the boundary writer's chosen state root.
+  ${CLAUDE_PLUGIN_DATA:-$HOME/.simonk/state} (home default moved from
+  $HOME/.gstack on 2026-10-21, hub D-119; without CLAUDE_PLUGIN_DATA a
+  boundary or careful rules left under $HOME/.gstack are still read, and
+  /freeze or /unfreeze retire that boundary). GSTACK_HOME remains
+  analytics-only for these hooks; it does not override the boundary writer's
+  chosen state root.
 - Missing/empty/wrong-type required input and NUL fail closed (deny for careful,
   deny for an active freeze). File paths reject control characters before Bash
   can silently strip trailing newlines. Only an absent state file is an inactive freeze;

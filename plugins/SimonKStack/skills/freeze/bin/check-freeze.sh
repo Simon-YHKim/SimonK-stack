@@ -23,6 +23,10 @@
 #      unreadable file, empty or control-character boundary, or a boundary
 #      directory that no longer exists denies (upstream allowed an empty one).
 #   4. Every helper function this script calls is checked before use.
+#   5. (hub decision D-119, 2026-10-21) The state root's home default is
+#      $HOME/.simonk/state. When it holds no state, a boundary left under the
+#      old $HOME/.gstack default is read instead (same fail-closed checks),
+#      so an active freeze survives the move; this hook never creates it.
 # check-freeze.sh — PreToolUse hook for /freeze and /guard (Edit and Write).
 # Reads the hook JSON from stdin and prints {} to allow, or a hookSpecificOutput
 # with permissionDecision "deny". The decision MUST be nested under
@@ -66,7 +70,7 @@ if [ ! -f "$_HOOK_HELPER" ] || ! . "$_HOOK_HELPER" 2>/dev/null; then
   _freeze_fail "Hook helpers unavailable: careful/bin/hook-extract.sh is missing or broken"
 fi
 for _FN in gstack_hook_extract_field gstack_hook_decision gstack_hook_json_string \
-           gstack_hook_log_fire gstack_hook_state_root; do
+           gstack_hook_log_fire gstack_hook_state_root gstack_hook_legacy_freeze_file; do
   command -v "$_FN" >/dev/null 2>&1 || _freeze_fail "Hook helpers out of date (partial upgrade?)"
 done
 
@@ -200,9 +204,17 @@ _freeze_key() {
 
 # --- boundary state --------------------------------------------------------
 # The writer (freeze-state.sh) and this reader resolve the same root through
-# gstack_hook_state_root: ${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}.
+# gstack_hook_state_root: ${CLAUDE_PLUGIN_DATA:-$HOME/.simonk/state}.
 STATE_DIR="$(gstack_hook_state_root; printf x)"; STATE_DIR="${STATE_DIR%x}"
 FREEZE_FILE="$STATE_DIR/freeze-dir.txt"
+# SimonK (hub D-119): a boundary left under the old $HOME/.gstack default stays
+# active (fail closed) until /freeze replaces it or /unfreeze clears it. It is
+# consulted only when the current root holds no state, and never created here.
+if [ ! -e "$FREEZE_FILE" ] && [ ! -L "$FREEZE_FILE" ]; then
+  if _FZ_LEGACY_FILE="$(gstack_hook_legacy_freeze_file)"; then
+    FREEZE_FILE="$_FZ_LEGACY_FILE"
+  fi
+fi
 
 # No state file at all: no freeze is active — allow.
 if [ ! -e "$FREEZE_FILE" ] && [ ! -L "$FREEZE_FILE" ]; then

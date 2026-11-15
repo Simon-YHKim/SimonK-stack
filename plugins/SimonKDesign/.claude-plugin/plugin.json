@@ -25,6 +25,7 @@
     "./skills/design-shotgun/",
     "./skills/design-system-keeper/",
     "./skills/design-system-page/",
+    "./skills/diagram/",
     "./skills/inclusive-ux/",
     "./skills/logo-generator/",
     "./skills/persona-simulation/",
@@ -33,10 +34,11 @@
     "./skills/remotion-best-practices/",
     "./skills/scientific-paper/",
     "./skills/simon-design-first/",
+    "./skills/simon-motion-reference/",
     "./skills/skdesign/",
     "./skills/slides/",
     "./skills/social-graphic/",
     "./skills/stitch-design-flow/"
   ],
-  "version": "1.872.0"
+  "version": "1.974.0"
 }

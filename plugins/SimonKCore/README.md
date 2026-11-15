@@ -47,13 +47,13 @@ Core 는 오케스트레이터가 없는 공유 라이브러리라 대부분의 
 /simonk 통합 자율로 끝까지 진행해
 ```
 
-인자 없이 입력하면 각 스킬이 무엇을 찾을지 / 무엇을 실행할지 먼저 물어본다. 나머지 인프라 스킬(`model-router`, `persona-validate`, `completion-report`, `*-upgrade` 등)은 상위 플러그인·세션 훅이 자동 호출한다.
+인자 없이 입력하면 각 스킬이 무엇을 찾을지 / 무엇을 실행할지 먼저 물어본다. 나머지 인프라 스킬(`model-router`, `persona-validate`, `completion-report` 등)은 상위 플러그인·세션 훅이 자동 호출한다.
 
-## 수록 스킬 (57개)
+## 수록 스킬 (50개)
 
 공유 인프라 스킬 — 다른 플러그인/오케스트레이터가 호출하거나 직접 사용.
 
-`agent-delegate` · `careful` · `caveman` · `checkpoint` · `completion-report` · `defuddle` · `designmd-upgrade` · `domain-glossary` · `find-skill` · `founder-context` · `gcloud-helper` · `grill-me` · `gstack-upgrade` · `html-default-output` · `human-voice-guard` · `json-canvas` · `keepass-helper` · `learn` · `llm-wiki-builder` · `model-router` · `multi-terminal-dispatcher` · `notebooklm-import` · `obsidian-bases` · `obsidian-cli` · `obsidian-markdown` · `office-docs` · `office-hours` · `omc-upgrade` · `omo-upgrade` · `opencowork-upgrade` · `open-gstack-browser` · `openharness-upgrade` · `pair-agent` · `persona-validate` · `perspectives` · `plan-ceo-review` · `project-context-md` · `semantic-recall` · `session-context-export` · `session-context-tracker` · `session-start-hook` · `setup-browser-cookies` · `simon-handoff` · `simon-instincts` · `simonk` · `simonk-report` · `simon-ohmo` · `simon-research` · `simon-worktree` · `sprint-optimizer` · `stack-update` · `tech-preference-tracker` · `unfreeze` · `web-publisher` · `wiki-ingest` · `wiki-lint` · `wiki-query`
+`agent-delegate` · `careful` · `caveman` · `checkpoint` · `completion-report` · `defuddle` · `domain-glossary` · `find-skill` · `founder-context` · `gcloud-helper` · `grill-me` · `html-default-output` · `human-voice-guard` · `json-canvas` · `keepass-helper` · `learn` · `llm-wiki-builder` · `model-router` · `multi-terminal-dispatcher` · `notebooklm-import` · `obsidian-bases` · `obsidian-cli` · `obsidian-markdown` · `office-docs` · `office-hours` · `pair-agent` · `persona-validate` · `perspectives` · `plan-ceo-review` · `project-context-md` · `semantic-recall` · `session-context-export` · `session-context-tracker` · `session-start-hook` · `setup-browser-cookies` · `simon-handoff` · `simon-instincts` · `simonk` · `simonk-report` · `simon-ohmo` · `simon-research` · `simon-worktree` · `sprint-optimizer` · `stack-update` · `tech-preference-tracker` · `unfreeze` · `web-publisher` · `wiki-ingest` · `wiki-lint` · `wiki-query`
 
 ## 기여
 

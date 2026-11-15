@@ -1,0 +1,30 @@
+{
+  "skill": "document-generate",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-no-readme",
+      "prompt": "이 모듈에 문서가 하나도 없어. 문서 만들어줘",
+      "assertions": [
+        {
+          "id": "a1",
+          "text": "Reads the code before writing any documentation."
+        },
+        {
+          "id": "a2",
+          "text": "Lists every documentation file it created."
+        }
+      ]
+    },
+    {
+      "id": "en-post-merge",
+      "prompt": "Update the docs to match what we just shipped.",
+      "assertions": [
+        {
+          "id": "a1",
+          "text": "Points to document-release for post-merge documentation sync."
+        }
+      ]
+    }
+  ]
+}

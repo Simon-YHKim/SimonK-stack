@@ -1,0 +1,30 @@
+{
+  "skill": "make-pdf",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-md-to-pdf",
+      "prompt": "이 report.md를 PDF로 만들어줘",
+      "assertions": [
+        {
+          "id": "a1",
+          "text": "Renders the markdown with the local pdf tool."
+        },
+        {
+          "id": "a2",
+          "text": "Reports the path of the produced PDF."
+        }
+      ]
+    },
+    {
+      "id": "en-docx-request",
+      "prompt": "Turn this into a Word document.",
+      "assertions": [
+        {
+          "id": "a1",
+          "text": "Points to office-docs because the request is for a Word file, not a PDF."
+        }
+      ]
+    }
+  ]
+}

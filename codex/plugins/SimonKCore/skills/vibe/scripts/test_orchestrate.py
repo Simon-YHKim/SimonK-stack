@@ -1539,13 +1539,25 @@ class OrchestrationTests(unittest.TestCase):
     def test_current_generation_models_stay_off_orca_until_lane_migration(self):
         # Lane migration is a separate decision; registering a model must not open an Orca lane.
         # D-67 added claude-opus-5-5 and gpt-6.1-sol; Simon's 2026-10-05 instruction added the class A
-        # lanes claude-sonnet-5-5 and gpt-6-luna. These remain without a lane.
-        for model in ("gpt-6-sol", "grok-4.7", "grok-4.5"):
+        # lanes claude-sonnet-5-5 and gpt-6-luna. These remain without a lane. D-125 (2026-11-16) gave grok-4.7
+        # a lane; gpt-6.1-terra and gemini-4-carbon are registered without one.
+        for model in ("gpt-6-sol", "gpt-6.1-terra", "grok-4.5", "gemini-4-carbon"):
             with self.subTest(model=model):
                 node = {"id": "n", "proc": "research-deep", "class": "B",
                         "route": {"transport": "orca", "model": model, "requested_effort": "high"}}
                 self.assertEqual(self.m._legacy_validation([node], {}),
                                  ["ORCA_UNREGISTERED_PROCESS_OR_MODEL"])
+
+    def test_d125_lanes_pass_registration_and_stop_at_the_quota_gate(self):
+        # D-125 (2026-11-16): the successor lanes are registered beside the legacy keys. Registration is not a
+        # working route: with no quota evidence the next gate (G5) still fails closed.
+        all_vendors = {"quota_checked_vendors": ["claude", "codex", "gemini", "grok"]}
+        for model, effort in (("claude-fable-5-2", "high"), ("grok-4.7", "high")):
+            with self.subTest(model=model, effort=effort):
+                node = {"id": "n", "proc": "research-deep", "class": "B",
+                        "route": {"transport": "orca", "model": model, "requested_effort": effort}}
+                self.assertEqual(self.m._legacy_validation([node], {}), ["ORCA_G5"])
+                self.assertEqual(self.m._legacy_validation([node], all_vendors), [])
 
     def test_d67_lanes_pass_registration_and_stop_at_the_quota_gate(self):
         # Registered is not runnable: with no quota evidence the next gate (G5) still fails closed.

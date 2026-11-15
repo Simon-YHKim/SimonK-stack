@@ -1,0 +1,30 @@
+{
+  "skill": "context-restore",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-resume",
+      "prompt": "어제 저장한 작업 불러와서 이어서 하자",
+      "assertions": [
+        {
+          "id": "a1",
+          "text": "Lists the saved contexts for the current repository."
+        },
+        {
+          "id": "a2",
+          "text": "States the next step before editing files."
+        }
+      ]
+    },
+    {
+      "id": "en-none-saved",
+      "prompt": "Restore my saved context.",
+      "assertions": [
+        {
+          "id": "a1",
+          "text": "Reports clearly when no saved context exists instead of inventing one."
+        }
+      ]
+    }
+  ]
+}

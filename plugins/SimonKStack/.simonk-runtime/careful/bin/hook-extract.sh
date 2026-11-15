@@ -10,7 +10,12 @@
 #   - gstack_hook_extract_tool_name (new, additive): lets careful tell a non-Bash
 #     payload from a Bash payload whose command is missing.
 #   - gstack_hook_state_root uses the SimonK writer expression
-#     ${CLAUDE_PLUGIN_DATA:-$HOME/.gstack} (shared with freeze).
+#     ${CLAUDE_PLUGIN_DATA:-$HOME/.simonk/state} (shared with freeze; the home
+#     default moved from $HOME/.gstack on 2026-10-21, hub D-119).
+#   - gstack_hook_legacy_state_dir / gstack_hook_legacy_freeze_file (new,
+#     additive): locate state left in the old $HOME/.gstack home default so
+#     an active boundary and configured careful patterns are not dropped.
+#   - gstack_hook_log_fire defaults to $HOME/.simonk/state (was $HOME/.gstack).
 # hook-extract.sh — SHARED JSON helpers for gstack PreToolUse hooks.
 # Sourced (never executed) by careful/bin/check-careful.sh and
 # freeze/bin/check-freeze.sh via a path relative to each hook script.
@@ -102,14 +107,33 @@ gstack_hook_decision() {
 }
 
 # gstack_hook_state_root
-#   SimonK writers currently use ${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}.
+#   SimonK writers use ${CLAUDE_PLUGIN_DATA:-$HOME/.simonk/state}.
 #   Match that expression exactly; upstream GSTACK_HOME / plugin-name logic
 #   silently misses a boundary written by the current SimonK skills.
 #   This fixes reader/writer parity WITHIN one state root, not state sharing
 #   between Core and Stack or session lifecycle/ownership. Those remain open.
 #   No trailing newline, so the caller's sentinel preserves the full root.
 gstack_hook_state_root() {
-  printf '%s' "${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}"
+  printf '%s' "${CLAUDE_PLUGIN_DATA:-$HOME/.simonk/state}"
+}
+
+# gstack_hook_legacy_state_dir   (SimonK addition, hub D-119)
+#   Before 2026-10-21 the home default was $HOME/.gstack. Prints that folder
+#   when no CLAUDE_PLUGIN_DATA is set and it is an existing directory; returns
+#   1 otherwise. Readers use it so old state is honored; nothing creates it.
+gstack_hook_legacy_state_dir() {
+  [ -z "${CLAUDE_PLUGIN_DATA:-}" ] || return 1
+  [ -d "$HOME/.gstack" ] || return 1
+  printf '%s' "$HOME/.gstack"
+}
+
+# gstack_hook_legacy_freeze_file   (SimonK addition, hub D-119)
+#   Prints the legacy freeze-dir.txt path when it exists in any form (file,
+#   directory or link: an unexpected type is the reader's fail-closed case).
+gstack_hook_legacy_freeze_file() {
+  _ghlff_dir="$(gstack_hook_legacy_state_dir)" || return 1
+  [ -e "$_ghlff_dir/freeze-dir.txt" ] || [ -L "$_ghlff_dir/freeze-dir.txt" ] || return 1
+  printf '%s' "$_ghlff_dir/freeze-dir.txt"
 }
 
 # gstack_hook_log_fire SKILL PATTERN
@@ -120,7 +144,7 @@ gstack_hook_state_root() {
 #   gstack-analytics) uses this two-step chain, and the usage log must stay one
 #   file. Best-effort: failures never affect the hook decision.
 gstack_hook_log_fire() {
-  _ghlf_dir="${GSTACK_HOME:-$HOME/.gstack}/analytics"
+  _ghlf_dir="${GSTACK_HOME:-$HOME/.simonk/state}/analytics"
   mkdir -p "$_ghlf_dir" 2>/dev/null || true
   # Fields are JSON-encoded (a repo basename can carry quotes/backslashes) —
   # same rule this file states for decisions: never raw-interpolate into JSON.

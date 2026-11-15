@@ -35,8 +35,10 @@
     "./skills/debug/",
     "./skills/deeplink-integrator/",
     "./skills/deploy-configurator/",
+    "./skills/deslop-shared-libs/",
     "./skills/dev-orchestrator/",
     "./skills/devex-review/",
+    "./skills/document-generate/",
     "./skills/document-release/",
     "./skills/explain/",
     "./skills/freeze/",
@@ -55,6 +57,7 @@
     "./skills/phase4-game-orchestrator/",
     "./skills/plan-devex-review/",
     "./skills/plan-eng-review/",
+    "./skills/pr-review/",
     "./skills/qa/",
     "./skills/qa-only/",
     "./skills/refactor/",
@@ -71,10 +74,11 @@
     "./skills/spec/",
     "./skills/stack-architect/",
     "./skills/store-privacy-disclosure/",
+    "./skills/test-audit/",
     "./skills/test-gen/",
     "./skills/vercel-react/",
     "./skills/vue-best-practices/",
     "./skills/zoom-out/"
   ],
-  "version": "1.872.0"
+  "version": "1.974.0"
 }

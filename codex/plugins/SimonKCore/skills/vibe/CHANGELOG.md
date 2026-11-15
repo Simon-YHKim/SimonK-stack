@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.24.0 - 2026-11-16
+
+- **벤더별 최신 모델 반영(허브 D-125, Simon 지시 "벤더별 최신 업데이트를 진행하고, 여론을 조사해서 적절한 모델을 선정")**. D-67 과 같은 ADD_ALONGSIDE_KEEP_LEGACY: 새 레인 키 `claude-fable-5-2`·`grok-4.7`·`gemini-4-hydrogen` 을 옛 키 옆에 넣고 목록만 옮겼다. 옛 키 `claude-fable-5-1`·`grok-4.6`·`gemini-3.8-flash` 는 원장 호환용이다.
+  - B·A-verify·코딩 2순위 = `claude-fable-5-2`(2026-11-09, $8/$40, 5.1 대비 최대 30% 빠름, Claude Code `fable` 별칭 = 5.2). C-realtime 1순위 = `grok-4.7`(grok CLI 기본 모델). C-platform 1순위 = `gemini-4-hydrogen`(2026-11-12 GA, 3.8 Flash 후속, `dispatch: unavailable` 그대로). C 클래스 산출물 제약은 1순위와 함께 옮겼다.
+  - 그대로: GPT 는 `gpt-6-astra` @xhigh 만(D-101), Opus·Sonnet·Haiku 5.5, 코디네이터, 두 보안 게이트, ai-debate Gemini 좌석(Argon).
+  - 근거: 공식 발표·문서(Anthropic·OpenAI·Google·xAI)와 여론(HN·X 검색 요약·Artificial Analysis): Fable 5.2 AA 지수 1위 65, Hydrogen 51~54(> Argon 50), Grok 4.7 코딩 에이전트 지수 +9, GPT-6.1 Terra 45(중간 등급).
+  - canary: `claude-fable-5-2` Orca 워커 1회(requested == effective, 세션 기록 모델 일치, 정답 2/2 — 세션 기록 entrypoint 가 `sdk-ts` 라 Agent SDK 로 떴다), `gemini-4-hydrogen` agy --print 1회. `grok-4.7` 은 Grok 사용량 100% 라 미실시.
+- **레지스트리 재확인 `2026-11-16.1`**(만료 2026-11-23 00:08:40 KST, task-fit `2026-11-16-shadow.1` 은 00:23:53 부터 7일). 새 등록: `claude-fable-5-2`·`gpt-6.1-terra`·`gemini-4-hydrogen`·`gemini-4-carbon`. 바뀐 제공사 사실은 `fable` 별칭 하나(5.1 → 5.2). 이전 세대 표시: `claude-fable-5-1`·`gemini-3.8-flash`. 대조 결과는 레지스트리 notes 와 `references/model-catalog-map.md` 의 Refresh record (2026-11-16).
+- 테스트: `test_model_registry.py` +2(D-125 자리 이전·11-16 유효기간), `test_orchestrate.py` +1(D-125 레인 등록 뒤 G5 에서 멈춤), 평가 문항에 후속 레인 26곳 추가, 평가기 벤더 표·selftest·생성 표(`legacy-routing.md`) 갱신.
+
 ## 2.23.1 - 2026-11-12
 
 - Recognize the default Windows x64 Codex standalone using bounded metadata and cached Authenticode signer trust. Discover before execution and retain Windows read-only sharing handles on the image, metadata and path components through the exact version call; rejected layout/signature or changes detected before invocation stay unknown without a version process.

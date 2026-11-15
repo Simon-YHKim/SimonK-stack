@@ -1,7 +1,7 @@
 ---
 name: office-docs
 description: >
-  Use when the user wants native Office files generated programmatically — triggers "워드 문서 만들어", "엑셀 만들어", "PPT 만들어", "PDF 만들어", "보고서 docx로", "표 엑셀로 뽑아", "create docx", "create xlsx", "build a pptx", "generate office document", "export to PDF", or /office-docs. Produces real .docx / .xlsx / .pptx / .pdf files via python-docx (1.2.0), openpyxl (3.1.5), python-pptx (1.0.0), and weasyprint (69.0) — picking the format from the request, installing the prerequisite libs, running minimal working code, and verifying the output file exists and opens. Different from /design-html and /slides (web HTML), and /make-pdf gstack (markdown→PDF only). This emits binary Office formats Word/Excel/PowerPoint can open directly.
+  Use when the user wants native Office files generated programmatically — triggers "워드 문서 만들어", "엑셀 만들어", "PPT 만들어", "PDF 만들어", "보고서 docx로", "표 엑셀로 뽑아", "create docx", "create xlsx", "build a pptx", "generate office document", "export to PDF", or /office-docs. Produces real .docx / .xlsx / .pptx / .pdf files via python-docx (1.2.0), openpyxl (3.1.5), python-pptx (1.0.0), and weasyprint (69.0) — picking the format from the request, installing the prerequisite libs, running minimal working code, and verifying the output file exists and opens. Different from /design-html and /slides (web HTML), and /make-pdf (markdown→PDF only). This emits binary Office formats Word/Excel/PowerPoint can open directly.
 version: 1.0.1
 allowed-tools:
   - Bash
