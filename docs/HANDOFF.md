@@ -1,6 +1,23 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-11-16 03:30 / /vibe 화면 작업: Grok Bot 다음 로컬 Playwright·Chrome·Computer Use (D-129, vibe 2.27.0)
+## Latest — 2026-11-16 07:55 / GPT-6.1 Sol 리서치·에이전트 1순위 + Codex CLI 레인 수리 (D-130, vibe 2.28.0)
+
+갱신 시각: 2026-11-16 07:55 KST · 갱신자: Claude Code(Opus 5.5). Simon: "codex 리셋됐으니 검토해." → 짝 실측 보고 → "너가 발견한것을 포한해서 진행하자. 머지까지 진행해줘." 허브 D-130(6b7a8a93).
+
+- **실측 근거**: 과제 8개 · xhigh · 읽기 전용 · 빈 폴더 · 블라인드 채점 — 점수 동일, 시간 Sol +6%(279.5 vs 262.8초), 출력 토큰 +28%. 공식 한도표(learn.chatgpt.com/docs/pricing, 07:0x 재확인) Plus·Standard Business 5시간 Astra 5-45 · Sol 15-160 메시지.
+- **결정(D-130)**: 순위표 rank.2 — RESEARCH·AGENTIC = `gpt-6.1-sol`@xhigh → fable → opus(Astra 는 같은 Codex 한도라 폴백에서 뺌). 나머지 행 · 코디네이터 · 두 보안 게이트 · CLASS_LANES 기본 채움 · `codex_exec_argv` 는 Astra 그대로.
+- **구현**: `routing.WITHDRAWN_LANE_SCOPES`(Sol = research-deep·terminal-ci-git 만 LANE_WITHDRAWN 면제) · `EFFORT_PINNED` Sol xhigh · `orchestrate.OWNER_LANE_TASKS`(CLI·Orca 후보를 작업 유형으로 한 번 더 좁힘 — research-deep 에 기획·글쓰기 단계도 있다) · 순위표 검증기는 그 두 행에서만 Sol 허용.
+- **곁 발견 → 수리**: 이 PC 의 `codex exec` 는 성공한 턴에도 `error` 타입 경고 항목(훅 timeout clamp · skills context budget 초과)을 낸다. `execute_codex_cli.parse_result` 가 그래서 실제 실행을 전부 `CODEX_TOOL_OR_EVENT_UNVERIFIED` 로 거부하고 있었다. argv 에 `--disable hooks --disable apps --disable plugins` 추가, 파서는 엄격 그대로. 새 argv 1회 canary: Sol·Astra 둘 다 parse OK.
+- **정정**: 보고 때 "2.7만 토큰은 스킬 때문"이라 했는데 실측하니 스킬 몫은 약 1천 토큰이다. 나머지는 Codex 자체 지시·도구·프로필 AGENTS.md(13.6KB)라 이번 변경 범위 밖.
+- **리뷰·배포**: PR #212 CI 전부 통과 · Codex 리뷰 a99c06a 지적 0 · 배포 승인 source a99c06a content f7b523c2… Codex 5db35482…(PR 빌드 run 43767512800 RELEASE.json, 미리보기 1.995.0).
+
+### 다음 작업 큐
+- 머지 뒤: main 게시 run 확인 → `update-local.ps1 -Apply` 설치 → 허브 D-130 AMEND.
+- 1주일 selection 기록으로 Sol 단계 품질 확인, 11-23 00:08 전 레지스트리 + 순위표 valid_until 재확인(그때 Sol 재판단).
+- Orca 경로의 Sol canary 는 다시 돌리지 않았다(10-12 D-98 기록뿐) — Orca 로 Sol 을 띄우기 전에 1회.
+- 그 밖에는 아래 03:30 블록 큐 그대로.
+
+## 2026-11-16 03:30 / /vibe 화면 작업: Grok Bot 다음 로컬 Playwright·Chrome·Computer Use (D-129, vibe 2.27.0)
 
 갱신 시각: 2026-11-16 03:30 KST · 갱신자: Claude Code(Opus 5.5). Simon: "혹시 computer use, chrome use, playwrite 자동설치 등에 대해 검토된거 있어?" → "grok bot 사용 여건이 안될경우 진행하려는 거야. grok bot은 vibe-bot 이거 아니야?"(맞다). 허브 D-129(9648d04d). PR #211.
 

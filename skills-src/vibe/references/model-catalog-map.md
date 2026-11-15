@@ -88,7 +88,7 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
 | 새 레인 | 전달 | Orca 1.4.218 이 받는 effort | 정책 std / top | registry 상태 |
 | --- | --- | --- | --- | --- |
 | `claude-opus-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | high / max | `pending-transport-and-certificate` |
-| `gpt-6.1-sol` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | high / xhigh | `held-withdrawn-by-owner` (D-101 철회, 새 배정은 `LANE_WITHDRAWN`) |
+| `gpt-6.1-sol` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | xhigh / xhigh (D-130 고정) | `held-withdrawn-by-owner` (D-101 철회 · D-130 부터 `research-deep`·`terminal-ci-git` 공정만 재개, 그 밖은 `LANE_WITHDRAWN`) |
 | `claude-sonnet-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | medium / high (xhigh·max 는 정책 밖) | `pending-transport-and-certificate` |
 | `gpt-6-luna` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | low / medium | `held-withdrawn-by-owner` (D-101 철회, 새 배정은 `LANE_WITHDRAWN`) |
 | `claude-haiku-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | low / medium (high·xhigh·max 는 정책 밖) | `pending-transport-and-certificate` |
@@ -195,6 +195,12 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
     `LANE_WITHDRAWN`(계획기에서는 `ORCA_LANE_WITHDRAWN`)으로 막는다. 예외 자리는 없다. **결함 때문이 아니다**:
     `gpt-6-luna` 는 D-91 canary 를, `gpt-6.1-sol` 은 D-67·D-98 canary 를 통과했고 다섯 모델의 제공사 lifecycle 은
     active 그대로다. 재개 조건: Simon 의 명시 지시나 별도 결정 기록, 그리고 같은 읽기 전용 canary 의 재통과.
+  - **D-130(2026-11-16, 2.28.0, Simon 지시)**: `gpt-6.1-sol` 만 공정 한정으로 재개했다 — `routing.WITHDRAWN_LANE_SCOPES`
+    (`research-deep`·`terminal-ci-git`) · effort xhigh 고정 · 중앙 계획기는 작업 유형 RESEARCH·AGENTIC 으로 한 번 더
+    좁힌다(`orchestrate.OWNER_LANE_TASKS`). registry 상태는 그 밖의 자리 때문에 `held-withdrawn-by-owner` 그대로다.
+    재개 근거: 11-16 `codex exec` 짝 실측 18회(읽기 전용 · xhigh · 세션 기록 `turn_context` 가 `gpt-6.1-sol`/xhigh) ·
+    점수 Astra 와 같음 · 공식 Codex 한도표 5시간 Astra 5-45 · Sol 15-160 메시지. Orca 경로 canary 는 다시 돌리지
+    않았다(D-98 의 10-12 통과 기록뿐).
   - `gpt-6-astra` 는 codex 벤더에서 일을 받는 유일한 레인이고 effort 는 xhigh 고정이다(사다리 std = top = xhigh,
     off-ladder 로도 다른 값 불가). 코디네이터도 `gpt-6-astra` @xhigh 다. astra 는 인가 게이트이자 B·A-verify
     1순위라 코딩 라운드와 대부분의 B 라운드에서 `coordinator_conflict()` 가 참이다(경고이며 디스패치를 막지 않는다).

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.28.0 - 2026-11-16
+
+- **GPT-6.1 Sol leads research and agentic steps again; everything else stays on GPT-6 Astra (hub D-130, Simon's instruction).** A paired run of 8 tasks at xhigh (read-only, blind grading) scored the two models the same, with Sol 6% slower, and the official Codex limits page lists 15-160 Sol messages per 5 hours against 5-45 for Astra (Plus and Standard Business).
+  - `references/task-fit-policy.json` (rank.2): `RESEARCH` and `AGENTIC` are `gpt-6.1-sol` @xhigh, then `claude-fable-5-2`, then `claude-opus-5-5`. Astra is dropped from those two rows because it draws on the same Codex allowance.
+  - `routing.py`: `gpt-6.1-sol` stays in `WITHDRAWN_LANES`. The new `WITHDRAWN_LANE_SCOPES` lets it pass `validate_plan` in `research-deep` and `terminal-ci-git` only, and `EFFORT_PINNED` fixes it at xhigh. Class defaults, the coordinator, both security gates and `codex_exec_argv` are unchanged.
+  - `orchestrate.py`: the new `OWNER_LANE_TASKS` limits the reopened lane to `RESEARCH` and `AGENTIC` steps on the Codex CLI and Orca transports (`MODEL_WITHDRAWN_BY_OWNER` elsewhere), because `research-deep` also carries planning and writing steps. The ranking validator accepts Sol only in those two rows.
+- **The direct Codex CLI lane works again on this PC.** `execute_codex_cli.py` now passes `--disable hooks --disable apps --disable plugins`. Profile hooks and plugin skills had added warning items (`error` type: a clamped SessionEnd hook timeout and "Exceeded skills context budget") to every stream, and `parse_result` rejected each send with `CODEX_TOOL_OR_EVENT_UNVERIFIED`. A one-send canary with the new argv parsed for both models (Sol and Astra, xhigh).
+  - Measured overhead: the fixed input of a `codex exec` turn is about 26-30k tokens with or without these flags. Skills account for about 1k of it, not the bulk. The rest is Codex's own instructions, tools and the profile's AGENTS.md, which this change does not touch.
+- Tests: the D-67 and D-101 lane tests now check the scoped processes, the xhigh pin, the task scope on both transports and the ranking rows.
+
 ## 2.27.0 - 2026-11-16
 
 - **Screen work falls back to local tools only when Grok Bot is blocked (hub D-129, Simon's instruction).** `COMPUTER_USE` joins the ranking table: Grok Bot (vibe-bot) 0, then Playwright headless, Claude in Chrome and Computer Use. D-93 still puts the Bot first.
