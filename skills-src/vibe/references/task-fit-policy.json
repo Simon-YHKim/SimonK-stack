@@ -10,6 +10,7 @@
     "GPT 쪽은 gpt-6-astra @xhigh 만이다(D-101). 철회 레인(routing.WITHDRAWN_LANES)은 검증기가 거부한다. 코딩 유형에 GPT 를 두지 않는다: 두 보안 게이트가 codex 라 코딩이 codex 로 가면 G1 이다(D-28).",
     "Gemini 는 LLM 실행 경로가 없어(D-105) 표에 모델로 넣지 않았다. 한국어 산문만 agy-prose 도구(Argon, D-126)로 간다. 도구가 막히면 fallback_task_types 가 가리키는 유형으로 다시 계획한다.",
     "D-128(2026-11-16, Simon 지시 \"코딩하는 놈한테는 simple is the best\"): CODE_CLEANUP(동작 보존 정리 · 스파게티 코드 · 파일 구조)은 코딩이라 D-106 코딩 순서를 그대로 따른다. 코딩 단계의 원칙 문구는 계획기 TASK_PRINCIPLES 가 정본이다.",
+    "D-129(2026-11-16, Simon 지시 \"grok bot 사용 여건이 안될경우 진행하려는 거야\"): COMPUTER_USE 는 Grok Bot(vibe-bot) 1순위(D-93 그대로). Bot 후보가 게이트에서 전부 막힐 때만 호스트의 로컬 도구를 Playwright headless → Claude in Chrome → Computer Use 순서로 본다. 로그인·결제 동작은 로컬로 하지 않는다.",
     "basis 는 결정 번호(D-n) 또는 sources 키다. 순위 근거: 결정 D-28·D-101·D-103·D-106·D-107·D-121·D-125·D-126, 새 배치(REASONING_ABSTRACT 의 fable 1위 · PLAN_ARCHITECTURE 의 fable 3위)는 2026-11-16 모델 강점 보고서(AA Intelligence Index v5.0.1 1위 · AA-Omniscience 1위)다.",
     "아래는 shadow-only 시절(2026-11-16-shadow.1 까지)의 기록이다. 순위는 위 D-127 표가 정본이다.",
     "Public task fit is a hypothesis, not proof of host behavior or subscription inclusion.",
@@ -116,6 +117,12 @@
     "VISION": [
       {"model": "claude-opus-5-5", "rank": 0, "basis": ["D-28", "arena_vision"]},
       {"model": "gpt-6-astra", "rank": 1, "basis": ["D-101", "D-28", "arena_vision"], "efforts": ["xhigh"]}
+    ],
+    "COMPUTER_USE": [
+      {"tool": "bot", "rank": 0, "basis": ["D-93", "D-129"]},
+      {"tool": "playwright", "rank": 1, "basis": ["D-129"]},
+      {"tool": "claude-in-chrome", "rank": 2, "basis": ["D-129"]},
+      {"tool": "computer-use", "rank": 3, "basis": ["D-129"]}
     ],
     "IMAGE_GENERATION": [
       {"tool": "codex-image", "rank": 0, "basis": ["D-121"]},

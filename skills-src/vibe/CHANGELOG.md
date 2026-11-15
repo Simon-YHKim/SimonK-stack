@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.27.0 - 2026-11-16
+
+- **Screen work falls back to local tools only when Grok Bot is blocked (hub D-129, Simon's instruction).** `COMPUTER_USE` joins the ranking table: Grok Bot (vibe-bot) 0, then Playwright headless, Claude in Chrome and Computer Use. D-93 still puts the Bot first.
+  - `orchestrate.py`: when every Bot candidate is rejected, `pick_local_gui` checks `runtime.gui_tools` in order and plans a `host-gui` handoff with the tool, target, `screen_actions`, `confirm_each` and rules.
+  - Login and payment stay Bot-only. Each submit, publish, delete or settings change needs Simon's yes in chat.
+  - Playwright must be headless, isolated and pointer-lock guarded, and cannot serve a signed-in screen. Chrome and Computer Use need Simon at an interactive session.
+  - New node fields: `screen_actions` and `signed_in`.
+  - New `scripts/collect_gui_tools.py`:
+    - Observes the Playwright MCP entry, its config and the Chromium folder; Chrome and Computer Use are attested by the host.
+    - `--install` adds a missing pointer-lock guard (backing up the config first) or Chromium through the Playwright CLI.
+    - It never registers or re-versions the MCP server.
+  - Measured on this PC (11-16): Playwright MCP was headless and isolated with Chromium 1234 but had no guard. `--install` added it and backed up the config. The MCP still runs the unpinned `@playwright/mcp@latest`, which is reported but not changed.
+- Tests: 2 new planner tests (Bot first, then fallback order, signed-in and interactive limits; credential and payment refusal, confirmations, gate reasons). The packaged table now covers all 18 types. New `test_collect_gui_tools.py` (5 tests) and a CI step for it.
+
 ## 2.26.0 - 2026-11-16
 
 - **Default routing follows the per-task ranking table, with situational judgment only when a task type is not in the table or usage blocks it (hub D-127, Simon's instruction).** `references/task-fit-policy.json` changes from a shadow-only hypothesis to an active schema 2 ranking table covering 17 of the 18 task types (all but GUI).

@@ -1146,6 +1146,96 @@ class OrchestrationTests(unittest.TestCase):
         s.update(changes)
         return s
 
+    def gui_tool(self, transport="playwright", **changes):
+        """Hub D-129: a host-local GUI tool as collect_gui_tools.py reports it."""
+        item = {"id": "host:" + transport, "transport": transport, "available": True, "observed_at": NOW,
+                "evidence": ["fixture local GUI observation"], "host_ref": "fixture-host",
+                "host_surface": "claude"}
+        if transport == "playwright":
+            item.update(headless=True, isolated=True, pointer_lock_guard=True)
+        else:
+            item["interactive"] = True
+        item.update(changes)
+        return item
+
+    def gui_ranking(self):
+        policy = self.task_fit_fixture(task_type="COMPUTER_USE")
+        policy["profiles"] = {"COMPUTER_USE": [
+            {"tool": tool, "rank": rank, "basis": ["D-129"]}
+            for rank, tool in enumerate(("bot", "playwright", "claude-in-chrome", "computer-use"))]}
+        return policy
+
+    def test_gui_uses_the_bot_first_and_local_tools_only_when_it_is_blocked(self):
+        # D-129 (Simon 2026-11-16): local tools are the fallback when Grok Bot cannot run.
+        tools = [self.gui_tool(), self.gui_tool("claude-in-chrome"), self.gui_tool("computer-use")]
+        ranking = self.gui_ranking()
+        p = self.plan([self.gui()], [self.bot()], gui_tools=tools, host_ref="fixture-host",
+                      task_fit_policy=ranking)
+        node = p["steps"][0]
+        self.assertEqual((node["route"]["transport"], node["selection"]["mode"], node["selection"]["rank"]),
+                         ("bot", "ranked", 0))
+        paused = self.bot(bot_status="paused")
+        p = self.plan([self.gui()], [paused], gui_tools=tools, host_ref="fixture-host", task_fit_policy=ranking)
+        node = p["steps"][0]
+        self.assertEqual(p["status"], "ready", node["errors"])
+        self.assertEqual((node["route"]["surface"], node["route"]["transport"]), ("host", "playwright"))
+        self.assertEqual(node["route"]["vendor"], "anthropic")
+        self.assertEqual((node["selection"]["mode"], node["selection"]["rank"]), ("ranked", 1))
+        self.assertEqual(node["selection"]["skipped"][0]["tool"], "bot")
+        self.assertIn("BOT_INACTIVE", node["selection"]["skipped"][0]["reasons"])
+        self.assertEqual(node["handoff"]["kind"], "host-gui")
+        self.assertEqual(node["handoff"]["screen_actions"], ["read"])
+        # A signed-in screen cannot use the isolated browser; Simon's Chrome is next.
+        p = self.plan([self.gui(signed_in=True)], [paused], gui_tools=tools, host_ref="fixture-host",
+                      task_fit_policy=ranking)
+        self.assertEqual(p["steps"][0]["route"]["transport"], "claude-in-chrome")
+        self.assertIn("GUI_NEEDS_SIGNED_IN_BROWSER", str(p["steps"][0]["rejected_candidates"]))
+        # Chrome and Computer Use need Simon at an interactive session; nothing else is left.
+        away = [self.gui_tool("claude-in-chrome", interactive=False),
+                self.gui_tool("computer-use", interactive=False)]
+        p = self.plan([self.gui(signed_in=True)], [paused], gui_tools=away, host_ref="fixture-host",
+                      task_fit_policy=ranking)
+        node = p["steps"][0]
+        self.assertEqual(p["status"], "blocked")
+        self.assertIn("NO_ELIGIBLE_ROUTE", node["errors"])
+        self.assertEqual(node["selection"]["mode"], "situational")
+        self.assertIn("GUI_REQUIRES_INTERACTIVE_HOST", str(node["rejected_candidates"]))
+        # Without a usable table the local order is the same; the host judges.
+        p = self.plan([self.gui()], [paused], gui_tools=tools, host_ref="fixture-host")
+        self.assertEqual(p["steps"][0]["route"]["transport"], "playwright")
+        self.assertEqual(p["steps"][0]["selection"]["mode"], "situational")
+
+    def test_local_gui_never_types_credentials_or_payment_and_confirms_irreversible_steps(self):
+        tools = [self.gui_tool(), self.gui_tool("claude-in-chrome")]
+        paused = self.bot(bot_status="paused")
+        for action in ("login", "payment"):
+            with self.subTest(action=action):
+                p = self.plan([self.gui(screen_actions=["read", action])], [paused], gui_tools=tools,
+                              host_ref="fixture-host", task_fit_policy=self.gui_ranking())
+                self.assertIn("NO_ELIGIBLE_ROUTE", p["steps"][0]["errors"])
+                self.assertIn("GUI_ACTION_NEEDS_BOT", str(p["steps"][0]["rejected_candidates"]))
+        p = self.plan([self.gui(screen_actions=["read", "submit", "delete"])], [paused], gui_tools=tools,
+                      host_ref="fixture-host", task_fit_policy=self.gui_ranking())
+        handoff = p["steps"][0]["handoff"]
+        self.assertEqual(handoff["confirm_each"], ["delete", "submit"])
+        self.assertTrue(any("Never type passwords" in rule for rule in handoff["rules"]))
+        self.assertTrue(any("pointer-lock guard" in rule for rule in handoff["rules"]))
+        cases = {"GUI_POINTER_LOCK_UNGUARDED": self.gui_tool(pointer_lock_guard=False),
+                 "GUI_PLAYWRIGHT_NOT_HEADLESS_ISOLATED": self.gui_tool(headless=False),
+                 "GUI_TOOL_HOST_MISMATCH": self.gui_tool(host_ref="other-host"),
+                 "GUI_TOOL_STALE": self.gui_tool(observed_at="2026-09-23T09:00:00+00:00"),
+                 "GUI_TOOL_HOST_UNSUPPORTED": self.gui_tool("claude-in-chrome", host_surface="codex")}
+        for reason, tool in cases.items():
+            with self.subTest(reason=reason):
+                p = self.plan([self.gui()], [paused], gui_tools=[tool], host_ref="fixture-host",
+                              task_fit_policy=self.gui_ranking())
+                self.assertIn(reason, str(p["steps"][0]["rejected_candidates"]))
+                self.assertIsNone(p["steps"][0]["route"])
+        for bad in ({"screen_actions": []}, {"screen_actions": ["read", "read"]},
+                    {"screen_actions": ["hack"]}, {"signed_in": "yes"}):
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                self.plan([self.gui(**bad)], [paused])
+
     def test_bot_has_no_invented_effort(self):
         p = self.plan([self.gui()], [self.bot()])
         self.assertEqual(p["status"], "ready")
@@ -3079,8 +3169,10 @@ class OrchestrationTests(unittest.TestCase):
     def test_packaged_ranking_uses_registered_models_and_covers_every_task_type(self):
         policy = self.m.load_task_fit_policy()
         models = {m["id"]: m for m in self.m.load_registry()["models"]}
-        gui = {name for name, contract in self.m.TASK_TYPE_MAP.items() if contract["kind"] == "gui"}
-        self.assertEqual(set(policy["profiles"]), set(self.m.TASK_TYPE_MAP) - gui)
+        # D-129 put COMPUTER_USE in the table too: every task type is ranked.
+        self.assertEqual(set(policy["profiles"]), set(self.m.TASK_TYPE_MAP))
+        self.assertEqual([e["tool"] for e in policy["profiles"]["COMPUTER_USE"]],
+                         ["bot", "playwright", "claude-in-chrome", "computer-use"])
         for profile, entries in policy["profiles"].items():
             kind = self.m.TASK_TYPE_MAP[profile]["kind"]
             self.assertEqual([e["rank"] for e in entries], sorted(e["rank"] for e in entries))
@@ -3180,7 +3272,6 @@ class OrchestrationTests(unittest.TestCase):
     def test_packaged_task_ranking_is_active_and_malformed_entries_fail_cleanly(self):
         policy = self.m.load_task_fit_policy()
         self.assertEqual((policy["schema_version"], policy["status"]), (2, "active"))
-        self.assertNotIn("COMPUTER_USE", policy["profiles"])
         entry_cases = {"efforts": [["high"]], "basis": [["manufacturer"]], "rank": True}
         for field, value in entry_cases.items():
             with self.subTest(field=field):
@@ -3198,8 +3289,10 @@ class OrchestrationTests(unittest.TestCase):
                 WRITING=[{"tool": "agy-prose", "rank": 0, "basis": ["D-126"]}]), "entry"),
             ("unknown tool", lambda p: p["profiles"].update(
                 IMAGE_GENERATION=[{"tool": "paid-api", "rank": 0, "basis": ["D-121"]}]), "tool"),
-            ("GUI type", lambda p: p["profiles"].update(
-                COMPUTER_USE=[{"model": "claude-opus-5-5", "rank": 0, "basis": ["D-28"]}]), "profile"),
+            ("model on the GUI type", lambda p: p["profiles"].update(
+                COMPUTER_USE=[{"model": "claude-opus-5-5", "rank": 0, "basis": ["D-28"]}]), "entry"),
+            ("unknown GUI tool", lambda p: p["profiles"].update(
+                COMPUTER_USE=[{"tool": "headed-browser", "rank": 0, "basis": ["D-129"]}]), "tool"),
             ("unknown type", lambda p: p["profiles"].update(NOPE=[]), "profiles"),
             ("fallback to a tool type", lambda p: p.update(
                 fallback_task_types={"PLAN_ARCHITECTURE": "KOREAN_DOC"}), "fallback"),
