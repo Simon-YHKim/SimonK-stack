@@ -1,8 +1,8 @@
 ---
 name: vibe
-description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan, sends image generation to Codex image_gen and Korean prose drafts to Gemini Argon within included usage, and reports blocked coding routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
+description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan from a per-task model ranking, sends image generation to Codex image_gen and Korean prose drafts to Gemini Argon within included usage, and reports blocked coding routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.25.0
+version: 2.26.0
 author: simon-stack
 ---
 
@@ -85,96 +85,96 @@ can use workers. GUI-only steps use the Bot adapter in section 4.
 
 ## 2. Plan model, effort and cost together
 
-Explicit current-session model preferences supersede historical preference tables
-for that session only. Do not persist temporary quota restrictions as global
-role assignments. Preferences do not establish transport, billing or effort
-support: if the packaged planner rejects a requested model, report that policy
-conflict separately and do not silently substitute or bypass its execution gates.
+Explicit current-session model preferences supersede historical preference tables for that session only. Do not
+persist temporary quota restrictions as global role assignments. Preferences do not establish transport, billing or
+effort support: if the packaged planner rejects a requested model, report that policy conflict separately and do not
+silently substitute or bypass its execution gates.
 
-Read [orchestration contract](references/orchestration.md) before constructing
-a run. The helper implements metadata discovery, route preflight, dependency
-readiness and Bot result checks; the host executes its handoffs.
+Read [orchestration contract](references/orchestration.md) before constructing a run. The helper implements metadata
+discovery, route preflight, dependency readiness and Bot result checks; the host executes its handoffs.
 
-For each node record its outcome, selected skills, dependencies, needed
-capabilities/software, scope, acceptance evidence, writes, demand level and
-verification relationship. Use unique node IDs even when two nodes share the
-same legacy process (for example coding).
+For each node record its outcome, selected skills, dependencies, needed capabilities/software, scope, acceptance
+evidence, writes, demand level and verification relationship. Use unique node IDs even when two nodes share the same
+legacy process (for example coding).
 
-Supply a runtime snapshot from observed local catalogs and transport probes.
-Model IDs, provider-supported efforts, transport-supported efforts, billing
-mode, quota, lifecycle and observation evidence are data, not guesses.
-Use `scripts/runtime_collect.py --surface <name>` for explicit, one-shot CLI
-metadata collection; repeat `--surface` for other providers. Read the runtime
-snapshot section of the orchestration contract for its safety boundaries.
-Metadata-only candidates stay unavailable until separate generation, billing,
-model-to-quota and task-policy evidence is verified. This collector does not
-dispatch tasks, change payment settings or prove zero-cost model access.
-Grok's no-auto-update model list is metadata only: listed models have no
-verified CLI effort, account binding or subscription inclusion.
-Do not turn a newly announced model into an active route without availability
-and transport evidence. Do not inherit an old model's effort mapping blindly.
+Supply a runtime snapshot from observed local catalogs and transport probes. Model IDs, provider-supported efforts,
+transport-supported efforts, billing mode, quota, lifecycle and observation evidence are data, not guesses. Use
+`scripts/runtime_collect.py --surface <name>` for explicit, one-shot CLI metadata collection; repeat `--surface` for
+other providers. Read the runtime snapshot section of the orchestration contract for its safety boundaries.
+Metadata-only candidates stay unavailable until separate generation, billing, model-to-quota and task-policy evidence
+is verified. This collector does not dispatch tasks, change payment settings or prove zero-cost model access. Grok's
+no-auto-update model list is metadata only: listed models have no verified CLI effort, account binding or subscription
+inclusion. Do not turn a newly announced model into an active route without availability and transport evidence. Do
+not inherit an old model's effort mapping blindly.
 
-Routine, reasoning and critical demand map to provider-specific effort values.
-Both the model and the transport must support that value. The current host
-cannot silently switch itself to the requested model or effort: reuse it only
-when its actual settings match, otherwise use a verified worker.
-Record requested effort separately from effective effort; unknown stays null.
-Bot model/effort remains provider-managed unless a real control is verified.
+Routine, reasoning and critical demand map to provider-specific effort values. Both the model and the transport must
+support that value. The current host cannot silently switch itself to the requested model or effort: reuse it only
+when its actual settings match, otherwise use a verified worker. Record requested effort separately from effective
+effort; unknown stays null. Bot model/effort remains provider-managed unless a real control is verified.
 
-Classify by deliverable before choosing a model. The planner accepts
-`PLAN_ARCHITECTURE`, `CODE_COMPLEX`, `CODE_SIMPLE` and `WRITING` as distinct
-model-fit profiles in addition to its older category IDs. `IMAGE_GENERATION`
-is a separate image-tool profile. Typed profiles set minimum
-capabilities and routine/reasoning demand; a high-stakes node may explicitly
-raise demand to critical. `proc` is a legacy Orca guard label, not a claim that
-planning or writing performed web research. A named, discovered Core
-`model-router` may supply a dated shortlist, but `/vibe` still owns eligibility,
-the single budget and execution. If it is absent, use the same criteria without
-inventing a skill binding.
-For coding, effort and quality are separate: `CODE_SIMPLE` starts at routine
-effort but requires observed quality tier 2 or higher; `CODE_COMPLEX` starts at
-reasoning effort and requires tier 3. A caller may strengthen but not lower
-these quality floors. This prevents quota optimization from silently choosing
-an underqualified model. Quality tiers are runtime evidence, not inferred from
-a model name or benchmark headline.
+Classify every node by deliverable: set `task_type` from the table below, and `scale: large` for a substantial
+independent piece (default `small`). Typed profiles set minimum capabilities and routine/reasoning demand; a
+high-stakes node may explicitly raise demand to critical. `proc` is a legacy Orca guard label, not a claim that
+planning or writing performed web research. A named, discovered Core `model-router` may supply a dated shortlist, but
+`/vibe` still owns eligibility, the single budget and execution. For coding, effort and quality are separate:
+`CODE_SIMPLE` starts at routine effort but requires observed quality tier 2 or higher; `CODE_COMPLEX` starts at
+reasoning effort and requires tier 3. A caller may strengthen but not lower these quality floors. Quality tiers are
+runtime evidence, not inferred from a model name or benchmark headline.
 
-| Deliverable | Advisory starting points, never active routes | Initial reasoning |
+### Default task ranking (D-127)
+
+Follow this table by default and do not re-judge a ranked route. After every gate (D-74 usage under 85 percent,
+billing, quality floor, owner pins, review vendor) the planner takes the highest rank among the cheapest remaining
+routes and records `selection`: `mode: ranked`, the rank, and each skipped higher rank with its reasons. Within one
+rank `scale: small` prefers the current session and `scale: large` a worker (Orca, then CLI). Rank beats quota
+pressure below the ceiling. GPT is `gpt-6-astra` at xhigh only (D-101); coding stays on Claude because both security
+gates are Codex (D-28).
+
+<!-- TASK-RANKING:BEGIN generated from references/task-fit-policy.json sha256 3252ff23adc7 by scripts/sync_task_ranking.py; edit the JSON, not this table -->
+| Task type | Default order (first = rank 1) | Every ranked route blocked |
 | --- | --- | --- |
-| Architecture / ambiguous plan | Claude Opus 5.5 or GPT-6 Astra at xhigh (D-101: the only GPT option, always xhigh) | reasoning; critical only for consequential, falsifiable decisions |
-| Difficult, multi-file coding | Claude Opus 5.5 or GPT-6 Astra at xhigh | reasoning; escalate after bounded failure or demonstrated risk |
-| Focused bug fix | Claude Haiku 5.5, then Sonnet 5.5, then Opus 5.5 (no GPT option) | routine, then raise only if tests or ambiguity require it |
-| Polished writing | Claude Opus 5.5 (no GPT option); Korean notices/polish/short copy: Gemini 4 Argon draft via `scripts/execute_agy_prose.py` + Claude fact check (`KOREAN_PROSE`, D-126) | reasoning, not automatic max |
-| Bulk transform | Deterministic software first; then an eligible light model such as Claude Haiku 5.5 | routine |
-| Image creation/editing | Codex built-in `image_gen` through `scripts/execute_codex_image.py` (D-121), driven by GPT-6 Astra at xhigh | tool-managed; text models only plan or critique |
-| Recent X discourse | Verified Grok CLI or current-host browsing, corroborated with primary sources | reasoning if controllable |
+| `PLAN_ARCHITECTURE` | `claude-opus-5-5` → `gpt-6-astra` @xhigh → `claude-fable-5-2` | situational |
+| `CODE_COMPLEX` | `claude-opus-5-5` → `claude-fable-5-2` → `claude-sonnet-5-5` | situational |
+| `CODE_SIMPLE` | `claude-sonnet-5-5` → `claude-opus-5-5` | situational |
+| `WRITING` | `claude-opus-5-5` → `claude-sonnet-5-5` | situational |
+| `CODE_NEW` | `claude-opus-5-5` → `claude-fable-5-2` → `claude-sonnet-5-5` | situational |
+| `CODE_FIX` | `claude-opus-5-5` → `claude-fable-5-2` → `claude-sonnet-5-5` | situational |
+| `CODE_CLEANUP` | `claude-opus-5-5` → `claude-fable-5-2` → `claude-sonnet-5-5` | situational |
+| `CODE_REVIEW` | `gpt-6-astra` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
+| `RESEARCH` | `gpt-6-astra` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
+| `AGENTIC` | `gpt-6-astra` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
+| `COMPUTER_USE` | vibe-bot (Grok Bot) only | fixed route |
+| `DESIGN_UI` | `claude-opus-5-5` → `gpt-6-astra` @xhigh | situational |
+| `KOREAN_DOC` | `claude-opus-5-5` → `claude-sonnet-5-5` | situational |
+| `BULK_LIGHT` | `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5` | situational |
+| `REASONING_ABSTRACT` | `claude-fable-5-2` → `claude-opus-5-5` → `gpt-6-astra` @xhigh | situational |
+| `VISION` | `claude-opus-5-5` → `gpt-6-astra` @xhigh | situational |
+| `IMAGE_GENERATION` | Codex `image_gen` → host image adapter | situational |
+| `KOREAN_PROSE` | Gemini 4 Argon via `agy-prose` | replan as `KOREAN_DOC` |
+Valid 2026-11-16T01:50:00+09:00 to 2026-11-23T00:08:40+09:00 (`2026-11-16-rank.1`); outside that window every type is situational.
+<!-- TASK-RANKING:END -->
 
-The [model-release watch](references/model-release-watch.md) records the dated
-sources and shadow-effort limits behind this shortlist. Claude and Codex use
-the same task/acceptance standard but may have different eligible routes.
-`IMAGE_GENERATION` compiles to `kind=image`, never text-model `VISION`.
-D-121 (Simon, 2026-10-24): it runs on Codex's built-in `image_gen` under the
-D-74 usage gate only (ChatGPT login, verified account, fresh `codex` usage under
-85 percent, no reached limit). Run `python scripts/execute_codex_image.py
---prompt-file <brief> --out <absolute .png>` (`--transparent` for alpha): one
-`codex exec`, PNG from the rollout, a receipt beside it, no retry. Exit 3 is a
-usage refusal; never switch to a paid image API; the D-32 `host-image` adapter stays optional.
-`KOREAN_PROSE` (D-126) is `kind=prose`: one Argon `agy --print` under the same gate, then a required review step fact-checks it. See [orchestration](references/orchestration.md).
+Judge the situation only when `selection.mode` is `situational`: the type is not ranked, the table is outside its
+window, or every ranked route is blocked (usually by usage). The planner then falls back to the generic score (money,
+quota pressure, `resource_rank`). Take that route, wait for the ranked route's reset, split the work, replan under the
+blocked column's type, or ask Simon when quality would drop; write the one-line reason into the run-state. Gates never
+relax in this mode. Recent X discourse has no task type: use a verified Grok CLI or current-host browsing,
+corroborated with primary sources.
 
-The source-dated [task-fit hypothesis](references/task-fit-policy.json) is
-deliberately **shadow-only**. For `PLAN_ARCHITECTURE`, `CODE_COMPLEX`,
-`CODE_SIMPLE` and `WRITING`, the planner checks its exact model/effort entry
-only after all route-eligibility guards, preserves monetary and >80% quota
-priority, then emits `shadow_task_fit` with the policy digest, source URLs,
-active candidate and advisory alternative. It does **not** change `route` or
-authorize a worker. Expired, unmatched or unranked-winning evidence produces
-no advisory alternative. `IMAGE_GENERATION` uses an image tool (Codex
-`image_gen`, D-121) and must not be routed through text `VISION`.
-Public manufacturer/Artificial Analysis claims are hypotheses across different
-harnesses; direct X posts were inaccessible, so X contributes no rank. Promote
-each task profile only after the same skill bundle, task, tools and rubric are
-compared on Claude and Codex with exact model/effort and $0-extra-cost proof.
-Until then `selection_quality_verified=false` and installation readiness stay
-unproven even when the shadow alternative differs.
+Coding nodes carry `principles` (D-128: simple is the best, adapted from the Karpathy guidelines): obey them and pass them
+unchanged to workers. Tangled code or file layout is its own reviewed `CODE_CLEANUP` node that preserves behavior on the
+run's changed files (Anthropic code-simplifier pattern); add one after each `scale: large` coding node. Any rename, move
+or deletion it reports stops automatic merging. See [coding principles](references/orchestration.md#coding-principles-and-cleanup-d-128).
+
+The [model-release watch](references/model-release-watch.md) records the dated sources behind the table. Claude and
+Codex use the same table and acceptance standard but may have different eligible routes. `IMAGE_GENERATION` compiles
+to `kind=image`, never text-model `VISION`. D-121 (Simon, 2026-10-24): it runs on Codex's built-in `image_gen` under
+the D-74 usage gate only (ChatGPT login, verified account, fresh `codex` usage under 85 percent, no reached limit).
+Run `python scripts/execute_codex_image.py --prompt-file <brief> --out <absolute .png>` (`--transparent` for alpha):
+one `codex exec`, PNG from the rollout, a receipt beside it, no retry. Exit 3 is a usage refusal; never switch to a
+paid image API; the D-32 `host-image` adapter stays optional. `KOREAN_PROSE` (D-126) is `kind=prose`: one Argon `agy
+--print` under the same gate, then a required review step fact-checks it. See
+[orchestration](references/orchestration.md).
 
 At invocation, use the [model-release watch](references/model-release-watch.md)
 to refresh official-release evidence without model calls. A Friday local check

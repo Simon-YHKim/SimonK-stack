@@ -70,7 +70,7 @@ class ModelRouterIntegrationTests(unittest.TestCase):
         self.assertEqual(len(blocks), 1)
         mapping = json.loads(blocks[0])
         self.assertEqual(mapping, orchestrate.TASK_TYPE_MAP)
-        self.assertEqual(len(mapping), 17)
+        self.assertEqual(len(mapping), 18)
         for task_type, fields in mapping.items():
             with self.subTest(task_type=task_type):
                 node = self.node(task_type)
@@ -87,8 +87,10 @@ class ModelRouterIntegrationTests(unittest.TestCase):
                                            "api_fallback_disabled": True,
                                            "paid_credit_fallback_disabled": True,
                                            "account_ref": "fixture-bot"})
+                if task_type == "CODE_CLEANUP":
+                    node["writes"] = True  # D-128: cleanup always edits files.
                 nodes, candidates = [node], [c]
-                if task_type in ("WRITING", "KOREAN_PROSE"):
+                if task_type in ("WRITING", "KOREAN_PROSE", "CODE_CLEANUP"):
                     nodes.append(self.node("CODE_REVIEW", id="review", verify_of="task",
                                            depends_on=["task"]))
                     candidates.append(candidate("reviewer", surface="claude", quality_tier=3,
