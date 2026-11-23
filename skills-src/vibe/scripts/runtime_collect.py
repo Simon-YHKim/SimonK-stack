@@ -33,6 +33,7 @@ if __name__ == "__main__":
 SCRIPT_ROOT = Path(__file__).resolve().parent
 if str(SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPT_ROOT))
+import agy_lanes
 from model_registry import load_registry
 
 SURFACES = ("codex", "claude", "antigravity", "grok")
@@ -45,7 +46,7 @@ RPC_METHODS = {"initialize", "model/list", "account/read", "account/rateLimits/r
                "_x.ai/billing", "x.ai/billing"}
 TOKEN_FIELDS = {"input_tokens", "output_tokens", "thinking_tokens", "cache_read_tokens", "total_tokens"}
 AGY_USAGE_VERSIONS = {"1.2.6", "1.2.7", "1.2.9", "1.2.12", "1.2.13", "1.2.14",
-                      "1.5.9"}  # Zero-turn command contract measured locally (1.5.9: 2026-11-16, hub D-126).
+                      "1.5.9", "1.5.15"}  # Zero-turn command contract measured locally (1.5.9: 2026-11-16, hub D-126).
 BASE_ENV = {"SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "COMSPEC", "PATH", "PATHEXT", "TEMP", "TMP", "TMPDIR",
             "HOME", "USERPROFILE", "HOMEDRIVE", "HOMEPATH", "APPDATA", "LOCALAPPDATA", "PROGRAMDATA",
             "PROGRAMFILES", "PROGRAMFILES(X86)", "PROGRAMW6432", "COMMONPROGRAMFILES", "COMMONPROGRAMFILES(X86)",
@@ -257,6 +258,7 @@ def normalize(surface, raw, now, profile):
         groups = obj(command.get("data")).get("groups")
         if not isinstance(groups, list):
             raise CollectorError("quota-shape-unknown")
+        result["agy_model_slugs"] = sorted(set(raw.get("_agy_models", ())) & agy_lanes.MODELS)
         result["collection"]["zero_token_verified"] = True
         result["auth"] = {"logged_in": True, "plan": None}
         for group in groups:
@@ -590,6 +592,9 @@ class LocalBackend:
                 if rc != 0:
                     raise CollectorError("cli-failed")
                 raw = strict_json(text)
+                catalog, rc = run_text([*command, "models"], cwd, env)
+                if rc == 0:
+                    raw["_agy_models"] = [line.split()[0] for line in catalog.splitlines() if line.strip()]
         return raw, profile
 
 
@@ -639,35 +644,30 @@ def codex_image_tool(observation):
 # account's tier quota but no account ID, plan or credit fields, so the profile stands in
 # for the account and child_env passes no API key.
 AGY_PROSE_TRANSPORT = "agy-prose"
-AGY_PROSE_MODEL = "gemini-4-argon-high"
+AGY_PROSE_MODEL = agy_lanes.PROSE_MODELS[0]
 
 
-def agy_prose_tool(observation):
-    """Gemini 4 Argon prose drafting as a planner tool, or None.
-
-    Pro plans report a separate Argon bucket (ids containing "argon"). Ultra plans fold
-    Argon into the larger Gemini bucket, so without an Argon bucket the gemini-* windows
-    count. Every counted window must be measured; one unknown window leaves usage None.
-    """
+def agy_prose_tool(observation, slug=AGY_PROSE_MODEL):
+    """Bind the exact catalog slug and every applicable included-usage window."""
     if (not isinstance(observation, dict) or observation.get("surface") != "antigravity"
-            or observation.get("state") != "ok"
+            or observation.get("state") != "ok" or slug not in agy_lanes.MODELS
+            or slug not in observation.get("agy_model_slugs", ())
             or obj(observation.get("collection")).get("zero_token_verified") is not True
             or not observation.get("profile_ref")):
         return None
     windows = observation.get("quota_windows", [])
-    counted = [w for w in windows if "argon" in str(w.get("bucket") or "")]
-    if not counted:
-        counted = [w for w in windows if str(w.get("bucket") or "").startswith("gemini-")]
+    counted = [w for w in windows if agy_lanes.applicable_bucket(w.get("bucket"), slug)]
     if not counted:
         return None
     known = all(w.get("state") == "observed" and type(w.get("used_pct")) in (int, float)
                 for w in counted)
+    known = known and not any(agy_lanes.unknown_bucket(w.get("bucket")) for w in windows)
     used = max(w["used_pct"] for w in counted) if known else None
     now, account = observation["observed_at"], observation["profile_ref"]
     evidence = [observation["source"] + ":/usage num_turns=0 tokens=0",
                 "subscription tier quota (weekly/5h); child_env passes no API key (D-74, D-126)"]
-    return {"id": "antigravity:argon-prose", "surface": "antigravity", "transport": AGY_PROSE_TRANSPORT,
-            "tool_ref": AGY_PROSE_MODEL, "model": "gemini-4-argon", "available": True,
+    return {"id": "agy:" + slug, "surface": "antigravity", "transport": AGY_PROSE_TRANSPORT,
+            "tool_ref": slug, "model": slug.rsplit("-", 1)[0], "available": True,
             "observed_at": now, "evidence": evidence,
             "billing": {"mode": "subscription", "verified": True, "auth_method": "google-account",
                         "account_ref": account, "api_fallback_disabled": True,
@@ -694,7 +694,23 @@ def snapshot(observations, now, registry=None):
                 "quota": {"used_pct": None, "observed_at": observation["observed_at"], "bucket": None},
                 "pending_evidence": ["generation-probe", "model-billing", "model-quota-binding", "task-policy"]})
     image_tools = [tool for tool in map(codex_image_tool, observations) if tool]
-    prose_tools = [tool for tool in map(agy_prose_tool, observations) if tool]
+    prose_tools = []
+    for observation in observations:
+        for slug in sorted(agy_lanes.MODELS):
+            tool = agy_prose_tool(observation, slug)
+            if not tool:
+                continue
+            if slug in agy_lanes.PROSE_MODELS:
+                prose_tools.append(tool)
+            if slug in agy_lanes.ADVISORY_MODELS:
+                effort = slug.rsplit("-", 1)[1]
+                candidates.append(dict(tool, transport="agy-brief", lifecycle="active",
+                    capabilities=["code", "reasoning", "writing"], quality_tier=2 if effort == "low" else 3,
+                    resource_rank=1, provider_efforts=[effort], transport_efforts=[effort],
+                    effort_by_demand=dict.fromkeys(("routine", "reasoning", "critical"), effort),
+                    quota=dict(tool["quota"], state="observed", transport="agy-brief",
+                               evidence="; ".join(tool["quota"]["evidence"])),
+                    billing=dict(tool["billing"], model_included=True, included_model=tool["model"])))
     return {"schema_version": 1, "observed_at": now, "candidates": candidates,
             "tools": [], "image_tools": image_tools, "prose_tools": prose_tools,
             "observations": observations, "metadata_only": True}

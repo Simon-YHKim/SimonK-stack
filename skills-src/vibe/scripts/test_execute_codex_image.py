@@ -62,7 +62,7 @@ class ParsingTests(unittest.TestCase):
         self.assertEqual(argv[:2], ["codex", "exec"])
         self.assertIn("--json", argv)
         self.assertEqual(argv[argv.index("--sandbox") + 1], "workspace-write")
-        self.assertEqual(argv[argv.index("-m") + 1], "gpt-6-astra")
+        self.assertEqual(argv[argv.index("-m") + 1], "gpt-6.2-astra")
         self.assertIn('model_reasoning_effort="xhigh"', argv)
         self.assertNotIn("--ephemeral", argv)  # The rollout carries the image bytes.
         self.assertEqual(argv[-1], "-")

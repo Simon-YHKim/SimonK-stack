@@ -374,6 +374,31 @@ LANES = {
         "ctx": "canary 통과 · 인증서 전 · Orca 미등록 id → low~max · high 이상 정책 밖 · 10만 토큰 초과 입력 미측정",
         "orca_efforts": ("low", "medium", "high", "xhigh", "max"),
     },
+    "gpt-6.2-astra": {
+        "cli": "codex", "vendor": "codex", "effort_style": "flag",
+        "dispatch": "orca", "std": "xhigh", "top": "xhigh",
+        "ctx": "D-131 · 계획·최종 리뷰 · Orca 실행 인증 대기", "orca_efforts": ("low", "medium", "high", "xhigh"),
+    },
+    "gpt-6.2-sol": {
+        "cli": "codex", "vendor": "codex", "effort_style": "flag",
+        "dispatch": "orca", "std": "medium", "top": "xhigh",
+        "ctx": "D-131 · 구현·1차 리뷰 · Orca 실행 인증 대기", "orca_efforts": ("low", "medium", "high", "xhigh"),
+    },
+    "gpt-6.1-terra": {
+        "cli": "codex", "vendor": "codex", "effort_style": "flag",
+        "dispatch": "unavailable", "std": "medium", "top": "xhigh",
+        "ctx": "원장 호환용(우선순위 밖)", "orca_efforts": ("low", "medium", "high", "xhigh"),
+    },
+    "gemini-4-neon": {
+        "cli": "antigravity", "cli_binary": "agy", "vendor": "gemini", "effort_style": "slug-suffix",
+        "dispatch": "unavailable", "std": "medium", "top": "xhigh",
+        "ctx": "D-131 · agy 초안·설계 보조", "orca_efforts": ("low", "medium", "high", "xhigh"),
+    },
+    "gemini-4-argon": {
+        "cli": "antigravity", "cli_binary": "agy", "vendor": "gemini", "effort_style": "slug-suffix",
+        "dispatch": "unavailable", "std": "high", "top": "high",
+        "ctx": "D-131 · agy 추론 2차 의견", "orca_efforts": ("low", "medium", "high"),
+    },
     "gpt-6-astra": {
         # 2026-09-06 신설. models_cache priority 1 · "Our most capable model for
         # complex, demanding work." · GPT-6 세대 · ctx 272K(최대 872K).
@@ -386,7 +411,7 @@ LANES = {
         #   **항상 xhigh** 다. 사다리 std = top = xhigh(옛 값 std high), EFFORT_PINNED 로 고정해 allow_off_ladder 와
         #   codex 직행 argv 로도 다른 값이 열리지 않는다. 위의 'ultra·max 는 codex CLI 직행' 은 2026-09 기록이다.
         "cli": "codex", "vendor": "codex", "effort_style": "flag", "dispatch": "orca",
-        "top": "xhigh", "std": "xhigh", "ctx": "272K(최대 872K) · Orca 상한 xhigh · D-101 항상 xhigh · 유일한 GPT 레인",
+        "top": "xhigh", "std": "xhigh", "ctx": "원장 호환용(우선순위 밖)",
         "orca_efforts": ("minimal", "low", "medium", "high", "xhigh"),
     },
     "gpt-6.1-sol": {
@@ -561,17 +586,17 @@ DEPRECATED_LANE_PINS = {"gpt-daybreak-blue-latest": "security-artifact-gate"}
 #   불변식(테스트가 잡는다): codex 벤더 LANES 키 = {gpt-6-astra} ∪ DEPRECATED_LANES ∪ WITHDRAWN_LANES.
 #   새 codex 레인을 LANES 에 넣으면서 여기에도 우선순위 목록에도 넣지 않으면 그 테스트가 실패한다.
 #   되살리려면 여기서 조용히 빼지 않는다 — Simon 의 지시나 별도 결정 기록이 먼저다.
-WITHDRAWN_LANES = {"gpt-6.1-sol", "gpt-6-luna", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"}
+WITHDRAWN_LANES = {"gpt-6-astra", "gpt-6.1-terra", "gpt-6.1-sol", "gpt-6-luna", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"}
 
 # 철회된 레인이 그래도 서는 공정 (D-130 · 2026-11-16 · Simon 지시). {레인: (공정, ...)}.
 #   DEPRECATED_LANE_PINS 와 같은 구조다: validate_plan 은 공정이 여기 있을 때만 LANE_WITHDRAWN 을 내지 않는다.
 #   코디네이터 · 고정 공정 · 기본 채움 · codex 직행 argv 는 이 표를 보지 않는다.
-WITHDRAWN_LANE_SCOPES = {"gpt-6.1-sol": ("research-deep", "terminal-ci-git")}
+WITHDRAWN_LANE_SCOPES = {}
 
 # effort 가 한 값으로 고정된 레인 (D-101 · D-130). 정책 사다리(std/top)만으로는 allow_off_ladder 가 다른 값을 열 수 있어
 #   따로 고정한다 — validate_effort 와 codex_exec_argv 가 이 값 밖을 전부 거부한다(off-ladder 포함).
 #   원장은 영향받지 않는다: ledger_efforts 는 과거 행(astra@high·@medium)을 계속 읽는다.
-EFFORT_PINNED = {"gpt-6-astra": "xhigh", "gpt-6.1-sol": "xhigh"}
+EFFORT_PINNED = {"gpt-6.2-astra": "xhigh", "gpt-6-astra": "xhigh", "gpt-6.1-sol": "xhigh"}
 
 # 고정 공정의 폴백 (D-102 · 2026-10-12 · Simon 판정). {공정: (레인, effort)}.
 #   고정 배정(PROCESSES)은 바뀌지 않는다. 폴백은 호출자가 validate_plan(fixed_unavailable={공정: [사유]})으로
@@ -579,7 +604,7 @@ EFFORT_PINNED = {"gpt-6-astra": "xhigh", "gpt-6.1-sol": "xhigh"}
 #   생성물 게이트가 폴백에 서면 두 보안 게이트가 같은 모델(gpt-6-astra)이 된다. G1_SEC_SAME_MODEL 은 그 상태 하나에서만
 #   면제한다(_sec_same_model_waived). G1(코딩 벤더 ≠ 게이트 벤더)은 면제하지 않는다 — 폴백 레인도 codex 다.
 #   '설 수 없음'은 가용성 문제다(계획기 거부 · 카탈로그에서 사라짐). 게이트가 돌아서 낸 판정은 폴백 사유가 아니다.
-FIXED_FALLBACKS = {"security-artifact-gate": ("gpt-6-astra", "xhigh")}
+FIXED_FALLBACKS = {"security-artifact-gate": ("gpt-6.2-astra", "xhigh")}
 
 # ⚠ Orca 는 --model 문자열을 검증하지 않는다 (2026-09-06 실측).
 #   존재하지 않는 gpt-9-nonexistent 도 --effort high 면 effort 검증을 통과한다
@@ -640,11 +665,11 @@ CLASS_LANES = {
     #   코디네이터도 astra 가 되어 위 09-06 주석의 '구조적으로 겹칠 수 없다' 는 더는 참이 아니다(겸임 경고).
     #   codex 가 80% 를 넘으면 2순위 claude-fable-5-1 로 강등된다 — effort 를 낮추거나 다른 GPT 레인으로 가지 않는다.
     # D-125 (2026-11-16): 2순위 claude-fable-5-1 → claude-fable-5-2 (같은 자리 · 세대 교체). 옛 키는 원장 호환용이다.
-    "B":          ["gpt-6-astra", "claude-fable-5-2", "claude-opus-5-5"],
+    "B":          ["gpt-6.2-astra", "claude-fable-5-2", "claude-opus-5-5"],
     # D-28 #4 (Q-260913-08 승인 2026-09-16) — 대조·판정. 심판안 순서 그대로: astra → fable → opus.
     #   읽기 전용 클래스라 G1 과 무관하다(코딩이 아니다). 파일을 바꾸면 validate_plan 이 A_VERIFY_WRITES 로 막는다.
     #   D-125 (2026-11-16): fable 자리는 claude-fable-5-2 다.
-    "A-verify":   ["gpt-6-astra", "claude-fable-5-2", "claude-opus-5-5"],
+    "A-verify":   ["gpt-6.2-astra", "claude-fable-5-2", "claude-opus-5-5"],
     # D-28 #6: grok 은 새 계정 실호출 통과 전 blocked(make_intake 가 건너뛴다) → sol → opus.
     #   2026-09-20 08:33 실호출 OK(41.5초) — M3 해소. 상태는 여전히 make_intake 가 실호출로 판정한다
     #   (여기에 고정하지 않는다: G12 창이 24시간이라 하루 지나면 다시 미확인이다).
@@ -652,11 +677,11 @@ CLASS_LANES = {
     #   GPT 가 필요하면 끝의 gpt-6-astra(@xhigh 고정)다. astra 는 코디네이터이기도 해서 이 폴백이 쓰이면
     #   coordinator_conflict() 가 경고한다.
     # D-125 (2026-11-16 · Simon 지시 "벤더별 최신 업데이트"): 1순위 grok-4.6 → grok-4.7 (CLI 기본 모델 · 세대 교체).
-    "C-realtime": ["grok-4.7", "claude-opus-5-5", "gpt-6-astra"],
+    "C-realtime": ["grok-4.7", "claude-opus-5-5", "gpt-6.2-astra"],
     # D-28 #7: gemini 는 dispatch "unavailable" 이라 기본 채움이 건너뛴다(#12) — D-101 부터 오늘 기본은 opus 다
     #   (그 전에는 sol). opus·astra 가 BigQuery·Firebase 작업을 대신할 수 있는지는 미확인.
     # D-125 (2026-11-16): 1순위 gemini-3.8-flash → gemini-4-hydrogen (3.8 Flash 후속 · dispatch unavailable 그대로).
-    "C-platform": ["gemini-4-hydrogen", "claude-opus-5-5", "gpt-6-astra"],
+    "C-platform": ["gemini-4-hydrogen", "claude-opus-5-5", "gpt-6.2-astra"],
     "D":          ["claude-opus-5-5"],            # 고정
     "N":          [],                             # 모델 미사용 — orca CLI
 }
@@ -779,7 +804,7 @@ PROCESSES = [
     #   그때는 아래 인가 게이트와 같은 모델이 되므로 G1_SEC_SAME_MODEL 을 그 상태 하나에서만 면제한다.
     ("security-artifact-gate","B", "보안 — 생성물 안전성 게이트",
      ("gpt-daybreak-blue-latest", "xhigh")),
-    ("security-bizlogic-2nd", "B", "보안 — 비즈니스 로직 · 인가",          ("gpt-6-astra", "xhigh")),
+    ("security-bizlogic-2nd", "B", "보안 — 비즈니스 로직 · 인가",          ("gpt-6.2-astra", "xhigh")),
     ("trend-realtime",        "C-realtime", "트렌드 · 실시간",             None),
     ("research-collect",      "C-realtime", "웹 리서치 — 수집",            None),
     ("google-platform",       "C-platform", "Google 플랫폼 (BigQuery/Firebase/Workspace)", None),
@@ -820,7 +845,7 @@ PROC_BY_ID = {p[0]: p for p in PROCESSES}
 #       디스패치를 막지 않는다. 위 ①(겸임 충돌이 구조적으로 0)과 ②(프론티어 좌석을 부기에 쓰지 않는다)는
 #       이제 둘 다 참이 아니다. G1 은 그대로다 — 코디네이터는 구현자가 아니고 코딩은 claude 다.
 #     · 코디네이터로서의 astra canary 는 돌리지 않았다.
-COORDINATOR = ("gpt-6-astra", "xhigh")
+COORDINATOR = ("gpt-6.2-astra", "xhigh")
 
 # 탐색 슬롯 제외 (발주 §11)
 # D-28 C2: 코딩은 공정 전용 목록 하나뿐이라 탐색할 2순위가 없다 → 제외에 넣는다.
@@ -847,13 +872,15 @@ OUTPUT_RULES = {
         "deny":  "리포트만 내고 끝내기 — 사람이 읽는 것은 결정 시트 1장이다",
         "why":   "종합 레인이므로 사람의 결정으로 이어져야 한다",
     },
-    "gpt-6-astra": {
-        "allow": "판단마다 근거(파일·행·명령 출력) 첨부 · 반증 시도 1건 이상 명시 · effort 는 항상 `xhigh`(D-101) · "
-                 "생성물 게이트 폴백으로 설 때(D-102)는 아래 `gpt-daybreak-blue-latest` 행의 게이트 규칙을 그대로 따른다",
-        "deny":  "대량 정형 변환에 배치 (A 클래스는 claude-haiku-5-5 로 내린다) · "
-                 "`xhigh` 밖 effort 로 부르기 (`ultra`/`max` 는 Orca 가 거부하고, 낮은 값은 D-101 고정이 막는다)",
-        "why":   "codex 계열에서 일을 받는 유일한 좌석이다(D-101). 싼 일에 태우면 쿼터만 태우고, "
-                 "고정 밖 effort 로 부르면 워커가 아예 안 뜬다",
+    "gpt-6.2-astra": {
+        "allow": "계획·설계·복합 디버깅·최종 리뷰. 파일·실행 결과로 요구사항을 대조한다.",
+        "deny": "stub, 확인하지 않은 주장, 요청 밖 변경을 완료 근거로 삼기",
+        "why": "D-131 · 다른 벤더 리뷰 또는 시험 증거가 필요하다.",
+    },
+    "gpt-6.2-sol": {
+        "allow": "일상 구현·문서·1차 리뷰. 독립 작업은 Astra와 같은 라운드에 둔다.",
+        "deny": "같은 벤더로 자기 산출물의 독립 리뷰를 대체하기",
+        "why": "D-131 · 요구사항별 시험 증거나 다른 벤더의 결과를 기록한다.",
     },
     "claude-haiku-5-5": {   # D-99 로 들어왔고 D-101 (2026-10-12)부터 A 클래스 1순위다 — 옛 luna 규칙(싼 레인 규율)을 받았다
         "allow": "정형 변환 · 카운트 · 분류 · **부재 보고에는 탐색 범위 명시**",
@@ -947,7 +974,7 @@ def lanes_for_proc(proc_id, cls=None, falsifiable=False, writes=False):
 
 
 def active_codex_lanes():
-    """codex 벤더에서 새 일을 받을 수 있는 레인 (D-101 — gpt-6-astra 하나).
+    """codex 벤더에서 새 일을 받을 수 있는 레인 (D-131 — 6.2 Astra·Sol).
 
     철회(WITHDRAWN_LANES)·폐기 표시(DEPRECATED_LANES) 레인은 뺀다. Daybreak 는 생성물 게이트 고정 자리로만
     서므로 '일반 배정이 가능한 레인'이 아니다.
@@ -1295,7 +1322,7 @@ def codex_exec_argv(model, effort, sandbox="read-only", cwd_check=True):
     """
     if model in FORBIDDEN_LANES:
         raise ValueError(f"배정 금지 모델: {_safe(model)}")
-    # D-101 — codex 직행 argv 는 지금 일을 받는 codex 레인(active_codex_lanes: gpt-6-astra 하나)으로만 만든다.
+    # D-131 — codex 직행 argv 는 활성 6.2 레인으로만 만든다.
     #   철회된 레인 · 폐기 표시된 별칭(Daybreak 는 생성물 게이트 고정 자리 하나뿐이고 그 자리는 Orca 계획 검증을
     #   거친다) · LANES 에 없는 GPT id(gpt-6-sol · gpt-5.5 · 오타)는 전부 여기서 막힌다.
     if model not in active_codex_lanes():
@@ -1330,13 +1357,13 @@ def resolve_bin(argv):
     return ([exe] + list(argv[1:])) if exe else list(argv)
 
 
-def run_codex_exec(prompt, model="gpt-6-astra", effort="xhigh",
+def run_codex_exec(prompt, model="gpt-6.2-sol", effort="medium",
                    sandbox="read-only", cwd=None, timeout=1800, dry=False):
     """codex 직행 실행. 반환 (returncode, stdout, stderr).
 
     기본을 read-only 로 둔 이유: 이 경로에는 워크트리 격리가 없다.
     쓰기가 필요하면 워커로 띄우는 것이 맞다 — sandbox 를 올리기 전에 그걸 먼저 검토할 것.
-    D-101: 기본 effort 를 ultra → xhigh 로 내렸다(astra 는 xhigh 고정). 실호출은 여전히 차단돼 있다.
+    D-131의 일상 작업 기본값은 Sol medium이다. 실호출은 여전히 차단돼 있다.
     """
     if not dry:
         return 2, "", LEGACY_EXECUTION_MESSAGE
@@ -1559,7 +1586,7 @@ def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, qu
         #   D-130 — 예외는 WITHDRAWN_LANE_SCOPES 의 공정뿐이다(gpt-6.1-sol · 리서치·에이전트).
         if lane in WITHDRAWN_LANES and a.get("proc") not in WITHDRAWN_LANE_SCOPES.get(lane, ()):
             v.append("LANE_WITHDRAWN")
-            notes.append(f"{a.get('proc')} 의 레인 {lane} 은 철회됐다 — GPT 쪽은 gpt-6-astra @xhigh 만 쓴다 (D-101)")
+            notes.append(f"{a.get('proc')} 의 레인 {lane} 은 철회됐다 (D-131)")
         # G13 보강 (2026-09-19 모의 인수인계 실측) — 위의 GATE_VENDOR_BLOCKED 는 코딩 라운드의
         #   게이트 벤더만 본다. 그래서 revalidate_for_retry 로 일반 공정을 사용 금지 레인
         #   (한도 100% 도달·실호출 실패, Q-05 — 예: grok 402)으로 넘기는 재배정이 통과했다.
@@ -1787,53 +1814,11 @@ def emit_md():
              "큰 입력·10만 토큰 초과 입력·쿼터 절감은 미측정이다. 같은 날 D-101 로 1순위가 됐다(아래).")
     L.append("")
     gate_lane, gate_effort = fixed_for("security-artifact-gate")
-    L.append("**D-101 (2026-10-12 오후 · 2.17.0 · Simon 지시 · 토론 없음)**: \"gpt 6.1 sol은 너무 느려서 빼기로 결정. "
-             "기획단계 gpt astra xhigh와 opus 5.5. 단순작업 sonet 5.5\" · \"gpt 쪽은 astra 말고는 쓰지마. gpt 를 넣어야한다면 "
-             "astra xhigh.\" · \"보안게이트는 데이브레이크로 할려했는데 그게 안돼면 opus 5.5로 하자.\" "
-             f"① codex 벤더에서 일을 받는 레인은 `gpt-6-astra` 하나이고 effort 는 `{EFFORT_PINNED['gpt-6-astra']}` 고정이다"
-             "(사다리 std = top · off-ladder 로도 다른 값 불가). "
-             f"② 철회된 레인 {' · '.join('`'+x+'`' for x in sorted(WITHDRAWN_LANES))} 는 원장 호환용 키로만 남고 새 배정은 "
-             "`LANE_WITHDRAWN` 으로 막힌다 — 결함 때문이 아니다(`gpt-6-luna` 는 D-91, `gpt-6.1-sol` 은 D-67·D-98 canary 를 통과했다). "
-             "③ A 클래스 = " + " → ".join(f"`{l}`" for l in CLASS_LANES["A"]) + "(전부 claude · codex 폴백 없음) · "
-             "C-realtime = " + " → ".join(f"`{l}`" for l in CLASS_LANES["C-realtime"]) + " · "
-             "C-platform = " + " → ".join(f"`{l}`" for l in CLASS_LANES["C-platform"]) + ". "
-             f"④ 코디네이터 = `{COORDINATOR[0]}` @{COORDINATOR[1]}(인가 게이트·B 1순위와 같은 모델이라 겸임 경고가 자주 뜬다). "
-             f"⑤ 생성물 게이트 = `{gate_lane}` @{gate_effort} 로 되돌렸다. 제공사의 deprecated 표시와 중앙 계획기의 "
-             "`MODEL_NOT_ACTIVE` 는 그대로이고, `LANE_DEPRECATED` 는 이 고정 자리 하나만 통과시킨다(그 밖은 여전히 막힌다). "
-             "그래서 packaged registry 를 쓰는 중앙 계획기 경로에서는 게이트가 계속 막힌다 — 고정이지 동작이 아니다. "
-             "canary(오케스트레이터 · run `run_b08adccb4ec8` · `ctx_41243c1a0d26` · 15:19~15:20 KST): requested == effective, "
-             "심은 결함 4개에 `GATE: BLOCK` 정확히, 심은 샘플 1건. 별칭은 예고 없이 사라질 수 있다 — 실행 전마다 Codex "
-             "카탈로그를 확인하고, 없거나 출력이 비거나 차단되면 게이트는 FAIL 이다. "
-             "**미결**: Simon 이 말한 폴백 `claude-opus-5-5` 는 G1(코딩과 같은 모델이 자기 산출물을 검사)과 충돌해 구현하지 않았다 — "
-             "판정 대기(`references/security-artifact-gate.md` 의 Open item). 코디네이터로서의 astra 와 A 클래스 순서 변경은 "
-             "canary 를 돌리지 않았다. (그 시점 기록 — 폴백은 D-102 가 정했다. 아래.)")
+    L.append("**D-101 / D-102 당시 기록**: GPT-6 Astra @xhigh 단일 레인, Daybreak 고정 및 조건부 Astra 폴백. "
+             "D-130에서 6.1 Sol을 연구·에이전트에 한시 허용했다. 당시 canary는 6.2 모델을 시험하지 않았다.")
     L.append("")
-    fb_lane, fb_effort = FIXED_FALLBACKS["security-artifact-gate"]
-    L.append("**D-102 (2026-10-12 밤 · 2.18.0 · Simon 판정 · 토론 없음)**: 생성물 게이트의 폴백을 정했다 — "
-             f"`{gate_lane}` 가 **설 수 없을 때만** `{fb_lane}` @{fb_effort} 가 대신 선다. Simon 이 먼저 말한 "
-             "`claude-opus-5-5` 폴백은 이 판정이 대체한다(코딩과 같은 모델이 자기 산출물을 검사하게 된다). "
-             "① 고정 배정은 그대로다 — 설 수 있으면 Daybreak 가 먼저다. "
-             "② `validate_plan(fixed_unavailable={공정: [사유]})` 로 사유를 밝혔을 때만 폴백 레인이 "
-             "`FIXED_LANE_OVERRIDDEN` 없이 서고, 그 상태 하나에서만 `G1_SEC_SAME_MODEL` 을 면제한다"
-             "(인가 게이트와 같은 모델이 된다). 사유가 없으면 예전과 똑같이 막힌다. "
-             "③ 중앙 계획기는 호스트의 요청이 아니라 제시받은 후보를 거부한 자기 기록으로 사유를 만든다 — 게이트 단계에 제시된 Daybreak "
-             "Orca 후보가 전부 가용성 사유(`MODEL_NOT_ACTIVE` 등)로 거부됐을 때만 단계에 `gate_fallback` 을 남긴다. "
-             "그래서 packaged registry 경로에서는 지금 이 폴백이 게이트를 맡는다. Daybreak 후보를 아예 내지 않으면 "
-             "폴백은 열리지 않는다. "
-             "④ `G1`(코딩 벤더 ≠ 게이트 벤더) · 계획기의 Daybreak 차단 · $0·G5·인증서 게이트는 그대로다. "
-             "⑤ 폴백은 '설 수 없음'에만 쓴다 — Daybreak 가 실제로 돌아 BLOCK · 빈 출력 · 차단 · 모호한 판정을 낸 뒤에는 "
-             "폴백하지 않는다(FAIL 이다). "
-             "⑥ 폴백 상태에서는 한 모델이 두 보안 질문에 모두 답한다 — 두 게이트가 서로 독립된 검사가 아니다. "
-             "canary(오케스트레이터 · run `run_3607f8833d7e` · `ctx_56f442610119` · 23:26 KST): requested == effective"
-             f"(`{fb_lane}` · {fb_effort}), 같은 결함 4개 샘플에 `GATE: BLOCK` 정확히, 심은 샘플 1건.")
-    L.append("")
-    scoped = "; ".join(f"`{l}` → " + " · ".join(f"`{p}`" for p in procs)
-                       for l, procs in sorted(WITHDRAWN_LANE_SCOPES.items()))
-    L.append("**D-130 (2026-11-16 · 2.28.0 · Simon 지시 · 토론 없음)**: 철회된 레인 중 공정 한정으로 다시 서는 것 — "
-             f"{scoped}. effort 는 `{EFFORT_PINNED['gpt-6.1-sol']}` 고정이다. 그 밖의 공정 · 코디네이터 · 두 보안 게이트 · "
-             "codex 직행 argv 는 그대로 `gpt-6-astra` 다. 이 표의 기본 채움(클래스 목록)은 바꾸지 않았다 — /vibe 기본 배정은 "
-             "중앙 계획기의 순위표(`references/task-fit-policy.json`)이고, 그 표의 RESEARCH · AGENTIC 1순위가 `gpt-6.1-sol` 이다. "
-             "근거: 짝 실측 과제 8개 점수 동일 · 시간 +6% · 공식 Codex 한도표 5시간 Astra 5-45 · Sol 15-160 메시지.")
+    L.append("**D-131 (2026-11-24)**: D-130의 6.1 Sol 예외를 종료했다. GPT-6.2 Sol과 Astra는 독립 단계에서 병렬로 쓴다. "
+             "레거시 Orca 코딩 라운드의 고정 보안 게이트와 G1 독립성 검사는 계속 적용한다. Gemini 4 세 모델은 agy 경로를 쓴다.")
     L.append("")
     L.append("### 공정 → 클래스 → 레인")
     L.append("")

@@ -12,6 +12,12 @@
 - Replacement rule
 - Canary records (2026-10-12)
 
+## D-131 current model binding
+
+The current fallback and authorization lane is `gpt-6.2-astra` at `xhigh`. Apply the D-102 trigger, G1,
+rubric and fail-closed contract below. The quoted D-101/D-102 decisions and all recorded canaries describe
+the earlier model. Use new transport evidence for 6.2.
+
 ## Purpose
 
 `security-artifact-gate` reviews what a coding round produced (code, scripts,

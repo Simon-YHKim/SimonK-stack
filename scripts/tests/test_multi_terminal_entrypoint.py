@@ -172,7 +172,7 @@ class PackagedWaveEntrypointTests(RootWaveEntrypointTests):
             shutil.copy2(SKILL / "scripts" / name, target / name)
         core = skills / "vibe/scripts"
         core.mkdir(parents=True)
-        for name in ("execute_orca.py", "orchestrate.py", "model_registry.py", "routing.py", "run_state.py", "ledger.py"):
+        for name in ("execute_orca.py", "orchestrate.py", "agy_lanes.py", "model_registry.py", "routing.py", "run_state.py", "ledger.py", "qa_acceptance.py"):
             shutil.copy2(ROOT / "skills-src/vibe/scripts" / name, core / name)
         rc, value = self.invoke(wrapper=target / "multi-terminal-launch.ps1")
         self.assertEqual((rc, value["status"]), (0, "preview"))

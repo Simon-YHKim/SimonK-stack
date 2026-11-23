@@ -57,7 +57,7 @@ class ProfileInstallerTests(unittest.TestCase):
         (self.repo / "scripts").mkdir(parents=True)
         (self.repo / "skills-src/vibe/scripts").mkdir(parents=True)
         shutil.copy2(ROOT / "scripts/simonk.ps1", self.repo / "scripts/simonk.ps1")
-        for relative in ("scripts/orchestrate.py", "scripts/model_registry.py", "scripts/routing.py",
+        for relative in ("scripts/orchestrate.py", "scripts/agy_lanes.py", "scripts/model_registry.py", "scripts/routing.py",
                          "references/model-registry.json", "references/task-fit-policy.json"):
             destination = self.repo / "skills-src/vibe" / relative
             destination.parent.mkdir(parents=True, exist_ok=True)

@@ -1,5 +1,12 @@
 # SimonK-stack 세션 인수인계
 
+## D-131 candidate · 2026-11-24 · vibe 2.29.0
+
+GPT-6.2 Sol/Astra 병렬 배정, Gemini 4 세 모델의 구독용 agy 경로와 한국어 초안 정책을 갱신했다.
+정책 기간, 근거, 반대 후기 및 게시 전 조건은 [D-131 결정 후보](../skills-src/vibe/references/d131-model-routing.md)에 있다.
+코디네이터가 사용자 승인 후 게시와 설치를 처리한다.
+
+
 ## Latest — 2026-11-16 07:55 / GPT-6.1 Sol 리서치·에이전트 1순위 + Codex CLI 레인 수리 (D-130, vibe 2.28.0)
 
 갱신 시각: 2026-11-16 07:55 KST · 갱신자: Claude Code(Opus 5.5). Simon: "codex 리셋됐으니 검토해." → 짝 실측 보고 → "너가 발견한것을 포한해서 진행하자. 머지까지 진행해줘." 허브 D-130(6b7a8a93).

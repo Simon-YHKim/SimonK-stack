@@ -202,6 +202,8 @@ class Adapter:
         _, route, binding = self.context(plan, node_id)
         now = self.clock()
         validate_plan(plan, now)
+        owner_errors = orchestrate.owner_gpt_policy(route, route["requested_effort"], execute_cli.selected(plan, node_id))
+        require(not owner_errors, "CODEX_OWNER_POLICY_CHANGED")
         billing, quota = route["billing"], route["quota"]
         model, effort = route.get("resolved_model") or route["model"], route["requested_effort"]
         # D-74: included usage decides; credit balances and overage settings never block.

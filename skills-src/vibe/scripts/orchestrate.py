@@ -45,6 +45,7 @@ TASK_TYPE_MAP = {
     # Hub D-128: behavior-preserving cleanup of tangled code or file layout, as its own edit step.
     "CODE_CLEANUP": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "coding", "class": "B"},
     "CODE_REVIEW": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "claim-verify", "class": "A-verify"},
+    "CODE_REVIEW_FINAL": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "claim-verify", "class": "A-verify"},
     "RESEARCH": {"kind": "llm", "needs": ["research", "reasoning"], "demand": "reasoning", "proc": "research-deep", "class": "B"},
     "AGENTIC": {"kind": "llm", "needs": ["reasoning"], "demand": "reasoning", "proc": "terminal-ci-git", "class": "B"},
     "COMPUTER_USE": {"kind": "gui", "needs": ["gui"], "demand": "reasoning", "proc": "ui-visual", "class": "C-platform"},
@@ -56,7 +57,7 @@ TASK_TYPE_MAP = {
     # Image output needs a dedicated tool transport; text-model vision cannot satisfy it.
     "IMAGE_GENERATION": {"kind": "image", "needs": ["image_generation"], "demand": "routine", "proc": "ui-visual", "class": "C-platform"},
     # Hub D-126: Korean notices, announcements, polishing and short copy. Drafted on
-    # Gemini 4 Argon through a dedicated prose transport and fact-checked by a review step.
+    # Gemini 4 Neon or Argon through a dedicated prose transport and fact-checked by a review step.
     # Korean reports and technical documents stay KOREAN_DOC on the LLM routes.
     "KOREAN_PROSE": {"kind": "prose", "needs": ["korean_writing"], "demand": "routine", "proc": "research-deep", "class": "B"},
 }
@@ -92,13 +93,14 @@ REVIEW_RULES = (
     "Ask for a separate CODE_CLEANUP step for structural debt instead of widening the change under review.",
 )
 TASK_PRINCIPLES = {"CODE_COMPLEX": SIMPLE_RULES, "CODE_SIMPLE": SIMPLE_RULES, "CODE_NEW": SIMPLE_RULES,
-                   "CODE_FIX": SIMPLE_RULES, "CODE_CLEANUP": CLEANUP_RULES, "CODE_REVIEW": REVIEW_RULES}
+                   "CODE_FIX": SIMPLE_RULES, "CODE_CLEANUP": CLEANUP_RULES, "CODE_REVIEW": REVIEW_RULES,
+                   "CODE_REVIEW_FINAL": REVIEW_RULES}
 # Hub D-106 (2026-10-18, owner directive): complex coding runs on claude-opus-5-5 at xhigh.
 # Dispatched transports (cli, orca) are held to it; a host session's own effort is not.
 OWNER_TASK_EFFORTS = {"CODE_COMPLEX": {"claude-opus-5-5": "xhigh"}}
 # Hub D-130: a withdrawn GPT lane the owner reopened for these task types only. Their processes
 # must equal routing.WITHDRAWN_LANE_SCOPES, which guards the same lane at the Orca layer.
-OWNER_LANE_TASKS = {"gpt-6.1-sol": ("RESEARCH", "AGENTIC")}
+OWNER_LANE_TASKS = {}  # D-131 retires the D-130 exception.
 ORCHESTRATORS = {"vibe", "simonk", "app-dev-orchestrator", "dev-orchestrator"}
 # Hosts can prefix exports per bash block; Orca worker-start cannot pass env.
 GSTACK_ISOLATION = {"host": "required", "orca": "best-effort"}
@@ -111,6 +113,7 @@ if __name__ == "__main__":
     sys.dont_write_bytecode = True
 if str(SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPT_ROOT))
+import agy_lanes
 from model_registry import constrain_runtime, load_registry
 
 
@@ -143,18 +146,18 @@ INCLUDED_USAGE_CEILING_PCT = 85
 CODEX_IMAGE_TRANSPORT = "codex-image"
 CODEX_IMAGE_TOOL_REF = "image_gen"
 # Hub D-126 (Simon 2026-11-16, D-107 inside /vibe): Korean prose drafts run on Gemini 4
-# Argon through `agy --print` (execute_agy_prose.py) under the same D-74 usage gate.
+# Neon or Argon through `agy --print` (execute_agy_prose.py) under the same D-74 usage gate.
 AGY_PROSE_TRANSPORT = "agy-prose"
-AGY_PROSE_MODEL = "gemini-4-argon-high"
+AGY_PROSE_MODEL = agy_lanes.PROSE_MODELS[0]
 # Hub D-127 (Simon 2026-11-16): the task ranking (references/task-fit-policy.json) is the
 # default order among gated candidates. Within one rank a small step prefers the current
 # session and a large one prefers a worker. Tool task types rank tool transports.
-SCALES = {"small": ("host", "cli", "orca"), "large": ("orca", "cli", "host")}
+SCALES = {"small": ("host", "cli", "agy-brief", "orca"), "large": ("orca", "agy-brief", "cli", "host")}
 # Hub D-129 (Simon 2026-11-16): screen work stays on Grok Bot (vibe-bot) first (D-93). Only when
 # every Bot candidate is blocked does the host use its own local GUI tools, in table order.
 GUI_LOCAL_TOOLS = ("playwright", "claude-in-chrome", "computer-use")
 RANKING_TOOLS = {"image": frozenset({CODEX_IMAGE_TRANSPORT, "host-image"}),
-                 "prose": frozenset({AGY_PROSE_TRANSPORT}),
+                 "prose": frozenset({AGY_PROSE_TRANSPORT, *agy_lanes.PROSE_MODELS}),
                  "gui": frozenset({"bot", *GUI_LOCAL_TOOLS})}
 SCREEN_ACTIONS = frozenset({"read", "input", "submit", "publish", "delete", "settings", "login", "payment"})
 # The host never types credentials, one-time codes or payment details (Bot-only steps).
@@ -301,7 +304,7 @@ def task_ranking(fit_policy, task_type, now):
 
 def _ranked_names(candidate, tool):
     if tool:
-        return {candidate.get("transport")}
+        return {candidate.get("transport"), candidate.get("tool_ref")}
     return {candidate.get("model"), candidate.get("resolved_model")} - {None}
 
 
@@ -425,7 +428,7 @@ def assess_gui_tool(tool, step, runtime, now, producer_vendor=None, policy=None)
     if not isinstance(host, str) or not host or tool.get("host_ref") != host:
         reasons.append("GUI_TOOL_HOST_MISMATCH")
     if tool.get("host_surface") not in ("claude", "codex") or (
-            transport in ("claude-in-chrome", "computer-use") and tool.get("host_surface") != "claude"):
+            transport == "claude-in-chrome" and tool.get("host_surface") != "claude"):
         reasons.append("GUI_TOOL_HOST_UNSUPPORTED")
     if step.get("surface") and step["surface"] != tool.get("host_surface"):
         reasons.append("SURFACE_MISMATCH")  # A pinned node never moves to another provider.
@@ -441,7 +444,7 @@ def assess_gui_tool(tool, step, runtime, now, producer_vendor=None, policy=None)
     elif transport in ("claude-in-chrome", "computer-use") and tool.get("interactive") is not True:
         reasons.append("GUI_REQUIRES_INTERACTIVE_HOST")
     if tool.get("host_surface") in ("claude", "codex"):
-        host, why = host_usage(runtime, tool["host_surface"], step, now, policy, producer_vendor)
+        host, why = host_usage(runtime, tool["host_surface"], step, now, policy, producer_vendor, transport)
         if host is None:
             reasons.append(why)
     return reasons
@@ -454,7 +457,7 @@ HOST_GATE_IGNORED = frozenset({"CAPABILITY_MISMATCH", "EFFORT_UNSUPPORTED", "HOS
 DEFAULT_GUI_POLICY = {"mode": "balanced", "approved_usd": "0", "max_attempts": 2}
 
 
-def host_usage(runtime, surface, step, now, policy=None, producer_vendor=None):
+def host_usage(runtime, surface, step, now, policy=None, producer_vendor=None, transport=None):
     """(host candidate, None) when this session can pay for the step at $0, else (None, reason).
 
     A local GUI step runs inside the host session, so it spends that subscription's usage (D-74).
@@ -464,6 +467,9 @@ def host_usage(runtime, surface, step, now, policy=None, producer_vendor=None):
     for c in runtime.get("candidates", []):
         if (not isinstance(c, dict) or c.get("transport") != "host" or c.get("surface") != surface
                 or c.get("host_ref") not in (None, host_ref)):
+            continue
+        if surface == "codex" and transport == "computer-use" and (
+                c.get("model") != "gpt-6.2-astra" or c.get("host_ref") != host_ref):
             continue
         found, _, amount = assess_candidate(c, view, policy or DEFAULT_GUI_POLICY, now, producer_vendor)
         found = set(found) - HOST_GATE_IGNORED
@@ -478,9 +484,12 @@ def gui_tool_route(tool, host):
     until = observed + timedelta(seconds=DEFAULT_TTL)
     if host.get("valid_until"):
         until = min(until, instant(host["valid_until"]))  # Registry and access-proof deadlines stand.
+    codex_computer = tool["host_surface"] == "codex" and tool["transport"] == "computer-use"
     return {"candidate_id": tool["id"], "surface": tool["host_surface"], "vendor": SURFACES[tool["host_surface"]],
             "transport": tool["transport"], "tool_ref": tool["transport"], "host_ref": tool["host_ref"],
-            "host_candidate_id": host["id"], "model": None, "requested_effort": None, "effective_effort": None,
+            "host_candidate_id": host["id"], "model": host.get("model") if codex_computer else None,
+            "requested_effort": host.get("effective_effort") if codex_computer else None,
+            "effective_effort": host.get("effective_effort") if codex_computer else None,
             "billing": copy.deepcopy(host["billing"]), "quota": copy.deepcopy(host["quota"]),
             "reserved_upper_usd": 0.0, "actual_usd": None,
             "valid_until": until.isoformat(),
@@ -1106,7 +1115,7 @@ def compile_task_type(node):
         raise ValueError("Unknown task_type")
     if type(result.get("writes")) is not bool:
         raise ValueError("Typed steps require explicit boolean writes scope")
-    if name == "CODE_REVIEW" and result["writes"]:
+    if name in ("CODE_REVIEW", "CODE_REVIEW_FINAL") and result["writes"]:
         raise ValueError("CODE_REVIEW is read-only; put repairs in a separate CODE_FIX step")
     if name == "CODE_CLEANUP" and not result["writes"]:
         raise ValueError("CODE_CLEANUP edits files; set writes true")
@@ -1167,7 +1176,7 @@ def ordered_steps(steps):
 def requires_review(node):
     """Writing output needs review even when it does not edit a file.
 
-    D-126: an Argon Korean prose draft is always fact-checked against its source (D-107).
+    D-131: a Korean prose draft is always fact-checked against its source (D-107).
     """
     return bool(node.get("writes")) or node.get("task_type") in ("WRITING", "KOREAN_PROSE")
 
@@ -1269,13 +1278,7 @@ def owner_scope_errors(c, step):
 
 
 def owner_gpt_policy(c, effort, step=None):
-    """Hub D-101, extended to the direct Codex CLI by D-102.
-
-    The owner withdrew five GPT models and pinned gpt-6-astra to xhigh. The Orca transport gets
-    the same rule from routing.validate_plan; this covers the other dispatched Codex transport.
-    D-130 reopened gpt-6.1-sol for OWNER_LANE_TASKS only, also pinned to xhigh.
-    A host session's own model is not restricted here.
-    """
+    """Intersect the exact and resolved Codex IDs with the current owner policy."""
     routing = _routing()
     names = {c.get("model"), c.get("requested_model"), c.get("resolved_model")} - {None}
     errors = list(owner_scope_errors(c, step or {}))
@@ -1349,11 +1352,18 @@ def assess_candidate(c, step, policy, now, producer_vendor=None, debate=None):
             errors.append("BOT_INACTIVE")
         effort = None  # Grok Bot has no verified model/effort control surface.
     else:
-        if surface == "grok-bot" or c.get("transport") not in ("host", "cli", "orca"):
+        if surface == "grok-bot" or c.get("transport") not in ("host", "cli", "orca", "agy-brief"):
             errors.append("TRANSPORT_MISMATCH")
         if c.get("transport") in {"cli", "orca"} and (
                 surface, c.get("transport")) not in GUARDED_EXECUTION_ADAPTERS:
             errors.append("EXECUTION_ADAPTER_UNAVAILABLE")
+        if c.get("transport") == "agy-brief":
+            slug = c.get("tool_ref")
+            if (surface != "antigravity" or step.get("writes") is not False or step.get("skills")
+                    or step.get("software") or step.get("task_type") not in agy_lanes.ADVISORY_MODELS.get(slug, ())
+                    or slug != f"{c.get('model')}-{effort}"
+                    or assess_agy_usage(c, now, transport="agy-brief")):
+                errors.append("AGY_BRIEF_UNSUPPORTED")
         if not c.get("model"):
             errors.append("MODEL_UNRESOLVED")
         if (not effort or effort not in c.get("provider_efforts", [])
@@ -1361,11 +1371,15 @@ def assess_candidate(c, step, policy, now, producer_vendor=None, debate=None):
             errors.append("EFFORT_UNSUPPORTED")
         if c.get("transport") == "host" and c.get("effective_effort") != effort:
             errors.append("HOST_EFFORT_MISMATCH")
+        if (surface == "codex" and c.get("transport") in {"host", "orca"} and
+                {c.get(k) for k in ("model", "requested_model", "resolved_model")} & {"gpt-6.1-sol", "gpt-6.1-terra", "gpt-6-astra"}):
+            errors.append("MODEL_WITHDRAWN_BY_OWNER")
         if (surface, c.get("transport")) == ("codex", "cli"):
             errors.extend(owner_gpt_policy(c, effort, step))
         elif c.get("transport") == "orca":
-            # D-130: the Orca guard scopes by process, which also holds planning and writing steps.
             errors.extend(owner_scope_errors(c, step))
+            if (step.get("proc") == "coding" or step.get("writes")) and c.get("model") not in _routing().PROCESS_LANES["coding"]:
+                errors.append("ORCA_CODING_LANE_NOT_ALLOWED")
         if c.get("transport") in {"cli", "orca"}:
             errors.extend(owner_task_effort(c, step, effort))
     billing = c.get("billing", {})
@@ -1400,6 +1414,8 @@ def assess_candidate(c, step, policy, now, producer_vendor=None, debate=None):
     else:
         errors.append("BILLING_UNVERIFIED")
     quota = c.get("quota", {})
+    if surface == "antigravity" and billing.get("mode") != "subscription":
+        errors.append("SUBSCRIPTION_ONLY")
     if surface in {"antigravity", "grok", "grok-bot"} and (
             quota.get("surface") != surface
             or quota.get("transport") != c.get("transport")
@@ -1530,18 +1546,31 @@ def image_tool_route(tool):
             "valid_until": valid_until.isoformat(), "runtime_observed_at": tool["observed_at"]}
 
 
+def agy_bucket_bound(tool):
+    buckets = tool.get("quota", {}).get("bucket")
+    slug = tool.get("tool_ref")
+    return (slug in agy_lanes.MODELS and isinstance(buckets, str)
+            and all(agy_lanes.applicable_bucket(b, slug) for b in buckets.split(",")))
+
+
 def assess_agy_prose_tool(tool, step, now):
-    """D-126: Gemini 4 Argon Korean prose drafts, judged only by the D-74 usage gate.
+    """D-131: exact Neon/Argon drafts under the D-74 usage gate.
 
     agy exposes tier quota but no account ID or credit settings; the profile stands in for
     the account. The runner (execute_agy_prose.py) repeats this check right before sending.
     """
     errors = []
     if (tool.get("surface") != "antigravity" or tool.get("transport") != AGY_PROSE_TRANSPORT
-            or tool.get("tool_ref") != AGY_PROSE_MODEL):
+            or tool.get("tool_ref") not in agy_lanes.PROSE_MODELS
+            or tool.get("model") != str(tool.get("tool_ref")).rsplit("-", 1)[0]):
         errors.append("PROSE_AGY_TOOL_UNSUPPORTED")
     if step.get("surface") and step["surface"] != "antigravity":
         errors.append("SURFACE_MISMATCH")
+    return sorted(set(errors + assess_agy_usage(tool, now)))
+
+
+def assess_agy_usage(tool, now, transport=AGY_PROSE_TRANSPORT):
+    errors = []
     if (tool.get("available") is not True or not fresh(tool.get("observed_at"), now)
             or not isinstance(tool.get("evidence"), list) or not tool["evidence"]):
         errors.append("PROSE_TOOL_UNOBSERVED")
@@ -1558,20 +1587,26 @@ def assess_agy_prose_tool(tool, step, now):
     elif usage_limit_reached(billing):
         errors.append("PROSE_USAGE_LIMIT_REACHED")
     quota = tool.get("quota")
+    evidence = quota.get("evidence") if isinstance(quota, dict) else None
+    bound_evidence = (isinstance(evidence, str) and bool(evidence.strip()) if transport == "agy-brief"
+                      else isinstance(evidence, list) and bool(evidence)
+                      and all(isinstance(e, str) and e.strip() for e in evidence))
     if (not isinstance(quota, dict) or isinstance(quota.get("used_pct"), bool)
             or not included_usage_open(quota, now) or not quota.get("bucket")
             or not isinstance(billing, dict)
             or quota.get("account_ref") != billing.get("account_ref")
             or quota.get("surface") != "antigravity"
-            or quota.get("transport") != AGY_PROSE_TRANSPORT
-            or not isinstance(quota.get("evidence"), list) or not quota["evidence"]):
+            or quota.get("transport") != transport
+            or not agy_bucket_bound(tool)
+            or not bound_evidence):
         errors.append("PROSE_QUOTA_UNVERIFIED")
     return sorted(set(errors))
 
 
 def prose_tool_route(tool):
     route = image_tool_route(tool)
-    route.update(model=tool.get("model"), requested_effort="high", effective_effort="high")
+    effort = tool["tool_ref"].rsplit("-", 1)[1]
+    route.update(model=tool.get("model"), requested_effort=effort, effective_effort=None)
     return route
 
 def _legacy_validation(nodes, runtime):
@@ -1795,8 +1830,8 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                 # The review step fact-checks numbers, names and claims against the brief (D-107).
                 s["handoff"] = {"kind": AGY_PROSE_TRANSPORT, "model": tool["tool_ref"],
                                 "read_skills": s["skill_paths"],
-                                "runner": "scripts/execute_agy_prose.py",
-                                "one_send": True, "fact_check": "host-review-step"}
+                                "runner": "scripts/execute_agy_prose.py", "task_type": s["task_type"],
+                                "one_send": True, "expected_profile": tool["billing"]["account_ref"], "fact_check": "host-review-step"}
         parent = by_id.get(s.get("verify_of"))
         vendor = (parent.get("route") or {}).get("vendor") if parent else None
         if parent and not parent.get("route"):
@@ -1875,7 +1910,7 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                 if local is not None:
                     actions = screen_actions(s)
                     s["route"] = gui_tool_route(local, host_usage(runtime, local["host_surface"], s, now,
-                                                                  policy, vendor)[0])
+                                                                  policy, vendor, local["transport"])[0])
                     s["handoff"] = {"kind": "host-gui", "tool": local["transport"], "target": s["target"],
                                     "read_skills": s["skill_paths"], "screen_actions": list(actions),
                                     "confirm_each": sorted(set(actions) & CONFIRM_ACTIONS),
@@ -1909,6 +1944,12 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                 s["handoff"] = {"kind": c["transport"], "read_skills": s["skill_paths"],
                                 "reuse_coordinator": any(b.get("canonical_name", b.get("name")) in ORCHESTRATORS
                                                          for b in s["skill_bindings"])}
+                if c.get("model") in {"gpt-6.2-astra", "gpt-6.2-sol"}:
+                    s["handoff"]["acceptance_rule"] = ("Verify each requirement with test evidence or independent vendor "
+                                                       "review. Check for stubs, invented facts and unrelated edits.")
+                if c["transport"] == "agy-brief":
+                    s["handoff"].update(runner="scripts/execute_agy_prose.py", task_type=s["task_type"],
+                                        model=c["tool_ref"], expected_profile=c["billing"]["account_ref"], one_send=True, requires_nonconfidential_brief=True)
                 host_bindings = [b for b in s["skill_bindings"] if b.get("origin") == "host"]
                 if host_bindings:
                     s["handoff"]["host_skills"] = copy.deepcopy(host_bindings)

@@ -1,4 +1,4 @@
-"""D-126 Gemini 4 Argon Korean prose runner: offline fixtures only, no agy or model calls."""
+"""D-126 Gemini 4 Neon Korean prose runner: offline fixtures only, no agy or model calls."""
 import contextlib
 import io
 import json
@@ -17,21 +17,21 @@ NOW = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 BRIEF = "다음 사실만 써서 서버 점검 공지를 써 줘: 11월 20일 02:00~04:00, 로그인 불가.\n"
 
 
-def agy_raw(argon_remaining=0.97):
-    return {"status": "SUCCESS", "num_turns": 0,
+def agy_raw(neon_remaining=0.97):
+    return {"_agy_models": [m.MODEL], "status": "SUCCESS", "num_turns": 0,
             "usage": {"input_tokens": 0, "output_tokens": 0, "thinking_tokens": 0,
                       "cache_read_tokens": 0, "total_tokens": 0},
             "command": {"name": "usage", "data": {"groups": [
                 {"name": "Gemini Models", "buckets": [
-                    {"id": "gemini-weekly", "window": "weekly", "remaining_fraction": 0.9,
+                    {"id": "gemini-weekly", "window": "weekly", "remaining_fraction": 1.0,
                      "reset_time": "2099-01-01T00:00:00Z"}]},
-                {"name": "Gemini 4 Argon", "buckets": [
-                    {"id": "gemini-argon-wtu-weekly", "window": "weekly",
-                     "remaining_fraction": argon_remaining, "reset_time": "2099-01-01T00:00:00Z"}]}]}}}
+                {"name": "Gemini 4 Neon", "buckets": [
+                    {"id": "gemini-neon-wtu-weekly", "window": "weekly",
+                     "remaining_fraction": neon_remaining, "reset_time": "2099-01-01T00:00:00Z"}]}]}}}
 
 
-def observation(argon_remaining=0.97, at=None):
-    return runtime_collect.normalize("antigravity", agy_raw(argon_remaining), at or NOW, "/fixture/agy")
+def observation(neon_remaining=0.97, at=None):
+    return runtime_collect.normalize("antigravity", agy_raw(neon_remaining), at or NOW, "/fixture/agy")
 
 
 def print_result(response="## 서버 점검 안내\n\n11월 20일 02:00~04:00 에는 로그인할 수 없습니다.",
@@ -55,10 +55,10 @@ class Recorder:
 
 
 class ArgvTests(unittest.TestCase):
-    def test_argv_pins_argon_high_read_only_sandbox_and_no_slash_expansion(self):
+    def test_argv_pins_neon_medium_read_only_sandbox_and_no_slash_expansion(self):
         argv = m.build_argv(["agy"])
         self.assertEqual(argv[:2], ["agy", "--print"])
-        self.assertEqual(argv[argv.index("--model") + 1], "gemini-4-argon-high")
+        self.assertEqual(argv[argv.index("--model") + 1], "gemini-4-neon-medium")
         self.assertEqual(argv[argv.index("--mode") + 1], "plan")
         self.assertIn("--sandbox", argv)
         self.assertIn("--disable-slash-commands", argv)
@@ -80,10 +80,30 @@ class DraftTests(unittest.TestCase):
         self.out = Path(self.temp.name) / "notice.md"
 
     def run_draft(self, run=None, collect=None, brief=BRIEF, not_confidential=True, out=None):
-        observations = iter([observation(), observation(argon_remaining=0.96)])
+        observations = iter([observation(), observation(neon_remaining=0.96)])
         return m.draft(brief, str(out or self.out), not_confidential,
                        collect=collect or (lambda: next(observations)), run=run or Recorder(),
                        command=["agy"])
+
+    def test_advisory_handoff_pins_task_model_profile_and_receipt(self):
+        import agy_lanes
+        for slug, tasks in agy_lanes.ADVISORY_MODELS.items():
+            with self.subTest(slug=slug):
+                obs = dict(observation(), agy_model_slugs=[slug])
+                run = Recorder()
+                out = self.out.with_name(slug + ".md")
+                code, receipt = m.draft(BRIEF, str(out), True, model=slug, task_type=tasks[0],
+                                        expected_profile=obs["profile_ref"], collect=lambda: obs,
+                                        run=run, command=["agy"])
+                self.assertEqual(code, 0, receipt)
+                argv = run.calls[0]["argv"]
+                self.assertEqual(argv[argv.index("--model") + 1], slug)
+                self.assertEqual(argv[2], m.ADVISORY_PROMPT)
+                self.assertEqual((receipt["model"], receipt["task_type"]), (slug, tasks[0]))
+        run = Recorder()
+        code, _ = m.draft(BRIEF, str(self.out), True, expected_profile="changed",
+                          collect=observation, run=run, command=["agy"])
+        self.assertEqual((code, run.calls), (3, []))
 
     def test_success_writes_the_draft_receipt_and_usage_before_and_after(self):
         run = Recorder()
@@ -93,7 +113,7 @@ class DraftTests(unittest.TestCase):
         self.assertTrue(self.out.read_text(encoding="utf-8").startswith("## 서버 점검 안내"))
         saved = json.loads(m.receipt_path(self.out).read_text(encoding="utf-8"))
         self.assertEqual((saved["schema"], saved["decision"], saved["model"]),
-                         ("vibe-agy-prose-v1", "D-126", "gemini-4-argon-high"))
+                         ("vibe-agy-prose-v1", "D-131", "gemini-4-neon-medium"))
         self.assertEqual(saved["fact_check_required"], m.FACT_CHECK)
         self.assertAlmostEqual(saved["usage_before"]["used_pct"], 3, places=3)
         self.assertAlmostEqual(saved["usage_after"]["used_pct"], 4, places=3)
@@ -108,7 +128,7 @@ class DraftTests(unittest.TestCase):
             with self.subTest(remaining=remaining):
                 run = Recorder()
                 code, receipt = m.draft(BRIEF, str(self.out), True,
-                                        collect=lambda: observation(argon_remaining=remaining),
+                                        collect=lambda: observation(neon_remaining=remaining),
                                         run=run, command=["agy"])
                 self.assertEqual(code, 3)
                 self.assertEqual(receipt["status"], "refused")

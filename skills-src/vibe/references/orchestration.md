@@ -15,7 +15,7 @@
 - Guarded Bot adapter
 - Local GUI fallback (D-129)
 - Codex image lane (D-121)
-- Gemini Argon Korean prose lane (D-126)
+- Gemini subscription brief runner (D-131)
 - Conditional host image adapter
 - Guarded Orca adapter
 - Preparation journal and host-injected core
@@ -802,6 +802,11 @@ hold. Source fixtures are not account, generation, OS-isolation or installation 
 
 ## Local GUI fallback (D-129)
 
+D-131 admits Codex Computer Use only on an observed `gpt-6.2-astra` candidate bound to this host.
+The observer uses `--host-surface codex --computer-use --interactive` for a genuinely available tool.
+The caller's GUI instructions still apply. A new Terra release triggers a fresh comparison.
+
+
 Simon (2026-11-16): "grok bot 사용 여건이 안될경우 진행하려는 거야". Grok Bot (vibe-bot) stays rank 0 for
 `COMPUTER_USE` (D-93). Only when every Bot candidate is rejected does `pick_local_gui` look at
 `runtime.gui_tools` in table order: `playwright` (1), `claude-in-chrome` (2), `computer-use` (3). The route uses
@@ -854,7 +859,7 @@ work and needs no provider hard cap or idempotent lookup.
   under 85 percent. When several image tools pass, the least-used one wins.
 - **Handoff.** `{"kind": "codex-image", "tool_ref": "image_gen",
   "runner": "scripts/execute_codex_image.py", "one_send": true}`. The route has
-  `model=null`; the runner drives the call with `gpt-6-astra` at `xhigh` (D-101).
+  `model=null`; the runner drives the call with `gpt-6.2-astra` at `xhigh` (D-101).
 - **Runner.** `python scripts/execute_codex_image.py --prompt-file <brief>
   --out <absolute .png> [--transparent]` refuses an existing output or receipt
   path and a brief with a secret pattern before anything is sent, then reads
@@ -881,52 +886,27 @@ flat illustration took 25 seconds and moved the weekly `codex` usage from 41 to
 42 percent. D-121's reversal condition is about 3 points or more per image,
 or a credit deduction while included usage remains.
 
-## Gemini Argon Korean prose lane (D-126)
+## Gemini subscription brief runner (D-131)
 
-Hub D-126 (Simon, 2026-11-16, "진행해"): D-107's Korean prose rule (Simon's blind
-comparison, 2026-10-18, Argon preferred 2:1) inside /vibe. A `KOREAN_PROSE` node
-(notices, announcements, polishing, short copy) compiles to `kind=prose` and is drafted on
-Gemini 4 Argon through `agy --print`. Korean reports and technical documents stay
-`KOREAN_DOC` on the LLM routes. The lane uses the D-74 included-usage gate only.
+Read-only coding/design opinions and Korean drafts use a single `agy --print` in plan mode and a private
+temporary directory. The host supplies a nonconfidential brief, including any source excerpts needed.
+Use `KOREAN_PROSE` for notices and short copy. Neon medium drafts first, Argon high is the alternative.
+A reviewer from another vendor checks names, numbers, dates and logical consistency. The earlier
+D-126 blind comparison favored Argon 2:1. It did not compare Neon.
 
-- **Observation.** `runtime_collect.py --surface antigravity` runs the zero-turn
-  `agy -p /usage` (contract measured for agy 1.5.9: `num_turns` 0, zero tokens) and adds one
-  `runtime.prose_tools` entry, `id=antigravity:argon-prose`, `transport=agy-prose`,
-  `tool_ref=gemini-4-argon-high`. Pro plans report a separate Argon bucket (ids containing
-  `argon`); Ultra plans fold Argon into the larger Gemini bucket, so without an Argon
-  bucket the `gemini-*` windows count. One unmeasured window leaves usage `null`.
-  agy shows no account ID, plan or credit fields: the profile stands in for the account,
-  `child_env` passes no API key, and the tier quota is the subscription evidence. The
-  child environment disables agy's updater with `AGY_CLI_DISABLE_AUTO_UPDATE=true` (agy
-  ignores `1`).
-- **Planner gate** (`assess_agy_prose_tool`): `surface=antigravity`, `transport=agy-prose`,
-  `tool_ref=gemini-4-argon-high`, available with evidence, fresh billing with
-  `mode=subscription`, `verified=true`, `auth_method=google-account`, an account reference
-  and `api_fallback_disabled=true`, and fresh account-bound `agy-prose` usage under 85
-  percent. `requires_review` holds the node until an LLM review step (`verify_of`) of
-  another vendor exists; it fact-checks numbers, proper nouns and claims against the brief.
-- **Handoff.** `{"kind": "agy-prose", "model": "gemini-4-argon-high", "runner":
-  "scripts/execute_agy_prose.py", "one_send": true, "fact_check": "host-review-step"}`.
-  The route has `model=gemini-4-argon`, effort `high`.
-- **Runner.** `python scripts/execute_agy_prose.py --brief-file <brief> --out <absolute .md>
-  --not-confidential` refuses without the confidentiality confirmation (company-confidential
-  material never goes to agy), a brief over 64 KiB or with a secret pattern, and an
-  existing output or receipt path, before anything is sent. It reads usage again
-  (zero-turn), writes the brief as `00_BRIEF.md` in a fresh temporary folder, and runs
-  one `agy --print <fixed instruction> --model gemini-4-argon-high --mode plan --sandbox
-  --disable-slash-commands --output-format json` inside a job object. The draft is the
-  `response` text; `<name>.receipt.json` records the conversation ID, token use, usage
-  before and after (zero-turn), and the fact-check list.
-- **Outcomes.** Exit 0 written; 2 bad arguments; 3 refused by the gate; 4 failed or
-  unknown. Nothing is resent automatically.
+For analysis of supplied text, `agy-brief` competes in the task ranking. Neon high assists design and code,
+Hydrogen low handles bulk work and first reviews, and Argon high contributes a reasoning-heavy second opinion.
+Only read-only, supported task types without skill/software dependencies qualify. A selected handoff contains
+the runner, model, task type and expected profile. Pass those fields unchanged:
 
-Measured 2026-11-16 (agy 1.5.9): one short office notice took 47 seconds end to end
-(Argon 27 s, 27,016 input tokens) and moved the Argon weekly bucket from 2.73 to 3.19
-percent; the facts matched the brief. D-126's reversal condition is 3 points or more per
-draft, a credit or API-key path, or Simon judging Argon drafts worse than Claude's.
-An Orca `antigravity` worker with `--model gemini-4-argon-high` also delivered a task and
-answered correctly once on the same day (D-28 #12 did not reproduce, n=1); the general
-Gemini Orca lanes keep `dispatch: unavailable` until a separate decision.
+```text
+python -B scripts/execute_agy_prose.py --model MODEL --task-type TYPE --expected-profile PROFILE --brief-file BRIEF --out ABSOLUTE_NEW_FILE --not-confidential
+```
+
+The collector reads the exact names from `agy models` and verifies zero turns and zero tokens on `/usage`.
+It checks applicable model and shared subscription windows before each send. Missing, stale, unknown or
+85%-used windows block the call. There is one attempt per handoff. A provider error after sending is recorded
+without retry. The requested model/effort and usage receipt do not attest provider-internal model identity.
 
 ## Conditional host image adapter (D-32)
 
@@ -1103,16 +1083,11 @@ may use it after the registered, verified, settled predecessor artifacts and
 explicit cross-vendor transfer authorization are bound. It reuses the same
 task/acceptance and Store as Claude, not a second budget.
 
-Owner rule (hub D-101, applied to this transport by D-102): the planner rejects
-a Codex CLI candidate whose model is one of the five withdrawn GPT models
-(`MODEL_WITHDRAWN_BY_OWNER`), and a `gpt-6-astra` candidate at any effort other
-than `xhigh` (`EFFORT_PINNED_BY_OWNER`). The Orca transport gets the same rule
-from the lane table. A host session's own model is not restricted. Hub D-130
-reopened `gpt-6.1-sol` for `RESEARCH` and `AGENTIC` steps only, also pinned to
-`xhigh` (`orchestrate.OWNER_LANE_TASKS`). The planner applies that task scope to
-Orca candidates too, because the lane table scopes by process
-(`routing.WITHDRAWN_LANE_SCOPES`) and `research-deep` also holds planning and
-writing steps.
+D-131 permits independent Sol and Astra nodes in the same run. Sol handles daily implementation, first review
+and documents. Astra at xhigh handles design, multistep debugging, research, agent tasks and final review.
+Both share the Codex allowance. Each output requires test evidence or an independent vendor's review.
+The Codex CLI adapter remains read-only. Use a verified host for edits with the required independent reviewer.
+Native Orca coding rounds retain their two security gates and G1 writer/vendor separation.
 
 The node's `cli` manifest pins absolute `codex.exe` bytes, private canonical
 `cwd`, actual `CODEX_HOME` profile path, opaque profile/account references,
@@ -1240,7 +1215,7 @@ on the native Task before dispatch. No unrelated prompt is accepted at send time
 
 Security-gate fallback (hub D-102): when every Daybreak Orca candidate offered
 for the `security-artifact-gate` step was rejected because the model cannot
-stand, and the step is routed to `gpt-6-astra`, the planner writes
+stand, and the step is routed to `gpt-6.2-astra`, the planner writes
 `gate_fallback` on that step (pinned lane, fallback lane and effort, reasons).
 Only the planner writes it; a `gate_fallback` in a request step is dropped. It
 follows the route, so it is excluded from the task-intent digest and from the

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.29.0 — 2026-11-24 (D-131 candidate)
+
+- Rank independent GPT-6.2 Sol and Astra assignments alongside the existing Claude roles. Sol handles everyday implementation and first review, Astra handles design, complex debugging, research and final review.
+- Use Gemini 4 Neon for Korean drafts and technical advice, Hydrogen for bulk/first-pass work and Argon for second opinions. Bind the requested agy model and every applicable usage window before sending.
+- Allow an observed Codex Astra host to perform Computer Use under the existing GUI gates. Keep D-74, the prospective feedback window and the independent-review rules. See [decision and evidence](references/d131-model-routing.md).
+
+
 ## 2.28.0 - 2026-11-16
 
 - **GPT-6.1 Sol leads research and agentic steps again; everything else stays on GPT-6 Astra (hub D-130, Simon's instruction).** A paired run of 8 tasks at xhigh (read-only, blind grading) scored the two models the same, with Sol 6% slower, and the official Codex limits page lists 15-160 Sol messages per 5 hours against 5-45 for Astra (Plus and Standard Business).
