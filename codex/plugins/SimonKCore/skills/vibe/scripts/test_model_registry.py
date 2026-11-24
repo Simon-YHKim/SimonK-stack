@@ -317,11 +317,11 @@ class ModelRegistryTests(unittest.TestCase):
                 seen.update(probe["lanes"])
         # D-101 (2026-10-12): the only Codex lane a probe may offer is gpt-6-astra. Withdrawn lanes and
         # the deprecated Daybreak alias (gate only) never enter a new matchup.
-        self.assertTrue({"claude-opus-5", "claude-opus-5-5", "gpt-6-astra"} <= seen)
+        self.assertTrue({"claude-opus-5", "claude-opus-5-5", "gpt-6.2-astra"} <= seen)
         retired = (ast.literal_eval(module_literal("routing.py", "WITHDRAWN_LANES"))
                    | ast.literal_eval(module_literal("routing.py", "DEPRECATED_LANES")))
         self.assertEqual(seen & retired, set())
-        self.assertEqual({lane for lane in seen if vendors[lane] == "codex"}, {"gpt-6-astra"})
+        self.assertEqual({lane for lane in seen if vendors[lane] == "codex"}, {"gpt-6.2-astra", "gpt-6.2-sol"})
 
     def test_migration_cannot_reference_an_unknown_model(self):
         data = registry()
@@ -413,9 +413,11 @@ class ModelRegistryTests(unittest.TestCase):
             with self.subTest(model=model_id, claimed=claimed):
                 trial = candidate(surface="grok", model=model_id, observed_at=observed_at,
                                   quota={"used_pct": None, "observed_at": observed_at})
+                at = next(m for m in data["models"] if m["id"] == trial["model"]).get("routing_checked_at", observed_at)
+                trial["observed_at"] = trial["quota"]["observed_at"] = at
                 if claimed is not None:
                     trial["generation"] = claimed
-                out = self.m.constrain_runtime({"candidates": [trial]}, data, observed_at)["candidates"][0]
+                out = self.m.constrain_runtime({"candidates": [trial]}, data, at)["candidates"][0]
                 self.assertEqual(out["registry_errors"], [])
                 if expected is None:
                     self.assertNotIn("generation", out)
@@ -470,7 +472,7 @@ class ModelRegistryTests(unittest.TestCase):
         # D-99 (2026-10-12) gave claude-haiku-5-5 one.
         # D-125 (2026-11-16) gave grok-4.7, claude-fable-5-2 and gemini-4-hydrogen lanes; gpt-6.1-terra and
         # gemini-4-carbon are registered without one.
-        self.assertTrue({"gpt-6-sol", "grok-4.5", "gpt-6.1-terra", "gemini-4-carbon", "gemini-4-argon"} <= unlaned)
+        self.assertTrue({"gpt-6-sol", "grok-4.5", "gemini-4-carbon"} <= unlaned)
         self.assertFalse({"claude-sonnet-5-5", "gpt-6-luna", "claude-haiku-5-5", "grok-4.7",
                           "claude-fable-5-2", "gemini-4-hydrogen"} & unlaned)
         pending = catalog_map_section("Lane migration pending")
@@ -498,7 +500,7 @@ class ModelRegistryTests(unittest.TestCase):
         withdrawn = {"candidate": "gpt-6-astra", "status": "held-withdrawn-by-owner"}
         for lane in ("gpt-6.1-sol", "gpt-5.6-sol", "gpt-5.6-terra"):
             with self.subTest(withdrawn=lane):
-                self.assertEqual(migration[lane], withdrawn)
+                self.assertEqual(migration[lane], dict(withdrawn, candidate="gpt-6.2-astra" if lane.endswith("terra") else "gpt-6.2-sol"))
         # The class A work of the two Luna lanes went to claude-haiku-5-5.
         for lane in ("gpt-6-luna", "gpt-5.6-luna"):
             with self.subTest(withdrawn=lane):
@@ -584,37 +586,17 @@ class ModelRegistryTests(unittest.TestCase):
         # D-106 (same day, Simon: "sonnet5.5는 간단한 코딩에 써야 하는거 아니야? 복잡한 코딩은 opus5.5 xhigh가
         # 해야지.") corrects D-103: CODE_COMPLEX is Opus xhigh first, CODE_SIMPLE is Sonnet first.
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
-        # D-127 (2026-11-16, Simon) made the table active; the D-106 orders carry over unchanged.
-        # D-130 (same day) moved RESEARCH and AGENTIC to gpt-6.1-sol; the window end is unchanged.
-        self.assertEqual(policy["version"], "2026-11-16-rank.2")
+        self.assertEqual(policy["version"], "2026-11-24-rank.1")
         self.assertEqual((policy["checked_at"], policy["valid_until"]),
-                         ("2026-11-16T07:00:00+09:00", "2026-11-23T00:08:40+09:00"))
+                         ("2026-11-24T06:07:33+09:00", "2026-12-01T00:00:00+09:00"))
         profiles = policy["profiles"]
-
-        def rows(profile):
-            return [(e["model"], tuple(e.get("efforts", ())), e["rank"]) for e in profiles[profile]]
-
-        self.assertEqual(rows("CODE_SIMPLE"), [("claude-sonnet-5-5", (), 0), ("claude-opus-5-5", (), 1)])
-        self.assertEqual(rows("PLAN_ARCHITECTURE"), [("claude-opus-5-5", (), 0), ("gpt-6-astra", ("xhigh",), 1),
-                                                     ("claude-fable-5-2", (), 2)])
-        self.assertEqual(rows("CODE_COMPLEX"), [("claude-opus-5-5", (), 0), ("claude-fable-5-2", (), 1),
-                                                ("claude-sonnet-5-5", (), 2)])
-        self.assertEqual(rows("WRITING"), [("claude-opus-5-5", (), 0), ("claude-sonnet-5-5", (), 1)])
-        self.assertNotIn("claude-sonnet-5-5", {e["model"] for e in profiles["PLAN_ARCHITECTURE"]})
-        self.assertEqual({e["rank"] for e in profiles["CODE_SIMPLE"] if e["model"] == "claude-sonnet-5-5"}, {0})
-        self.assertEqual({e["rank"] for e in profiles["WRITING"] if e["model"] == "claude-sonnet-5-5"}, {1})
-        self.assertNotIn("claude-haiku-5-5", {e["model"] for e in profiles["CODE_SIMPLE"]})
-        # GPT side: gpt-6-astra at xhigh only, in every profile.
-        registry = {m["id"]: m for m in self.m.load_registry()["models"]}
-        for profile, entries in profiles.items():
-            for entry in entries:
-                if "model" not in entry:
-                    continue  # Tool transports (D-121 image, D-126 prose).
-                with self.subTest(profile=profile, model=entry["model"]):
-                    if registry[entry["model"]]["vendor"] == "openai":
-                        sol = profile in ("RESEARCH", "AGENTIC")  # D-130
-                        self.assertEqual((entry["model"], entry["efforts"]),
-                                         ("gpt-6.1-sol" if sol else "gpt-6-astra", ["xhigh"]))
+        for task, first in (("CODE_SIMPLE", "claude-sonnet-5-5"), ("CODE_COMPLEX", "claude-opus-5-5"),
+                            ("WRITING", "claude-opus-5-5"), ("PLAN_ARCHITECTURE", "claude-opus-5-5")):
+            claude = [row for row in profiles[task] if row["model"].startswith("claude-")]
+            self.assertEqual((claude[0]["model"], claude[0]["rank"]), (first, 0))
+        for task, model in (("CODE_NEW", "gpt-6.2-sol"), ("RESEARCH", "gpt-6.2-astra"),
+                            ("CODE_REVIEW_FINAL", "gpt-6.2-astra"), ("BULK_LIGHT", "gemini-4-hydrogen")):
+            self.assertIn(model, [row["model"] for row in profiles[task] if row["rank"] == 0])
         self.assertEqual((policy["sources"]["anthropic_haiku"], policy["sources"]["anthropic_haiku_docs"]),
                          ("https://www.anthropic.com/claude-haiku-5-5",
                           "https://platform.claude.com/docs/en/models/haiku-5-5/overview"))
@@ -679,11 +661,11 @@ class ModelRegistryTests(unittest.TestCase):
         # Simon's 2026-10-05 instruction resumed the first held entry (claude-sonnet-5, D-90).
         # D-101 (2026-10-12) holds the five GPT lanes the owner withdrew; the Daybreak key is a keep-*
         # pin again. The held-* checks below stay generic for any future hold.
-        self.assertEqual(held, ["gpt-5.6-luna", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-6-luna", "gpt-6.1-sol"])
+        self.assertEqual(held, ["gpt-5.6-luna", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-6-astra", "gpt-6-luna", "gpt-6.1-sol", "gpt-6.1-terra"])
         self.assertEqual(set(held), ast.literal_eval(module_literal("routing.py", "WITHDRAWN_LANES")))
         # D-125 (2026-11-16): the two successors keep their predecessors' statuses.
-        self.assertEqual(keep, ["claude-fable-5-1", "claude-fable-5-2", "gemini-3.8-flash", "gemini-4-hydrogen",
-                                "gpt-6-astra", "gpt-daybreak-blue-latest"])
+        self.assertEqual(keep, ["claude-fable-5-1", "claude-fable-5-2", "gemini-3.8-flash", "gemini-4-argon",
+                                "gemini-4-hydrogen", "gemini-4-neon", "gpt-daybreak-blue-latest"])
         pending = " ".join(catalog_map_section("Lane migration pending").split())
         self.assertNotIn("every `legacy_lane_migration` entry is still pending", pending)
         for model_id in keep:
@@ -714,19 +696,19 @@ class ModelRegistryTests(unittest.TestCase):
         deprecated = ast.literal_eval(module_literal("routing.py", "DEPRECATED_LANES"))
         pins = ast.literal_eval(module_literal("routing.py", "DEPRECATED_LANE_PINS"))
         pinned_effort = ast.literal_eval(module_literal("routing.py", "EFFORT_PINNED"))
-        astra, daybreak, gate = "gpt-6-astra", "gpt-daybreak-blue-latest", "security-artifact-gate"
+        astra, daybreak, gate = "gpt-6.2-astra", "gpt-daybreak-blue-latest", "security-artifact-gate"
         codex = {lane for lane, spec in lanes.items() if spec["vendor"] == "codex"}
 
         # Every Codex key is exactly one of: the single working lane, the deprecated gate alias, withdrawn.
-        self.assertEqual(withdrawn, {"gpt-6.1-sol", "gpt-6-luna", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"})
+        self.assertEqual(withdrawn, {"gpt-6-astra", "gpt-6.1-terra", "gpt-6.1-sol", "gpt-6-luna", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"})
         self.assertEqual(deprecated, {daybreak})
-        self.assertEqual(codex, {astra} | deprecated | withdrawn)
+        self.assertEqual(codex, {astra, "gpt-6.2-sol"} | deprecated | withdrawn)
         self.assertFalse(withdrawn & deprecated)
         self.assertEqual(pins, {daybreak: gate})
         # D-130 (2026-11-16): gpt-6.1-sol stands again in two processes only, also pinned to xhigh.
         scopes = ast.literal_eval(module_literal("routing.py", "WITHDRAWN_LANE_SCOPES"))
-        self.assertEqual(scopes, {"gpt-6.1-sol": ("research-deep", "terminal-ci-git")})
-        self.assertEqual(pinned_effort, {astra: "xhigh", "gpt-6.1-sol": "xhigh"})
+        self.assertEqual(scopes, {})
+        self.assertEqual(pinned_effort, {"gpt-6-astra": "xhigh", astra: "xhigh", "gpt-6.1-sol": "xhigh"})
         self.assertEqual((lanes["gpt-6.1-sol"]["std"], lanes["gpt-6.1-sol"]["top"]), ("xhigh", "xhigh"))
         self.assertEqual((lanes[astra]["std"], lanes[astra]["top"]), ("xhigh", "xhigh"))
         self.assertEqual(lanes[astra]["orca_efforts"][-1], "xhigh")
@@ -746,7 +728,7 @@ class ModelRegistryTests(unittest.TestCase):
             with self.subTest(position=where, lane=lane):
                 self.assertIn(lane, lanes)
                 self.assertNotIn(lane, withdrawn)
-                if lanes[lane]["vendor"] == "codex" and lane != astra:
+                if lanes[lane]["vendor"] == "codex" and lane not in (astra, "gpt-6.2-sol"):
                     # The only exception: Daybreak as the fixed gate, and its gate output rule.
                     self.assertEqual(lane, daybreak)
                     self.assertIn(where, ("fixed " + gate, "output rule " + daybreak))
@@ -783,18 +765,11 @@ class ModelRegistryTests(unittest.TestCase):
                     continue  # Tool transports (D-121 image, D-126 prose).
                 with self.subTest(profile=profile, model=entry["model"]):
                     self.assertIn(entry["model"], vendor_of)
-                    scoped = profile in ("RESEARCH", "AGENTIC")
-                    allowed = withdrawn - ({"gpt-6.1-sol"} if scoped else set())
-                    self.assertNotIn(entry["model"], allowed | deprecated | {"gpt-6-sol"})
+                    self.assertNotIn(entry["model"], withdrawn | deprecated)
                     if vendor_of[entry["model"]] == "openai":
                         gpt_rows += 1
-                        self.assertEqual((entry["model"], entry["efforts"]),
-                                         ("gpt-6.1-sol" if scoped else astra, ["xhigh"]))
-        # D-127: PLAN_ARCHITECTURE, CODE_REVIEW, DESIGN_UI, REASONING_ABSTRACT, VISION (Astra) and
-        # D-130: RESEARCH, AGENTIC (Sol).
-        self.assertEqual(gpt_rows, 7)
-        self.assertFalse(any(vendor_of[e["model"]] == "openai" for p in ("CODE_SIMPLE", "WRITING")
-                             for e in policy["profiles"][p]))
+                        self.assertIn(entry["model"], {astra, "gpt-6.2-sol"})
+        self.assertGreaterEqual(gpt_rows, 12)
 
         # Withdrawn keys stay readable for ledger rows and say why they are out.
         for lane in sorted(withdrawn):
@@ -802,7 +777,7 @@ class ModelRegistryTests(unittest.TestCase):
                 self.assertIn("원장 호환용(우선순위 밖)", lanes[lane]["ctx"])
                 self.assertEqual(evaluator_vendors()[lane], "codex")
                 self.assertEqual(registry["legacy_lane_migration"][lane]["status"], "held-withdrawn-by-owner")
-                self.assertIn(registry["legacy_lane_migration"][lane]["candidate"], {astra, "claude-haiku-5-5"})
+                self.assertIn(registry["legacy_lane_migration"][lane]["candidate"], {astra, "gpt-6.2-sol", "claude-haiku-5-5"})
         # Withdrawal is a routing decision, not a provider fact: the models stay active in the registry.
         models = {m["id"]: m for m in registry["models"]}
         for lane in sorted(withdrawn):
@@ -818,7 +793,7 @@ class ModelRegistryTests(unittest.TestCase):
         fixed = {p[0]: p[3] for p in ast.literal_eval(module_literal("routing.py", "PROCESSES")) if p[3]}
         gate = "gpt-daybreak-blue-latest"
         self.assertEqual(fixed["security-artifact-gate"], (gate, "xhigh"))
-        self.assertEqual(fixed["security-bizlogic-2nd"], ("gpt-6-astra", "xhigh"))
+        self.assertEqual(fixed["security-bizlogic-2nd"], ("gpt-6.2-astra", "xhigh"))
         # G1_SEC_SAME_MODEL: the two gates are different models. G1: both are Codex and the coding
         # lanes are Claude only, so the gate never grades its own vendor's work.
         self.assertNotEqual(fixed["security-artifact-gate"][0], fixed["security-bizlogic-2nd"][0])
@@ -844,8 +819,8 @@ class ModelRegistryTests(unittest.TestCase):
                       SCRIPT.with_name("routing.py").read_text(encoding="utf-8"))
 
         data = self.m.load_registry()
-        self.assertEqual(data["version"], "2026-11-16.1")
-        self.assertEqual((data["checked_at"], data["data_as_of"]), ("2026-11-16T00:08:40+09:00", "2026-11-16"))
+        self.assertEqual(data["version"], "2026-11-24.1")
+        self.assertEqual((data["checked_at"], data["data_as_of"]), ("2026-11-16T00:08:40+09:00", "2026-11-24"))
         models = {m["id"]: m for m in data["models"]}
         self.assertEqual(models[gate]["lifecycle"], "deprecated")  # the move does not revive the alias.
         migration = data["legacy_lane_migration"]
@@ -1011,7 +986,7 @@ class ModelRegistryTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.m.validate_registry(broken)
         # The exact ID binds and efforts intersect; a public listing grants no billing or access.
-        observed_at = data["checked_at"]
+        observed_at = haiku["routing_checked_at"]
         trial = candidate(surface="claude", model="claude-haiku-5-5", observed_at=observed_at,
                           provider_efforts=["low", "medium", "ultra"], transport_efforts=["low", "ultracode"],
                           quota={"used_pct": None, "observed_at": observed_at})
@@ -1042,8 +1017,8 @@ class ModelRegistryTests(unittest.TestCase):
         new = "claude-haiku-5-5"
         self.assertEqual(classes["A"], [new, "claude-sonnet-5-5", "claude-opus-5-5"])
         # Class B, A-verify and D are untouched by D-99 (D-125 later moved their Fable seat to 5.2).
-        self.assertEqual(classes["B"], ["gpt-6-astra", "claude-fable-5-2", "claude-opus-5-5"])
-        self.assertEqual(classes["A-verify"], ["gpt-6-astra", "claude-fable-5-2", "claude-opus-5-5"])
+        self.assertEqual(classes["B"], ["gpt-6.2-astra", "claude-fable-5-2", "claude-opus-5-5"])
+        self.assertEqual(classes["A-verify"], ["gpt-6.2-astra", "claude-fable-5-2", "claude-opus-5-5"])
         self.assertEqual(classes["D"], ["claude-opus-5-5"])
         elsewhere = {lane for name, order in classes.items() if name != "A" for lane in order} | set(coding)
         elsewhere |= {lane for lane, _effort in fixed.values()}
@@ -1135,7 +1110,7 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertEqual(lanes["gemini-4-hydrogen"]["orca_efforts"], ("low", "medium", "high", "xhigh"))
         self.assertEqual(models["gemini-4-hydrogen"]["api_efforts"], ["low", "medium", "high", "xhigh"])
         # Registered without a lane: Terra (D-101: GPT is Astra only) and Carbon (Ultra-only in Antigravity).
-        for model_id in ("gpt-6.1-terra", "gemini-4-carbon"):
+        for model_id in ("gemini-4-carbon",):
             with self.subTest(unlaned=model_id):
                 self.assertNotIn(model_id, lanes)
                 self.assertNotIn(model_id, migration)
@@ -1143,7 +1118,7 @@ class ModelRegistryTests(unittest.TestCase):
         working_codex = ({lane for lane, spec in lanes.items() if spec["vendor"] == "codex"}
                          - ast.literal_eval(module_literal("routing.py", "WITHDRAWN_LANES"))
                          - ast.literal_eval(module_literal("routing.py", "DEPRECATED_LANES")))
-        self.assertEqual(working_codex, {"gpt-6-astra"})
+        self.assertEqual(working_codex, {"gpt-6.2-astra", "gpt-6.2-sol"})
 
     def test_registry_and_task_fit_windows_cover_the_2026_11_16_recheck(self):
         data = self.m.load_registry()

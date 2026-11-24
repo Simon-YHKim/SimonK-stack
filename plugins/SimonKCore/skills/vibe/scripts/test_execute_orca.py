@@ -397,7 +397,7 @@ class OrcaAdapterTests(unittest.TestCase):
         # D-67 minority guard: a ready plan on a newly registered lane is not a launch.
         # Without the account/billing certificate the adapter stops before any native read.
         # D-101 (2026-10-12): gpt-6.1-sol was withdrawn; the Codex lane here is gpt-6-astra @ xhigh.
-        for surface, model, effort in (("claude", "claude-opus-5-5", "high"), ("codex", "gpt-6-astra", "xhigh")):
+        for surface, model, effort in (("claude", "claude-opus-5-5", "high"), ("codex", "gpt-6.2-astra", "xhigh")):
             with self.subTest(model=model):
                 store = run_state.Store(Path(self.tmp.name) / f"{model}.sqlite3")
                 store.initialize()

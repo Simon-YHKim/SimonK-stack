@@ -57,6 +57,7 @@ contract without `task_type`; its exact argv cost still needs verification.
 | CODE_NEW | Implement new code; writing scope must be explicit |
 | CODE_FIX | Diagnose or repair code; distinguish advice from edits |
 | CODE_REVIEW | Read-only code review; link `verify_of` when reviewing a writer |
+| CODE_REVIEW_FINAL | Independent final code review of evidence against acceptance criteria |
 | RESEARCH | Gather and synthesize sourced evidence |
 | AGENTIC | Judgment within a tool workflow; split code and GUI substeps |
 | COMPUTER_USE | Screen-only operation after authorized tool alternatives are checked |
@@ -94,6 +95,7 @@ step; never omit a type merely to bypass a rejected requirement.
   "CODE_FIX": {"kind": "llm", "needs": ["code"], "demand": "reasoning", "proc": "coding", "class": "B"},
   "CODE_CLEANUP": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "coding", "class": "B"},
   "CODE_REVIEW": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "claim-verify", "class": "A-verify"},
+  "CODE_REVIEW_FINAL": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "claim-verify", "class": "A-verify"},
   "RESEARCH": {"kind": "llm", "needs": ["research", "reasoning"], "demand": "reasoning", "proc": "research-deep", "class": "B"},
   "AGENTIC": {"kind": "llm", "needs": ["reasoning"], "demand": "reasoning", "proc": "terminal-ci-git", "class": "B"},
   "COMPUTER_USE": {"kind": "gui", "needs": ["gui"], "demand": "reasoning", "proc": "ui-visual", "class": "C-platform"},
@@ -114,7 +116,7 @@ a separate LLM reviewer in the same DAG (`verify_of` plus `depends_on`). The
 planner requires a different model vendor, not just another model name. A Grok
 Bot and Grok CLI do not count as independent reviewers. Destructive actions,
 publishing, credential changes and payment retain their separate approval gates.
-CODE_REVIEW is always read-only; the compiler rejects `writes: true`. Split
+Both review types are always read-only; the compiler rejects `writes: true`. Split
 repairs into a CODE_FIX step and review the resulting changes independently.
 
 For COMPUTER_USE also supply the `vibe-bot` skill, exact `target`, evidence-based

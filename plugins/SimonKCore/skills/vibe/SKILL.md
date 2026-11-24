@@ -1,8 +1,8 @@
 ---
 name: vibe
-description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan from a per-task model ranking, sends image generation to Codex image_gen and Korean prose drafts to Gemini Argon within included usage, and reports blocked coding routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff, with local Playwright/Chrome/Computer Use only when the Bot is blocked.'
+description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan from a per-task model ranking, sends image generation to Codex image_gen and Korean prose drafts to Gemini Neon within included usage, and reports blocked coding routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff, with local Playwright/Chrome/Computer Use only when the Bot is blocked.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.28.0
+version: 2.29.0
 author: simon-stack
 ---
 
@@ -34,8 +34,7 @@ Quality preference is not spending authorization.
 At each /vibe invocation, follow [Orca skill sync and discovery](references/orca-workflow.md#live-orca-discovery):
 run `scripts/orca_skills.py --orca <selected-absolute-executable> --sync`, then
 select relevant live topics and fetch their guides with repeated `--select`.
-This updates only existing unmodified Orca skills, never the Orca application.
-Missing Orca does not block unrelated host work. Inspect update warnings; guide
+This updates only unmodified Orca skills. Missing Orca does not block unrelated host work. Inspect update warnings; guide
 discovery is not execution proof. Record loaded skill/source versions; do not
 rewrite immutable bundle receipts or silently replace customized skills.
 
@@ -48,7 +47,6 @@ match; missing/drifted inputs stop discovery without falling back to home.
 For the D-29 Codex general-skill subset, accept the five documented safety-skill
 omissions only when `subset.json` matches the verified overlay's exact members.
 This metadata check is not full package, installation or host-behavior verification.
-This is candidate discovery, not approval to install or execute its skills.
 For other layouts, root order is the current skill's sibling directory, then .agents,
 .codex, .claude and .codex/skills/.system roots. Supply repeated `--root` flags
 for other flat parents, including plugin skill directories. First declared
@@ -127,31 +125,35 @@ Follow this table by default and do not re-judge a ranked route. After every gat
 billing, quality floor, owner pins, review vendor) the planner takes the highest rank among the cheapest remaining
 routes and records `selection`: `mode: ranked`, the rank, and each skipped higher rank with its reasons. Within one
 rank `scale: small` prefers the current session and `scale: large` a worker (Orca, then CLI). Rank beats quota
-pressure below the ceiling. GPT is `gpt-6-astra` at xhigh (D-101), except `gpt-6.1-sol` at xhigh for research and
-agentic steps only (D-130); coding stays on Claude because both security gates are Codex (D-28).
+pressure below the ceiling. Use independent Sol implementation/first-review and Astra design/debug/final-review nodes
+in parallel within the run's shared budget and parallel cap. Accept GPT output after independent vendor review or
+requirement-specific test evidence (check stubs, invented facts and out-of-scope changes).
+When selecting a model or changing rank, inspect X and AI 활용 갤러리 reports on the actual task. When ambiguous,
+follow applicable user experience and record disagreements and inaccessible sources within the prospective 24-hour window.
 
-<!-- TASK-RANKING:BEGIN generated from references/task-fit-policy.json sha256 19cc032b1cfb by scripts/sync_task_ranking.py; edit the JSON, not this table -->
+<!-- TASK-RANKING:BEGIN generated from references/task-fit-policy.json sha256 0ce55965cdbe by scripts/sync_task_ranking.py; edit the JSON, not this table -->
 | Task type | Default order (first = rank 1) | Every ranked route blocked |
 | --- | --- | --- |
-| `PLAN_ARCHITECTURE` | `claude-opus-5-5` → `gpt-6-astra` @xhigh → `claude-fable-5-2` | situational |
-| `CODE_COMPLEX` | `claude-opus-5-5` → `claude-fable-5-2` → `claude-sonnet-5-5` | situational |
-| `CODE_SIMPLE` | `claude-sonnet-5-5` → `claude-opus-5-5` | situational |
-| `WRITING` | `claude-opus-5-5` → `claude-sonnet-5-5` | situational |
-| `CODE_NEW` | `claude-opus-5-5` → `claude-fable-5-2` → `claude-sonnet-5-5` | situational |
-| `CODE_FIX` | `claude-opus-5-5` → `claude-fable-5-2` → `claude-sonnet-5-5` | situational |
-| `CODE_CLEANUP` | `claude-opus-5-5` → `claude-fable-5-2` → `claude-sonnet-5-5` | situational |
-| `CODE_REVIEW` | `gpt-6-astra` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
-| `RESEARCH` | `gpt-6.1-sol` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
-| `AGENTIC` | `gpt-6.1-sol` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
+| `PLAN_ARCHITECTURE` | `gpt-6.2-astra` @xhigh = `gemini-4-neon` = `claude-opus-5-5` → `gemini-4-argon` → `claude-fable-5-2` | situational |
+| `CODE_COMPLEX` | `gpt-6.2-astra` @xhigh = `gemini-4-neon` = `claude-opus-5-5` → `claude-fable-5-2` → `claude-sonnet-5-5` | situational |
+| `CODE_SIMPLE` | `gpt-6.2-sol` = `claude-sonnet-5-5` → `claude-opus-5-5` | situational |
+| `WRITING` | `gpt-6.2-sol` = `claude-opus-5-5` → `claude-sonnet-5-5` | situational |
+| `CODE_NEW` | `gpt-6.2-sol` = `gemini-4-neon` = `claude-opus-5-5` → `claude-fable-5-2` → `claude-sonnet-5-5` | situational |
+| `CODE_FIX` | `gpt-6.2-sol` = `gemini-4-neon` = `claude-opus-5-5` → `claude-fable-5-2` → `claude-sonnet-5-5` | situational |
+| `CODE_CLEANUP` | `gpt-6.2-sol` = `claude-opus-5-5` → `claude-fable-5-2` → `claude-sonnet-5-5` | situational |
+| `CODE_REVIEW` | `gpt-6.2-sol` = `gemini-4-hydrogen` → `gemini-4-neon` = `claude-fable-5-2` → `claude-opus-5-5` | situational |
+| `CODE_REVIEW_FINAL` | `gpt-6.2-astra` @xhigh = `gemini-4-argon` → `claude-fable-5-2` → `claude-opus-5-5` | situational |
+| `RESEARCH` | `gpt-6.2-astra` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
+| `AGENTIC` | `gpt-6.2-astra` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
 | `COMPUTER_USE` | Grok Bot (vibe-bot) → local Playwright headless → local Claude in Chrome → local Computer Use | wait for the Bot or Simon |
-| `DESIGN_UI` | `claude-opus-5-5` → `gpt-6-astra` @xhigh | situational |
-| `KOREAN_DOC` | `claude-opus-5-5` → `claude-sonnet-5-5` | situational |
-| `BULK_LIGHT` | `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5` | situational |
-| `REASONING_ABSTRACT` | `claude-fable-5-2` → `claude-opus-5-5` → `gpt-6-astra` @xhigh | situational |
-| `VISION` | `claude-opus-5-5` → `gpt-6-astra` @xhigh | situational |
+| `DESIGN_UI` | `gpt-6.2-astra` @xhigh = `claude-opus-5-5` | situational |
+| `KOREAN_DOC` | `gpt-6.2-sol` = `gemini-4-neon` = `claude-opus-5-5` → `claude-sonnet-5-5` | situational |
+| `BULK_LIGHT` | `gemini-4-hydrogen` = `gpt-6.2-sol` = `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5` | situational |
+| `REASONING_ABSTRACT` | `gpt-6.2-astra` @xhigh = `gemini-4-argon` = `claude-fable-5-2` → `claude-opus-5-5` | situational |
+| `VISION` | `gpt-6.2-astra` @xhigh = `claude-opus-5-5` | situational |
 | `IMAGE_GENERATION` | Codex `image_gen` → host image adapter | situational |
-| `KOREAN_PROSE` | Gemini 4 Argon via `agy-prose` | replan as `KOREAN_DOC` |
-Valid 2026-11-16T07:00:00+09:00 to 2026-11-23T00:08:40+09:00 (`2026-11-16-rank.2`); outside that window every type is situational.
+| `KOREAN_PROSE` | Neon @medium via agy → Argon @high via agy | replan as `KOREAN_DOC` |
+Valid 2026-11-24T06:07:33+09:00 to 2026-12-01T00:00:00+09:00 (`2026-11-24-rank.1`); outside that window every type is situational.
 <!-- TASK-RANKING:END -->
 
 Judge the situation only when `selection.mode` is `situational`: the type is not ranked, the table is outside its
@@ -172,8 +174,7 @@ to `kind=image`, never text-model `VISION`. D-121 (Simon, 2026-10-24): it runs o
 the D-74 usage gate only (ChatGPT login, verified account, fresh `codex` usage under 85 percent, no reached limit).
 Run `python scripts/execute_codex_image.py --prompt-file <brief> --out <absolute .png>` (`--transparent` for alpha):
 one `codex exec`, PNG from the rollout, a receipt beside it, no retry. Exit 3 is a usage refusal; never switch to a
-paid image API; the D-32 `host-image` adapter stays optional. `KOREAN_PROSE` (D-126) is `kind=prose`: one Argon `agy
---print` under the same gate, then a required review step fact-checks it. See
+paid image API; the D-32 `host-image` adapter stays optional. `KOREAN_PROSE` (D-126) is `kind=prose`: one Neon (fallback Argon) `agy --print` under the same gate, then a required review step fact-checks it. See
 [orchestration](references/orchestration.md).
 
 At invocation, use the [model-release watch](references/model-release-watch.md)
@@ -271,7 +272,7 @@ Ask only for missing intent or actions beyond existing authority.
 - Orca: read [Orca workflow](references/orca-workflow.md). Validate the entire
   assignment plan, then use `scripts/execute_orca.py` with the guarded adapter
   contract in [orchestration](references/orchestration.md). Its first version
-  covers local Claude/Codex flag-effort lanes only (D-101, 2026-10-12, Simon 지시: GPT 쪽 레인은 `gpt-6-astra` @xhigh 하나다. `gpt-6.1-sol`·`gpt-6-luna`·`gpt-5.6-*` 는 철회돼 계획에 넣으면 ORCA_LANE_WITHDRAWN 이다(결함이 아니라 소유자 지시). D-130: `gpt-6.1-sol` 만 `research-deep`·`terminal-ci-git` 공정에서 xhigh 로 다시 선다. A 클래스는 `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5` 다. 등록된 레인은 canary 를 통과했어도 계정/과금 인증서 전이라 동작 레인이 아니다. 보안 생성물 게이트는 폐기 표시된 `gpt-daybreak-blue-latest` @xhigh 고정이고 중앙 계획기의 MODEL_NOT_ACTIVE 는 그대로다. D-102: 그 별칭이 설 수 없을 때만 `gpt-6-astra` @xhigh 가 게이트를 맡는다 — 계획기가 Daybreak 후보를 가용성 사유로 거부했을 때 단계에 `gate_fallback` 을 남기며, 그 상태에서만 두 보안 게이트가 같은 모델이다. 게이트 후보에는 Daybreak 를 항상 넣는다(없어졌으면 `available: false`). 출력이 비거나 차단되거나 판정이 모호하면 실패이고 같은 실행을 폴백에 넘기지 않는다). It calls claim internally;
+  covers local Claude/Codex flag-effort lanes only. D-131 registers both 6.2 lanes, retires 6.1 and preserves native G1/certificate gates. It calls claim internally;
   never hand it a saved dispatch_allowed flag. Native Task/spec, workspace,
   executable and fresh account/billing evidence must match before a start.
   Reentry is lookup-only. Unsupported lanes remain blocked;
@@ -353,8 +354,7 @@ For changes, coding or `qa` nodes, `Store.complete` requires a pinned QA 2.1
 contract and rechecks artifact hashes. Read [QA completion gate](references/orchestration.md#qa-completion-gate):
 discover the QA root, `bind-qa`, `check-qa`, then `complete`. Missing/skipped/failed
 results, stale targets or validator drift block closure. Node `verify`, scores,
-prose and cached pass flags cannot replace it. Retain negative/boundary checks
-and high-risk human approval evidence; the gate never grants release authority.
+prose and cached pass flags cannot replace it. Retain negative/boundary checks and high-risk human approval evidence; the gate never grants release authority.
 Keep Orca decision sheets/ledgers/release steps. Report verification, routes, extra spend, subscription usage and blocked work.
 
 ## Legacy Orca routing
@@ -397,11 +397,10 @@ The [generated legacy Orca routing table](references/legacy-routing.md) is histo
 ## Verification and references
 
 See the [verification commands](references/orca-workflow.md#verification-commands).
-
 - [Orchestration schema and cost policy](references/orchestration.md)
-- [Model catalog map, 2026-11-16 refresh(D-125: fable 자리 `claude-fable-5-2` · C-realtime `grok-4.7` · C-platform `gemini-4-hydrogen` · Terra·Carbon 등록만), D-101 레인 상태(GPT 는 `gpt-6-astra` @xhigh 만 · 철회 레인 5개 · A 클래스 `claude-haiku-5-5` 선두 · 코딩 opus(xhigh) → fable → sonnet D-106 · 인증서 대기)](references/model-catalog-map.md)
+- [D-131 decision and user reports](references/d131-model-routing.md) · [Model catalog and migration history](references/model-catalog-map.md)
 - [Guarded Orca workflow and preparation limits](references/orca-workflow.md)
-- [D-28 route decisions](references/d28-routing.md) · [Security artifact gate: D-101 Daybreak lane, D-102 gpt-6-astra fallback, rubric and fail-closed rules](references/security-artifact-gate.md)
+- [D-28 route decisions](references/d28-routing.md) · [Security artifact gate: D-101 Daybreak lane, D-131 Astra fallback, rubric and fail-closed rules](references/security-artifact-gate.md)
 - [Astra effort transport cap](references/v2.2-astra-effort-cap.md)
 - [Adversarial evaluations](references/adversarial-eval.md)
 - [Operational pitfalls](references/pitfalls.md)

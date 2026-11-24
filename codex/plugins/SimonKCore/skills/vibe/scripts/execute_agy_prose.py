@@ -1,19 +1,7 @@
 #!/usr/bin/env python3
-"""Draft Korean prose on Gemini 4 Argon through `agy --print` (hub D-126, Simon 2026-11-16).
-
-D-107 inside /vibe: Korean notices, announcements, polishing and short copy are drafted
-on Gemini 4 Argon and then fact-checked by the host against the brief (numbers, proper
-nouns, claims). One `agy --print` per call and never an automatic retry. Before sending,
-it reads agy's usage with the zero-turn `/usage` command and refuses when the D-74 usage
-gate is closed: unmeasured or stale usage, or the Argon bucket at or above 85 percent.
-The brief travels as a file in a private temporary folder, not on the command line.
-Company-confidential material is never sent: the caller must pass --not-confidential
-after checking the brief.
-
-    python execute_agy_prose.py --brief-file brief.md --out C:/abs/notice.md --not-confidential
-
-Exit codes: 0 draft written, 2 bad arguments, 3 refused by the usage gate,
-4 failed (the outcome is reported; nothing is resent).
+"""Draft Korean prose or a read-only advisory response from an approved nonconfidential brief.
+Use the model and task type in the handoff. The runner checks the exact agy catalog
+slug and its included usage immediately before sending. No automatic retry.
 """
 from __future__ import annotations
 
@@ -29,11 +17,12 @@ from datetime import datetime, timezone
 
 if __name__ == "__main__":
     sys.dont_write_bytecode = True
+import agy_lanes
 import orchestrate
 import runtime_collect
 from ledger import scan_secrets
 
-MODEL = orchestrate.AGY_PROSE_MODEL  # gemini-4-argon-high (D-105 seat model, D-107 drafts)
+MODEL = orchestrate.AGY_PROSE_MODEL
 TIMEOUT_SECONDS = 600
 MAX_BRIEF_BYTES = 65536
 MAX_OUTPUT_BYTES = 4 * 1024 * 1024
@@ -42,6 +31,8 @@ BRIEF_NAME = "00_BRIEF.md"
 PROMPT = ("이 작업 폴더의 " + BRIEF_NAME + " 를 읽고 그 요청대로 한국어 글의 초안을 써라. "
           "파일을 만들거나 고치지 말고 명령도 실행하지 마라. 브리프에 없는 수치·고유명사·사실을 "
           "지어내지 마라. 답에는 완성된 초안만 마크다운으로 쓴다.")
+ADVISORY_PROMPT = ("Read 00_BRIEF.md and answer the specified task from the supplied text. "
+                   "Do not change files or run commands. Identify missing evidence explicitly.")
 FACT_CHECK = ["numbers", "proper nouns", "claims and dates"]
 
 
@@ -63,8 +54,9 @@ def utc_now():
     return datetime.now(timezone.utc).isoformat()
 
 
-def build_argv(command):
-    return [*command, "--print", PROMPT, "--model", MODEL, "--mode", "plan", "--sandbox",
+def build_argv(command, model=MODEL, task_type="KOREAN_PROSE"):
+    prompt = PROMPT if task_type == "KOREAN_PROSE" else ADVISORY_PROMPT
+    return [*command, "--print", prompt, "--model", model, "--mode", "plan", "--sandbox",
             "--disable-slash-commands", "--output-format", "json",
             "--print-timeout", str(TIMEOUT_SECONDS) + "s"]
 
@@ -84,12 +76,12 @@ def parse_result(text):
             "usage": usage}
 
 
-def gate(observation, now):
+def gate(observation, now, model=MODEL):
     """D-74 / D-126 check. Returns (reasons, tool); an empty list means open."""
-    tool = runtime_collect.agy_prose_tool(observation)
+    tool = runtime_collect.agy_prose_tool(observation, model)
     if tool is None:
         return ["PROSE_AGY_SUBSCRIPTION_UNVERIFIED"], None
-    return orchestrate.assess_agy_prose_tool(tool, {}, now), tool
+    return orchestrate.assess_agy_usage(tool, now), tool
 
 
 def collect_observation():
@@ -146,11 +138,14 @@ def usage_summary(tool):
 
 
 def draft(brief, out, not_confidential, *, collect=collect_observation, run=run_agy,
-          command=None, now=None):
+          command=None, now=None, model=MODEL, task_type="KOREAN_PROSE", expected_profile=None):
     """Return (exit_code, receipt). The receipt is also written beside the draft."""
+    if not (model in agy_lanes.PROSE_MODELS if task_type == "KOREAN_PROSE"
+            else task_type in agy_lanes.ADVISORY_MODELS.get(model, ())):
+        raise ProseError("AGY_TASK_MODEL_MISMATCH", exit_code=2)
     started = now or utc_now()
-    receipt = {"schema": "vibe-agy-prose-v1", "decision": "D-126", "status": "failed",
-               "started_at": started, "model": MODEL, "fact_check_required": FACT_CHECK}
+    receipt = {"schema": "vibe-agy-prose-v1", "decision": "D-131", "status": "failed",
+               "started_at": started, "model": model, "task_type": task_type, "fact_check_required": FACT_CHECK}
     if not_confidential is not True:
         raise ProseError("CONFIDENTIALITY_UNCONFIRMED", exit_code=2,
                          detail="pass --not-confidential after checking the brief; company-confidential material never goes to agy")
@@ -164,7 +159,9 @@ def draft(brief, out, not_confidential, *, collect=collect_observation, run=run_
     receipt["brief_sha256"] = hashlib.sha256(brief.encode("utf-8")).hexdigest()
     observation = collect()
     # Judge after collecting: an observation newer than the clock is not fresh.
-    reasons, tool = gate(observation, now or utc_now())
+    reasons, tool = gate(observation, now or utc_now(), model)
+    if expected_profile and observation.get("profile_ref") != expected_profile:
+        reasons.append("AGY_PROFILE_CHANGED")
     if tool is not None:
         receipt["usage_before"] = usage_summary(tool)
     if reasons:
@@ -176,7 +173,7 @@ def draft(brief, out, not_confidential, *, collect=collect_observation, run=run_
         command = command or runtime_collect.resolve_command("antigravity")
         env = runtime_collect.child_env(os.environ, "antigravity")
         try:
-            rc, stdout = run(build_argv(command), workdir, env)
+            rc, stdout = run(build_argv(command, model, task_type), workdir, env)
         except SendInterrupted as exc:
             # The request may have reached agy; report it and do not resend.
             receipt.update(status="unknown", reasons=["AGY_SEND_OUTCOME_UNKNOWN:" + exc.code])
@@ -203,7 +200,7 @@ def draft(brief, out, not_confidential, *, collect=collect_observation, run=run_
         receipt["status"] = "succeeded"
         # Usage after the send (zero-turn); used for the D-126 per-draft usage condition.
         try:
-            after = runtime_collect.agy_prose_tool(collect())
+            after = runtime_collect.agy_prose_tool(collect(), model)
             receipt["usage_after"] = usage_summary(after) if after else None
         except (runtime_collect.CollectorError, OSError) as exc:
             receipt["usage_after"] = {"error": str(exc)}
@@ -228,13 +225,17 @@ def main(argv=None):
     parser.add_argument("--out", required=True, help="Absolute path of the new .md or .txt draft")
     parser.add_argument("--not-confidential", action="store_true",
                         help="Confirm the brief holds no company-confidential material")
+    parser.add_argument("--model", choices=sorted(agy_lanes.MODELS), default=MODEL)
+    parser.add_argument("--task-type", default="KOREAN_PROSE")
+    parser.add_argument("--expected-profile", help="Profile binding from the planned route")
     args = parser.parse_args(argv)
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     try:
         brief = (args.brief if args.brief is not None
                  else Path(args.brief_file).read_text(encoding="utf-8"))
-        code, receipt = draft(brief, args.out, args.not_confidential)
+        code, receipt = draft(brief, args.out, args.not_confidential, model=args.model,
+                              task_type=args.task_type, expected_profile=args.expected_profile)
     except ProseError as exc:
         code, receipt = exc.exit_code, {"status": "failed", "reasons": [exc.code],
                                         "detail": exc.detail}

@@ -101,6 +101,8 @@ def validate_registry(data):
             keys.add(key)
         if model.get("lifecycle") not in ("active", "preview", "deprecated", "retired"):
             raise ValueError("Invalid lifecycle")
+        if "routing_checked_at" in model:
+            timestamp(model["routing_checked_at"])
         efforts = model.get("api_efforts")
         alias = model["id_namespace"] == "provider-api-alias"
         if alias and not model.get("documented_target"):
@@ -154,8 +156,6 @@ def constrain_runtime(runtime, registry, now=None):
     """
     validate_registry(registry)
     now = now or datetime.now(timezone.utc).isoformat()
-    age = (timestamp(now) - timestamp(registry["checked_at"])).total_seconds()
-    fresh = 0 <= age <= MAX_FACT_AGE_SECONDS
     index = {key: m for m in registry["models"] for key in [m["id"], *m.get("aliases", [])]}
     result = copy.deepcopy(runtime)
     result["model_registry"] = {"version": registry["version"], "sha256": digest(registry),
@@ -173,18 +173,20 @@ def constrain_runtime(runtime, registry, now=None):
             c.update(provider_efforts=[], transport_efforts=[], requested_model=None,
                      resolved_model=None, model=None)
         else:
-            observations.append((registry["checked_at"], MAX_FACT_AGE_SECONDS))
             model = index.get(requested)
             if not model:
                 errors.append("MODEL_NOT_REGISTERED")
             else:
-                if not fresh:
-                    errors.append("REGISTRY_STALE")
                 if model["surface"] != c.get("surface"):
                     errors.append("MODEL_SURFACE_MISMATCH")
                 rolling = model["id_namespace"] == "provider-api-alias"
                 target_id = model["documented_target"] if rolling else model["id"]
                 target = index[target_id]
+                # An alias and its target must both have current routing facts.
+                for stamp in {m.get("routing_checked_at", registry["checked_at"]) for m in (model, target)}:
+                    observations.append((stamp, MAX_FACT_AGE_SECONDS))
+                    if not 0 <= (timestamp(now) - timestamp(stamp)).total_seconds() <= MAX_FACT_AGE_SECONDS:
+                        errors.append("REGISTRY_STALE")
                 alias = requested != model["id"] or rolling
                 if alias and c.get("resolved_model") != target_id:
                     errors.append("ALIAS_RESOLUTION_UNVERIFIED")

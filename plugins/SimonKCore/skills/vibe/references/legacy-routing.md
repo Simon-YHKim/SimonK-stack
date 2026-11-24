@@ -28,8 +28,13 @@ are relative to the `/vibe` skill root.
 | `claude-sonnet-5-5` | claude | `high` | `medium` | `low` · `medium` · `high` · `xhigh` · `max` | `--effort` | ✅ `--model`·`--effort` 가능 | canary 통과 · 인증서 전 · Orca 미등록 id → low~max · xhigh·max 정책 밖 |
 | `claude-sonnet-5` | claude | `xhigh` | `medium` | `low` · `medium` · `high` · `xhigh` · `max` | `--effort` | ✅ `--model`·`--effort` 가능 | 1M · API 단가 Opus 5의 0.4배 · 원장 호환용(우선순위 밖) |
 | `claude-haiku-5-5` | claude | `medium` | `low` | `low` · `medium` · `high` · `xhigh` · `max` | `--effort` | ✅ `--model`·`--effort` 가능 | canary 통과 · 인증서 전 · Orca 미등록 id → low~max · high 이상 정책 밖 · 10만 토큰 초과 입력 미측정 |
-| `gpt-6-astra` | codex | `xhigh` | `xhigh` | `minimal` · `low` · `medium` · `high` · `xhigh` — 정책은 **`xhigh` 고정** (off-ladder 불가) | `--effort` | ✅ `--model`·`--effort` 가능 | 272K(최대 872K) · Orca 상한 xhigh · D-101 항상 xhigh · 유일한 GPT 레인 |
-| `gpt-6.1-sol` | codex | `xhigh` | `xhigh` | `minimal` · `low` · `medium` · `high` · `xhigh` — 정책은 **`xhigh` 고정** (off-ladder 불가) | `--effort` | ⚠ **공정 한정** (D-130) — `research-deep` · `terminal-ci-git` 만 (그 밖은 `LANE_WITHDRAWN`) | D-130 research-deep·terminal-ci-git 공정 한정(그 밖은 철회) · 원장 호환용(우선순위 밖) · xhigh 고정 · Orca 상한 xhigh |
+| `gpt-6.2-astra` | codex | `xhigh` | `xhigh` | `low` · `medium` · `high` · `xhigh` — 정책은 **`xhigh` 고정** (off-ladder 불가) | `--effort` | ✅ `--model`·`--effort` 가능 | D-131 · 계획·최종 리뷰 · Orca 실행 인증 대기 |
+| `gpt-6.2-sol` | codex | `xhigh` | `medium` | `low` · `medium` · `high` · `xhigh` | `--effort` | ✅ `--model`·`--effort` 가능 | D-131 · 구현·1차 리뷰 · Orca 실행 인증 대기 |
+| `gpt-6.1-terra` | codex | `xhigh` | `medium` | — **지정 불가** (그 CLI 기본값) | `--effort` | ⛔ **철회** (D-101) — 새 배정은 `LANE_WITHDRAWN` · 원장 호환용 키 | 원장 호환용(우선순위 밖) |
+| `gemini-4-neon` | antigravity | `xhigh` | `medium` | — **지정 불가** (그 CLI 기본값) | **슬러그 내장** | ❌ **Orca 워커 불가** (agent 미등록·과제 전달 실패 — CLI 직행만) | D-131 · agy 초안·설계 보조 |
+| `gemini-4-argon` | antigravity | `high` | `high` | — **지정 불가** (그 CLI 기본값) | **슬러그 내장** | ❌ **Orca 워커 불가** (agent 미등록·과제 전달 실패 — CLI 직행만) | D-131 · agy 추론 2차 의견 |
+| `gpt-6-astra` | codex | `xhigh` | `xhigh` | `minimal` · `low` · `medium` · `high` · `xhigh` — 정책은 **`xhigh` 고정** (off-ladder 불가) | `--effort` | ⛔ **철회** (D-101) — 새 배정은 `LANE_WITHDRAWN` · 원장 호환용 키 | 원장 호환용(우선순위 밖) |
+| `gpt-6.1-sol` | codex | `xhigh` | `xhigh` | `minimal` · `low` · `medium` · `high` · `xhigh` — 정책은 **`xhigh` 고정** (off-ladder 불가) | `--effort` | ⛔ **철회** (D-101) — 새 배정은 `LANE_WITHDRAWN` · 원장 호환용 키 | D-130 research-deep·terminal-ci-git 공정 한정(그 밖은 철회) · 원장 호환용(우선순위 밖) · xhigh 고정 · Orca 상한 xhigh |
 | `gpt-5.6-sol` | codex | `ultra` | `high` | `minimal` · `low` · `medium` · `high` · `xhigh` · `max` · `ultra` | `--effort` | ⛔ **철회** (D-101) — 새 배정은 `LANE_WITHDRAWN` · 원장 호환용 키 | 272K(최대 872K) · D-101 철회 · 원장 호환용(우선순위 밖) |
 | `gpt-5.6-terra` | codex | `max` | `medium` | `minimal` · `low` · `medium` · `high` · `xhigh` · `max` · `ultra` | `--effort` | ⛔ **철회** (D-101) — 새 배정은 `LANE_WITHDRAWN` · 원장 호환용 키 | 272K(최대 872K) · D-101 철회 · 원장 호환용(우선순위 밖) |
 | `gpt-6-luna` | codex | `medium` | `low` | `minimal` · `low` · `medium` · `high` · `xhigh` | `--effort` | ⛔ **철회** (D-101) — 새 배정은 `LANE_WITHDRAWN` · 원장 호환용 키 | D-101 철회(결함 아님 · D-91 canary 통과) · 원장 호환용(우선순위 밖) · Orca 상한 xhigh |
@@ -54,11 +59,9 @@ are relative to the `/vibe` skill root.
 
 **D-99 (2026-10-12 오전 · 2.16.0)**: `claude-haiku-5-5`(flag · low~max · 사다리 low/medium, high 이상은 정책 밖)를 A 클래스의 Claude 쪽 첫 폴백(2순위)으로 넣었다. 읽기 전용 canary(run `run_8f7a27febc38` · @low · 정답이 정해진 A 과제 3/3)는 통과했지만 계정/과금 인증서 전까지 동작 레인이 아니며 $0 게이트·G5·Orca 인증서가 똑같이 걸린다. 큰 입력·10만 토큰 초과 입력·쿼터 절감은 미측정이다. 같은 날 D-101 로 1순위가 됐다(아래).
 
-**D-101 (2026-10-12 오후 · 2.17.0 · Simon 지시 · 토론 없음)**: "gpt 6.1 sol은 너무 느려서 빼기로 결정. 기획단계 gpt astra xhigh와 opus 5.5. 단순작업 sonet 5.5" · "gpt 쪽은 astra 말고는 쓰지마. gpt 를 넣어야한다면 astra xhigh." · "보안게이트는 데이브레이크로 할려했는데 그게 안돼면 opus 5.5로 하자." ① codex 벤더에서 일을 받는 레인은 `gpt-6-astra` 하나이고 effort 는 `xhigh` 고정이다(사다리 std = top · off-ladder 로도 다른 값 불가). ② 철회된 레인 `gpt-5.6-luna` · `gpt-5.6-sol` · `gpt-5.6-terra` · `gpt-6-luna` · `gpt-6.1-sol` 는 원장 호환용 키로만 남고 새 배정은 `LANE_WITHDRAWN` 으로 막힌다 — 결함 때문이 아니다(`gpt-6-luna` 는 D-91, `gpt-6.1-sol` 은 D-67·D-98 canary 를 통과했다). ③ A 클래스 = `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5`(전부 claude · codex 폴백 없음) · C-realtime = `grok-4.7` → `claude-opus-5-5` → `gpt-6-astra` · C-platform = `gemini-4-hydrogen` → `claude-opus-5-5` → `gpt-6-astra`. ④ 코디네이터 = `gpt-6-astra` @xhigh(인가 게이트·B 1순위와 같은 모델이라 겸임 경고가 자주 뜬다). ⑤ 생성물 게이트 = `gpt-daybreak-blue-latest` @xhigh 로 되돌렸다. 제공사의 deprecated 표시와 중앙 계획기의 `MODEL_NOT_ACTIVE` 는 그대로이고, `LANE_DEPRECATED` 는 이 고정 자리 하나만 통과시킨다(그 밖은 여전히 막힌다). 그래서 packaged registry 를 쓰는 중앙 계획기 경로에서는 게이트가 계속 막힌다 — 고정이지 동작이 아니다. canary(오케스트레이터 · run `run_b08adccb4ec8` · `ctx_41243c1a0d26` · 15:19~15:20 KST): requested == effective, 심은 결함 4개에 `GATE: BLOCK` 정확히, 심은 샘플 1건. 별칭은 예고 없이 사라질 수 있다 — 실행 전마다 Codex 카탈로그를 확인하고, 없거나 출력이 비거나 차단되면 게이트는 FAIL 이다. **미결**: Simon 이 말한 폴백 `claude-opus-5-5` 는 G1(코딩과 같은 모델이 자기 산출물을 검사)과 충돌해 구현하지 않았다 — 판정 대기(`references/security-artifact-gate.md` 의 Open item). 코디네이터로서의 astra 와 A 클래스 순서 변경은 canary 를 돌리지 않았다. (그 시점 기록 — 폴백은 D-102 가 정했다. 아래.)
+**D-101 / D-102 당시 기록**: GPT-6 Astra @xhigh 단일 레인, Daybreak 고정 및 조건부 Astra 폴백. D-130에서 6.1 Sol을 연구·에이전트에 한시 허용했다. 당시 canary는 6.2 모델을 시험하지 않았다.
 
-**D-102 (2026-10-12 밤 · 2.18.0 · Simon 판정 · 토론 없음)**: 생성물 게이트의 폴백을 정했다 — `gpt-daybreak-blue-latest` 가 **설 수 없을 때만** `gpt-6-astra` @xhigh 가 대신 선다. Simon 이 먼저 말한 `claude-opus-5-5` 폴백은 이 판정이 대체한다(코딩과 같은 모델이 자기 산출물을 검사하게 된다). ① 고정 배정은 그대로다 — 설 수 있으면 Daybreak 가 먼저다. ② `validate_plan(fixed_unavailable={공정: [사유]})` 로 사유를 밝혔을 때만 폴백 레인이 `FIXED_LANE_OVERRIDDEN` 없이 서고, 그 상태 하나에서만 `G1_SEC_SAME_MODEL` 을 면제한다(인가 게이트와 같은 모델이 된다). 사유가 없으면 예전과 똑같이 막힌다. ③ 중앙 계획기는 호스트의 요청이 아니라 제시받은 후보를 거부한 자기 기록으로 사유를 만든다 — 게이트 단계에 제시된 Daybreak Orca 후보가 전부 가용성 사유(`MODEL_NOT_ACTIVE` 등)로 거부됐을 때만 단계에 `gate_fallback` 을 남긴다. 그래서 packaged registry 경로에서는 지금 이 폴백이 게이트를 맡는다. Daybreak 후보를 아예 내지 않으면 폴백은 열리지 않는다. ④ `G1`(코딩 벤더 ≠ 게이트 벤더) · 계획기의 Daybreak 차단 · $0·G5·인증서 게이트는 그대로다. ⑤ 폴백은 '설 수 없음'에만 쓴다 — Daybreak 가 실제로 돌아 BLOCK · 빈 출력 · 차단 · 모호한 판정을 낸 뒤에는 폴백하지 않는다(FAIL 이다). ⑥ 폴백 상태에서는 한 모델이 두 보안 질문에 모두 답한다 — 두 게이트가 서로 독립된 검사가 아니다. canary(오케스트레이터 · run `run_3607f8833d7e` · `ctx_56f442610119` · 23:26 KST): requested == effective(`gpt-6-astra` · xhigh), 같은 결함 4개 샘플에 `GATE: BLOCK` 정확히, 심은 샘플 1건.
-
-**D-130 (2026-11-16 · 2.28.0 · Simon 지시 · 토론 없음)**: 철회된 레인 중 공정 한정으로 다시 서는 것 — `gpt-6.1-sol` → `research-deep` · `terminal-ci-git`. effort 는 `xhigh` 고정이다. 그 밖의 공정 · 코디네이터 · 두 보안 게이트 · codex 직행 argv 는 그대로 `gpt-6-astra` 다. 이 표의 기본 채움(클래스 목록)은 바꾸지 않았다 — /vibe 기본 배정은 중앙 계획기의 순위표(`references/task-fit-policy.json`)이고, 그 표의 RESEARCH · AGENTIC 1순위가 `gpt-6.1-sol` 이다. 근거: 짝 실측 과제 8개 점수 동일 · 시간 +6% · 공식 Codex 한도표 5시간 Astra 5-45 · Sol 15-160 메시지.
+**D-131 (2026-11-24)**: D-130의 6.1 Sol 예외를 종료했다. GPT-6.2 Sol과 Astra는 독립 단계에서 병렬로 쓴다. 레거시 Orca 코딩 라운드의 고정 보안 게이트와 G1 독립성 검사는 계속 적용한다. Gemini 4 세 모델은 agy 경로를 쓴다.
 
 ### 공정 → 클래스 → 레인
 
@@ -68,16 +71,16 @@ are relative to the `/vibe` skill root.
 | 인벤토리 · 스키마 검증 | A | `claude-haiku-5-5` | `claude-sonnet-5-5` | `claude-opus-5-5` |
 | 디스크 스캔 · grep | A | `claude-haiku-5-5` | `claude-sonnet-5-5` | `claude-opus-5-5` |
 | 장문 로그 · 커밋히스토리 분류 집계 | A | `claude-haiku-5-5` | `claude-sonnet-5-5` | `claude-opus-5-5` |
-| 기록↔사실 대조 · 주장 판정 (읽기 전용) | A-verify | `gpt-6-astra` | `claude-fable-5-2` | `claude-opus-5-5` |
-| 웹 리서치 — 정독 · 모순 종합 | B | `gpt-6-astra` | `claude-fable-5-2` | `claude-opus-5-5` |
+| 기록↔사실 대조 · 주장 판정 (읽기 전용) | A-verify | `gpt-6.2-astra` | `claude-fable-5-2` | `claude-opus-5-5` |
+| 웹 리서치 — 정독 · 모순 종합 | B | `gpt-6.2-astra` | `claude-fable-5-2` | `claude-opus-5-5` |
 | 코딩 — 구현 · 대규모 리팩터링 **(공정 전용 목록)** | B | `claude-opus-5-5` | `claude-fable-5-2` | `claude-sonnet-5-5` |
-| 터미널 · CI · git (판단 섞인 경우) | B | `gpt-6-astra` | `claude-fable-5-2` | `claude-opus-5-5` |
-| 보안 — 생성물 안전성 게이트 | B | **`gpt-daybreak-blue-latest` @xhigh 고정** | 폴백 `gpt-6-astra` @xhigh (고정 레인이 설 수 없을 때만 · D-102) | — |
-| 보안 — 비즈니스 로직 · 인가 | B | **`gpt-6-astra` @xhigh 고정** | — | — |
-| 트렌드 · 실시간 | C-realtime | `grok-4.7` | `claude-opus-5-5` | `gpt-6-astra` |
-| 웹 리서치 — 수집 | C-realtime | `grok-4.7` | `claude-opus-5-5` | `gpt-6-astra` |
-| Google 플랫폼 (BigQuery/Firebase/Workspace) | C-platform | `gemini-4-hydrogen` | `claude-opus-5-5` | `gpt-6-astra` |
-| UI 시각 검증 | C-platform | `gemini-4-hydrogen` | `claude-opus-5-5` | `gpt-6-astra` |
+| 터미널 · CI · git (판단 섞인 경우) | B | `gpt-6.2-astra` | `claude-fable-5-2` | `claude-opus-5-5` |
+| 보안 — 생성물 안전성 게이트 | B | **`gpt-daybreak-blue-latest` @xhigh 고정** | 폴백 `gpt-6.2-astra` @xhigh (고정 레인이 설 수 없을 때만 · D-102) | — |
+| 보안 — 비즈니스 로직 · 인가 | B | **`gpt-6.2-astra` @xhigh 고정** | — | — |
+| 트렌드 · 실시간 | C-realtime | `grok-4.7` | `claude-opus-5-5` | `gpt-6.2-astra` |
+| 웹 리서치 — 수집 | C-realtime | `grok-4.7` | `claude-opus-5-5` | `gpt-6.2-astra` |
+| Google 플랫폼 (BigQuery/Firebase/Workspace) | C-platform | `gemini-4-hydrogen` | `claude-opus-5-5` | `gpt-6.2-astra` |
+| UI 시각 검증 | C-platform | `gemini-4-hydrogen` | `claude-opus-5-5` | `gpt-6.2-astra` |
 | 다레인 산출물 조립 | D | **`claude-opus-5-5` @max 고정** | — | — |
 | 워크트리 · run 관리 (orca CLI) | N | — | — | — |
 
@@ -85,15 +88,15 @@ are relative to the `/vibe` skill root.
 
 > **반증 가능한 전제가 있나?** ("X는 죽었다"를 확인 / "A가 B보다 낫다"를 판정 / 원인 규명)
 
-| | `claude-opus-5-5` | `claude-opus-5` | `claude-fable-5-1` | `claude-fable-5-2` | `claude-sonnet-5-5` | `claude-sonnet-5` | `claude-haiku-5-5` | `gpt-6-astra` | `gpt-6.1-sol` | `gpt-5.6-sol` | `gpt-5.6-terra` | `gpt-6-luna` | `gpt-5.6-luna` | `gpt-daybreak-blue-latest` | `gemini-3.8-flash` | `gemini-4-hydrogen` | `grok-4.6` | `grok-4.7` |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| **YES** 최상위 | `max` | `ultracode` | `max` | `max` | `high` | `xhigh` | `medium` | `xhigh` | `xhigh` | `ultra` | `max` | `medium` | `medium` | `xhigh` | `high` | `xhigh` | `xhigh` | `xhigh` |
-| **NO** 표준 | `high` | `standard` | `high` | `high` | `medium` | `medium` | `low` | `xhigh` | `xhigh` | `high` | `medium` | `low` | `low` | `high` | `medium` | `high` | `high` | `high` |
-| 사다리 밖 상한 (`allow_off_ladder`) | `max` | `ultracode` | `max` | `max` | `max` | `max` | `max` | `xhigh` | `xhigh` | `ultra` | `ultra` | `xhigh` | `max` | `xhigh` | — (지정 불가) | — (지정 불가) | — (지정 불가) | — (지정 불가) |
+| | `claude-opus-5-5` | `claude-opus-5` | `claude-fable-5-1` | `claude-fable-5-2` | `claude-sonnet-5-5` | `claude-sonnet-5` | `claude-haiku-5-5` | `gpt-6.2-astra` | `gpt-6.2-sol` | `gpt-6.1-terra` | `gemini-4-neon` | `gemini-4-argon` | `gpt-6-astra` | `gpt-6.1-sol` | `gpt-5.6-sol` | `gpt-5.6-terra` | `gpt-6-luna` | `gpt-5.6-luna` | `gpt-daybreak-blue-latest` | `gemini-3.8-flash` | `gemini-4-hydrogen` | `grok-4.6` | `grok-4.7` |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **YES** 최상위 | `max` | `ultracode` | `max` | `max` | `high` | `xhigh` | `medium` | `xhigh` | `xhigh` | `xhigh` | `xhigh` | `high` | `xhigh` | `xhigh` | `ultra` | `max` | `medium` | `medium` | `xhigh` | `high` | `xhigh` | `xhigh` | `xhigh` |
+| **NO** 표준 | `high` | `standard` | `high` | `high` | `medium` | `medium` | `low` | `xhigh` | `medium` | `medium` | `medium` | `high` | `xhigh` | `xhigh` | `high` | `medium` | `low` | `low` | `high` | `medium` | `high` | `high` | `high` |
+| 사다리 밖 상한 (`allow_off_ladder`) | `max` | `ultracode` | `max` | `max` | `max` | `max` | `max` | `xhigh` | `xhigh` | — (지정 불가) | — (지정 불가) | — (지정 불가) | `xhigh` | `xhigh` | `ultra` | `ultra` | `xhigh` | `max` | `xhigh` | — (지정 불가) | — (지정 불가) | — (지정 불가) | — (지정 불가) |
 
 이 사다리는 과거 transport 제약이다. 현재 모델/effort는 중앙 registry와 fresh runtime의 교집합으로 정한다. `run_codex_exec` 실호출은 차단됐으며 상한 초과를 direct CLI로 우회하지 않는다.
 
-코디네이터 레인 = **`gpt-6-astra` @xhigh** — 종합(D)과 벤더가 달라야 한다. 워커 겸임은 클래스와 무관하게 경고한다(D-28 #6).
+코디네이터 레인 = **`gpt-6.2-astra` @xhigh** — 종합(D)과 벤더가 달라야 한다. 워커 겸임은 클래스와 무관하게 경고한다(D-28 #6).
 
 ### 레인별 산출물 제약
 
@@ -102,7 +105,8 @@ are relative to the `/vibe` skill root.
 | `grok-4.7` | CSV · 카운트 · 분류 라벨만 | 서술 결론 · 인과 추정 · 200K 초과 입력(과금 2배) | 사실 신뢰도가 4레인 중 최약. 합계는 D 레인이 산술 재검산한다 |
 | `gemini-4-hydrogen` | 발견 목록 + 탐색 드라이브 · 제외 경로 · 스캔 파일 수 | 범위 없는 '0건' 반환 · 무인 장기 루프 단독 배치 | 부재 보고 오류가 직전 라운드 오류 5건 중 3건의 원인 |
 | `claude-opus-5-5` | 항목별 확신도 표기 필수 (강=기계검증 / 약=판단) | 리포트만 내고 끝내기 — 사람이 읽는 것은 결정 시트 1장이다 | 종합 레인이므로 사람의 결정으로 이어져야 한다 |
-| `gpt-6-astra` | 판단마다 근거(파일·행·명령 출력) 첨부 · 반증 시도 1건 이상 명시 · effort 는 항상 `xhigh`(D-101) · 생성물 게이트 폴백으로 설 때(D-102)는 아래 `gpt-daybreak-blue-latest` 행의 게이트 규칙을 그대로 따른다 | 대량 정형 변환에 배치 (A 클래스는 claude-haiku-5-5 로 내린다) · `xhigh` 밖 effort 로 부르기 (`ultra`/`max` 는 Orca 가 거부하고, 낮은 값은 D-101 고정이 막는다) | codex 계열에서 일을 받는 유일한 좌석이다(D-101). 싼 일에 태우면 쿼터만 태우고, 고정 밖 effort 로 부르면 워커가 아예 안 뜬다 |
+| `gpt-6.2-astra` | 계획·설계·복합 디버깅·최종 리뷰. 파일·실행 결과로 요구사항을 대조한다. | stub, 확인하지 않은 주장, 요청 밖 변경을 완료 근거로 삼기 | D-131 · 다른 벤더 리뷰 또는 시험 증거가 필요하다. |
+| `gpt-6.2-sol` | 일상 구현·문서·1차 리뷰. 독립 작업은 Astra와 같은 라운드에 둔다. | 같은 벤더로 자기 산출물의 독립 리뷰를 대체하기 | D-131 · 요구사항별 시험 증거나 다른 벤더의 결과를 기록한다. |
 | `claude-haiku-5-5` | 정형 변환 · 카운트 · 분류 · **부재 보고에는 탐색 범위 명시** | 우열 판단 (필요하면 sonnet-5-5 이상으로 올린다) · 범위 없는 '0건' | A 클래스 1순위 레인(D-101) — 판단을 맡기지 않는다. 범위 요구는 Simon 결정(2026-09-04, luna03 채택)으로 A 클래스 전체에 적용된다. canary 는 작은 과제 3개 · effort low 1회만 봤다(D-99 · 1순위로 옮긴 뒤의 canary 는 없다): 큰 입력 · 10만 토큰 초과 입력(API 단가 5배 구간) · 쿼터 절감은 미측정이다 |
 | `gpt-daybreak-blue-latest` | **생성물 게이트로만 쓴다**: 첫 줄 `GATE: BLOCK` 또는 `GATE: PASS` · 이어서 발견마다 한 줄 (CWE 번호 · 위치 · 사유) · 그 뒤에 발견별 재현 경로 · 심각도 · 최소 패치(옛 게이트 규칙 그대로) · 형식과 루브릭은 `references/security-artifact-gate.md` | 빈 출력 · 차단/거절 · 첫 줄 누락 · 모호한 판정을 PASS 로 읽기 (전부 FAIL) · 방어 목적 밖의 공격 코드 생성 · 범위 없는 '취약점 0건' · 게이트 밖 공정에 배정 (`LANE_DEPRECATED`) | 제공사가 폐기 표시한 cyber 별칭을 Simon 지시(D-101)로 게이트에만 쓴다 — 근거 없는 통과는 게이트를 무력화하고, 별칭은 예고 없이 사라질 수 있다. 실행 전마다 Codex 카탈로그를 확인하고, 없거나 출력이 비거나 차단되면 FAIL 이다(canary 는 심은 샘플 1건) |
 

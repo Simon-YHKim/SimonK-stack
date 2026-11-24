@@ -73,8 +73,10 @@ accepted after canonicalizing both stored and supplied URLs; a different host
 or insecure scheme is not. This also applies when a heading-only candidate
 points to an official listing page ending in `/`.
 
-Across at least 24 hours, inspect public user reports (X when publicly
-accessible, otherwise accessible public forums such as Reddit or Hacker News).
+For every model choice or rank change, check X and AI 활용 갤러리 (애용갤) for hands-on reports on the
+same task. Record the date, model, effort, outcome, disagreements and access gaps. When signals are ambiguous,
+follow applicable user experience. Use other accessible first-person reports when a source is inaccessible.
+The prospective 24-hour window and the two observation timestamps below still apply.
 The daily pending scan also searches public Reddit Atom posts for the exact
 candidate model name and stores matching post links as **unreviewed captures**.
 Hyphen and space spellings such as `GPT-4o-mini` / `GPT-4o mini`, optional
