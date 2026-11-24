@@ -4,7 +4,9 @@
 
 GPT-6.2 Sol/Astra 병렬 배정, Gemini 4 세 모델의 구독용 agy 경로와 한국어 초안 정책을 갱신했다.
 정책 기간, 근거, 반대 후기 및 게시 전 조건은 [D-131 결정 후보](../skills-src/vibe/references/d131-model-routing.md)에 있다.
-코디네이터가 사용자 승인 후 게시와 설치를 처리한다.
+2026-11-24 사용자 승인 원문은 “이 PC에 설치, 빌드 승인 + PR 병합, ~/.codex/AGENTS.md §9-1 교체”다.
+승인한 5개 플러그인 빌드의 소스는 `f880bac359f65426bd86d16ede62c571af6860d1`이며, LF 체크아웃에서 생성한 로컬 배포 영수증 1.998.0을 사용했다. Claude content SHA-256은 `69667957c9678be910d0f073356f4069f1ce6d9b737a1ed2aeeaf8dfd83a38c5`, Codex content SHA-256은 `2ab944e855a01c9075bdb7f646df140e1f11ab2bda1233c5cc6c3302439dea10`이다.
+승인값과 두 digest는 `distribution/dist-publish.allow`에 고정했다. 코디네이터가 PR 생성·병합과 전역 §9-1 변경을 맡는다. 병합 통지 뒤 작업자가 최신 main을 이 PC에 설치하고 selftest와 agy 링크 6개를 확인한다.
 
 
 ## Latest — 2026-11-16 07:55 / GPT-6.1 Sol 리서치·에이전트 1순위 + Codex CLI 레인 수리 (D-130, vibe 2.28.0)
