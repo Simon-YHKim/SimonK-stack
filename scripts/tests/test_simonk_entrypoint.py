@@ -308,7 +308,7 @@ class PackagedSimonkEntrypointTests(SimonkEntrypointTests):
         wrapper.parent.mkdir(parents=True)
         self.assertTrue(self.wrapper.is_file(), "The packaged PowerShell entry is missing")
         shutil.copy2(self.wrapper, wrapper)
-        for name in ("orchestrate.py", "model_registry.py", "routing.py"):
+        for name in ("orchestrate.py", "agy_lanes.py", "model_registry.py", "routing.py"):
             target = skill_root / "vibe/scripts" / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(VIBE / name, target)

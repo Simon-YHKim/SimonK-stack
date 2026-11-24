@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-24 · D-131 candidate
+
+/vibe 2.29.0 adds parallel GPT-6.2 routing and subscription-gated Gemini 4 assistance. See [vibe changelog](skills-src/vibe/CHANGELOG.md).
+
 모든 중요한 변경은 이 파일에 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/), 버전: [SemVer](https://semver.org/).
 

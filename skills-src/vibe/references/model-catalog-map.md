@@ -75,6 +75,13 @@ no guarded agy execution adapter exists, so this map grants no route.
 
 ## Lane migration pending
 
+D-131 (2026-11-24) supersedes the historical dispositions below. `gpt-6.2-sol` and `gpt-6.2-astra` are new
+Orca candidates pending exact transport and account evidence. `gpt-6.1-sol`, `gpt-6.1-terra` and `gpt-6-astra`
+are withdrawn for new work. Reassess the GUI lane when a new Terra actually appears. `gemini-4-neon`,
+`gemini-4-hydrogen` and `gemini-4-argon` use the guarded brief runner. The Argon introductory API rate ends
+November 30. Each route checks its own included usage. The D-131 decision referenced by SKILL.md records sources and dates.
+
+
 D-67(2026-10-04, 허브 토론 `dbt-261004-033902`, ADD_ALONGSIDE_KEEP_LEGACY)에 따라
 2.14.0 은 Orca 레인 두 개를 옛 레인 **옆에** 추가했다. 근거는 Orca 1.4.218 번들의
 검증 코드를 읽은 것이며 모델 호출·worker-start 는 0회다. 2.15.5 는 2026-10-05 Simon 지시로

@@ -32,7 +32,8 @@
    ],
    "truth_post": "count_suffix:.ts",
    "lanes": [
-    "gpt-6-astra",
+    "gpt-6.2-astra",
+    "gpt-6.2-sol",
     "gemini-3.8-flash",
     "gemini-4-hydrogen",
     "claude-opus-5",
@@ -60,7 +61,8 @@
     "claude-opus-5",
     "claude-opus-5-5",
     "claude-haiku-5-5",
-    "gpt-6-astra"
+    "gpt-6.2-astra",
+    "gpt-6.2-sol"
    ]
   },
   {
@@ -78,7 +80,8 @@
    ],
    "truth_post": "raw",
    "lanes": [
-    "gpt-6-astra",
+    "gpt-6.2-astra",
+    "gpt-6.2-sol",
     "gemini-3.8-flash",
     "gemini-4-hydrogen",
     "claude-opus-5",
@@ -100,7 +103,8 @@
    "lanes": [
     "claude-opus-5",
     "claude-opus-5-5",
-    "gpt-6-astra",
+    "gpt-6.2-astra",
+    "gpt-6.2-sol",
     "gemini-3.8-flash",
     "gemini-4-hydrogen"
    ]
@@ -119,7 +123,8 @@
    "lanes": [
     "claude-opus-5",
     "claude-opus-5-5",
-    "gpt-6-astra",
+    "gpt-6.2-astra",
+    "gpt-6.2-sol",
     "gemini-3.8-flash",
     "gemini-4-hydrogen"
    ]
@@ -145,7 +150,8 @@
     "claude-opus-5",
     "claude-opus-5-5",
     "claude-haiku-5-5",
-    "gpt-6-astra"
+    "gpt-6.2-astra",
+    "gpt-6.2-sol"
    ]
   },
   {
@@ -162,7 +168,8 @@
    ],
    "truth_post": "prefix_count:## Latest",
    "lanes": [
-    "gpt-6-astra",
+    "gpt-6.2-astra",
+    "gpt-6.2-sol",
     "gemini-3.8-flash",
     "gemini-4-hydrogen",
     "claude-opus-5",
@@ -190,7 +197,8 @@
    "lanes": [
     "claude-opus-5",
     "claude-opus-5-5",
-    "gpt-6-astra",
+    "gpt-6.2-astra",
+    "gpt-6.2-sol",
     "gemini-3.8-flash",
     "gemini-4-hydrogen",
     "grok-4.6",
@@ -214,7 +222,8 @@
     "claude-opus-5",
     "claude-opus-5-5",
     "claude-haiku-5-5",
-    "gpt-6-astra",
+    "gpt-6.2-astra",
+    "gpt-6.2-sol",
     "grok-4.6",
     "grok-4.7"
    ]
@@ -231,7 +240,8 @@
    ],
    "truth_post": "raw",
    "lanes": [
-    "gpt-6-astra",
+    "gpt-6.2-astra",
+    "gpt-6.2-sol",
     "gemini-3.8-flash",
     "gemini-4-hydrogen",
     "claude-opus-5",
@@ -251,7 +261,8 @@
    ],
    "truth_post": "raw",
    "lanes": [
-    "gpt-6-astra",
+    "gpt-6.2-astra",
+    "gpt-6.2-sol",
     "gemini-3.8-flash",
     "gemini-4-hydrogen",
     "claude-opus-5",
@@ -273,7 +284,8 @@
    ],
    "truth_post": "raw",
    "lanes": [
-    "gpt-6-astra",
+    "gpt-6.2-astra",
+    "gpt-6.2-sol",
     "gemini-3.8-flash",
     "gemini-4-hydrogen",
     "claude-opus-5",
@@ -293,7 +305,8 @@
    ],
    "truth_post": "raw",
    "lanes": [
-    "gpt-6-astra",
+    "gpt-6.2-astra",
+    "gpt-6.2-sol",
     "gemini-3.8-flash",
     "gemini-4-hydrogen",
     "claude-opus-5",
@@ -325,7 +338,8 @@
     "claude-opus-5",
     "claude-opus-5-5",
     "claude-haiku-5-5",
-    "gpt-6-astra"
+    "gpt-6.2-astra",
+    "gpt-6.2-sol"
    ]
   },
   {
@@ -342,7 +356,8 @@
    "lanes": [
     "claude-opus-5",
     "claude-opus-5-5",
-    "gpt-6-astra",
+    "gpt-6.2-astra",
+    "gpt-6.2-sol",
     "gemini-3.8-flash",
     "gemini-4-hydrogen",
     "grok-4.6",
@@ -363,7 +378,8 @@
    "lanes": [
     "claude-opus-5",
     "claude-opus-5-5",
-    "gpt-6-astra",
+    "gpt-6.2-astra",
+    "gpt-6.2-sol",
     "gemini-3.8-flash",
     "gemini-4-hydrogen",
     "grok-4.6",
@@ -384,7 +400,8 @@
    "lanes": [
     "claude-opus-5",
     "claude-opus-5-5",
-    "gpt-6-astra",
+    "gpt-6.2-astra",
+    "gpt-6.2-sol",
     "gemini-3.8-flash",
     "gemini-4-hydrogen"
    ]
@@ -403,7 +420,8 @@
    "lanes": [
     "claude-opus-5",
     "claude-opus-5-5",
-    "gpt-6-astra",
+    "gpt-6.2-astra",
+    "gpt-6.2-sol",
     "gemini-3.8-flash",
     "gemini-4-hydrogen",
     "grok-4.6",

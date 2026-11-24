@@ -93,6 +93,8 @@ def render_spec(plan, node_id, inputs=None):
                                "challenger_rebuttal", "judge")
                  if (plan.get("debate") or {}).get(key) == node_id), None)
     payload = {"role": role, "task": task, "acceptance": node.get("acceptance", [])}
+    if node.get("handoff", {}).get("acceptance_rule"):
+        payload["verification"] = node["handoff"]["acceptance_rule"]
     principles = node.get("principles")
     if principles is not None:
         # Hub D-128: typed coding and review rules travel with the task. Untyped nodes keep the

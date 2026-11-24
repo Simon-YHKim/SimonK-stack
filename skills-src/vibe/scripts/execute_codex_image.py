@@ -34,8 +34,8 @@ import orchestrate
 import runtime_collect
 from ledger import scan_secrets
 
-# D-101: the GPT side runs gpt-6-astra at xhigh only. It drives the image_gen call.
-DRIVER_MODEL = "gpt-6-astra"
+# D-131: use the current Astra driver for the dedicated image_gen call.
+DRIVER_MODEL = "gpt-6.2-astra"
 DRIVER_EFFORT = "xhigh"
 TIMEOUT_SECONDS = 600
 MAX_PROMPT_BYTES = 32768

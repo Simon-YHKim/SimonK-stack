@@ -70,7 +70,7 @@ class ModelRouterIntegrationTests(unittest.TestCase):
         self.assertEqual(len(blocks), 1)
         mapping = json.loads(blocks[0])
         self.assertEqual(mapping, orchestrate.TASK_TYPE_MAP)
-        self.assertEqual(len(mapping), 18)
+        self.assertEqual(len(mapping), 19)
         for task_type, fields in mapping.items():
             with self.subTest(task_type=task_type):
                 node = self.node(task_type)

@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "version": "2026-11-16.1",
+  "version": "2026-11-24.1",
   "checked_at": "2026-11-16T00:08:40+09:00",
-  "data_as_of": "2026-11-16",
+  "data_as_of": "2026-11-24",
   "notes": [
     "Public provider facts are not account, transport, billing or successful-execution evidence.",
     "API Standard USD / million tokens only. Tool, storage, transport, regional and priority charges are separate.",
@@ -23,6 +23,9 @@
     "2026-11-16 재확인(2026-11-16.1, vibe 2.24.0, 허브 D-125, Simon 지시 \"벤더별 최신 업데이트를 진행하고, 여론을 조사해서 적절한 모델을 선정\"): model_watch scan --force(00:08:40 KST, 네 공식 소스 모두 변경 감지) 뒤 레지스트리 출처 34개와 새 출처 8개를 모델 호출 없이 다시 읽었다. ai.google.dev 문서는 이제 aistudio.google.com/docs 로 301 이동한다(따라가면 200). openai.com/index/gpt-6-astra 와 x.ai/news 는 403 이다. 기존 등록 모델 20개 대조: OpenAI 97 일치 · 불일치 8(전부 장문 구간 cache_write — 30분·12시간 두 기간이라 null 로 두는 10-21 규칙 그대로) · 확인불가 1(requires_access_program 은 우리 라벨). Anthropic 74 일치 · 실질 불일치 1(Claude Code 별칭 fable 이 Fable 5.2 로 옮겨가 claude-fable-5-1 에서 뺐다) · 나머지는 스키마에 없는 필드와 Opus 5·Sonnet 5 페이지의 'Active (legacy)' 표기(generation legacy 로 이미 표시). Google 61 일치 · 확인불가 3(페이지가 이제 월 단위 갱신일만 보여 source_updated_at 일자 확인 불가 — 10-18 값 유지). xAI 28 일치 · 불일치 1(grok-4.5 xhigh — effort_note 의 출처 충돌 그대로) · 확인불가 4(xAI 문서에 lifecycle·일 단위 출시일 없음). 바뀐 제공사 사실은 별칭 하나다. 새로 등록: claude-fable-5-2(2026-11-09, $8/$0.20/$40, 1M/128K, adaptive 상시, 은퇴 2027-11-09 이후, Claude Code 2.1.321+), gpt-6.1-terra(2026-10-26, 중간 등급, $1/$0.05/$5, 30분 쓰기 $1.25), gemini-4-hydrogen(2026-11-12 GA, low~xhigh, 기본 high, $1.50/$0.075/$7.50, 무료 등급 있음), gemini-4-carbon(2026-11-10 GA, low~high, 기본 medium, 11-30 까지 $2/$0.10/$10 뒤 $4/$0.20/$20, 유료 등급만). 이전 세대 표시(generation legacy): claude-fable-5-1·gemini-3.8-flash. 미등록 관측: Claude Mythos 5.2(검증 기관 한정), gpt-6-cyber(2026-11-05, Daybreak Red 승인 필요 — 이 계정 Codex 목록에 없음, Daybreak Blue 별칭은 여전히 deprecated · 대상 gpt-5.6-sol), gpt-6-rosalind·gpt-image-2.6, Gemini Omni 1.2 Flash·Gemini Decision 1, Grok 4.7 Fast(= grok-4.7-build-fast, CLI 전용). 로컬 카탈로그: Codex 0.166.0 목록 8개(gpt-6.1-terra 새로 보임, Daybreak·cyber 없음), grok CLI 1.0.70 기본 grok-4.7, agy 1.5.9 에 gemini-4-hydrogen-low/medium/high/xhigh·Orchestrator(Argon) 추가(Carbon 없음 — Antigravity 에서 Ultra 전용). checked_at 은 실제로 쓴 근거 중 가장 이른 watch scan 수신 00:08:40 이다."
   ],
   "sources": {
+    "oa_astra62": "https://developers.openai.com/api/docs/models/gpt-6.2-astra",
+    "oa_sol62": "https://developers.openai.com/api/docs/models/gpt-6.2-sol",
+    "gg_neon": "https://ai.google.dev/gemini-api/docs/models/gemini-4-neon",
     "oa_sol61": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
     "oa_astra": "https://developers.openai.com/api/docs/models/gpt-6-astra",
     "oa_sol": "https://developers.openai.com/api/docs/models/gpt-6-sol",
@@ -67,6 +70,11 @@
     "gg_antigravity_carbon": "https://antigravity.google/blog/gemini-4-carbon-in-google-antigravity"
   },
   "legacy_lane_migration": {
+    "gemini-4-argon": {"candidate": "gemini-4-argon", "status": "keep-model-orca-unverified"},
+    "gemini-4-neon": {"candidate": "gemini-4-neon", "status": "keep-model-orca-unverified"},
+    "gpt-6.2-sol": {"candidate": "gpt-6.2-sol", "status": "pending-transport-and-canary"},
+    "gpt-6.2-astra": {"candidate": "gpt-6.2-astra", "status": "pending-transport-and-canary"},
+    "gpt-6.1-terra": {"candidate": "gpt-6.2-astra", "status": "held-withdrawn-by-owner"},
     "claude-opus-5-5": {"candidate": "claude-opus-5-5", "status": "pending-transport-and-certificate"},
     "claude-opus-5": {"candidate": "claude-opus-5-5", "status": "pending-transport-and-certificate"},
     "claude-fable-5-1": {"candidate": "claude-fable-5-2", "status": "keep-model-check-billing"},
@@ -74,10 +82,10 @@
     "claude-sonnet-5-5": {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-certificate"},
     "claude-sonnet-5": {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-certificate"},
     "claude-haiku-5-5": {"candidate": "claude-haiku-5-5", "status": "pending-transport-and-certificate"},
-    "gpt-6-astra": {"candidate": "gpt-6-astra", "status": "keep-model-check-transport"},
-    "gpt-6.1-sol": {"candidate": "gpt-6-astra", "status": "held-withdrawn-by-owner"},
-    "gpt-5.6-sol": {"candidate": "gpt-6-astra", "status": "held-withdrawn-by-owner"},
-    "gpt-5.6-terra": {"candidate": "gpt-6-astra", "status": "held-withdrawn-by-owner"},
+    "gpt-6-astra": {"candidate": "gpt-6.2-astra", "status": "held-withdrawn-by-owner"},
+    "gpt-6.1-sol": {"candidate": "gpt-6.2-sol", "status": "held-withdrawn-by-owner"},
+    "gpt-5.6-sol": {"candidate": "gpt-6.2-sol", "status": "held-withdrawn-by-owner"},
+    "gpt-5.6-terra": {"candidate": "gpt-6.2-astra", "status": "held-withdrawn-by-owner"},
     "gpt-6-luna": {"candidate": "claude-haiku-5-5", "status": "held-withdrawn-by-owner"},
     "gpt-5.6-luna": {"candidate": "claude-haiku-5-5", "status": "held-withdrawn-by-owner"},
     "gpt-daybreak-blue-latest": {"candidate": "gpt-daybreak-blue-latest", "status": "keep-security-pin-resolve-per-run"},
@@ -87,6 +95,9 @@
     "grok-4.7": {"candidate": "grok-4.7", "status": "pending-quota-and-canary"}
   },
   "models": [
+    {"id": "gpt-6.2-sol", "surface": "codex", "vendor": "openai", "lifecycle": "active", "routing_checked_at": "2026-11-24T06:07:33+09:00", "id_namespace": "provider-api", "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": [], "pricing": null, "sources": ["oa_sol62"]},
+    {"id": "gpt-6.2-astra", "surface": "codex", "vendor": "openai", "lifecycle": "active", "routing_checked_at": "2026-11-24T06:07:33+09:00", "id_namespace": "provider-api", "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": [], "pricing": null, "sources": ["oa_astra62"]},
+    {"id": "gemini-4-neon", "surface": "antigravity", "vendor": "google", "lifecycle": "active", "routing_checked_at": "2026-11-24T06:07:33+09:00", "id_namespace": "provider-api", "api_efforts": ["low", "medium", "high", "xhigh"], "aliases": [], "pricing": null, "sources": ["gg_neon"]},
     {
       "id": "gpt-6.1-sol", "surface": "codex", "vendor": "openai", "lifecycle": "active",
       "id_namespace": "provider-api",
@@ -129,7 +140,7 @@
       "sources": ["oa_terra61", "oa_changelog", "oa_pricing", "oa_deprecations"]
     },
     {
-      "id": "claude-opus-5-5", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
+      "id": "claude-opus-5-5", "routing_checked_at": "2026-11-24T06:07:33+09:00", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
       "id_namespace": "provider-api",
       "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": ["opus"],
       "retirement_not_before": "2027-09-22", "thinking": "adaptive_always_on",
@@ -147,7 +158,7 @@
       "sources": ["cl_models", "cl_effort", "cl_pricing", "cl_lifecycle", "cl_billing"]
     },
     {
-      "id": "claude-fable-5-2", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
+      "id": "claude-fable-5-2", "routing_checked_at": "2026-11-24T06:07:33+09:00", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
       "id_namespace": "provider-api",
       "released_at": "2026-11-09", "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": ["fable"],
       "context_tokens": 1000000, "max_output_tokens": 128000,
@@ -158,7 +169,7 @@
       "sources": ["cl_fable52", "cl_fable52_docs", "cl_models", "cl_effort", "cl_pricing", "cl_lifecycle", "cl_billing"]
     },
     {
-      "id": "claude-sonnet-5-5", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
+      "id": "claude-sonnet-5-5", "routing_checked_at": "2026-11-24T06:07:33+09:00", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
       "id_namespace": "provider-api",
       "released_at": "2026-09-28", "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": ["sonnet"],
       "context_tokens": 1000000, "max_output_tokens": 128000,
@@ -176,7 +187,7 @@
       "sources": ["cl_old_sonnet", "cl_models", "cl_effort", "cl_pricing", "cl_lifecycle"]
     },
     {
-      "id": "claude-haiku-5-5", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
+      "id": "claude-haiku-5-5", "routing_checked_at": "2026-11-24T06:07:33+09:00", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
       "id_namespace": "provider-api",
       "released_at": "2026-10-07", "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": ["haiku"],
       "context_tokens": 1000000, "max_output_tokens": 128000,
@@ -193,7 +204,7 @@
       "sources": ["gg_latest", "gg_pricing"]
     },
     {
-      "id": "gemini-4-argon", "surface": "antigravity", "vendor": "google", "lifecycle": "active",
+      "id": "gemini-4-argon", "routing_checked_at": "2026-11-24T06:07:33+09:00", "surface": "antigravity", "vendor": "google", "lifecycle": "active",
       "id_namespace": "provider-api", "released_at": "2026-10-13",
       "api_efforts": ["low", "medium", "high"], "aliases": [], "source_updated_at": "2026-10-16",
       "context_tokens": 1048576, "max_output_tokens": 65536,
@@ -202,7 +213,7 @@
       "sources": ["gg_argon", "gg_argon_new", "gg_pricing", "gg_thinking", "gg_changelog", "gg_antigravity_argon"]
     },
     {
-      "id": "gemini-4-hydrogen", "surface": "antigravity", "vendor": "google", "lifecycle": "active",
+      "id": "gemini-4-hydrogen", "routing_checked_at": "2026-11-24T06:07:33+09:00", "surface": "antigravity", "vendor": "google", "lifecycle": "active",
       "id_namespace": "provider-api", "released_at": "2026-11-12",
       "api_efforts": ["low", "medium", "high", "xhigh"], "aliases": [],
       "context_tokens": 1048576, "max_output_tokens": 65536,
@@ -227,7 +238,7 @@
       "sources": ["gg_pro", "gg_thinking", "gg_pricing"]
     },
     {
-      "id": "grok-4.7", "surface": "grok", "vendor": "xai", "lifecycle": "active",
+      "id": "grok-4.7", "routing_checked_at": "2026-11-24T06:07:33+09:00", "surface": "grok", "vendor": "xai", "lifecycle": "active",
       "id_namespace": "provider-api",
       "api_efforts": ["low", "medium", "high", "xhigh"], "aliases": [], "released_at": "2026-09-21", "context_tokens": 500000,
       "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.5", "output": "6", "cache_write": null, "tiers": [{"above_input_tokens": 200000, "input": "4", "cached_input": "1", "output": "12"}]},

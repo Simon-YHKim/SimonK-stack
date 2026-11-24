@@ -480,15 +480,16 @@ class PublishWorkflowTests(unittest.TestCase):
         # D-127/D-128 (2026-11-16): vibe 2.26.0 (per-task ranking table, simple-is-the-best coding rules, CODE_CLEANUP).
         # D-129 (2026-11-16): vibe 2.27.0 (local Playwright / Chrome / Computer Use fallback after Grok Bot).
         # D-130 (2026-11-16): vibe 2.28.0 (GPT-6.1 Sol for research and agentic steps, Codex CLI lane fix).
+        # D-131 (2026-11-24): vibe 2.29.0 (GPT-6.2 parallel lanes and three Gemini 4 subscription roles).
         allow = dist.validate_allow(json.loads((ROOT / dist.ALLOW).read_text(encoding="utf-8")))
         self.assertEqual(allow["schema_version"], 2)
         self.assertEqual(allow["scope"], "five-plugin-dist-v1")
-        self.assertEqual(allow["decision"], "D-130")
-        self.assertEqual(allow["source_commit"], "a99c06ab503308bbd0f3b5802359920e455ec40f")
+        self.assertEqual(allow["decision"], "D-131")
+        self.assertEqual(allow["source_commit"], "f880bac359f65426bd86d16ede62c571af6860d1")
         self.assertEqual(allow["content_digest"],
-                         "f7b523c24382754390dd3e2fd304597fc5379b628642aa70c5bf32212a1857ad")
+                         "69667957c9678be910d0f073356f4069f1ce6d9b737a1ed2aeeaf8dfd83a38c5")
         self.assertEqual(allow["codex_content_digest"],
-                         "5db354820a11dcc572a8c3545993f7ae1cd74980bfed297ea91417b6a3f9a74d")
+                         "2ab944e855a01c9075bdb7f646df140e1f11ab2bda1233c5cc6c3302439dea10")
 
 
 class StageTests(unittest.TestCase):
