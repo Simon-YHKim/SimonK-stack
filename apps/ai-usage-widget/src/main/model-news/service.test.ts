@@ -7,7 +7,11 @@ import { MODEL_CATALOGS } from './catalog';
 import { RETRY_AFTER_FAILURE_MS, allowedUrl, createModelNewsService } from './service';
 
 const dirs: string[] = [];
-afterEach(async () => { await Promise.all(dirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true }))); });
+// A stopped service can still be finishing its last atomic save (tmp file + rename); on Windows the
+// folder delete then fails with ENOTEMPTY under load. Same retry as the provider tests.
+afterEach(async () => {
+  await Promise.all(dirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 })));
+});
 
 const basePages = new Map<string, string>([
   [MODEL_CATALOGS.claude, 'aria-label="Copy model ID claude-opus-5"'],
