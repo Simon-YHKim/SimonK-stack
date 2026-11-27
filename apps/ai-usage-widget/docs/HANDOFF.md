@@ -2,6 +2,19 @@
 > prepend 전용 로그. 새 블록을 맨 위에 얹고 직전 `## Latest`는 날짜 헤더로 강등한다. 덮어쓰지 않는다.
 
 ## Latest
+- **목적**: 사용자 보고(26.11.28) "위젯에 클로드 로그인 했는데 사용량이 표시 안 된다" 해결
+- **최종 갱신**: 26.11.28 08:40 KST · Claude Code(워크트리 `SimonK-stack-aiuw-retarget-261128`, 브랜치 `fix/aiuw-claude-bridge-retarget-261128`)
+- **지금까지**:
+  - 원인: 기본 프로필 브리지(`~/.claude` statusLine)는 계속 기록 중이었지만 `bridge\claude\default-profile.json`의 기록 대상이 09.19의 옛 Claude 계정 `ZmxbGZx_CdxR`(삭제됨)이었다. 11.28 07:06에 추가한 "개인" 계정 `IRBlh7fZkZqC`는 자기 격리 폴더 기록만 찾아 `bridge-no-data`. 브리지가 설치돼 있으면 UI가 선택 상자·설치 버튼을 숨겨 화면에서 대상을 바꿀 방법이 없었다
+  - 즉시 조치: 두 프로필의 accountUuid 일치를 확인하고 상태 파일의 대상만 새 계정으로 바꿨다(원본은 DECISIONS 26.11.28 08:27). 08:27 캡처에서 Claude 칸 `WK 22% 남음 · 4h 32m`
+  - 수정(이 브랜치): 브리지 카드가 설치 후에도 대상 재지정을 보여 준다 — 대상 없음 경고 + [이 계정으로 기록 받기](기존 `claude-bridge:install-default` 재사용, 백업 확인 없음), 계정 2개 이상이면 선택 상자. 자동 재지정 없음. 근거 DECISIONS 26.11.28 08:30
+  - 검증: 새 테스트 2개는 옛 코드에서 실패, 수정 후 통과. `pnpm verify` exit 0(59파일·694테스트), `pnpm build` exit 0
+- **다음 1개**: PR CI → merge commit 머지 → 머지 커밋 고정 `-Source`로 설치 스킬 재설치 → 계정 탭 브리지 카드에 "기록을 받을 계정: 개인"이 보이는지 확인
+- **막힌 것**: 없음
+- **관찰(미확인)**: 기본 프로필 레코드의 `five_hour`가 10.31 12:12 UTC 이후 한 번도 갱신되지 않았다(seven_day는 매번 갱신). 그래서 5H는 `↺ --`(리셋 지남 → 모름)로 표시된다. Claude Code 문서(statusline)는 "각 창은 따로 빠질 수 있고 resets_at이 지나면 그 창을 뺀다"까지만 말하고, 사용 중에도 계속 빠지는 이유는 문서·changelog(2.1.300~2.1.326 구간은 미확인)로 설명되지 않는다. 원인 확정에는 Claude Code가 상태줄에 넘기는 원본 stdin 확인이 필요하다
+- **작업 규칙 변화**: 없음
+
+## 26.10.25 12:35 KST
 - **목적**: PR #201(같은 벤더 붙여 배치, 분리 Grok 계정 Bot 줄)의 반영 결과를 남긴다
 - **최종 갱신**: 26.10.25 12:35 KST · Claude Code(설치 소스는 detached `6d1fbef`, 워크트리 `SimonK-stack-aiuw-main-261025`)
 - **지금까지**:
