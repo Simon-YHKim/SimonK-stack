@@ -240,6 +240,8 @@ class BridgeSection {
   private readonly targetText: HTMLElement;
   readonly targetSelect: HTMLSelectElement;
   readonly installButton: HTMLButtonElement;
+  /** Points an installed bridge at another account (the old target was removed, or the user picks another). */
+  readonly retargetButton: HTMLButtonElement;
   readonly uninstallButton: HTMLButtonElement;
   readonly confirmBox: HTMLElement;
   private readonly confirmText: HTMLElement;
@@ -250,6 +252,8 @@ class BridgeSection {
   private busy = false;
   private accounts: AccountDTO[] = [];
   private ctx: RenderContext | null = null;
+  /** Account the user picked in the select; null follows the current target. */
+  private pickedTargetId: string | null = null;
 
   constructor(private readonly deps: AccountsTabDeps) {
     this.titleEl = h('h4', { class: 'bridge-title' });
@@ -260,6 +264,7 @@ class BridgeSection {
     this.targetText = h('p', { class: 'bridge-target' });
     this.targetSelect = h('select', { class: 'select-input bridge-target-select' });
     this.installButton = h('button', { type: 'button', class: 'btn-primary btn-small bridge-install' });
+    this.retargetButton = h('button', { type: 'button', class: 'btn-primary btn-small bridge-retarget' });
     this.uninstallButton = h('button', { type: 'button', class: 'btn-secondary btn-small bridge-uninstall' });
     this.confirmText = h('p', { class: 'confirm-text' });
     this.confirmButton = h('button', { type: 'button', class: 'btn-primary btn-small bridge-confirm' });
@@ -276,7 +281,7 @@ class BridgeSection {
       this.errorEl,
       this.targetText,
       this.targetSelect,
-      h('div', { class: 'inline-form-row' }, [this.installButton, this.uninstallButton]),
+      h('div', { class: 'inline-form-row' }, [this.installButton, this.retargetButton, this.uninstallButton]),
       this.confirmBox,
     ]);
 
@@ -287,6 +292,13 @@ class BridgeSection {
     this.confirmCancel.addEventListener('click', () => this.closeConfirm());
     onEscape(this.confirmBox, () => this.closeConfirm());
     this.confirmButton.addEventListener('click', () => this.install());
+    // Already installed: settings.json keeps the same command, only the receiving account changes,
+    // so the backup confirmation of the first install does not apply (DECISIONS 26.11.28 08:30).
+    this.retargetButton.addEventListener('click', () => this.install());
+    this.targetSelect.addEventListener('change', () => {
+      this.pickedTargetId = this.targetSelect.value;
+      this.render();
+    });
     this.uninstallButton.addEventListener('click', () => this.uninstall());
   }
 
@@ -324,6 +336,7 @@ class BridgeSection {
       if (result.ok) {
         this.status = result.value;
         this.errorCode = null;
+        this.pickedTargetId = null;
       } else {
         this.errorCode = ipcErrorCode(result.error);
       }
@@ -364,38 +377,56 @@ class BridgeSection {
 
     setText(this.statusEl, status === null ? '' : status.installed ? t('bridgeInstalled') : t('bridgeNotInstalled'));
     this.statusEl.hidden = status === null;
+    const installed = status?.installed === true;
+    const target = this.accounts.find((a) => a.id === status?.targetAccountId);
+    // The receiving account can be gone (removed account keeps its id in default-profile.json) or never set.
+    const targetMissing = installed && target === undefined;
     const details: string[] = [];
     if (status !== null) {
-      if (status.installed && status.wrapsExistingCommand) details.push(t('bridgeWrapsExisting'));
+      if (installed && status.wrapsExistingCommand) details.push(t('bridgeWrapsExisting'));
       if (status.lastDataAt !== null) {
         details.push(t('bridgeLastData', { time: relativeTimeText(ctx.locale, status.lastDataAt, ctx.now) }));
       }
-      const target = this.accounts.find((a) => a.id === status.targetAccountId);
-      if (status.installed && target !== undefined) details.push(t('bridgeTargetAccount', { label: target.label }));
+      if (installed && target !== undefined) details.push(t('bridgeTargetAccount', { label: target.label }));
       // Uninstalling the app does not touch the user's settings.json; the restore step lives here.
-      if (status.installed) details.push(t('bridgeRemoveBeforeUninstall'));
+      if (installed) details.push(t('bridgeRemoveBeforeUninstall'));
     }
     setText(this.detailEl, details.join(' · '));
     this.detailEl.hidden = details.length === 0;
-    setText(this.errorEl, code === null ? '' : describeError(t, code));
-    this.errorEl.hidden = code === null;
+    const errorText = code === null ? '' : describeError(t, code);
+    const missingText = targetMissing && this.accounts.length > 0 ? t('bridgeTargetMissing') : '';
+    setText(this.errorEl, [missingText, errorText].filter((text) => text.length > 0).join(' · '));
+    this.errorEl.hidden = missingText.length === 0 && errorText.length === 0;
 
-    const installed = status?.installed === true;
     const single = this.accounts.length === 1 ? this.accounts[0] : undefined;
-    setText(this.targetText, single !== undefined && !installed ? t('bridgeTargetAccount', { label: single.label }) : '');
-    this.targetText.hidden = single === undefined || installed;
+    const showSingle = single !== undefined && (!installed || targetMissing);
+    setText(this.targetText, showSingle ? t('bridgeTargetAccount', { label: single.label }) : '');
+    this.targetText.hidden = !showSingle;
 
     const previous = this.targetSelect.value;
     const options = this.accounts.map((a) => h('option', { value: a.id }, [a.label]));
     this.targetSelect.replaceChildren(...options);
-    if (this.accounts.some((a) => a.id === previous)) this.targetSelect.value = previous;
-    this.targetSelect.hidden = this.accounts.length < 2 || installed;
+    const isAccount = (id: string | null | undefined): id is string => this.accounts.some((a) => a.id === id);
+    const keep = isAccount(this.pickedTargetId)
+      ? this.pickedTargetId
+      : installed && target !== undefined
+        ? target.id
+        : isAccount(previous)
+          ? previous
+          : undefined;
+    if (keep !== undefined) this.targetSelect.value = keep;
+    // Installed: the select stays available so the receiving account can be changed (two or more accounts).
+    this.targetSelect.hidden = this.accounts.length < 2;
     setAttr(this.targetSelect, 'aria-label', t('bridgeSelectTarget'));
 
     setText(this.installButton, t('bridgeInstallDefault'));
+    setText(this.retargetButton, t('bridgeRetarget'));
     setText(this.uninstallButton, t('bridgeUninstallDefault'));
     this.installButton.hidden = installed;
     this.installButton.disabled = this.busy || this.accounts.length === 0;
+    const picked = this.selectedTarget();
+    this.retargetButton.hidden = !installed || (!targetMissing && this.accounts.length < 2);
+    this.retargetButton.disabled = this.busy || picked === null || picked === target?.id;
     this.uninstallButton.hidden = !installed;
     this.uninstallButton.disabled = this.busy;
     setText(this.confirmText, `${t('bridgeConfirmInstall')} ${t('bridgeInstallNote')}`);

@@ -682,6 +682,83 @@ describe('Accounts tab', () => {
     expect(api.callsTo('claude-bridge:uninstall-default')).toEqual([null]);
   });
 
+  it('Claude bridge: installed for a removed account, re-points to the remaining account without the backup prompt', async () => {
+    // Real case 26.11.28: the receiving account was deleted, a new account for the same login was added.
+    const api = new FakeApi()
+      .reply('claude-bridge:status', () => ({
+        ok: true,
+        value: { installed: true, wrapsExistingCommand: true, targetAccountId: 'gone1', lastDataAt: NOW - 60_000 },
+      }))
+      .reply('claude-bridge:install-default', (req) => ({
+        ok: true,
+        value: { installed: true, wrapsExistingCommand: true, targetAccountId: req.accountId, lastDataAt: NOW - 60_000 },
+      }));
+    const state = appState({ accounts: [account({ id: 'cl2', provider: 'claude', label: 'Claude New' })] });
+    const { app, root } = setup(state, api);
+    app.selectTab('accounts', false);
+    await flush();
+    const bridge = root.querySelector('.bridge-card');
+    const retarget = bridge?.querySelector<HTMLButtonElement>('.bridge-retarget');
+    expect(bridge?.querySelector('.bridge-status')?.textContent).toBe('Installed in default profile');
+    expect(bridge?.querySelector<HTMLElement>('.bridge-error')?.hidden).toBe(false);
+    expect(bridge?.querySelector('.bridge-error')?.textContent).toBe(en.bridgeTargetMissing);
+    expect(bridge?.querySelector('.bridge-target')?.textContent).toBe('Receiving account: Claude New');
+    expect(bridge?.querySelector('.bridge-detail')?.textContent).not.toContain('Receiving account');
+    expect(bridge?.querySelector<HTMLElement>('.bridge-install')?.hidden).toBe(true);
+    expect(retarget?.hidden).toBe(false);
+    expect(retarget?.disabled).toBe(false);
+    expect(retarget?.textContent).toBe(en.bridgeRetarget);
+
+    retarget?.click();
+    await flush();
+    expect(api.callsTo('claude-bridge:install-default')).toEqual([{ accountId: 'cl2' }]);
+    expect(bridge?.querySelector<HTMLElement>('.confirm-box')?.hidden).toBe(true);
+    expect(bridge?.querySelector<HTMLElement>('.bridge-error')?.hidden).toBe(true);
+    expect(bridge?.querySelector<HTMLElement>('.bridge-target')?.hidden).toBe(true);
+    expect(bridge?.querySelector('.bridge-detail')?.textContent).toContain('Receiving account: Claude New');
+    expect(retarget?.hidden).toBe(true);
+  });
+
+  it('Claude bridge: installed with two accounts, the receiving account can be changed', async () => {
+    const api = new FakeApi()
+      .reply('claude-bridge:status', () => ({
+        ok: true,
+        value: { installed: true, wrapsExistingCommand: false, targetAccountId: 'cb', lastDataAt: null },
+      }))
+      .reply('claude-bridge:install-default', (req) => ({
+        ok: true,
+        value: { installed: true, wrapsExistingCommand: false, targetAccountId: req.accountId, lastDataAt: null },
+      }));
+    const state = appState({
+      accounts: [
+        account({ id: 'ca', provider: 'claude', label: 'Work', order: 0 }),
+        account({ id: 'cb', provider: 'claude', label: 'Personal', order: 1 }),
+      ],
+    });
+    const { app, root } = setup(state, api);
+    app.selectTab('accounts', false);
+    await flush();
+    const bridge = root.querySelector('.bridge-card');
+    const select = bridge?.querySelector<HTMLSelectElement>('.bridge-target-select');
+    const retarget = bridge?.querySelector<HTMLButtonElement>('.bridge-retarget');
+    expect(select?.hidden).toBe(false);
+    expect(select?.value).toBe('cb');
+    expect(bridge?.querySelector<HTMLElement>('.bridge-error')?.hidden).toBe(true);
+    expect(retarget?.hidden).toBe(false);
+    expect(retarget?.disabled).toBe(true);
+
+    if (select === null || select === undefined) throw new Error('select missing');
+    select.value = 'ca';
+    select.dispatchEvent(new Event('change'));
+    expect(retarget?.disabled).toBe(false);
+    retarget?.click();
+    await flush();
+    expect(api.callsTo('claude-bridge:install-default')).toEqual([{ accountId: 'ca' }]);
+    expect(select.value).toBe('ca');
+    expect(retarget?.disabled).toBe(true);
+    expect(bridge?.querySelector('.bridge-detail')?.textContent).toContain('Receiving account: Work');
+  });
+
   it('reports IPC failures with the translated error', async () => {
     const api = new FakeApi().reply('accounts:reorder', () => ({ ok: false, error: { code: 'not-implemented' } }));
     const state = appState({ accounts: [account({ id: 'a1', order: 0 }), account({ id: 'a2', order: 1 })] });

@@ -147,6 +147,8 @@ export const en: Record<keyof typeof ko, string> = {
   bridgeInstallNote:
     'Claude Code records only after you accept folder trust, and a custom statusline hides its shortcut hints. Backups stay in the same folder as settings.json.aiuw-backup-* (the newest 3). Before uninstalling the widget, click [Remove from default profile] to restore your original statusline.',
   bridgeRemoveBeforeUninstall: 'Before uninstalling the widget, click [Remove from default profile] to restore your original statusline.',
+  bridgeTargetMissing: 'No account receives these records, so no usage is shown. Choose the account below.',
+  bridgeRetarget: 'Receive records in this account',
 
   // Settings tab
   widgetTheme: 'Widget Theme',

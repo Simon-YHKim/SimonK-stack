@@ -147,6 +147,8 @@ export const ko = {
   bridgeSelectTarget: '기록을 받을 계정 선택',
   bridgeInstallNote: 'Claude Code에서 작업 폴더 신뢰(trust)를 수락해야 기록되며, 상태줄 명령이 설정되면 Claude Code 하단 단축키 힌트가 숨겨집니다. 백업은 같은 폴더에 settings.json.aiuw-backup-* 이름으로 최근 3개까지 남습니다. 위젯을 삭제하기 전에 [기본 프로필에서 제거]를 눌러 원래 상태줄 설정을 복원하세요.',
   bridgeRemoveBeforeUninstall: '위젯을 삭제하기 전에 [기본 프로필에서 제거]를 눌러 원래 상태줄 설정을 복원하세요.',
+  bridgeTargetMissing: '기록을 받을 계정이 없어 사용량이 표시되지 않습니다. 아래에서 계정을 지정하세요.',
+  bridgeRetarget: '이 계정으로 기록 받기',
 
   // Settings tab (v1)
   widgetTheme: '위젯 테마 디자인',
