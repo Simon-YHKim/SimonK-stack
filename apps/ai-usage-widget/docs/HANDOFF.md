@@ -2,6 +2,19 @@
 > prepend 전용 로그. 새 블록을 맨 위에 얹고 직전 `## Latest`는 날짜 헤더로 강등한다. 덮어쓰지 않는다.
 
 ## Latest
+- **목적**: PR #214(브리지 대상 재지정 UI)·#215(model-news 테스트 정리 경쟁)의 반영 결과를 남긴다
+- **최종 갱신**: 26.11.28 08:50 KST · Claude Code(설치 소스는 detached `99b89fe`, 워크트리 `SimonK-stack-aiuw-main-261128`)
+- **지금까지**:
+  - PR #214 머지(`49bb65d`, CI 4/4). 첫 재설치는 설치 스킬 안 `pnpm verify`가 `model-news/service.test.ts`의 `ENOTEMPTY`(임시 폴더 정리 경쟁, 단독 6/6 통과)로 설치 전에 멈췄다 → PR #215(`99b89fe`, CI 4/4)로 공급자 테스트와 같은 `rm` 재시도를 넣었다
+  - 두 번째 시도는 위젯을 끈 뒤 `Get-FileHash`를 못 찾아 멈췄다. 원인: 이 셸이 PowerShell 7 Preview의 `PSModulePath`를 물려줘 5.1이 7용 모듈 경로를 먼저 읽음. 기존 설치본을 바로 다시 띄우고 `env -u PSModulePath powershell.exe …`로 재실행
+  - 재설치 성공: 스킬 안 `pnpm verify` exit 0(59파일·694테스트), 설치 파일 sha256 앞 16자 `7A4ECD028E79DAF7`, 설치본 app.asar 앞 12자 `41985a406d64`(번들에 `bridge-retarget` 포함), 프로세스 5개, 자동 시작은 설치본
+  - 작업 표시줄 캡처(08:49): Claude 칸 `WK 21% 남음 · 4h 10m`, 5H `↺ --`. 결정은 허브 D-132
+- **다음 1개**: 없음(관찰). 다음에 팝업 계정 탭을 열 때 브리지 카드에 "기록을 받을 계정: 개인"이 보이고 경고가 없는지 본다(테스트로만 확인)
+- **막힌 것**: 없음
+- **작업 규칙 변화**:
+  - 이 PC의 Git Bash·Orca 셸에서 설치 스킬(Windows PowerShell 5.1)을 돌릴 때는 `env -u PSModulePath powershell.exe -NoProfile -ExecutionPolicy Bypass -File …`로 실행한다. 물려받은 PS7 경로가 있으면 `Get-FileHash` 단계(위젯을 끈 뒤)에서 실패한다
+
+## 26.11.28 08:40 KST
 - **목적**: 사용자 보고(26.11.28) "위젯에 클로드 로그인 했는데 사용량이 표시 안 된다" 해결
 - **최종 갱신**: 26.11.28 08:40 KST · Claude Code(워크트리 `SimonK-stack-aiuw-retarget-261128`, 브랜치 `fix/aiuw-claude-bridge-retarget-261128`)
 - **지금까지**:
