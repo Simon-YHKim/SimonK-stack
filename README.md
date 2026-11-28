@@ -2,7 +2,7 @@
 
 Claude · Codex · Antigravity(agy) · Grok **4-AI**가 **파일(md) + git**으로 소통하는 공용 허브.
 용어 정본: 좌석=**Antigravity**(AG) · CLI=**agy** · "Gemini"는 모델명에만(PROTOCOL §0).
-요청·결과·상태가 git에 **PR처럼 누적**된다. 원격 = private `github.com/Simon-YHKim/comm-hub` (오프머신 백업, HubBackup 예약작업이 master push).
+요청·결과·상태가 git에 **PR처럼 누적**된다. 원격 = 공개 `github.com/Simon-YHKim/SimonK-stack` 의 `hub` 브랜치 (오프머신 백업, HubBackup 예약작업이 master push — `remote.origin.push` 가 `hub` 로 보낸다. 2026-11-28 comm-hub 삭제 뒤 Simon 지시로 이전. 공개 저장소이므로 비밀·회사 기밀은 허브에 쓰지 않는다).
 
 ## 한눈에
 - **Claude** = 메인 지시 AI(오케스트레이터) + 코딩 + 머지 게이트 · `BOARD.md` 단독 관리

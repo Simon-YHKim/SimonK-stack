@@ -1,6 +1,8 @@
 <#
 .SYNOPSIS
-  Hub off-machine backup - push committed history to the private remote (comm-hub).
+  Hub off-machine backup - push committed history to origin. Since 2026-11-28 origin is the PUBLIC
+  SimonK-stack repo: remote.origin.fetch maps its 'hub' branch to origin/master and remote.origin.push
+  sends master to 'hub', so 'git push origin master' below lands on the hub branch (comm-hub was deleted).
   Answers audit P1 'single-disk SPOF, no remote backup'. Called by the HubBackup scheduled task.
 .NOTES
   Backs up COMMITTED history only (uncommitted working-tree changes must be committed by
@@ -43,6 +45,6 @@ if ($behind -gt 0) {
 
 $push = (git push origin master 2>&1 | Out-String).Trim()
 $localHead  = (git rev-parse --short HEAD 2>$null)
-$remoteHead = ((git ls-remote origin master 2>$null) -split '\s')[0]
+$remoteHead = ((git ls-remote origin refs/heads/hub 2>$null) -split '\s')[0]
 $synced = $remoteHead -and ($remoteHead -like "$((git rev-parse HEAD))*")
 "[$(Now) KST] HubBackup push (local=$localHead, ahead was $ahead, synced=$synced): $push" | Add-Content $log

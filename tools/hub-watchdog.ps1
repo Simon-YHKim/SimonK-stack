@@ -173,7 +173,7 @@ try {
   }
 } catch {}
 
-# (8) PUSH PATH health (2026-07-04 restore audit): local commits must reach origin (comm-hub).
+# (8) PUSH PATH health (2026-07-04 restore audit): local commits must reach origin (SimonK-stack 'hub' branch since 2026-11-28).
 # Detect a dead/rotting push path: master far ahead of the origin/master ref (HubBackup dead,
 # push rejected non-FF, or divergence) or the HubBackup scheduled task missing on this machine.
 try {
@@ -181,7 +181,7 @@ try {
   $aheadRaw = git -C $root rev-list --count origin/master..master 2>$null
   if ($aheadRaw -match '^\d+$') { $ahead = [int]$aheadRaw }
   if ($ahead -ge 15) {
-    $issues += @{ key='push-stale'; title="Hub master is $ahead commits ahead of origin"; detail='Local hub commits are not reaching the comm-hub remote (HubBackup dead, rejected push, or divergence). They pile up locally and are not backed up off-machine.'; action='Run tools/hub-backup.ps1 manually and read tools/hub-backup.log; if the push is rejected non-fast-forward, Claude must git fetch + merge origin/master (never force), then push.' }
+    $issues += @{ key='push-stale'; title="Hub master is $ahead commits ahead of origin"; detail='Local hub commits are not reaching the origin hub branch (HubBackup dead, rejected push, or divergence). They pile up locally and are not backed up off-machine.'; action='Run tools/hub-backup.ps1 manually and read tools/hub-backup.log; if the push is rejected non-fast-forward, Claude must git fetch + merge origin/master (never force), then push.' }
   }
   $bkTask = $null
   try { $bkTask = Get-ScheduledTask -TaskName 'HubBackup' -ErrorAction SilentlyContinue } catch {}

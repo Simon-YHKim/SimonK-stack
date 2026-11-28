@@ -615,7 +615,7 @@ created: 2026-06-05 15:22:34 KST
 ---
 
 ## §33. Simon 원격 오더 채널 (ORDERS.md, 외출 중 비동기 지시)
-- **채널**: 2nd-B GitHub 레포 루트 **`ORDERS.md`**. (허브도 원격 `comm-hub`를 보유하지만, Simon 모바일 접근성·기존 워크플로 때문에 2nd-B ORDERS.md 채널을 유지한다.) Simon이 모바일 AI로 `## OPEN`에 오더 추가→push.
+- **채널**: 2nd-B GitHub 레포 루트 **`ORDERS.md`**. (허브도 원격(SimonK-stack `hub` 브랜치, 2026-11-28 이전)을 보유하지만, Simon 모바일 접근성·기존 워크플로 때문에 2nd-B ORDERS.md 채널을 유지한다.) Simon이 모바일 AI로 `## OPEN`에 오더 추가→push.
 - **Claude 동작**: 2분 자율 루프가 **매 틱 `tools/orders-poll.ps1 -Json -Heartbeat`로 읽음**(`-Heartbeat`=소비자 하트비트, watchdog이 이걸로 채널 생존 감시) → OPEN에 새 오더 있으면 `-Ack <id>`로 픽업 기록 후 수행 → 결과/PR/커밋 + `[YYYY-MM-DD / HH:MM:SS KST]` 를 `## DONE`에 append + 해당 블록을 OPEN→DONE 이동 → commit+push. 충돌 회피: ORDERS.md 편집 전 `git fetch`+ff.
 - **⚠ 소비자 = 살아있는 Claude /loop 세션(SPOF)**: 세션이 끝나면 채널이 조용히 죽는다(2026-06-21~07-03 12일 무소비 사고). 감시망: `hub-watchdog`이 10분마다 "오더 대기 + 하트비트 30분↑" 시 `orders-unconsumed` 노트를 Claude inbox에 자동 기록. 세션 재개 시 board.ps1 [INBOX FILES]에서 확인.
 - **게이트 동일**: 파괴·실비용·secrets·안전임상·법무 오더는 수행 전 확인(ORDERS DONE에 "확인 필요" 표기). 그 외 dev 오더는 무확인 수행.
