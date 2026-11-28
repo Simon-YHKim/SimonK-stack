@@ -5,6 +5,7 @@
 - CLI name map
 - Registered legacy entries
 - Lane migration pending
+- Refresh record (2026-11-28, D-133)
 - Refresh record (2026-11-16)
 - Refresh record (2026-10-21)
 - Refresh record (2026-10-18)
@@ -251,6 +252,8 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
     `dispatch: unavailable`(D-28 #12)은 그대로라 기본 채움은 여전히 `claude-opus-5-5` 로 간다.
   - 레인을 두지 않은 새 등록 모델: `gpt-6.1-terra`(중간 등급, D-101 로 GPT 쪽은 Astra 만), `gemini-4-carbon`
     (Antigravity 에서 Ultra 전용이라 이 계정 agy 목록에 없다). `gemini-4-argon` 은 D-105 그대로 ai-debate 좌석에서만 쓴다.
+    → D-133(2026-11-28): Carbon 이 유료 Pro 에 열려 agy 1.5.18 목록에 생겼고 Argon 은 11-30 에 빠지므로, `gemini-4-carbon` 에
+    agy 전용 원장 레인(`dispatch: unavailable`, `keep-model-orca-unverified`)을 붙이고 Argon 의 역할과 ai-debate 좌석을 넘겼다.
   - canary: `claude-fable-5-2` 는 Orca run `run_f057f8196b72`, dispatch `ctx_49c52654b156`(2026-11-16 00:19 KST, 읽기 전용
     워커 1개, 도구 금지, @high)에서 `launch.requested` == `launch.effective`, 세션 기록 `message.model` 이 3건 모두
     `claude-fable-5-2`, 정답 2/2, 파일 변경 0, fableWeekly 0% → 0%. 세션 기록의 entrypoint 는 `sdk-ts` 였다(10-12 의
@@ -265,8 +268,9 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
   (`gpt-5.6-terra` 의 등급 평가는 대상 `gpt-6.1-sol` 이 철회돼 더 진행하지 않는다). `keep-*` 6건: `claude-fable-5-1` →
   `claude-fable-5-2`, `claude-fable-5-2`, `gpt-6-astra`, `gemini-3.8-flash` → `gemini-4-hydrogen`, `gemini-4-hydrogen`,
   그리고 D-101 로 돌아온 `gpt-daybreak-blue-latest`.
-- 그래서 planner 는 여전히 `gpt-6-sol`, `gpt-6.1-terra`, `grok-4.5`, `gemini-4-carbon` 으로의 Orca 발주를
-  `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막는다. `claude-sonnet-5-5`·`claude-haiku-5-5` 는 등록된 레인이라
+- 그래서 planner 는 여전히 `gpt-6-sol`, `gpt-6.1-terra`, `grok-4.5` 로의 Orca 발주를
+  `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막는다. `gemini-4-carbon`(D-133)·`gemini-4-neon` 은 agy 전용 레인이라
+  `ORCA_DISPATCH_UNSUPPORTED` 에서 멈춘다. `claude-sonnet-5-5`·`claude-haiku-5-5` 는 등록된 레인이라
   그 코드가 아니라 다음 게이트(G5·$0·런치 인증서)에서 멈추고, 철회된 `gpt-6-luna`·`gpt-6.1-sol` 은 `ORCA_LANE_WITHDRAWN`
   에서 멈춘다. 레인을 더 바꾸려면 Orca canary 와 `/ai-debate` 를 거친 별도 결정이나 Simon 의 명시 지시가 필요하다.
   Orca 밖 guarded adapter 는 자기 계정·과금·effort 게이트를 그대로 적용한다. D-101 의 "GPT 는 astra 만" 은 레인 표·
@@ -276,6 +280,22 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
 ### D-105 (2026-10-18): `gemini-4-argon` 은 등록만, 레인은 없다
 
 `gemini-4-argon` 은 2026-10-13 Gemini API GA 라 2026-10-18.1 레지스트리에 등록했지만 `routing.py` 레인은 없다. 그래서 계획에 넣으면 지금처럼 `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막힌다. 이유는 둘이다. Orca 의 antigravity 에이전트는 기동 때 모델을 고를 수 없고(D-28 #12), agy CLI 직행 실행기도 없다. 실행기를 만들더라도 다른 실행기처럼 코디네이터 인증서(모델 포함·남은 쿼터·초과 과금 OFF·API 폴백 OFF)가 있어야 돌고, Antigravity 초과 과금 여부는 아직 확인하지 못했다. 허브 토론 D-104 의 B 판정은 이 사실을 빠뜨린 근거로 나와, 사실을 넣어 다시 연 D-105(FINAL 4/4, A, 확신도 92)가 먼저 agy 인증서 경로를 확인하고 토론 좌석 사용을 최대 5건 계측한 뒤 실행기를 다시 보기로 정했다. 지금 Argon 이 실제로 쓰이는 곳은 ai-debate 의 Gemini 좌석(`gemini-4-argon-high`, ai-debate 0.2.8)이다. 2026-10-18 canary 두 건(화면 녹화 검토, 심어 둔 주장 10개 대조)은 통과했지만 둘 다 n=1 합성 표본이다.
+
+## Refresh record (2026-11-28, D-133)
+
+시각은 모두 KST 다. 모델 호출은 평가 18회(아래)뿐이고 전부 이 계정 agy 구독 사용량이다. Bot·유료 API 호출은 0회다.
+
+| 근거 | 관측 | 결과 |
+| --- | --- | --- |
+| `agy models`·`agy --version` | 08:49:36 | 1.5.18. `gemini-4-carbon-low/medium/high` 와 `gemini-pro-orchestrator`(Orchestrator (Carbon))가 새로 보인다. Neon 4·Argon 3·Hydrogen 4·3.8 Flash 3·Claude 6·`gpt-oss-120b-medium` |
+| `agy -p /usage`(턴 0회·토큰 0) | 08:5x·09:05:37 | 1.5.18 을 `AGY_USAGE_VERSIONS` 에 넣었다(빠져 있어 수집기가 `usage-contract-unverified` 로 모든 agy 경로를 막고 있었다). Carbon 은 "Gemini Models" 공용 창(주간·5시간)에 묶인다. 주간 17.8% 사용 |
+| `antigravity.google/docs/models` | 09:2x, HTTP 200 | "Gemini 4 Argon, Gemini 3.8 Flash, GPT-OSS-120b, and Claude 4.6 models are leaving on November 30, 2026." Carbon·Neon 은 유료 Pro·Ultra·Enterprise. Enterprise Orchestrator 는 Carbon High planner + Hydrogen High executor |
+| `ai.google.dev/.../gemini-4-carbon`(→ `aistudio.google.com/docs` 301) | 09:27:30, HTTP 200 | 1,048,576 / 65,536 / 사고 low·medium·high / Stable / 11-30 까지 $2·$10, 12-01 부터 $4·$20 — 레지스트리와 같다 |
+| 평가 18회(`agy --print`, 실행기와 같은 argv) | 09:0x~09:4x | 과제 6개 × Carbon high(한국어 medium)·Argon high·Neon high(한국어 medium). 셋 다 27/27. 합계 시간 Carbon 1143초·Argon 511초·Neon 492초, 출력 토큰 95,357·40,720·52,885. 주간 사용량 17.8% → 24.3%. transcript 의 `model` 은 요청한 슬러그와 같다 |
+| 커뮤니티·벤치마크(하위 조사 에이전트, 웹 읽기만) | 09:0x~09:19 | AA 지수 Neon xhigh 62·Carbon high 60·Argon 51, Arena 텍스트 Carbon 1위(11-22). DC 애용갤·HN·X: 설계·리뷰·연구 질문 긍정, 속도(0/2/9)·과잉 검증(2/1/5) 부정. Reddit 은 403 |
+
+결과: Argon 의 agy 역할(PLAN_ARCHITECTURE rank 1, REASONING_ABSTRACT·CODE_REVIEW_FINAL rank 0, KOREAN_PROSE 대체)은 Carbon 으로, ai-debate Gemini 좌석은 `gemini-4-carbon-high` 로 옮겼다.
+Neon 1순위·Hydrogen 역할은 그대로다. 3.8 Flash 는 레인이 없어 기록만 한다. 순위표 창 끝은 2026-12-01 00:00 KST 그대로다.
 
 ## Refresh record (2026-11-16)
 

@@ -1,5 +1,21 @@
 # SimonK-stack 세션 인수인계
 
+## Latest — 2026-11-28 09:44 / Gemini 4 Argon 자리를 Carbon 으로 (D-133, vibe 2.30.0 · ai-debate 0.2.9)
+
+갱신 시각: 2026-11-28 09:44 KST · 갱신자: Claude Code(Opus 5.5). Simon: "새 모델을 평가한 뒤에 스킬에 반영, 깃허브 반영, 이 컴퓨터 설치." PR #217.
+
+- **왜**: Antigravity 모델 표가 Gemini 4 Argon·3.8 Flash·GPT-OSS-120b·Claude 4.6 의 2026-11-30 제거를 알린다. D-131 의 Argon 네 자리(추론 2차 의견·최종 리뷰·설계 보조·한국어 초안 대체)와 ai-debate Gemini 좌석이 12-01 부터 갈 곳이 없었다.
+- **결정**: Carbon high = REASONING_ABSTRACT·CODE_REVIEW_FINAL rank 0, PLAN_ARCHITECTURE rank 1. Carbon medium = KOREAN_PROSE 대체. ai-debate Gemini 좌석 = `gemini-4-carbon-high`. Neon 1순위·Hydrogen·GPT-6.2·Claude 는 그대로. 근거 [D-133](../skills-src/vibe/references/d133-carbon-routing.md).
+- **실측**: 과제 6개(정답 기계 채점) × Carbon·Argon·Neon, 실행기와 같은 `agy --print` argv 18회 → 셋 다 27/27. Carbon 1143초·출력 95k 토큰(Argon 511초·41k, Neon 492초·53k). Gemini 주간 17.8% → 24.3%. 스크래치 `carbon-eval/`(세션 임시 폴더).
+- **곁 수리**: agy 가 1.5.18 로 자동 업데이트돼 `runtime_collect` 가 모든 agy 경로를 `usage-contract-unverified` 로 막고 있었다. 1.5.18 `/usage` 0턴·0토큰 실측 뒤 허용 목록에 추가.
+- **11-28 08:47 설치 보충**: D-131(2.29.0) 은 11-24 승인 뒤 이 PC 에 설치되지 않은 채였다 → `20261128-vibe-2290-99b89fe` 로 설치(selftest 286/0·104/0). 허브 DECISIONS.md 에 D-131 줄이 없다(로컬 허브는 D-130 까지, 원격 comm-hub 는 "Repository not found").
+
+### 다음 작업 큐
+- 머지 뒤: main dist run 확인 → `update-local.ps1 -PluginPins …plugin-pins-261116 -PhysicalSkills 'ai-debate,careful,freeze,guard,unfreeze' -Apply` → 설치 확인.
+- 12-01 00:00 전: 순위표·레지스트리 재확인(창 끝). Argon·3.8 Flash 가 agy 목록에서 실제로 빠졌는지 확인.
+- ai-debate OpenAI 좌석은 아직 `gpt-6-astra`(D-101) — D-131 의 6.2 전환 범위 밖이었다. 바꾸려면 canary 1회와 함께.
+- 루트 `E:\Coding Infra\CLAUDE.md` §21 의 "한국어 산문 → gemini-4-argon-high" 문장은 D-131/D-133 와 다르다(이 레포 밖, 3파일 동기화 대상).
+
 ## D-131 candidate · 2026-11-24 · vibe 2.29.0
 
 GPT-6.2 Sol/Astra 병렬 배정, Gemini 4 세 모델의 구독용 agy 경로와 한국어 초안 정책을 갱신했다.
@@ -9,7 +25,7 @@ GPT-6.2 Sol/Astra 병렬 배정, Gemini 4 세 모델의 구독용 agy 경로와 
 승인값과 두 digest는 `distribution/dist-publish.allow`에 고정했다. 코디네이터가 PR 생성·병합과 전역 §9-1 변경을 맡는다. 병합 통지 뒤 작업자가 최신 main을 이 PC에 설치하고 selftest와 agy 링크 6개를 확인한다.
 
 
-## Latest — 2026-11-16 07:55 / GPT-6.1 Sol 리서치·에이전트 1순위 + Codex CLI 레인 수리 (D-130, vibe 2.28.0)
+## 2026-11-16 07:55 / GPT-6.1 Sol 리서치·에이전트 1순위 + Codex CLI 레인 수리 (D-130, vibe 2.28.0)
 
 갱신 시각: 2026-11-16 07:55 KST · 갱신자: Claude Code(Opus 5.5). Simon: "codex 리셋됐으니 검토해." → 짝 실측 보고 → "너가 발견한것을 포한해서 진행하자. 머지까지 진행해줘." 허브 D-130(6b7a8a93).
 
