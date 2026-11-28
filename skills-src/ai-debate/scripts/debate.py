@@ -43,10 +43,11 @@ ROUNDS = ("r1", "r2", "judge", "ratify", "catchup")
 MODES = ("quick", "full", "interject")
 CALLS = ("CONTINUE", "RESCOPE", "SHIP_NOW", "STOP", "ASK_USER")
 # openai: gpt-6-astra @ xhigh is the only GPT model in use (hub D-101, 2026-10-12, owner directive).
-# google: gemini-4-argon-high (hub D-105, 2026-10-18). agy 1.4.1 no longer lists gemini-3.1-pro and
+# google: gemini-4-carbon-high (hub D-132, 2026-11-28: Antigravity removes Gemini 4 Argon on 2026-11-30).
+# Before that gemini-4-argon-high (hub D-105, 2026-10-18). agy 1.4.1 no longer lists gemini-3.1-pro and
 # refuses "--model gemini-3.1-pro-high" before any turn, so the old default left the seat unable to answer.
 DEFAULTS = {"anthropic": ("claude-opus-5-5", "max"), "openai": ("gpt-6-astra", "xhigh"),
-            "xai": ("grok-4.7", "xhigh"), "google": ("gemini-4-argon-high", None)}
+            "xai": ("grok-4.7", "xhigh"), "google": ("gemini-4-carbon-high", None)}
 BINARIES = {"anthropic": "claude", "openai": "codex", "xai": "grok", "google": "agy",
             "orca": "orca"}
 ARGV_SEATS = ("google", "orca")  # model-written text travels in argv for these
@@ -2003,7 +2004,7 @@ def vendor_argv(vendor, cmd, work, folder, rnd, model, effort, timeout, prompt_t
 
 
 def agy_model(model, effort):
-    """agy takes the effort as the model-name suffix (gemini-4-argon-high); returns (model, effort)."""
+    """agy takes the effort as the model-name suffix (gemini-4-carbon-high); returns (model, effort)."""
     base, current = model, None
     for level in AGY_EFFORTS:
         if model.endswith("-" + level):

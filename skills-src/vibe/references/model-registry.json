@@ -1,9 +1,10 @@
 {
   "schema_version": 1,
-  "version": "2026-11-24.1",
+  "version": "2026-11-28.1",
   "checked_at": "2026-11-16T00:08:40+09:00",
-  "data_as_of": "2026-11-24",
+  "data_as_of": "2026-11-28",
   "notes": [
+    "2026-11-28 D-132(2026-11-28.1, vibe 2.30.0): 공식 Carbon 모델 페이지(ai.google.dev → aistudio.google.com/docs 301, 09:27:30 KST HTTP 200)를 다시 읽어 컨텍스트 1,048,576·기본 출력 65,536·사고 low/medium/high·Stable gemini-4-carbon·가격 11-30 까지 $2/$10 뒤 12-01 부터 $4/$20 이 이 항목과 같음을 확인했다. Antigravity 모델 표(antigravity.google/docs/models, HTTP 200)는 Gemini 4 Argon·Gemini 3.8 Flash·GPT-OSS-120b·Claude 4.6 이 2026-11-30 에 빠진다고 적는다. 그래서 gemini-4-carbon 에 routing_checked_at(가장 이른 근거 = agy 1.5.18 models 수신 08:49:36)과 Orca 원장 레인(dispatch unavailable)을 붙이고 gemini-4-argon 의 transport_note 에 퇴장을 적었다. Argon·3.8 Flash 의 API 측 사실은 바꾸지 않았다. 다른 모델의 제공사 사실과 checked_at 은 그대로다.",
     "Public provider facts are not account, transport, billing or successful-execution evidence.",
     "API Standard USD / million tokens only. Tool, storage, transport, regional and priority charges are separate.",
     "ultra and ultracode are harness delegation modes, not ordinary provider reasoning effort.",
@@ -67,10 +68,12 @@
     "gg_hydrogen": "https://ai.google.dev/gemini-api/docs/models/gemini-4-hydrogen",
     "gg_carbon": "https://ai.google.dev/gemini-api/docs/models/gemini-4-carbon",
     "gg_antigravity_hydrogen": "https://antigravity.google/blog/gemini-4-hydrogen-in-google-antigravity",
-    "gg_antigravity_carbon": "https://antigravity.google/blog/gemini-4-carbon-in-google-antigravity"
+    "gg_antigravity_carbon": "https://antigravity.google/blog/gemini-4-carbon-in-google-antigravity",
+    "gg_antigravity_models": "https://antigravity.google/docs/models"
   },
   "legacy_lane_migration": {
     "gemini-4-argon": {"candidate": "gemini-4-argon", "status": "keep-model-orca-unverified"},
+    "gemini-4-carbon": {"candidate": "gemini-4-carbon", "status": "keep-model-orca-unverified"},
     "gemini-4-neon": {"candidate": "gemini-4-neon", "status": "keep-model-orca-unverified"},
     "gpt-6.2-sol": {"candidate": "gpt-6.2-sol", "status": "pending-transport-and-canary"},
     "gpt-6.2-astra": {"candidate": "gpt-6.2-astra", "status": "pending-transport-and-canary"},
@@ -208,7 +211,7 @@
       "id_namespace": "provider-api", "released_at": "2026-10-13",
       "api_efforts": ["low", "medium", "high"], "aliases": [], "source_updated_at": "2026-10-16",
       "context_tokens": 1048576, "max_output_tokens": 65536,
-      "transport_note": "GA (stable) on the Gemini API since 2026-10-13; thinking level default medium. The context window is unified input+output; 65,536 is the default synchronous output cap (up to 1,048,576 with long decode). Paid tier only, not on the Gemini API free tier. In Antigravity the Google post says AI Pro and Ultra, the blog.google post says Ultra; agy 1.4.1 on this PC lists gemini-4-argon-low/medium/high. Public facts do not prove this account's included usage.",
+      "transport_note": "Antigravity removes Gemini 4 Argon on 2026-11-30 (antigravity.google/docs/models, read 2026-11-28); D-132 moved its /vibe roles to gemini-4-carbon and the key stays for the ledger. GA (stable) on the Gemini API since 2026-10-13; thinking level default medium. The context window is unified input+output; 65,536 is the default synchronous output cap (up to 1,048,576 with long decode). Paid tier only, not on the Gemini API free tier. In Antigravity the Google post says AI Pro and Ultra, the blog.google post says Ultra; agy 1.4.1 on this PC lists gemini-4-argon-low/medium/high. Public facts do not prove this account's included usage.",
       "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.1", "output": "10", "cache_write": null, "valid_through": "2026-11-30", "note": "Introductory rate through 2026-11-30; from 2026-12-01 input $4, cached input $0.20, output $20. Output includes thinking tokens. Implicit caching only (no explicit cache storage price). Flat rate, no >200k tier."},
       "sources": ["gg_argon", "gg_argon_new", "gg_pricing", "gg_thinking", "gg_changelog", "gg_antigravity_argon"]
     },
@@ -222,13 +225,13 @@
       "sources": ["gg_hydrogen", "gg_pricing", "gg_thinking", "gg_changelog", "gg_antigravity_hydrogen"]
     },
     {
-      "id": "gemini-4-carbon", "surface": "antigravity", "vendor": "google", "lifecycle": "active",
+      "id": "gemini-4-carbon", "routing_checked_at": "2026-11-28T08:49:36+09:00", "surface": "antigravity", "vendor": "google", "lifecycle": "active",
       "id_namespace": "provider-api", "released_at": "2026-11-10",
       "api_efforts": ["low", "medium", "high"], "aliases": [],
       "context_tokens": 1048576, "max_output_tokens": 65536,
-      "transport_note": "GA (stable) on the Gemini API since 2026-11-10; thinking level default medium; Google's strongest Gemini 4 model. Paid tier only. In Antigravity it is for Google AI Ultra subscribers (plus enterprise and research access programs); agy 1.5.9 on this PC does not list it. Public facts do not prove this account's access or included usage.",
+      "transport_note": "GA (stable) on the Gemini API since 2026-11-10; thinking low, medium, high (default medium). Antigravity opened it to paid Google AI Pro as well as Ultra; on 2026-11-28 agy 1.5.18 on this PC lists gemini-4-carbon-low/medium/high and /usage (zero turns) puts it in the shared Gemini weekly and five-hour windows with Neon, Argon and Hydrogen. D-132 routes it through agy --print only (advisory high, prose fallback medium). Public facts do not prove this account's included usage.",
       "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.1", "output": "10", "cache_write": null, "valid_through": "2026-11-30", "note": "Introductory rate through 2026-11-30; from 2026-12-01 input $4, cached input $0.20, output $20. Output includes thinking tokens."},
-      "sources": ["gg_carbon", "gg_pricing", "gg_thinking", "gg_changelog", "gg_antigravity_carbon"]
+      "sources": ["gg_carbon", "gg_pricing", "gg_thinking", "gg_changelog", "gg_antigravity_carbon", "gg_antigravity_models"]
     },
     {
       "id": "gemini-3.1-pro-preview", "surface": "antigravity", "vendor": "google", "lifecycle": "preview",

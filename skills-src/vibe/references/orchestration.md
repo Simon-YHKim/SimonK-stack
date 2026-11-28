@@ -890,12 +890,15 @@ or a credit deduction while included usage remains.
 
 Read-only coding/design opinions and Korean drafts use a single `agy --print` in plan mode and a private
 temporary directory. The host supplies a nonconfidential brief, including any source excerpts needed.
-Use `KOREAN_PROSE` for notices and short copy. Neon medium drafts first, Argon high is the alternative.
+Use `KOREAN_PROSE` for notices and short copy. Neon medium drafts first, Carbon medium is the alternative
+(D-132: Antigravity removes Argon on 2026-11-30).
 A reviewer from another vendor checks names, numbers, dates and logical consistency. The earlier
-D-126 blind comparison favored Argon 2:1. It did not compare Neon.
+D-126 blind comparison favored Argon 2:1. It did not compare Neon. In the D-132 run Neon medium, Carbon medium
+and Argon high all kept 13 of 13 brief facts in the same notice task.
 
 For analysis of supplied text, `agy-brief` competes in the task ranking. Neon high assists design and code,
-Hydrogen low handles bulk work and first reviews, and Argon high contributes a reasoning-heavy second opinion.
+Hydrogen low handles bulk work and first reviews, and Carbon high contributes a reasoning-heavy second opinion
+and final review (Argon high until D-132). Carbon is about twice as slow as Neon, so use it only for those roles.
 Only read-only, supported task types without skill/software dependencies qualify. A selected handoff contains
 the runner, model, task type and expected profile. Pass those fields unchanged:
 

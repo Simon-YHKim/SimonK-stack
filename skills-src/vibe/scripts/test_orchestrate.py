@@ -92,16 +92,16 @@ def codex_image_tool(**changes):
 
 
 def agy_prose_tool(**changes):
-    """Hub D-126: Gemini 4 Argon prose drafting as runtime_collect.agy_prose_tool reports it."""
+    """Hub D-126/D-132: Gemini 4 Carbon prose drafting as runtime_collect.agy_prose_tool reports it."""
     evidence = ["fixture agy-usage-command /usage num_turns=0"]
     item = {
-        "id": "antigravity:argon-prose", "surface": "antigravity", "transport": "agy-prose",
-        "tool_ref": "gemini-4-argon-high", "model": "gemini-4-argon", "available": True,
+        "id": "antigravity:carbon-prose", "surface": "antigravity", "transport": "agy-prose",
+        "tool_ref": "gemini-4-carbon-medium", "model": "gemini-4-carbon", "available": True,
         "observed_at": NOW, "evidence": evidence,
         "billing": {"mode": "subscription", "verified": True, "auth_method": "google-account",
                     "account_ref": "fixture-agy-profile", "api_fallback_disabled": True,
                     "observed_at": NOW, "evidence": evidence},
-        "quota": {"used_pct": 3, "bucket": "gemini-argon-wtu-weekly", "observed_at": NOW,
+        "quota": {"used_pct": 3, "bucket": "gemini-carbon-wtu-weekly", "observed_at": NOW,
                   "account_ref": "fixture-agy-profile", "surface": "antigravity",
                   "transport": "agy-prose", "evidence": evidence},
     }
@@ -1736,13 +1736,20 @@ class OrchestrationTests(unittest.TestCase):
         # Lane migration is a separate decision; registering a model must not open an Orca lane.
         # D-67 added claude-opus-5-5 and gpt-6.1-sol; Simon's 2026-10-05 instruction added the class A
         # lanes claude-sonnet-5-5 and gpt-6-luna. These remain without a lane. D-125 (2026-11-16) gave grok-4.7
-        # a lane; gpt-6.1-terra and gemini-4-carbon are registered without one.
-        for model in ("gpt-6-sol", "grok-4.5", "gemini-4-carbon"):
+        # a lane; gpt-6.1-terra is registered without one. D-132 (2026-11-28) gave gemini-4-carbon an agy-only
+        # ledger lane, which the Orca gate refuses like Neon's.
+        for model in ("gpt-6-sol", "grok-4.5"):
             with self.subTest(model=model):
                 node = {"id": "n", "proc": "research-deep", "class": "B",
                         "route": {"transport": "orca", "model": model, "requested_effort": "high"}}
                 self.assertEqual(self.m._legacy_validation([node], {}),
                                  ["ORCA_UNREGISTERED_PROCESS_OR_MODEL"])
+        for model in ("gemini-4-carbon", "gemini-4-neon"):
+            with self.subTest(agy_only=model):
+                node = {"id": "n", "proc": "research-deep", "class": "B",
+                        "route": {"transport": "orca", "model": model, "requested_effort": "high"}}
+                self.assertEqual(self.m._legacy_validation([node], {"quota_checked_vendors": ["gemini"]}),
+                                 ["ORCA_DISPATCH_UNSUPPORTED"])
 
     def test_d125_lanes_pass_registration_and_stop_at_the_quota_gate(self):
         # D-125 (2026-11-16): the successor lanes are registered beside the legacy keys. Registration is not a
@@ -3052,7 +3059,7 @@ class OrchestrationTests(unittest.TestCase):
         self.assertIn("SURFACE_MISMATCH",
                       self.m.assess_image_tool(codex_image_tool(), {}, claude_step, NOW))
 
-    def test_korean_prose_routes_to_argon_under_the_usage_gate_with_a_fact_check(self):
+    def test_korean_prose_routes_to_carbon_under_the_usage_gate_with_a_fact_check(self):
         # D-126 (Simon 2026-11-16): D-107's Korean prose rule inside /vibe. One agy --print per
         # node through the runner, and a review step that fact-checks the draft (D-107).
         prose = self.typed("KOREAN_PROSE", task="Draft a Korean maintenance notice from the brief")
@@ -3064,10 +3071,10 @@ class OrchestrationTests(unittest.TestCase):
         self.assertEqual(node["kind"], "prose")
         self.assertEqual(node["route"]["transport"], "agy-prose")
         self.assertEqual(node["route"]["vendor"], "google")
-        self.assertEqual(node["route"]["model"], "gemini-4-argon")
-        self.assertEqual((node["route"]["requested_effort"], node["route"]["effective_effort"]), ("high", None))
+        self.assertEqual(node["route"]["model"], "gemini-4-carbon")
+        self.assertEqual((node["route"]["requested_effort"], node["route"]["effective_effort"]), ("medium", None))
         self.assertEqual(node["handoff"]["kind"], "agy-prose")
-        self.assertEqual(node["handoff"]["model"], "gemini-4-argon-high")
+        self.assertEqual(node["handoff"]["model"], "gemini-4-carbon-medium")
         self.assertEqual(node["handoff"]["runner"], "scripts/execute_agy_prose.py")
         self.assertTrue(node["handoff"]["one_send"])
         self.assertEqual(node["handoff"]["fact_check"], "host-review-step")

@@ -21,11 +21,12 @@ re-checks right before spawning and never spawns a seat that is not READY (UNKNO
 | anthropic | Claude | claude-opus-5-5 · max | stdin to `claude -p` (UNKNOWN by default) |
 | openai | Codex | gpt-6-astra · xhigh | stdin (`-`); answer read from the `-o` file |
 | xai | Grok | grok-4.7 · xhigh | `--prompt-file` (UTF-8 `.txt`) |
-| google | Gemini via `agy` | gemini-4-argon-high (effort = model-name suffix; D-105, 2026-10-18 — agy 1.4.1 dropped gemini-3.1-pro) | argv after `--print`; the command line is kept at or under 32000 UTF-16 units |
+| google | Gemini via `agy` | gemini-4-carbon-high (effort = model-name suffix; D-132, 2026-11-28 — Antigravity removes Gemini 4 Argon on 2026-11-30; before that gemini-4-argon-high, D-105) | argv after `--print`; the command line is kept at or under 32000 UTF-16 units |
 
 Whichever vendor hosts (`--orchestrator`) answers its own seat in-session and registers it with `submit`;
 that seat is never spawned. `--model` and `--effort` pass through to `call`; for agy the effort
-replaces the model-name suffix (`--effort low` → `gemini-4-argon-low`) and no `--effort` flag is sent.
+replaces the model-name suffix (`--effort low` → `gemini-4-carbon-low`) and no `--effort` flag is sent.
+Carbon has no `xhigh`; a measured Carbon high answer took up to 465 s, so raise `--timeout` above the 600 s default for long evidence.
 
 ## Shared rules
 

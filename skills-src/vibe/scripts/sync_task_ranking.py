@@ -25,7 +25,7 @@ POLICY = orchestrate.TASK_FIT_PATH
 BEGIN = "<!-- TASK-RANKING:BEGIN"
 END = "<!-- TASK-RANKING:END -->"
 TOOL_LABELS = {"agy-prose": "agy prose", "gemini-4-neon-medium": "Neon @medium via agy",
-               "gemini-4-argon-high": "Argon @high via agy", "codex-image": "Codex `image_gen`",
+               "gemini-4-carbon-medium": "Carbon @medium via agy", "codex-image": "Codex `image_gen`",
                "host-image": "host image adapter", "bot": "Grok Bot (vibe-bot)",
                "playwright": "local Playwright headless", "claude-in-chrome": "local Claude in Chrome",
                "computer-use": "local Computer Use"}

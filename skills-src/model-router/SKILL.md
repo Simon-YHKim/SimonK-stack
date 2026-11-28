@@ -4,7 +4,7 @@ description: >-
   Use when choosing model/effort assignments: "which model", "모델 추천",
   "route tasks". Returns an evidence-bound /vibe plan with quota, cost and
   blocked reasons; never launches workers or treats unknown billing as free.
-version: 0.2.8
+version: 0.2.9
 ---
 
 # Model Router — one typed request, one central plan
@@ -68,7 +68,7 @@ contract without `task_type`; its exact argv cost still needs verification.
 | VISION | Image/OCR/diagram interpretation, not authority to control a screen |
 | IMAGE_GENERATION | Produce a new image; blocked until a verified subscription-included image tool exists |
 | CODE_CLEANUP | Behavior-preserving cleanup of tangled code or file layout as its own edit step (D-128); scope is the run's changed files unless named |
-| KOREAN_PROSE | Korean notices, announcements, polishing and short copy; a dedicated prose tool drafts (Gemini Argon, D-126) and a review step fact-checks |
+| KOREAN_PROSE | Korean notices, announcements, polishing and short copy; a dedicated prose tool drafts (Gemini Neon, fallback Carbon; D-131/D-132) and a review step fact-checks |
 
 Use the four deliverable-specific profiles above when they fit; retain the
 older category IDs for compatible consumers. Effort demand and capability

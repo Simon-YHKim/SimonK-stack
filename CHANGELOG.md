@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-28 · D-132
+
+/vibe 2.30.0 and ai-debate 0.2.9 move Gemini 4 Argon's roles to Gemini 4 Carbon before Antigravity removes Argon on 2026-11-30, and the agy usage check accepts agy 1.5.18. See [vibe changelog](skills-src/vibe/CHANGELOG.md).
+
 ## 2026-11-24 · D-131 candidate
 
 /vibe 2.29.0 adds parallel GPT-6.2 routing and subscription-gated Gemini 4 assistance. See [vibe changelog](skills-src/vibe/CHANGELOG.md).

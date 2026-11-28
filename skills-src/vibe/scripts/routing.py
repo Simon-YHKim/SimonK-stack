@@ -212,6 +212,8 @@
 #   그대로인 것: GPT 는 gpt-6-astra @xhigh 만(D-101 — GPT-6.1 Terra 는 중간 등급이라 레인 없음) · Opus 5.5 · Sonnet 5.5 ·
 #     Haiku 5.5 · 코디네이터 · 두 보안 게이트 · ai-debate Gemini 좌석(Argon high, D-105). Gemini 4 Carbon 은
 #     Antigravity 에서 Ultra 전용이라 이 계정 agy 목록에 없다 → 레인 없음.
+#     (D-132, 2026-11-28: Carbon 은 이제 유료 Pro 에도 열려 agy 1.5.18 목록에 있다. Antigravity 가 11-30 에 Argon 을
+#     빼므로 Argon 의 agy 역할과 ai-debate Gemini 좌석을 Carbon 으로 옮겼다 — 아래 gemini-4-carbon 항목.)
 #   canary: fable-5-2 = Orca run_f057f8196b72 · ctx_49c52654b156 · 2026-11-16 00:19 KST · 읽기 전용 워커 1개 · 도구 금지 ·
 #     launch.requested == launch.effective(claude-fable-5-2 · high) · 세션 기록 message.model claude-fable-5-2 ×3 ·
 #     정답 2/2 · 파일 변경 0 · fableWeekly 0→0. ⚠ 세션 기록 entrypoint 가 sdk-ts 였다(10-12 canary 는 cli) — Orca 의
@@ -397,7 +399,12 @@ LANES = {
     "gemini-4-argon": {
         "cli": "antigravity", "cli_binary": "agy", "vendor": "gemini", "effort_style": "slug-suffix",
         "dispatch": "unavailable", "std": "high", "top": "high",
-        "ctx": "D-131 · agy 추론 2차 의견", "orca_efforts": ("low", "medium", "high"),
+        "ctx": "D-132 · 2026-11-30 Antigravity 퇴장 · 원장 호환용(우선순위 밖)", "orca_efforts": ("low", "medium", "high"),
+    },
+    "gemini-4-carbon": {
+        "cli": "antigravity", "cli_binary": "agy", "vendor": "gemini", "effort_style": "slug-suffix",
+        "dispatch": "unavailable", "std": "high", "top": "high",
+        "ctx": "D-132 · agy 추론 2차 의견·최종 리뷰·설계 보조", "orca_efforts": ("low", "medium", "high"),
     },
     "gpt-6-astra": {
         # 2026-09-06 신설. models_cache priority 1 · "Our most capable model for
@@ -1819,6 +1826,9 @@ def emit_md():
     L.append("")
     L.append("**D-131 (2026-11-24)**: D-130의 6.1 Sol 예외를 종료했다. GPT-6.2 Sol과 Astra는 독립 단계에서 병렬로 쓴다. "
              "레거시 Orca 코딩 라운드의 고정 보안 게이트와 G1 독립성 검사는 계속 적용한다. Gemini 4 세 모델은 agy 경로를 쓴다.")
+    L.append("")
+    L.append("**D-132 (2026-11-28)**: Antigravity가 11월 30일 Gemini 4 Argon을 뺀다. Argon이 맡던 agy 추론 2차 의견·"
+             "최종 리뷰·설계 보조는 Carbon high, 한국어 초안 대체는 Carbon medium으로 옮겼다.")
     L.append("")
     L.append("### 공정 → 클래스 → 레인")
     L.append("")

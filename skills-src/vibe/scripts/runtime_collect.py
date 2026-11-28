@@ -46,7 +46,7 @@ RPC_METHODS = {"initialize", "model/list", "account/read", "account/rateLimits/r
                "_x.ai/billing", "x.ai/billing"}
 TOKEN_FIELDS = {"input_tokens", "output_tokens", "thinking_tokens", "cache_read_tokens", "total_tokens"}
 AGY_USAGE_VERSIONS = {"1.2.6", "1.2.7", "1.2.9", "1.2.12", "1.2.13", "1.2.14",
-                      "1.5.9", "1.5.15"}  # Zero-turn command contract measured locally (1.5.9: 2026-11-16, hub D-126).
+                      "1.5.9", "1.5.15", "1.5.18"}  # Zero-turn command contract measured locally (1.5.9: 2026-11-16, hub D-126; 1.5.18: 2026-11-28, D-132).
 BASE_ENV = {"SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "COMSPEC", "PATH", "PATHEXT", "TEMP", "TMP", "TMPDIR",
             "HOME", "USERPROFILE", "HOMEDRIVE", "HOMEPATH", "APPDATA", "LOCALAPPDATA", "PROGRAMDATA",
             "PROGRAMFILES", "PROGRAMFILES(X86)", "PROGRAMW6432", "COMMONPROGRAMFILES", "COMMONPROGRAMFILES(X86)",
@@ -639,7 +639,7 @@ def codex_image_tool(observation):
                       "transport": "codex-image", "evidence": evidence}}
 
 
-# Hub D-126 (Simon 2026-11-16, D-107 inside /vibe): Korean prose drafts on Gemini 4 Argon
+# Hub D-126 (Simon 2026-11-16, D-107 inside /vibe): Korean prose drafts on Gemini 4 (Neon, then Carbon since D-132)
 # through `agy --print`, under the D-74 usage gate. The zero-turn /usage answer carries the
 # account's tier quota but no account ID, plan or credit fields, so the profile stands in
 # for the account and child_env passes no API key.
