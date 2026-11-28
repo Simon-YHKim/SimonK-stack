@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
   "scope": "five-plugin-dist-v1",
-  "decision": "D-133",
-  "source_commit": "ead14d53b391b676b0015d5fd047b7ce975d969e",
-  "content_digest": "fe2a6f55e512ec9aba61e91dc6a707702afd9779363302f6a09460ba6fc6a2fe",
-  "codex_content_digest": "0fec00fde9a9e702972117cd547117fe354aa26bb51305291a8aaec10993a1ea"
+  "decision": "D-134",
+  "source_commit": "e13d3378d5d1100b72ba820faef5523e7c6c964a",
+  "content_digest": "50c64fef012ac2c3bdea6a6ecb35ba1616e728477e674341c629083e5f6b1501",
+  "codex_content_digest": "57172a108d114402b606c5b9d8f4105adc9506b7aa96d7bcd8e9b367343da6f3"
 }

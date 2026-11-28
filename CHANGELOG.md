@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-28 · D-134
+
+/vibe 2.30.1 renews the registry and ranking window to 2026-12-05 12:22 KST after re-reading the routed models' sources, and ai-debate 0.2.10 moves its OpenAI seat to gpt-6.2-astra @xhigh (canary passed). See [vibe changelog](skills-src/vibe/CHANGELOG.md).
+
 ## 2026-11-28 · D-133
 
 /vibe 2.30.0 and ai-debate 0.2.9 move Gemini 4 Argon's roles to Gemini 4 Carbon before Antigravity removes Argon on 2026-11-30, and the agy usage check accepts agy 1.5.18. See [vibe changelog](skills-src/vibe/CHANGELOG.md).
