@@ -390,24 +390,42 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertEqual(env["AGY_CLI_DISABLE_AUTO_UPDATE"], "true")
         self.assertFalse({"GEMINI_API_KEY", "GOOGLE_API_KEY"} & set(env))
 
-    def agy_prose_raw(self, argon=0.95, gemini=0.8, argon_bucket=True):
+    def agy_prose_raw(self, family=0.95, gemini=0.8, family_bucket=True):
         raw = agy_raw()
-        raw["_agy_models"] = ["gemini-4-neon-medium", "gemini-4-argon-high"]
+        raw["_agy_models"] = ["gemini-4-neon-medium", "gemini-4-carbon-medium"]
         groups = raw["command"]["data"]["groups"]
         groups[0]["buckets"] = [{"id": "gemini-weekly", "window": "weekly", "remaining_fraction": gemini,
                                  "reset_time": "2026-09-26T00:48:24Z"},
                                 {"id": "gemini-5h", "window": "5h", "remaining_fraction": gemini,
                                  "reset_time": "2026-09-26T00:48:24Z"}]
-        if argon_bucket:
-            groups.append({"name": "Gemini 4 Argon", "buckets": [
-                {"id": "gemini-argon-wtu-weekly", "window": "weekly", "remaining_fraction": argon,
+        if family_bucket:
+            groups.append({"name": "Gemini 4 Carbon", "buckets": [
+                {"id": "gemini-carbon-wtu-weekly", "window": "weekly", "remaining_fraction": family,
                  "reset_time": "2026-09-26T00:48:24Z"}]})
         return raw
+
+    def test_d133_retired_argon_window_does_not_block_other_families(self):
+        # An agy install that still reports the separate Argon window (D-126 shape) must not make
+        # Neon unknown: the window is a known, inapplicable family (Codex review, PR #217).
+        raw = self.agy_prose_raw(family_bucket=False)
+        raw["_agy_models"] = ["gemini-4-neon-medium", "gemini-4-hydrogen-low"]
+        raw["command"]["data"]["groups"].append({"name": "Gemini 4 Argon", "buckets": [
+            {"id": "gemini-argon-wtu-weekly", "window": "weekly", "remaining_fraction": 0.1,
+             "reset_time": "2026-09-26T00:48:24Z"}]})
+        obs = self.parse("antigravity", raw)
+        self.assertIn("gemini-argon-wtu-weekly", [w["bucket"] for w in obs["quota_windows"]])
+        tool = self.m.agy_prose_tool(obs, "gemini-4-neon-medium")
+        self.assertAlmostEqual(tool["quota"]["used_pct"], 20, places=3)
+        self.assertEqual(tool["quota"]["bucket"], "gemini-5h,gemini-weekly")
+        import agy_lanes
+        self.assertFalse(agy_lanes.unknown_bucket("gemini-argon-wtu-weekly"))
+        self.assertFalse(agy_lanes.applicable_bucket("gemini-argon-wtu-weekly", "gemini-4-neon-medium"))
+        self.assertTrue(agy_lanes.unknown_bucket("gemini-new-pool"))
 
     def test_d131_other_family_and_unknown_window_cannot_open_a_lane(self):
         raw = self.agy_prose_raw()
         obs = self.parse("antigravity", raw)
-        obs["quota_windows"] = [w for w in obs["quota_windows"] if "argon" in w["bucket"]]
+        obs["quota_windows"] = [w for w in obs["quota_windows"] if "carbon" in w["bucket"]]
         self.assertIsNone(self.m.agy_prose_tool(obs, "gemini-4-neon-medium"))
         self.assertIsNone(self.m.agy_prose_tool(obs, "gemini-4-hydrogen-low"))
         obs = self.parse("antigravity", raw)
@@ -415,30 +433,30 @@ class RuntimeCollectionTests(unittest.TestCase):
         obs["quota_windows"].append({"bucket": "gemini-new-pool", "used_pct": None})
         self.assertIsNone(self.m.agy_prose_tool(obs)["quota"]["used_pct"])
 
-    def test_agy_prose_tool_uses_the_argon_bucket_and_the_usage_gate_fields(self):
-        # D-126: Pro plans report a separate Argon bucket; that bucket alone is the usage.
-        tool = self.m.agy_prose_tool(self.parse("antigravity", self.agy_prose_raw(argon=0.95, gemini=0.2)), "gemini-4-argon-high")
-        self.assertEqual(tool["id"], "agy:gemini-4-argon-high")
+    def test_agy_prose_tool_uses_the_family_bucket_and_the_usage_gate_fields(self):
+        # D-126: Pro plans reported a separate family bucket (Argon then, Carbon since D-133); it is the usage.
+        tool = self.m.agy_prose_tool(self.parse("antigravity", self.agy_prose_raw(family=0.95, gemini=0.2)), "gemini-4-carbon-medium")
+        self.assertEqual(tool["id"], "agy:gemini-4-carbon-medium")
         self.assertEqual((tool["surface"], tool["transport"], tool["tool_ref"]),
-                         ("antigravity", "agy-prose", "gemini-4-argon-high"))
+                         ("antigravity", "agy-prose", "gemini-4-carbon-medium"))
         self.assertAlmostEqual(tool["quota"]["used_pct"], 80, places=3)
-        self.assertEqual(tool["quota"]["bucket"], "gemini-5h,gemini-argon-wtu-weekly,gemini-weekly")
+        self.assertEqual(tool["quota"]["bucket"], "gemini-5h,gemini-carbon-wtu-weekly,gemini-weekly")
         self.assertEqual(tool["billing"]["auth_method"], "google-account")
         self.assertTrue(tool["billing"]["api_fallback_disabled"])
         self.assertEqual(tool["billing"]["account_ref"], tool["quota"]["account_ref"])
-        # Ultra plans fold Argon into the larger Gemini bucket: the gemini-* windows count.
-        ultra = self.m.agy_prose_tool(self.parse("antigravity", self.agy_prose_raw(gemini=0.6, argon_bucket=False)))
+        # Plans that fold the family into the shared Gemini bucket count the gemini-* windows.
+        ultra = self.m.agy_prose_tool(self.parse("antigravity", self.agy_prose_raw(gemini=0.6, family_bucket=False)))
         self.assertAlmostEqual(ultra["quota"]["used_pct"], 40, places=3)
         self.assertEqual(ultra["quota"]["bucket"], "gemini-5h,gemini-weekly")
         # The snapshot carries it for the planner.
         snap = self.m.snapshot([self.parse("antigravity", self.agy_prose_raw())], NOW,
                                {"models": [], "sources": {}})
-        self.assertEqual([t["id"] for t in snap["prose_tools"]], ["agy:gemini-4-argon-high", "agy:gemini-4-neon-medium"])
+        self.assertEqual([t["id"] for t in snap["prose_tools"]], ["agy:gemini-4-carbon-medium", "agy:gemini-4-neon-medium"])
 
     def test_agy_prose_tool_needs_zero_token_usage_and_measured_windows(self):
         raw = self.agy_prose_raw()
         raw["command"]["data"]["groups"][-1]["buckets"][0]["remaining_fraction"] = None
-        unknown = self.m.agy_prose_tool(self.parse("antigravity", raw), "gemini-4-argon-high")
+        unknown = self.m.agy_prose_tool(self.parse("antigravity", raw), "gemini-4-carbon-medium")
         self.assertIsNone(unknown["quota"]["used_pct"])  # The planner and the runner refuse None.
         for broken in ({"surface": "codex"}, {"state": "error"}, {"collection": {"zero_token_verified": None}},
                        {"profile_ref": None}, {"quota_windows": []}):
@@ -561,8 +579,9 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertEqual(run.call_args.args[0], ["fixture", "--version"])
 
     def test_agy_measured_zero_turn_usage_versions_are_metadata_only(self):
-        # 1.5.9 measured 2026-11-16 (hub D-126): /usage returns num_turns 0 and zero tokens.
-        for version in ("1.2.12", "1.2.13", "1.2.14", "1.5.9", "1.5.15"):
+        # 1.5.9 measured 2026-11-16 (hub D-126), 1.5.18 on 2026-11-28 (D-133): /usage returns
+        # num_turns 0 and zero tokens.
+        for version in ("1.2.12", "1.2.13", "1.2.14", "1.5.9", "1.5.15", "1.5.18"):
             with self.subTest(version=version), \
                  mock.patch.object(self.m, "resolve_command", return_value=["fixture"]), \
                  mock.patch.object(self.m, "run_text", side_effect=[

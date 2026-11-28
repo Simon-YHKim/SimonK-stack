@@ -71,6 +71,10 @@ def candidate(**changes):
     return c
 
 
+def profiles_of(policy):
+    return policy["profiles"].values()
+
+
 class ModelRegistryTests(unittest.TestCase):
     def setUp(self):
         self.assertTrue(SCRIPT.is_file(), "Central model registry implementation is missing")
@@ -470,11 +474,11 @@ class ModelRegistryTests(unittest.TestCase):
         unlaned = {m["id"] for m in data["models"] if m["lifecycle"] == "active"} - routing_lanes()
         # Simon's 2026-10-05 instruction gave claude-sonnet-5-5 and gpt-6-luna class A lanes;
         # D-99 (2026-10-12) gave claude-haiku-5-5 one.
-        # D-125 (2026-11-16) gave grok-4.7, claude-fable-5-2 and gemini-4-hydrogen lanes; gpt-6.1-terra and
-        # gemini-4-carbon are registered without one.
-        self.assertTrue({"gpt-6-sol", "grok-4.5", "gemini-4-carbon"} <= unlaned)
+        # D-125 (2026-11-16) gave grok-4.7, claude-fable-5-2 and gemini-4-hydrogen lanes; D-133 (2026-11-28)
+        # gave gemini-4-carbon one when it took over Argon's agy roles.
+        self.assertTrue({"gpt-6-sol", "grok-4.5"} <= unlaned)
         self.assertFalse({"claude-sonnet-5-5", "gpt-6-luna", "claude-haiku-5-5", "grok-4.7",
-                          "claude-fable-5-2", "gemini-4-hydrogen"} & unlaned)
+                          "claude-fable-5-2", "gemini-4-hydrogen", "gemini-4-carbon"} & unlaned)
         pending = catalog_map_section("Lane migration pending")
         self.assertIn("ORCA_UNREGISTERED_PROCESS_OR_MODEL", pending)
         for model_id in sorted(unlaned):
@@ -586,9 +590,13 @@ class ModelRegistryTests(unittest.TestCase):
         # D-106 (same day, Simon: "sonnet5.5는 간단한 코딩에 써야 하는거 아니야? 복잡한 코딩은 opus5.5 xhigh가
         # 해야지.") corrects D-103: CODE_COMPLEX is Opus xhigh first, CODE_SIMPLE is Sonnet first.
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
-        self.assertEqual(policy["version"], "2026-11-24-rank.1")
+        # D-133 (2026-11-28): Argon leaves Antigravity on 11-30; Carbon takes its rows, the window end stays.
+        self.assertEqual(policy["version"], "2026-11-28-rank.1")
         self.assertEqual((policy["checked_at"], policy["valid_until"]),
-                         ("2026-11-24T06:07:33+09:00", "2026-12-01T00:00:00+09:00"))
+                         ("2026-11-28T08:49:36+09:00", "2026-12-01T00:00:00+09:00"))
+        self.assertFalse([row for rows in profiles_of(policy) for row in rows if "argon" in str(row)])
+        for task in ("REASONING_ABSTRACT", "CODE_REVIEW_FINAL"):
+            self.assertIn("gemini-4-carbon", [row["model"] for row in policy["profiles"][task] if row["rank"] == 0])
         profiles = policy["profiles"]
         for task, first in (("CODE_SIMPLE", "claude-sonnet-5-5"), ("CODE_COMPLEX", "claude-opus-5-5"),
                             ("WRITING", "claude-opus-5-5"), ("PLAN_ARCHITECTURE", "claude-opus-5-5")):
@@ -665,7 +673,7 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertEqual(set(held), ast.literal_eval(module_literal("routing.py", "WITHDRAWN_LANES")))
         # D-125 (2026-11-16): the two successors keep their predecessors' statuses.
         self.assertEqual(keep, ["claude-fable-5-1", "claude-fable-5-2", "gemini-3.8-flash", "gemini-4-argon",
-                                "gemini-4-hydrogen", "gemini-4-neon", "gpt-daybreak-blue-latest"])
+                                "gemini-4-carbon", "gemini-4-hydrogen", "gemini-4-neon", "gpt-daybreak-blue-latest"])
         pending = " ".join(catalog_map_section("Lane migration pending").split())
         self.assertNotIn("every `legacy_lane_migration` entry is still pending", pending)
         for model_id in keep:
@@ -819,8 +827,8 @@ class ModelRegistryTests(unittest.TestCase):
                       SCRIPT.with_name("routing.py").read_text(encoding="utf-8"))
 
         data = self.m.load_registry()
-        self.assertEqual(data["version"], "2026-11-24.1")
-        self.assertEqual((data["checked_at"], data["data_as_of"]), ("2026-11-16T00:08:40+09:00", "2026-11-24"))
+        self.assertEqual(data["version"], "2026-11-28.1")
+        self.assertEqual((data["checked_at"], data["data_as_of"]), ("2026-11-16T00:08:40+09:00", "2026-11-28"))
         models = {m["id"]: m for m in data["models"]}
         self.assertEqual(models[gate]["lifecycle"], "deprecated")  # the move does not revive the alias.
         migration = data["legacy_lane_migration"]
@@ -1109,12 +1117,12 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertEqual(models["claude-fable-5-2"]["pricing"]["output"], "40")
         self.assertEqual(lanes["gemini-4-hydrogen"]["orca_efforts"], ("low", "medium", "high", "xhigh"))
         self.assertEqual(models["gemini-4-hydrogen"]["api_efforts"], ["low", "medium", "high", "xhigh"])
-        # Registered without a lane: Terra (D-101: GPT is Astra only) and Carbon (Ultra-only in Antigravity).
-        for model_id in ("gemini-4-carbon",):
-            with self.subTest(unlaned=model_id):
-                self.assertNotIn(model_id, lanes)
-                self.assertNotIn(model_id, migration)
-                self.assertEqual(models[model_id]["lifecycle"], "active")
+        # D-133 (2026-11-28): Carbon reached paid Pro in Antigravity and took Argon's agy roles. Its lane is a
+        # ledger entry like Neon's: agy only, never dispatched through Orca.
+        self.assertEqual((lanes["gemini-4-carbon"]["dispatch"], lanes["gemini-4-carbon"]["orca_efforts"]),
+                         ("unavailable", ("low", "medium", "high")))
+        self.assertEqual(migration["gemini-4-carbon"]["status"], "keep-model-orca-unverified")
+        self.assertEqual(models["gemini-4-carbon"]["lifecycle"], "active")
         working_codex = ({lane for lane, spec in lanes.items() if spec["vendor"] == "codex"}
                          - ast.literal_eval(module_literal("routing.py", "WITHDRAWN_LANES"))
                          - ast.literal_eval(module_literal("routing.py", "DEPRECATED_LANES")))

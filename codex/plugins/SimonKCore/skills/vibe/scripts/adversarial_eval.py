@@ -106,6 +106,7 @@ VENDOR_OF = {
     "gpt-6.1-terra": "codex",
     "gemini-4-neon": "gemini",
     "gemini-4-argon": "gemini",
+    "gemini-4-carbon": "gemini",
     "gpt-6-astra": "codex",
     "gpt-6.1-sol": "codex",
     "gpt-5.6-sol": "codex",

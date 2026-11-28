@@ -32,7 +32,8 @@ are relative to the `/vibe` skill root.
 | `gpt-6.2-sol` | codex | `xhigh` | `medium` | `low` · `medium` · `high` · `xhigh` | `--effort` | ✅ `--model`·`--effort` 가능 | D-131 · 구현·1차 리뷰 · Orca 실행 인증 대기 |
 | `gpt-6.1-terra` | codex | `xhigh` | `medium` | — **지정 불가** (그 CLI 기본값) | `--effort` | ⛔ **철회** (D-101) — 새 배정은 `LANE_WITHDRAWN` · 원장 호환용 키 | 원장 호환용(우선순위 밖) |
 | `gemini-4-neon` | antigravity | `xhigh` | `medium` | — **지정 불가** (그 CLI 기본값) | **슬러그 내장** | ❌ **Orca 워커 불가** (agent 미등록·과제 전달 실패 — CLI 직행만) | D-131 · agy 초안·설계 보조 |
-| `gemini-4-argon` | antigravity | `high` | `high` | — **지정 불가** (그 CLI 기본값) | **슬러그 내장** | ❌ **Orca 워커 불가** (agent 미등록·과제 전달 실패 — CLI 직행만) | D-131 · agy 추론 2차 의견 |
+| `gemini-4-argon` | antigravity | `high` | `high` | — **지정 불가** (그 CLI 기본값) | **슬러그 내장** | ❌ **Orca 워커 불가** (agent 미등록·과제 전달 실패 — CLI 직행만) | D-133 · 2026-11-30 Antigravity 퇴장 · 원장 호환용(우선순위 밖) |
+| `gemini-4-carbon` | antigravity | `high` | `high` | — **지정 불가** (그 CLI 기본값) | **슬러그 내장** | ❌ **Orca 워커 불가** (agent 미등록·과제 전달 실패 — CLI 직행만) | D-133 · agy 추론 2차 의견·최종 리뷰·설계 보조 |
 | `gpt-6-astra` | codex | `xhigh` | `xhigh` | `minimal` · `low` · `medium` · `high` · `xhigh` — 정책은 **`xhigh` 고정** (off-ladder 불가) | `--effort` | ⛔ **철회** (D-101) — 새 배정은 `LANE_WITHDRAWN` · 원장 호환용 키 | 원장 호환용(우선순위 밖) |
 | `gpt-6.1-sol` | codex | `xhigh` | `xhigh` | `minimal` · `low` · `medium` · `high` · `xhigh` — 정책은 **`xhigh` 고정** (off-ladder 불가) | `--effort` | ⛔ **철회** (D-101) — 새 배정은 `LANE_WITHDRAWN` · 원장 호환용 키 | D-130 research-deep·terminal-ci-git 공정 한정(그 밖은 철회) · 원장 호환용(우선순위 밖) · xhigh 고정 · Orca 상한 xhigh |
 | `gpt-5.6-sol` | codex | `ultra` | `high` | `minimal` · `low` · `medium` · `high` · `xhigh` · `max` · `ultra` | `--effort` | ⛔ **철회** (D-101) — 새 배정은 `LANE_WITHDRAWN` · 원장 호환용 키 | 272K(최대 872K) · D-101 철회 · 원장 호환용(우선순위 밖) |
@@ -63,6 +64,8 @@ are relative to the `/vibe` skill root.
 
 **D-131 (2026-11-24)**: D-130의 6.1 Sol 예외를 종료했다. GPT-6.2 Sol과 Astra는 독립 단계에서 병렬로 쓴다. 레거시 Orca 코딩 라운드의 고정 보안 게이트와 G1 독립성 검사는 계속 적용한다. Gemini 4 세 모델은 agy 경로를 쓴다.
 
+**D-133 (2026-11-28)**: Antigravity가 11월 30일 Gemini 4 Argon을 뺀다. Argon이 맡던 agy 추론 2차 의견·최종 리뷰·설계 보조는 Carbon high, 한국어 초안 대체는 Carbon medium으로 옮겼다.
+
 ### 공정 → 클래스 → 레인
 
 | 공정 | 클래스 | 1순위 | 2순위 | 3후보 (이후 폴백) |
@@ -88,11 +91,11 @@ are relative to the `/vibe` skill root.
 
 > **반증 가능한 전제가 있나?** ("X는 죽었다"를 확인 / "A가 B보다 낫다"를 판정 / 원인 규명)
 
-| | `claude-opus-5-5` | `claude-opus-5` | `claude-fable-5-1` | `claude-fable-5-2` | `claude-sonnet-5-5` | `claude-sonnet-5` | `claude-haiku-5-5` | `gpt-6.2-astra` | `gpt-6.2-sol` | `gpt-6.1-terra` | `gemini-4-neon` | `gemini-4-argon` | `gpt-6-astra` | `gpt-6.1-sol` | `gpt-5.6-sol` | `gpt-5.6-terra` | `gpt-6-luna` | `gpt-5.6-luna` | `gpt-daybreak-blue-latest` | `gemini-3.8-flash` | `gemini-4-hydrogen` | `grok-4.6` | `grok-4.7` |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| **YES** 최상위 | `max` | `ultracode` | `max` | `max` | `high` | `xhigh` | `medium` | `xhigh` | `xhigh` | `xhigh` | `xhigh` | `high` | `xhigh` | `xhigh` | `ultra` | `max` | `medium` | `medium` | `xhigh` | `high` | `xhigh` | `xhigh` | `xhigh` |
-| **NO** 표준 | `high` | `standard` | `high` | `high` | `medium` | `medium` | `low` | `xhigh` | `medium` | `medium` | `medium` | `high` | `xhigh` | `xhigh` | `high` | `medium` | `low` | `low` | `high` | `medium` | `high` | `high` | `high` |
-| 사다리 밖 상한 (`allow_off_ladder`) | `max` | `ultracode` | `max` | `max` | `max` | `max` | `max` | `xhigh` | `xhigh` | — (지정 불가) | — (지정 불가) | — (지정 불가) | `xhigh` | `xhigh` | `ultra` | `ultra` | `xhigh` | `max` | `xhigh` | — (지정 불가) | — (지정 불가) | — (지정 불가) | — (지정 불가) |
+| | `claude-opus-5-5` | `claude-opus-5` | `claude-fable-5-1` | `claude-fable-5-2` | `claude-sonnet-5-5` | `claude-sonnet-5` | `claude-haiku-5-5` | `gpt-6.2-astra` | `gpt-6.2-sol` | `gpt-6.1-terra` | `gemini-4-neon` | `gemini-4-argon` | `gemini-4-carbon` | `gpt-6-astra` | `gpt-6.1-sol` | `gpt-5.6-sol` | `gpt-5.6-terra` | `gpt-6-luna` | `gpt-5.6-luna` | `gpt-daybreak-blue-latest` | `gemini-3.8-flash` | `gemini-4-hydrogen` | `grok-4.6` | `grok-4.7` |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **YES** 최상위 | `max` | `ultracode` | `max` | `max` | `high` | `xhigh` | `medium` | `xhigh` | `xhigh` | `xhigh` | `xhigh` | `high` | `high` | `xhigh` | `xhigh` | `ultra` | `max` | `medium` | `medium` | `xhigh` | `high` | `xhigh` | `xhigh` | `xhigh` |
+| **NO** 표준 | `high` | `standard` | `high` | `high` | `medium` | `medium` | `low` | `xhigh` | `medium` | `medium` | `medium` | `high` | `high` | `xhigh` | `xhigh` | `high` | `medium` | `low` | `low` | `high` | `medium` | `high` | `high` | `high` |
+| 사다리 밖 상한 (`allow_off_ladder`) | `max` | `ultracode` | `max` | `max` | `max` | `max` | `max` | `xhigh` | `xhigh` | — (지정 불가) | — (지정 불가) | — (지정 불가) | — (지정 불가) | `xhigh` | `xhigh` | `ultra` | `ultra` | `xhigh` | `max` | `xhigh` | — (지정 불가) | — (지정 불가) | — (지정 불가) | — (지정 불가) |
 
 이 사다리는 과거 transport 제약이다. 현재 모델/effort는 중앙 registry와 fresh runtime의 교집합으로 정한다. `run_codex_exec` 실호출은 차단됐으며 상한 초과를 direct CLI로 우회하지 않는다.
 

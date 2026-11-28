@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.30.0 — 2026-11-28 (D-133)
+
+- Move Gemini 4 Argon's roles to Gemini 4 Carbon, because Antigravity removes Argon on 2026-11-30. Carbon high takes the second-opinion, final-review and design-assist slots, and Carbon medium is the Korean draft fallback. Neon stays first. See [decision and evidence](references/d133-carbon-routing.md).
+- Accept agy 1.5.18 in the zero-turn usage check. Without it the collector refused every agy lane after the CLI updated itself (`usage-contract-unverified`).
+- Registry `2026-11-28.1` (Carbon routing facts re-read, Argon removal noted) and ranking `2026-11-28-rank.1`. The window still ends on 2026-12-01 00:00 KST.
+
+
 ## 2.29.0 — 2026-11-24 (D-131 candidate)
 
 - Rank independent GPT-6.2 Sol and Astra assignments alongside the existing Claude roles. Sol handles everyday implementation and first review, Astra handles design, complex debugging, research and final review.

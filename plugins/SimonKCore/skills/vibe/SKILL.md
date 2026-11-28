@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan from a per-task model ranking, sends image generation to Codex image_gen and Korean prose drafts to Gemini Neon within included usage, and reports blocked coding routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff, with local Playwright/Chrome/Computer Use only when the Bot is blocked.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.29.0
+version: 2.30.0
 author: simon-stack
 ---
 
@@ -131,10 +131,10 @@ requirement-specific test evidence (check stubs, invented facts and out-of-scope
 When selecting a model or changing rank, inspect X and AI 활용 갤러리 reports on the actual task. When ambiguous,
 follow applicable user experience and record disagreements and inaccessible sources within the prospective 24-hour window.
 
-<!-- TASK-RANKING:BEGIN generated from references/task-fit-policy.json sha256 0ce55965cdbe by scripts/sync_task_ranking.py; edit the JSON, not this table -->
+<!-- TASK-RANKING:BEGIN generated from references/task-fit-policy.json sha256 ca43fe51d93d by scripts/sync_task_ranking.py; edit the JSON, not this table -->
 | Task type | Default order (first = rank 1) | Every ranked route blocked |
 | --- | --- | --- |
-| `PLAN_ARCHITECTURE` | `gpt-6.2-astra` @xhigh = `gemini-4-neon` = `claude-opus-5-5` → `gemini-4-argon` → `claude-fable-5-2` | situational |
+| `PLAN_ARCHITECTURE` | `gpt-6.2-astra` @xhigh = `gemini-4-neon` = `claude-opus-5-5` → `gemini-4-carbon` → `claude-fable-5-2` | situational |
 | `CODE_COMPLEX` | `gpt-6.2-astra` @xhigh = `gemini-4-neon` = `claude-opus-5-5` → `claude-fable-5-2` → `claude-sonnet-5-5` | situational |
 | `CODE_SIMPLE` | `gpt-6.2-sol` = `claude-sonnet-5-5` → `claude-opus-5-5` | situational |
 | `WRITING` | `gpt-6.2-sol` = `claude-opus-5-5` → `claude-sonnet-5-5` | situational |
@@ -142,18 +142,18 @@ follow applicable user experience and record disagreements and inaccessible sour
 | `CODE_FIX` | `gpt-6.2-sol` = `gemini-4-neon` = `claude-opus-5-5` → `claude-fable-5-2` → `claude-sonnet-5-5` | situational |
 | `CODE_CLEANUP` | `gpt-6.2-sol` = `claude-opus-5-5` → `claude-fable-5-2` → `claude-sonnet-5-5` | situational |
 | `CODE_REVIEW` | `gpt-6.2-sol` = `gemini-4-hydrogen` → `gemini-4-neon` = `claude-fable-5-2` → `claude-opus-5-5` | situational |
-| `CODE_REVIEW_FINAL` | `gpt-6.2-astra` @xhigh = `gemini-4-argon` → `claude-fable-5-2` → `claude-opus-5-5` | situational |
+| `CODE_REVIEW_FINAL` | `gpt-6.2-astra` @xhigh = `gemini-4-carbon` → `claude-fable-5-2` → `claude-opus-5-5` | situational |
 | `RESEARCH` | `gpt-6.2-astra` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
 | `AGENTIC` | `gpt-6.2-astra` @xhigh → `claude-fable-5-2` → `claude-opus-5-5` | situational |
 | `COMPUTER_USE` | Grok Bot (vibe-bot) → local Playwright headless → local Claude in Chrome → local Computer Use | wait for the Bot or Simon |
 | `DESIGN_UI` | `gpt-6.2-astra` @xhigh = `claude-opus-5-5` | situational |
 | `KOREAN_DOC` | `gpt-6.2-sol` = `gemini-4-neon` = `claude-opus-5-5` → `claude-sonnet-5-5` | situational |
 | `BULK_LIGHT` | `gemini-4-hydrogen` = `gpt-6.2-sol` = `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5` | situational |
-| `REASONING_ABSTRACT` | `gpt-6.2-astra` @xhigh = `gemini-4-argon` = `claude-fable-5-2` → `claude-opus-5-5` | situational |
+| `REASONING_ABSTRACT` | `gpt-6.2-astra` @xhigh = `gemini-4-carbon` = `claude-fable-5-2` → `claude-opus-5-5` | situational |
 | `VISION` | `gpt-6.2-astra` @xhigh = `claude-opus-5-5` | situational |
 | `IMAGE_GENERATION` | Codex `image_gen` → host image adapter | situational |
-| `KOREAN_PROSE` | Neon @medium via agy → Argon @high via agy | replan as `KOREAN_DOC` |
-Valid 2026-11-24T06:07:33+09:00 to 2026-12-01T00:00:00+09:00 (`2026-11-24-rank.1`); outside that window every type is situational.
+| `KOREAN_PROSE` | Neon @medium via agy → Carbon @medium via agy | replan as `KOREAN_DOC` |
+Valid 2026-11-28T08:49:36+09:00 to 2026-12-01T00:00:00+09:00 (`2026-11-28-rank.1`); outside that window every type is situational.
 <!-- TASK-RANKING:END -->
 
 Judge the situation only when `selection.mode` is `situational`: the type is not ranked, the table is outside its
@@ -174,7 +174,7 @@ to `kind=image`, never text-model `VISION`. D-121 (Simon, 2026-10-24): it runs o
 the D-74 usage gate only (ChatGPT login, verified account, fresh `codex` usage under 85 percent, no reached limit).
 Run `python scripts/execute_codex_image.py --prompt-file <brief> --out <absolute .png>` (`--transparent` for alpha):
 one `codex exec`, PNG from the rollout, a receipt beside it, no retry. Exit 3 is a usage refusal; never switch to a
-paid image API; the D-32 `host-image` adapter stays optional. `KOREAN_PROSE` (D-126) is `kind=prose`: one Neon (fallback Argon) `agy --print` under the same gate, then a required review step fact-checks it. See
+paid image API; the D-32 `host-image` adapter stays optional. `KOREAN_PROSE` (D-126) is `kind=prose`: one Neon (fallback Carbon, D-133) `agy --print` under the same gate, then a required review step fact-checks it. See
 [orchestration](references/orchestration.md).
 
 At invocation, use the [model-release watch](references/model-release-watch.md)

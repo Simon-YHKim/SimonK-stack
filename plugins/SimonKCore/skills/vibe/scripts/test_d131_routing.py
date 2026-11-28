@@ -44,7 +44,7 @@ class D131Routes(unittest.TestCase):
         routes = {s["id"]: s["route"]["model"] for s in plan["steps"]}
         self.assertEqual([routes[key] for key in ("implement", "research", "design", "batch", "opinion", "draft")],
                          ["gpt-6.2-sol", "gpt-6.2-astra", agy_lanes.NEON, agy_lanes.HYDROGEN,
-                          agy_lanes.ARGON, agy_lanes.NEON])
+                          agy_lanes.CARBON, agy_lanes.NEON])
         self.assertEqual(orchestrate.ready_steps(plan, [], now)[:2], ["implement", "research"])
 
     def test_ineligible_orca_writer_does_not_mask_eligible_sol_host(self):
@@ -61,7 +61,7 @@ class D131Routes(unittest.TestCase):
         req, runtime, now = inputs()
         runtime["prose_tools"][1]["quota"]["used_pct"] = 85
         draft = next(s for s in orchestrate.make_plan(req, {}, runtime, now)["steps"] if s["id"] == "draft")
-        self.assertEqual((draft["route"]["model"], draft["selection"]["rank"]), (agy_lanes.ARGON, 1))
+        self.assertEqual((draft["route"]["model"], draft["selection"]["rank"]), (agy_lanes.CARBON, 1))
         runtime["prose_tools"][0]["quota"]["used_pct"] = None
         draft = next(s for s in orchestrate.make_plan(req, {}, runtime, now)["steps"] if s["id"] == "draft")
         self.assertIsNone(draft["route"])
