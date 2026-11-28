@@ -404,6 +404,24 @@ class RuntimeCollectionTests(unittest.TestCase):
                  "reset_time": "2026-09-26T00:48:24Z"}]})
         return raw
 
+    def test_d133_retired_argon_window_does_not_block_other_families(self):
+        # An agy install that still reports the separate Argon window (D-126 shape) must not make
+        # Neon unknown: the window is a known, inapplicable family (Codex review, PR #217).
+        raw = self.agy_prose_raw(family_bucket=False)
+        raw["_agy_models"] = ["gemini-4-neon-medium", "gemini-4-hydrogen-low"]
+        raw["command"]["data"]["groups"].append({"name": "Gemini 4 Argon", "buckets": [
+            {"id": "gemini-argon-wtu-weekly", "window": "weekly", "remaining_fraction": 0.1,
+             "reset_time": "2026-09-26T00:48:24Z"}]})
+        obs = self.parse("antigravity", raw)
+        self.assertIn("gemini-argon-wtu-weekly", [w["bucket"] for w in obs["quota_windows"]])
+        tool = self.m.agy_prose_tool(obs, "gemini-4-neon-medium")
+        self.assertAlmostEqual(tool["quota"]["used_pct"], 20, places=3)
+        self.assertEqual(tool["quota"]["bucket"], "gemini-5h,gemini-weekly")
+        import agy_lanes
+        self.assertFalse(agy_lanes.unknown_bucket("gemini-argon-wtu-weekly"))
+        self.assertFalse(agy_lanes.applicable_bucket("gemini-argon-wtu-weekly", "gemini-4-neon-medium"))
+        self.assertTrue(agy_lanes.unknown_bucket("gemini-new-pool"))
+
     def test_d131_other_family_and_unknown_window_cannot_open_a_lane(self):
         raw = self.agy_prose_raw()
         obs = self.parse("antigravity", raw)

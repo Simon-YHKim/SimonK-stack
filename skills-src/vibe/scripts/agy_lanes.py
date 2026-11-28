@@ -17,15 +17,24 @@ ADVISORY_MODELS = {
 MODELS = frozenset((*PROSE_MODELS, *ADVISORY_MODELS))
 
 
+# Families whose own quota windows agy has reported. Argon is retired from the lanes (D-133) but an
+# install may still report its window; a known family's window is not an unrecognized pool.
+KNOWN_FAMILIES = ("neon", "hydrogen", "carbon", "argon")
+
+
+def family_bucket(bucket, family):
+    return re.fullmatch(r"gemini-(?:4-)?" + family + r"(?:-wtu)?-(?:weekly|5h)", bucket) is not None
+
+
 def applicable_bucket(bucket, slug):
     family = slug.split("-")[2]
     # Shared Gemini windows and the requested family's measured windows both apply.
-    return isinstance(bucket, str) and (bucket in {"gemini-weekly", "gemini-5h"} or
-            re.fullmatch(r"gemini-(?:4-)?" + family + r"(?:-wtu)?-(?:weekly|5h)", bucket) is not None)
+    return isinstance(bucket, str) and (bucket in {"gemini-weekly", "gemini-5h"} or family_bucket(bucket, family))
 
 
 def unknown_bucket(bucket):
     """An unrecognized Gemini or unnamed window may constrain this request."""
     if not isinstance(bucket, str) or not bucket:
         return True
-    return bucket.startswith("gemini") and not any(applicable_bucket(bucket, slug) for slug in MODELS)
+    return bucket.startswith("gemini") and not (bucket in {"gemini-weekly", "gemini-5h"}
+                                                or any(family_bucket(bucket, f) for f in KNOWN_FAMILIES))
