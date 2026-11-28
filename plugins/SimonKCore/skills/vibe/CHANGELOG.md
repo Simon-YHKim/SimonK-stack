@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.30.1 — 2026-11-28 (D-134)
+
+- Registry `2026-11-28.2`: the ten routed models' public facts were re-read (28 sources, first request 12:22:07 KST, all HTTP 200). Two facts changed: `grok-4.7` gains the alias `grok-4.7-latest`, and Gemini 4 Hydrogen is now on every Antigravity plan. The grok-4.7 200k tier boundary conflict between sources is noted. No provider released a newer model after 11-24.
+- Ranking `2026-11-28-rank.2`: the rows are unchanged. The window now runs 2026-11-28 12:22:07 to 2026-12-05 12:22:07 KST, which matches the registry facts.
+
+
 ## 2.30.0 — 2026-11-28 (D-133)
 
 - Move Gemini 4 Argon's roles to Gemini 4 Carbon, because Antigravity removes Argon on 2026-11-30. Carbon high takes the second-opinion, final-review and design-assist slots, and Carbon medium is the Korean draft fallback. Neon stays first. See [decision and evidence](references/d133-carbon-routing.md).

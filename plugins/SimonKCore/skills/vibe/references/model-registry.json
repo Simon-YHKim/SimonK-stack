@@ -1,9 +1,10 @@
 {
   "schema_version": 1,
-  "version": "2026-11-28.1",
+  "version": "2026-11-28.2",
   "checked_at": "2026-11-16T00:08:40+09:00",
   "data_as_of": "2026-11-28",
   "notes": [
+    "2026-11-28 재확인(2026-11-28.2, vibe 2.30.1, 허브 D-134, Simon \"권장사항 모두 진행해\"): 하위 조사 에이전트가 경로가 있는 모델 10개(gpt-6.2-sol·gpt-6.2-astra·gemini-4-neon·claude-opus-5-5·claude-fable-5-2·claude-sonnet-5-5·claude-haiku-5-5·gemini-4-hydrogen·gemini-4-carbon·grok-4.7)의 출처 28개를 모델 호출 없이 다시 읽었다(첫 요청 12:22:07 KST, 전부 HTTP 200, ai.google.dev 7개는 aistudio.google.com/docs 로 리다이렉트돼 각 페이지의 .md 판으로 읽음). 일치 85 · 불일치 2 · 확인불가 6. 불일치 2건을 고쳤다: ① grok-4.7 aliases [] → [grok-4.7-latest](docs.x.ai 모델 페이지) ② gemini-4-hydrogen 의 Antigravity 요금제 문구(이제 모든 요금제, Free·Plus·Pro 체험의 기본 모델 — antigravity.google/docs/models 를 출처에 추가). grok-4.7 의 200k 경계는 모델 페이지(이상)와 릴리스 노트(초과)가 엇갈려 pricing.note 에 적었다(금액은 같다). 확인불가: GPT-6.2 의 xhigh 지원 명시 없음(none 거부와 low 대체만), Fable 5.2 billing 문구 일부, agy 목록 관측(공개 사실 아님). 관측만: GPT-6.2 Sol($2/$0.10/$10)·Astra($8/$0.40/$40)·Neon($3/$0.15/$15) 가격이 공개됐지만 장문 구간 값을 다 읽지 않아 pricing 은 null 그대로다. 11-24 이후 네 제공사 신규 모델 없음. Antigravity 는 여전히 Argon 등의 11-30 제거를 공지한다. 그래서 이 10개의 routing_checked_at 을 12:22:07 로 옮겼다(만료 2026-12-05 12:22:07). gemini-4-argon 은 경로가 없어 11-24 그대로다.",
     "2026-11-28 D-133(2026-11-28.1, vibe 2.30.0): 공식 Carbon 모델 페이지(ai.google.dev → aistudio.google.com/docs 301, 09:27:30 KST HTTP 200)를 다시 읽어 컨텍스트 1,048,576·기본 출력 65,536·사고 low/medium/high·Stable gemini-4-carbon·가격 11-30 까지 $2/$10 뒤 12-01 부터 $4/$20 이 이 항목과 같음을 확인했다. Antigravity 모델 표(antigravity.google/docs/models, HTTP 200)는 Gemini 4 Argon·Gemini 3.8 Flash·GPT-OSS-120b·Claude 4.6 이 2026-11-30 에 빠진다고 적는다. 그래서 gemini-4-carbon 에 routing_checked_at(가장 이른 근거 = agy 1.5.18 models 수신 08:49:36)과 Orca 원장 레인(dispatch unavailable)을 붙이고 gemini-4-argon 의 transport_note 에 퇴장을 적었다. Argon·3.8 Flash 의 API 측 사실은 바꾸지 않았다. 다른 모델의 제공사 사실과 checked_at 은 그대로다.",
     "Public provider facts are not account, transport, billing or successful-execution evidence.",
     "API Standard USD / million tokens only. Tool, storage, transport, regional and priority charges are separate.",
@@ -98,9 +99,9 @@
     "grok-4.7": {"candidate": "grok-4.7", "status": "pending-quota-and-canary"}
   },
   "models": [
-    {"id": "gpt-6.2-sol", "surface": "codex", "vendor": "openai", "lifecycle": "active", "routing_checked_at": "2026-11-24T06:07:33+09:00", "id_namespace": "provider-api", "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": [], "pricing": null, "sources": ["oa_sol62"]},
-    {"id": "gpt-6.2-astra", "surface": "codex", "vendor": "openai", "lifecycle": "active", "routing_checked_at": "2026-11-24T06:07:33+09:00", "id_namespace": "provider-api", "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": [], "pricing": null, "sources": ["oa_astra62"]},
-    {"id": "gemini-4-neon", "surface": "antigravity", "vendor": "google", "lifecycle": "active", "routing_checked_at": "2026-11-24T06:07:33+09:00", "id_namespace": "provider-api", "api_efforts": ["low", "medium", "high", "xhigh"], "aliases": [], "pricing": null, "sources": ["gg_neon"]},
+    {"id": "gpt-6.2-sol", "surface": "codex", "vendor": "openai", "lifecycle": "active", "routing_checked_at": "2026-11-28T12:22:07+09:00", "id_namespace": "provider-api", "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": [], "pricing": null, "sources": ["oa_sol62"]},
+    {"id": "gpt-6.2-astra", "surface": "codex", "vendor": "openai", "lifecycle": "active", "routing_checked_at": "2026-11-28T12:22:07+09:00", "id_namespace": "provider-api", "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": [], "pricing": null, "sources": ["oa_astra62"]},
+    {"id": "gemini-4-neon", "surface": "antigravity", "vendor": "google", "lifecycle": "active", "routing_checked_at": "2026-11-28T12:22:07+09:00", "id_namespace": "provider-api", "api_efforts": ["low", "medium", "high", "xhigh"], "aliases": [], "pricing": null, "sources": ["gg_neon"]},
     {
       "id": "gpt-6.1-sol", "surface": "codex", "vendor": "openai", "lifecycle": "active",
       "id_namespace": "provider-api",
@@ -143,7 +144,7 @@
       "sources": ["oa_terra61", "oa_changelog", "oa_pricing", "oa_deprecations"]
     },
     {
-      "id": "claude-opus-5-5", "routing_checked_at": "2026-11-24T06:07:33+09:00", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
+      "id": "claude-opus-5-5", "routing_checked_at": "2026-11-28T12:22:07+09:00", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
       "id_namespace": "provider-api",
       "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": ["opus"],
       "retirement_not_before": "2027-09-22", "thinking": "adaptive_always_on",
@@ -161,7 +162,7 @@
       "sources": ["cl_models", "cl_effort", "cl_pricing", "cl_lifecycle", "cl_billing"]
     },
     {
-      "id": "claude-fable-5-2", "routing_checked_at": "2026-11-24T06:07:33+09:00", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
+      "id": "claude-fable-5-2", "routing_checked_at": "2026-11-28T12:22:07+09:00", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
       "id_namespace": "provider-api",
       "released_at": "2026-11-09", "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": ["fable"],
       "context_tokens": 1000000, "max_output_tokens": 128000,
@@ -172,7 +173,7 @@
       "sources": ["cl_fable52", "cl_fable52_docs", "cl_models", "cl_effort", "cl_pricing", "cl_lifecycle", "cl_billing"]
     },
     {
-      "id": "claude-sonnet-5-5", "routing_checked_at": "2026-11-24T06:07:33+09:00", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
+      "id": "claude-sonnet-5-5", "routing_checked_at": "2026-11-28T12:22:07+09:00", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
       "id_namespace": "provider-api",
       "released_at": "2026-09-28", "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": ["sonnet"],
       "context_tokens": 1000000, "max_output_tokens": 128000,
@@ -190,7 +191,7 @@
       "sources": ["cl_old_sonnet", "cl_models", "cl_effort", "cl_pricing", "cl_lifecycle"]
     },
     {
-      "id": "claude-haiku-5-5", "routing_checked_at": "2026-11-24T06:07:33+09:00", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
+      "id": "claude-haiku-5-5", "routing_checked_at": "2026-11-28T12:22:07+09:00", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
       "id_namespace": "provider-api",
       "released_at": "2026-10-07", "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": ["haiku"],
       "context_tokens": 1000000, "max_output_tokens": 128000,
@@ -216,16 +217,16 @@
       "sources": ["gg_argon", "gg_argon_new", "gg_pricing", "gg_thinking", "gg_changelog", "gg_antigravity_argon"]
     },
     {
-      "id": "gemini-4-hydrogen", "routing_checked_at": "2026-11-24T06:07:33+09:00", "surface": "antigravity", "vendor": "google", "lifecycle": "active",
+      "id": "gemini-4-hydrogen", "routing_checked_at": "2026-11-28T12:22:07+09:00", "surface": "antigravity", "vendor": "google", "lifecycle": "active",
       "id_namespace": "provider-api", "released_at": "2026-11-12",
       "api_efforts": ["low", "medium", "high", "xhigh"], "aliases": [],
       "context_tokens": 1048576, "max_output_tokens": 65536,
-      "transport_note": "GA (stable) on the Gemini API since 2026-11-12; thinking level default high. Google positions it for fast everyday coding and agentic work and as the migration target for Gemini 3.8 Flash; it is the default model for the Antigravity agent in Gemini Managed Agents. Available on the Gemini API free tier. In Antigravity it rolls out to paid Google AI Pro and Ultra; agy 1.5.9 on this PC lists gemini-4-hydrogen-low/medium/high/xhigh. Public facts do not prove this account's included usage.",
+      "transport_note": "GA (stable) on the Gemini API since 2026-11-12; thinking level default high. Google positions it for fast everyday coding and agentic work and as the migration target for Gemini 3.8 Flash; it is the default model for the Antigravity agent in Gemini Managed Agents. Available on the Gemini API free tier. In Antigravity it is available on all plans and is the default model for Free, Google AI Plus and Google AI Pro trial accounts (antigravity.google/docs/models, 2026-11-28); agy 1.5.18 on this PC lists gemini-4-hydrogen-low/medium/high/xhigh. Public facts do not prove this account's included usage.",
       "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "1.5", "cached_input": "0.075", "output": "7.5", "cache_write": null, "note": "Standard paid rate, flat (no long-context tier); Priority, Batch and Flex have other rates. Output includes thinking tokens."},
-      "sources": ["gg_hydrogen", "gg_pricing", "gg_thinking", "gg_changelog", "gg_antigravity_hydrogen"]
+      "sources": ["gg_hydrogen", "gg_pricing", "gg_thinking", "gg_changelog", "gg_antigravity_hydrogen", "gg_antigravity_models"]
     },
     {
-      "id": "gemini-4-carbon", "routing_checked_at": "2026-11-28T08:49:36+09:00", "surface": "antigravity", "vendor": "google", "lifecycle": "active",
+      "id": "gemini-4-carbon", "routing_checked_at": "2026-11-28T12:22:07+09:00", "surface": "antigravity", "vendor": "google", "lifecycle": "active",
       "id_namespace": "provider-api", "released_at": "2026-11-10",
       "api_efforts": ["low", "medium", "high"], "aliases": [],
       "context_tokens": 1048576, "max_output_tokens": 65536,
@@ -241,10 +242,10 @@
       "sources": ["gg_pro", "gg_thinking", "gg_pricing"]
     },
     {
-      "id": "grok-4.7", "routing_checked_at": "2026-11-24T06:07:33+09:00", "surface": "grok", "vendor": "xai", "lifecycle": "active",
+      "id": "grok-4.7", "routing_checked_at": "2026-11-28T12:22:07+09:00", "surface": "grok", "vendor": "xai", "lifecycle": "active",
       "id_namespace": "provider-api",
-      "api_efforts": ["low", "medium", "high", "xhigh"], "aliases": [], "released_at": "2026-09-21", "context_tokens": 500000,
-      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.5", "output": "6", "cache_write": null, "tiers": [{"above_input_tokens": 200000, "input": "4", "cached_input": "1", "output": "12"}]},
+      "api_efforts": ["low", "medium", "high", "xhigh"], "aliases": ["grok-4.7-latest"], "released_at": "2026-09-21", "context_tokens": 500000,
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.5", "output": "6", "cache_write": null, "tiers": [{"above_input_tokens": 200000, "input": "4", "cached_input": "1", "output": "12"}], "note": "The model page applies the higher rate once a prompt reaches 200k tokens; the release notes say above 200k. Treat exactly 200,000 input tokens as the higher tier."},
       "sources": ["x_model", "x_release", "x_reasoning"]
     },
     {

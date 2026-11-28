@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan from a per-task model ranking, sends image generation to Codex image_gen and Korean prose drafts to Gemini Neon within included usage, and reports blocked coding routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff, with local Playwright/Chrome/Computer Use only when the Bot is blocked.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.30.0
+version: 2.30.1
 author: simon-stack
 ---
 
@@ -131,7 +131,7 @@ requirement-specific test evidence (check stubs, invented facts and out-of-scope
 When selecting a model or changing rank, inspect X and AI 활용 갤러리 reports on the actual task. When ambiguous,
 follow applicable user experience and record disagreements and inaccessible sources within the prospective 24-hour window.
 
-<!-- TASK-RANKING:BEGIN generated from references/task-fit-policy.json sha256 ca43fe51d93d by scripts/sync_task_ranking.py; edit the JSON, not this table -->
+<!-- TASK-RANKING:BEGIN generated from references/task-fit-policy.json sha256 77533f27c4bc by scripts/sync_task_ranking.py; edit the JSON, not this table -->
 | Task type | Default order (first = rank 1) | Every ranked route blocked |
 | --- | --- | --- |
 | `PLAN_ARCHITECTURE` | `gpt-6.2-astra` @xhigh = `gemini-4-neon` = `claude-opus-5-5` → `gemini-4-carbon` → `claude-fable-5-2` | situational |
@@ -153,7 +153,7 @@ follow applicable user experience and record disagreements and inaccessible sour
 | `VISION` | `gpt-6.2-astra` @xhigh = `claude-opus-5-5` | situational |
 | `IMAGE_GENERATION` | Codex `image_gen` → host image adapter | situational |
 | `KOREAN_PROSE` | Neon @medium via agy → Carbon @medium via agy | replan as `KOREAN_DOC` |
-Valid 2026-11-28T08:49:36+09:00 to 2026-12-01T00:00:00+09:00 (`2026-11-28-rank.1`); outside that window every type is situational.
+Valid 2026-11-28T12:22:07+09:00 to 2026-12-05T12:22:07+09:00 (`2026-11-28-rank.2`); outside that window every type is situational.
 <!-- TASK-RANKING:END -->
 
 Judge the situation only when `selection.mode` is `situational`: the type is not ranked, the table is outside its

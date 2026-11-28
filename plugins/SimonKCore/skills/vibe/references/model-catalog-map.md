@@ -5,6 +5,7 @@
 - CLI name map
 - Registered legacy entries
 - Lane migration pending
+- Refresh record (2026-11-28, D-134)
 - Refresh record (2026-11-28, D-133)
 - Refresh record (2026-11-16)
 - Refresh record (2026-10-21)
@@ -280,6 +281,21 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
 ### D-105 (2026-10-18): `gemini-4-argon` 은 등록만, 레인은 없다
 
 `gemini-4-argon` 은 2026-10-13 Gemini API GA 라 2026-10-18.1 레지스트리에 등록했지만 `routing.py` 레인은 없다. 그래서 계획에 넣으면 지금처럼 `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막힌다. 이유는 둘이다. Orca 의 antigravity 에이전트는 기동 때 모델을 고를 수 없고(D-28 #12), agy CLI 직행 실행기도 없다. 실행기를 만들더라도 다른 실행기처럼 코디네이터 인증서(모델 포함·남은 쿼터·초과 과금 OFF·API 폴백 OFF)가 있어야 돌고, Antigravity 초과 과금 여부는 아직 확인하지 못했다. 허브 토론 D-104 의 B 판정은 이 사실을 빠뜨린 근거로 나와, 사실을 넣어 다시 연 D-105(FINAL 4/4, A, 확신도 92)가 먼저 agy 인증서 경로를 확인하고 토론 좌석 사용을 최대 5건 계측한 뒤 실행기를 다시 보기로 정했다. 지금 Argon 이 실제로 쓰이는 곳은 ai-debate 의 Gemini 좌석(`gemini-4-argon-high`, ai-debate 0.2.8)이다. 2026-10-18 canary 두 건(화면 녹화 검토, 심어 둔 주장 10개 대조)은 통과했지만 둘 다 n=1 합성 표본이다.
+
+## Refresh record (2026-11-28, D-134)
+
+하위 조사 에이전트가 웹만 읽었다(로그인·유료 장벽·모델 호출 0). 경로가 있는 모델 10개의 출처 28개, 첫 요청 12:22:07 KST, 전부 HTTP 200.
+ai.google.dev 7개는 `aistudio.google.com/docs` 로 리다이렉트되고 화면을 스크립트로 그려서, 각 페이지의 `.md` 판으로 읽었다.
+
+| 결과 | 내용 |
+| --- | --- |
+| 일치 85 · 불일치 2 · 확인불가 6 | 불일치: `grok-4.7` 별칭 `grok-4.7-latest`(docs.x.ai), Hydrogen 은 이제 Antigravity 모든 요금제(Free·Plus·Pro 체험 기본). 둘 다 고쳤다 |
+| 경계 | `grok-4.7` 200k 구간: 모델 페이지는 이상, 릴리스 노트는 초과. 금액은 같고 pricing.note 에 적었다 |
+| 확인불가 | GPT-6.2 의 `xhigh` 명시 없음(`none` 거부·`low` 대체만), Fable 5.2 billing 문구 일부, agy 목록 관측(공개 사실 아님) |
+| 관측만 | GPT-6.2 Sol $2/$0.10/$10 · Astra $8/$0.40/$40 · Neon $3/$0.15/$15 공개(장문 구간 미확인이라 pricing 은 null). 11-24 이후 신규 모델 없음. Argon 등 11-30 제거 공지 유지 |
+| 로컬 | Codex 0.166.0 목록에 `gpt-6.2-sol`·`gpt-6.2-astra`(사용량 64%), agy 1.5.18, grok 1.0.70(메타데이터 RPC 오류 — 사용량 확인 불가), Claude Code 2.1.332 |
+
+그래서 10개의 `routing_checked_at` 을 12:22:07 로 옮겼고(만료 2026-12-05 12:22:07), 순위표 창도 같은 시각으로 맞췄다.
 
 ## Refresh record (2026-11-28, D-133)
 

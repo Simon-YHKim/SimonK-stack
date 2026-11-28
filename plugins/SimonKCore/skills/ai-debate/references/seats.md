@@ -19,7 +19,7 @@ re-checks right before spawning and never spawns a seat that is not READY (UNKNO
 | Seat | Display | Default model · effort | Prompt channel |
 |---|---|---|---|
 | anthropic | Claude | claude-opus-5-5 · max | stdin to `claude -p` (UNKNOWN by default) |
-| openai | Codex | gpt-6-astra · xhigh | stdin (`-`); answer read from the `-o` file |
+| openai | Codex | gpt-6.2-astra · xhigh (D-134; gpt-6-astra until 2026-11-28) | stdin (`-`); answer read from the `-o` file |
 | xai | Grok | grok-4.7 · xhigh | `--prompt-file` (UTF-8 `.txt`) |
 | google | Gemini via `agy` | gemini-4-carbon-high (effort = model-name suffix; D-133, 2026-11-28 — Antigravity removes Gemini 4 Argon on 2026-11-30; before that gemini-4-argon-high, D-105) | argv after `--print`; the command line is kept at or under 32000 UTF-16 units |
 
