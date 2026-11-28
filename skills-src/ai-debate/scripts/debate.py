@@ -42,11 +42,12 @@ LENS_SHORT = {"proponent": "찬성", "skeptic": "회의", "alternative": "대안
 ROUNDS = ("r1", "r2", "judge", "ratify", "catchup")
 MODES = ("quick", "full", "interject")
 CALLS = ("CONTINUE", "RESCOPE", "SHIP_NOW", "STOP", "ASK_USER")
-# openai: gpt-6-astra @ xhigh is the only GPT model in use (hub D-101, 2026-10-12, owner directive).
+# openai: gpt-6.2-astra @ xhigh (hub D-134, 2026-11-28; D-131 moved the GPT side to the 6.2 family).
+# Canary 2026-11-28: this seat's codex exec argv answered a fixed question; banner model gpt-6.2-astra, effort xhigh.
 # google: gemini-4-carbon-high (hub D-133, 2026-11-28: Antigravity removes Gemini 4 Argon on 2026-11-30).
 # Before that gemini-4-argon-high (hub D-105, 2026-10-18). agy 1.4.1 no longer lists gemini-3.1-pro and
 # refuses "--model gemini-3.1-pro-high" before any turn, so the old default left the seat unable to answer.
-DEFAULTS = {"anthropic": ("claude-opus-5-5", "max"), "openai": ("gpt-6-astra", "xhigh"),
+DEFAULTS = {"anthropic": ("claude-opus-5-5", "max"), "openai": ("gpt-6.2-astra", "xhigh"),
             "xai": ("grok-4.7", "xhigh"), "google": ("gemini-4-carbon-high", None)}
 BINARIES = {"anthropic": "claude", "openai": "codex", "xai": "grok", "google": "agy",
             "orca": "orca"}

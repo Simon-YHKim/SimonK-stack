@@ -591,9 +591,10 @@ class ModelRegistryTests(unittest.TestCase):
         # 해야지.") corrects D-103: CODE_COMPLEX is Opus xhigh first, CODE_SIMPLE is Sonnet first.
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
         # D-133 (2026-11-28): Argon leaves Antigravity on 11-30; Carbon takes its rows, the window end stays.
-        self.assertEqual(policy["version"], "2026-11-28-rank.1")
+        # D-134 (same day): the registry refresh at 12:22:07 renewed the window to 2026-12-05 12:22:07.
+        self.assertEqual(policy["version"], "2026-11-28-rank.2")
         self.assertEqual((policy["checked_at"], policy["valid_until"]),
-                         ("2026-11-28T08:49:36+09:00", "2026-12-01T00:00:00+09:00"))
+                         ("2026-11-28T12:22:07+09:00", "2026-12-05T12:22:07+09:00"))
         self.assertFalse([row for rows in profiles_of(policy) for row in rows if "argon" in str(row)])
         for task in ("REASONING_ABSTRACT", "CODE_REVIEW_FINAL"):
             self.assertIn("gemini-4-carbon", [row["model"] for row in policy["profiles"][task] if row["rank"] == 0])
@@ -827,7 +828,7 @@ class ModelRegistryTests(unittest.TestCase):
                       SCRIPT.with_name("routing.py").read_text(encoding="utf-8"))
 
         data = self.m.load_registry()
-        self.assertEqual(data["version"], "2026-11-28.1")
+        self.assertEqual(data["version"], "2026-11-28.2")
         self.assertEqual((data["checked_at"], data["data_as_of"]), ("2026-11-16T00:08:40+09:00", "2026-11-28"))
         models = {m["id"]: m for m in data["models"]}
         self.assertEqual(models[gate]["lifecycle"], "deprecated")  # the move does not revive the alias.

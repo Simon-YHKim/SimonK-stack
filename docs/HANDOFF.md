@@ -1,6 +1,21 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-11-28 09:44 / Gemini 4 Argon 자리를 Carbon 으로 (D-133, vibe 2.30.0 · ai-debate 0.2.9)
+## Latest — 2026-11-28 15:30 / 권장 후속 전부: 허브 원격 이전·지침 3파일·ai-debate GPT 좌석·레지스트리 갱신 (D-134, vibe 2.30.1 · ai-debate 0.2.10)
+
+갱신 시각: 2026-11-28 15:30 KST · 갱신자: Claude Code(Opus 5.5). Simon: "옳은 깃허브는 simonkstack 이잖아. 거기에 해야지. comm-hub는 지웠어. 그리고 권장사항 모두 진행해." → 허브 방식 질문에 "허브 전체를 hub 브랜치로".
+
+- **허브 원격**: `E:\Coding Infra\AI Infra\Communication` origin = 이 레포. `remote.origin.fetch` = `+refs/heads/hub:refs/remotes/origin/master`, `remote.origin.push` = `refs/heads/master:refs/heads/hub`, `branch.master.merge` = `refs/heads/hub`. 그래서 hub-backup·watchdog·score 는 그대로 `origin/master` 를 본다. 4,580 커밋 push(공개). 전체 이력 키 패턴 검사 0건(logcat "task-" 오탐 1). `hub` 브랜치에는 워크플로가 없어 Actions 가 돌지 않는다.
+- **루트 지침**: `E:\Coding Infra` CLAUDE.md·AGENTS.md·GEMINI.md §21 의 한국어 산문 = Neon medium(대체 Carbon medium), 윤문 기본 = Gemini 초안. 고치기 전 사본 `_archive/instructions-261128-d133/`.
+- **ai-debate 0.2.10**: OpenAI 좌석 `gpt-6.2-astra` @xhigh. canary 1회(이 좌석 argv, 6초, 정답, 배너 model gpt-6.2-astra · reasoning effort xhigh, Codex 사용량 64%).
+- **레지스트리 2026-11-28.2 · 순위표 rank.2**: 경로 모델 10개 출처 28개 재확인(12:22:07, 전부 200) → grok-4.7 별칭·Hydrogen 요금제 문구만 바뀜. 창 2026-12-05 12:22:07 까지.
+
+### 다음 작업 큐
+- 머지 뒤: main dist run 확인 → `update-local.ps1 -PluginPins …plugin-pins-261116 -Apply`.
+- 12-01 이후: agy 목록에서 Argon·3.8 Flash 가 실제로 빠졌는지 확인(키는 원장용으로 남김).
+- 12-05 12:22 전: 레지스트리·순위표 재확인.
+- grok CLI 메타데이터 RPC 가 오류다(사용량 확인 불가) — grok 레인을 쓰기 전에 원인 확인.
+
+## 2026-11-28 09:44 / Gemini 4 Argon 자리를 Carbon 으로 (D-133, vibe 2.30.0 · ai-debate 0.2.9)
 
 갱신 시각: 2026-11-28 09:44 KST · 갱신자: Claude Code(Opus 5.5). Simon: "새 모델을 평가한 뒤에 스킬에 반영, 깃허브 반영, 이 컴퓨터 설치." PR #217.
 
