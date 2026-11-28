@@ -2,7 +2,7 @@
   "schema_version": 2,
   "scope": "five-plugin-dist-v1",
   "decision": "D-133",
-  "source_commit": "ee898c21c49ea1171edc0dd5ffdb2d7179a1dfab",
-  "content_digest": "6d059b656737cb90eff47635ba3cd858626607c23a932ae31211a715c43c172e",
-  "codex_content_digest": "9ff4df4f7ea171469ba1d9dfb10f09cb9abd024e541092aa8b4eb456779b707b"
+  "source_commit": "ead14d53b391b676b0015d5fd047b7ce975d969e",
+  "content_digest": "fe2a6f55e512ec9aba61e91dc6a707702afd9779363302f6a09460ba6fc6a2fe",
+  "codex_content_digest": "0fec00fde9a9e702972117cd547117fe354aa26bb51305291a8aaec10993a1ea"
 }
