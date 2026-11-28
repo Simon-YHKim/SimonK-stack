@@ -5,7 +5,7 @@
 - CLI name map
 - Registered legacy entries
 - Lane migration pending
-- Refresh record (2026-11-28, D-132)
+- Refresh record (2026-11-28, D-133)
 - Refresh record (2026-11-16)
 - Refresh record (2026-10-21)
 - Refresh record (2026-10-18)
@@ -252,7 +252,7 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
     `dispatch: unavailable`(D-28 #12)은 그대로라 기본 채움은 여전히 `claude-opus-5-5` 로 간다.
   - 레인을 두지 않은 새 등록 모델: `gpt-6.1-terra`(중간 등급, D-101 로 GPT 쪽은 Astra 만), `gemini-4-carbon`
     (Antigravity 에서 Ultra 전용이라 이 계정 agy 목록에 없다). `gemini-4-argon` 은 D-105 그대로 ai-debate 좌석에서만 쓴다.
-    → D-132(2026-11-28): Carbon 이 유료 Pro 에 열려 agy 1.5.18 목록에 생겼고 Argon 은 11-30 에 빠지므로, `gemini-4-carbon` 에
+    → D-133(2026-11-28): Carbon 이 유료 Pro 에 열려 agy 1.5.18 목록에 생겼고 Argon 은 11-30 에 빠지므로, `gemini-4-carbon` 에
     agy 전용 원장 레인(`dispatch: unavailable`, `keep-model-orca-unverified`)을 붙이고 Argon 의 역할과 ai-debate 좌석을 넘겼다.
   - canary: `claude-fable-5-2` 는 Orca run `run_f057f8196b72`, dispatch `ctx_49c52654b156`(2026-11-16 00:19 KST, 읽기 전용
     워커 1개, 도구 금지, @high)에서 `launch.requested` == `launch.effective`, 세션 기록 `message.model` 이 3건 모두
@@ -269,7 +269,7 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
   `claude-fable-5-2`, `claude-fable-5-2`, `gpt-6-astra`, `gemini-3.8-flash` → `gemini-4-hydrogen`, `gemini-4-hydrogen`,
   그리고 D-101 로 돌아온 `gpt-daybreak-blue-latest`.
 - 그래서 planner 는 여전히 `gpt-6-sol`, `gpt-6.1-terra`, `grok-4.5` 로의 Orca 발주를
-  `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막는다. `gemini-4-carbon`(D-132)·`gemini-4-neon` 은 agy 전용 레인이라
+  `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막는다. `gemini-4-carbon`(D-133)·`gemini-4-neon` 은 agy 전용 레인이라
   `ORCA_DISPATCH_UNSUPPORTED` 에서 멈춘다. `claude-sonnet-5-5`·`claude-haiku-5-5` 는 등록된 레인이라
   그 코드가 아니라 다음 게이트(G5·$0·런치 인증서)에서 멈추고, 철회된 `gpt-6-luna`·`gpt-6.1-sol` 은 `ORCA_LANE_WITHDRAWN`
   에서 멈춘다. 레인을 더 바꾸려면 Orca canary 와 `/ai-debate` 를 거친 별도 결정이나 Simon 의 명시 지시가 필요하다.
@@ -281,7 +281,7 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
 
 `gemini-4-argon` 은 2026-10-13 Gemini API GA 라 2026-10-18.1 레지스트리에 등록했지만 `routing.py` 레인은 없다. 그래서 계획에 넣으면 지금처럼 `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막힌다. 이유는 둘이다. Orca 의 antigravity 에이전트는 기동 때 모델을 고를 수 없고(D-28 #12), agy CLI 직행 실행기도 없다. 실행기를 만들더라도 다른 실행기처럼 코디네이터 인증서(모델 포함·남은 쿼터·초과 과금 OFF·API 폴백 OFF)가 있어야 돌고, Antigravity 초과 과금 여부는 아직 확인하지 못했다. 허브 토론 D-104 의 B 판정은 이 사실을 빠뜨린 근거로 나와, 사실을 넣어 다시 연 D-105(FINAL 4/4, A, 확신도 92)가 먼저 agy 인증서 경로를 확인하고 토론 좌석 사용을 최대 5건 계측한 뒤 실행기를 다시 보기로 정했다. 지금 Argon 이 실제로 쓰이는 곳은 ai-debate 의 Gemini 좌석(`gemini-4-argon-high`, ai-debate 0.2.8)이다. 2026-10-18 canary 두 건(화면 녹화 검토, 심어 둔 주장 10개 대조)은 통과했지만 둘 다 n=1 합성 표본이다.
 
-## Refresh record (2026-11-28, D-132)
+## Refresh record (2026-11-28, D-133)
 
 시각은 모두 KST 다. 모델 호출은 평가 18회(아래)뿐이고 전부 이 계정 agy 구독 사용량이다. Bot·유료 API 호출은 0회다.
 

@@ -1,4 +1,4 @@
-# D-132 · /vibe 2.30.0 · Gemini 4 Carbon이 Argon 자리를 맡는다
+# D-133 · /vibe 2.30.0 · Gemini 4 Carbon이 Argon 자리를 맡는다
 
 2026-11-28 KST · Simon 지시 "새 모델을 평가한 뒤에 스킬에 반영, 깃허브 반영, 이 컴퓨터 설치" · 허브 PROTOCOL 35.8 1단(측정 근거).
 
@@ -15,7 +15,7 @@
 
 ## 배정
 
-| 작업 | D-131 | D-132 |
+| 작업 | D-131 | D-133 |
 |---|---|---|
 | REASONING_ABSTRACT · CODE_REVIEW_FINAL | Argon high (rank 0) | Carbon high (rank 0) |
 | PLAN_ARCHITECTURE | Argon high (rank 1) | Carbon high (rank 1) |

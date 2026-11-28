@@ -131,7 +131,7 @@ requirement-specific test evidence (check stubs, invented facts and out-of-scope
 When selecting a model or changing rank, inspect X and AI 활용 갤러리 reports on the actual task. When ambiguous,
 follow applicable user experience and record disagreements and inaccessible sources within the prospective 24-hour window.
 
-<!-- TASK-RANKING:BEGIN generated from references/task-fit-policy.json sha256 3003e9472bfb by scripts/sync_task_ranking.py; edit the JSON, not this table -->
+<!-- TASK-RANKING:BEGIN generated from references/task-fit-policy.json sha256 ca43fe51d93d by scripts/sync_task_ranking.py; edit the JSON, not this table -->
 | Task type | Default order (first = rank 1) | Every ranked route blocked |
 | --- | --- | --- |
 | `PLAN_ARCHITECTURE` | `gpt-6.2-astra` @xhigh = `gemini-4-neon` = `claude-opus-5-5` → `gemini-4-carbon` → `claude-fable-5-2` | situational |
@@ -174,7 +174,7 @@ to `kind=image`, never text-model `VISION`. D-121 (Simon, 2026-10-24): it runs o
 the D-74 usage gate only (ChatGPT login, verified account, fresh `codex` usage under 85 percent, no reached limit).
 Run `python scripts/execute_codex_image.py --prompt-file <brief> --out <absolute .png>` (`--transparent` for alpha):
 one `codex exec`, PNG from the rollout, a receipt beside it, no retry. Exit 3 is a usage refusal; never switch to a
-paid image API; the D-32 `host-image` adapter stays optional. `KOREAN_PROSE` (D-126) is `kind=prose`: one Neon (fallback Carbon, D-132) `agy --print` under the same gate, then a required review step fact-checks it. See
+paid image API; the D-32 `host-image` adapter stays optional. `KOREAN_PROSE` (D-126) is `kind=prose`: one Neon (fallback Carbon, D-133) `agy --print` under the same gate, then a required review step fact-checks it. See
 [orchestration](references/orchestration.md).
 
 At invocation, use the [model-release watch](references/model-release-watch.md)

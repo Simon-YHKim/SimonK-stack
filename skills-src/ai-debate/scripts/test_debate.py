@@ -1054,7 +1054,7 @@ class DebateTests(unittest.TestCase):
         self.assertEqual(debate.agy_model("gemini-4-carbon-xhigh", "high"), ("gemini-4-carbon-high", "high"))
         with self.assertRaises(debate.DebateError):
             debate.agy_model("gemini-4-carbon-high", "--sandbox")
-        # D-105 moved the seat off gemini-3.1-pro; D-132 moves it off Argon, which leaves Antigravity on 2026-11-30.
+        # D-105 moved the seat off gemini-3.1-pro; D-133 moves it off Argon, which leaves Antigravity on 2026-11-30.
         self.assertEqual(debate.DEFAULTS["google"], ("gemini-4-carbon-high", None))
         self.new()
         self.setting("answer-google", r1_answer("GEM"))

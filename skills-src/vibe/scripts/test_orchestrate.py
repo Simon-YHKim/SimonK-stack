@@ -92,7 +92,7 @@ def codex_image_tool(**changes):
 
 
 def agy_prose_tool(**changes):
-    """Hub D-126/D-132: Gemini 4 Carbon prose drafting as runtime_collect.agy_prose_tool reports it."""
+    """Hub D-126/D-133: Gemini 4 Carbon prose drafting as runtime_collect.agy_prose_tool reports it."""
     evidence = ["fixture agy-usage-command /usage num_turns=0"]
     item = {
         "id": "antigravity:carbon-prose", "surface": "antigravity", "transport": "agy-prose",
@@ -1736,7 +1736,7 @@ class OrchestrationTests(unittest.TestCase):
         # Lane migration is a separate decision; registering a model must not open an Orca lane.
         # D-67 added claude-opus-5-5 and gpt-6.1-sol; Simon's 2026-10-05 instruction added the class A
         # lanes claude-sonnet-5-5 and gpt-6-luna. These remain without a lane. D-125 (2026-11-16) gave grok-4.7
-        # a lane; gpt-6.1-terra is registered without one. D-132 (2026-11-28) gave gemini-4-carbon an agy-only
+        # a lane; gpt-6.1-terra is registered without one. D-133 (2026-11-28) gave gemini-4-carbon an agy-only
         # ledger lane, which the Orca gate refuses like Neon's.
         for model in ("gpt-6-sol", "grok-4.5"):
             with self.subTest(model=model):

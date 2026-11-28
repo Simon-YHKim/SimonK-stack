@@ -642,7 +642,7 @@ def run():
         # 기동 불가 레인은 D-28 #12 로 gemini 레인뿐이다(D-125 부터 옛 gemini-3.8-flash 와 후속 gemini-4-hydrogen 둘)
         #   — 늘거나 줄면 표를 다시 본다
         unavail = [l for l, m in routing.LANES.items() if m.get("dispatch") == "unavailable"]
-        check("D-131/D-132 Gemini agy 전용 모델과 철회된 Terra는 Orca로 기동하지 않는다",
+        check("D-131/D-133 Gemini agy 전용 모델과 철회된 Terra는 Orca로 기동하지 않는다",
               set(unavail) == {"gemini-3.8-flash", "gemini-4-hydrogen", "gemini-4-neon", "gemini-4-argon", "gemini-4-carbon",
                                "gpt-6.1-terra"}, str(unavail))
 

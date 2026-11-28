@@ -1,6 +1,6 @@
-"""D-131/D-132 subscription-only, brief-in/text-out Antigravity lanes.
+"""D-131/D-133 subscription-only, brief-in/text-out Antigravity lanes.
 
-D-132 (2026-11-28): Antigravity removes Gemini 4 Argon on 2026-11-30, so Gemini 4 Carbon
+D-133 (2026-11-28): Antigravity removes Gemini 4 Argon on 2026-11-30, so Gemini 4 Carbon
 takes Argon's prose fallback and second-opinion roles.
 """
 import re

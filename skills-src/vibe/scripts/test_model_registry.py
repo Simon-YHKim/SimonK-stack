@@ -474,7 +474,7 @@ class ModelRegistryTests(unittest.TestCase):
         unlaned = {m["id"] for m in data["models"] if m["lifecycle"] == "active"} - routing_lanes()
         # Simon's 2026-10-05 instruction gave claude-sonnet-5-5 and gpt-6-luna class A lanes;
         # D-99 (2026-10-12) gave claude-haiku-5-5 one.
-        # D-125 (2026-11-16) gave grok-4.7, claude-fable-5-2 and gemini-4-hydrogen lanes; D-132 (2026-11-28)
+        # D-125 (2026-11-16) gave grok-4.7, claude-fable-5-2 and gemini-4-hydrogen lanes; D-133 (2026-11-28)
         # gave gemini-4-carbon one when it took over Argon's agy roles.
         self.assertTrue({"gpt-6-sol", "grok-4.5"} <= unlaned)
         self.assertFalse({"claude-sonnet-5-5", "gpt-6-luna", "claude-haiku-5-5", "grok-4.7",
@@ -590,7 +590,7 @@ class ModelRegistryTests(unittest.TestCase):
         # D-106 (same day, Simon: "sonnet5.5는 간단한 코딩에 써야 하는거 아니야? 복잡한 코딩은 opus5.5 xhigh가
         # 해야지.") corrects D-103: CODE_COMPLEX is Opus xhigh first, CODE_SIMPLE is Sonnet first.
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
-        # D-132 (2026-11-28): Argon leaves Antigravity on 11-30; Carbon takes its rows, the window end stays.
+        # D-133 (2026-11-28): Argon leaves Antigravity on 11-30; Carbon takes its rows, the window end stays.
         self.assertEqual(policy["version"], "2026-11-28-rank.1")
         self.assertEqual((policy["checked_at"], policy["valid_until"]),
                          ("2026-11-28T08:49:36+09:00", "2026-12-01T00:00:00+09:00"))
@@ -1117,7 +1117,7 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertEqual(models["claude-fable-5-2"]["pricing"]["output"], "40")
         self.assertEqual(lanes["gemini-4-hydrogen"]["orca_efforts"], ("low", "medium", "high", "xhigh"))
         self.assertEqual(models["gemini-4-hydrogen"]["api_efforts"], ["low", "medium", "high", "xhigh"])
-        # D-132 (2026-11-28): Carbon reached paid Pro in Antigravity and took Argon's agy roles. Its lane is a
+        # D-133 (2026-11-28): Carbon reached paid Pro in Antigravity and took Argon's agy roles. Its lane is a
         # ledger entry like Neon's: agy only, never dispatched through Orca.
         self.assertEqual((lanes["gemini-4-carbon"]["dispatch"], lanes["gemini-4-carbon"]["orca_efforts"]),
                          ("unavailable", ("low", "medium", "high")))

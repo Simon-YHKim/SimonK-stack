@@ -32,8 +32,8 @@ are relative to the `/vibe` skill root.
 | `gpt-6.2-sol` | codex | `xhigh` | `medium` | `low` · `medium` · `high` · `xhigh` | `--effort` | ✅ `--model`·`--effort` 가능 | D-131 · 구현·1차 리뷰 · Orca 실행 인증 대기 |
 | `gpt-6.1-terra` | codex | `xhigh` | `medium` | — **지정 불가** (그 CLI 기본값) | `--effort` | ⛔ **철회** (D-101) — 새 배정은 `LANE_WITHDRAWN` · 원장 호환용 키 | 원장 호환용(우선순위 밖) |
 | `gemini-4-neon` | antigravity | `xhigh` | `medium` | — **지정 불가** (그 CLI 기본값) | **슬러그 내장** | ❌ **Orca 워커 불가** (agent 미등록·과제 전달 실패 — CLI 직행만) | D-131 · agy 초안·설계 보조 |
-| `gemini-4-argon` | antigravity | `high` | `high` | — **지정 불가** (그 CLI 기본값) | **슬러그 내장** | ❌ **Orca 워커 불가** (agent 미등록·과제 전달 실패 — CLI 직행만) | D-132 · 2026-11-30 Antigravity 퇴장 · 원장 호환용(우선순위 밖) |
-| `gemini-4-carbon` | antigravity | `high` | `high` | — **지정 불가** (그 CLI 기본값) | **슬러그 내장** | ❌ **Orca 워커 불가** (agent 미등록·과제 전달 실패 — CLI 직행만) | D-132 · agy 추론 2차 의견·최종 리뷰·설계 보조 |
+| `gemini-4-argon` | antigravity | `high` | `high` | — **지정 불가** (그 CLI 기본값) | **슬러그 내장** | ❌ **Orca 워커 불가** (agent 미등록·과제 전달 실패 — CLI 직행만) | D-133 · 2026-11-30 Antigravity 퇴장 · 원장 호환용(우선순위 밖) |
+| `gemini-4-carbon` | antigravity | `high` | `high` | — **지정 불가** (그 CLI 기본값) | **슬러그 내장** | ❌ **Orca 워커 불가** (agent 미등록·과제 전달 실패 — CLI 직행만) | D-133 · agy 추론 2차 의견·최종 리뷰·설계 보조 |
 | `gpt-6-astra` | codex | `xhigh` | `xhigh` | `minimal` · `low` · `medium` · `high` · `xhigh` — 정책은 **`xhigh` 고정** (off-ladder 불가) | `--effort` | ⛔ **철회** (D-101) — 새 배정은 `LANE_WITHDRAWN` · 원장 호환용 키 | 원장 호환용(우선순위 밖) |
 | `gpt-6.1-sol` | codex | `xhigh` | `xhigh` | `minimal` · `low` · `medium` · `high` · `xhigh` — 정책은 **`xhigh` 고정** (off-ladder 불가) | `--effort` | ⛔ **철회** (D-101) — 새 배정은 `LANE_WITHDRAWN` · 원장 호환용 키 | D-130 research-deep·terminal-ci-git 공정 한정(그 밖은 철회) · 원장 호환용(우선순위 밖) · xhigh 고정 · Orca 상한 xhigh |
 | `gpt-5.6-sol` | codex | `ultra` | `high` | `minimal` · `low` · `medium` · `high` · `xhigh` · `max` · `ultra` | `--effort` | ⛔ **철회** (D-101) — 새 배정은 `LANE_WITHDRAWN` · 원장 호환용 키 | 272K(최대 872K) · D-101 철회 · 원장 호환용(우선순위 밖) |
@@ -64,7 +64,7 @@ are relative to the `/vibe` skill root.
 
 **D-131 (2026-11-24)**: D-130의 6.1 Sol 예외를 종료했다. GPT-6.2 Sol과 Astra는 독립 단계에서 병렬로 쓴다. 레거시 Orca 코딩 라운드의 고정 보안 게이트와 G1 독립성 검사는 계속 적용한다. Gemini 4 세 모델은 agy 경로를 쓴다.
 
-**D-132 (2026-11-28)**: Antigravity가 11월 30일 Gemini 4 Argon을 뺀다. Argon이 맡던 agy 추론 2차 의견·최종 리뷰·설계 보조는 Carbon high, 한국어 초안 대체는 Carbon medium으로 옮겼다.
+**D-133 (2026-11-28)**: Antigravity가 11월 30일 Gemini 4 Argon을 뺀다. Argon이 맡던 agy 추론 2차 의견·최종 리뷰·설계 보조는 Carbon high, 한국어 초안 대체는 Carbon medium으로 옮겼다.
 
 ### 공정 → 클래스 → 레인
 

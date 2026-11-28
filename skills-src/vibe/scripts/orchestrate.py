@@ -57,7 +57,7 @@ TASK_TYPE_MAP = {
     # Image output needs a dedicated tool transport; text-model vision cannot satisfy it.
     "IMAGE_GENERATION": {"kind": "image", "needs": ["image_generation"], "demand": "routine", "proc": "ui-visual", "class": "C-platform"},
     # Hub D-126: Korean notices, announcements, polishing and short copy. Drafted on
-    # Gemini 4 Neon (fallback Carbon, D-132) through a dedicated prose transport and fact-checked by a review step.
+    # Gemini 4 Neon (fallback Carbon, D-133) through a dedicated prose transport and fact-checked by a review step.
     # Korean reports and technical documents stay KOREAN_DOC on the LLM routes.
     "KOREAN_PROSE": {"kind": "prose", "needs": ["korean_writing"], "demand": "routine", "proc": "research-deep", "class": "B"},
 }
@@ -146,7 +146,7 @@ INCLUDED_USAGE_CEILING_PCT = 85
 CODEX_IMAGE_TRANSPORT = "codex-image"
 CODEX_IMAGE_TOOL_REF = "image_gen"
 # Hub D-126 (Simon 2026-11-16, D-107 inside /vibe): Korean prose drafts run on Gemini 4
-# Neon, falling back to Carbon (D-132; Argon leaves Antigravity on 2026-11-30), through
+# Neon, falling back to Carbon (D-133; Argon leaves Antigravity on 2026-11-30), through
 # `agy --print` (execute_agy_prose.py) under the same D-74 usage gate.
 AGY_PROSE_TRANSPORT = "agy-prose"
 AGY_PROSE_MODEL = agy_lanes.PROSE_MODELS[0]
@@ -1555,7 +1555,7 @@ def agy_bucket_bound(tool):
 
 
 def assess_agy_prose_tool(tool, step, now):
-    """D-131/D-132: exact Neon/Carbon drafts under the D-74 usage gate.
+    """D-131/D-133: exact Neon/Carbon drafts under the D-74 usage gate.
 
     agy exposes tier quota but no account ID or credit settings; the profile stands in for
     the account. The runner (execute_agy_prose.py) repeats this check right before sending.

@@ -416,7 +416,7 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertIsNone(self.m.agy_prose_tool(obs)["quota"]["used_pct"])
 
     def test_agy_prose_tool_uses_the_family_bucket_and_the_usage_gate_fields(self):
-        # D-126: Pro plans reported a separate family bucket (Argon then, Carbon since D-132); it is the usage.
+        # D-126: Pro plans reported a separate family bucket (Argon then, Carbon since D-133); it is the usage.
         tool = self.m.agy_prose_tool(self.parse("antigravity", self.agy_prose_raw(family=0.95, gemini=0.2)), "gemini-4-carbon-medium")
         self.assertEqual(tool["id"], "agy:gemini-4-carbon-medium")
         self.assertEqual((tool["surface"], tool["transport"], tool["tool_ref"]),
@@ -561,7 +561,7 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertEqual(run.call_args.args[0], ["fixture", "--version"])
 
     def test_agy_measured_zero_turn_usage_versions_are_metadata_only(self):
-        # 1.5.9 measured 2026-11-16 (hub D-126), 1.5.18 on 2026-11-28 (D-132): /usage returns
+        # 1.5.9 measured 2026-11-16 (hub D-126), 1.5.18 on 2026-11-28 (D-133): /usage returns
         # num_turns 0 and zero tokens.
         for version in ("1.2.12", "1.2.13", "1.2.14", "1.5.9", "1.5.15", "1.5.18"):
             with self.subTest(version=version), \
